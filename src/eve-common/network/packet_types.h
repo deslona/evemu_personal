@@ -340,7 +340,7 @@ FROM invTypes t, invGroups g, invCategories c
 WHERE g.groupID = t.groupID AND c.categoryID = g.categoryID AND c.categoryID = 16
 ORDER BY t.typeID, g.groupName, t.typeName
 */
-typedef enum {
+typedef enum {      // started sorting the 437 skills for this def....~/Desktop/eve_skill_ids
        skillGunnery = 3300,
        skillSmallHybridTurret = 3301,
        skillSpaceshipCommand = 3327,
@@ -400,7 +400,7 @@ typedef enum {    //chrStandingChanges.eventTypeID
 } EVEStandingEventTypeID;
 
 
-enum:uint64 {
+enum {
     ROLE_CL                    = 549755813888LL,
     ROLE_CR                    = 1099511627776LL,
     ROLE_CM                    = 2199023255552LL,
@@ -458,7 +458,7 @@ enum {
     corpRoleLocationTypeBase = 2LL,
     corpRoleLocationTypeOther = 3LL,
 };
-typedef enum:uint64 {
+typedef enum {
     corpRoleDirector 		= 1LL,
     corpRolePersonnelManager 	= 128LL,
     corpRoleAccountant 		= 256LL,
@@ -507,7 +507,7 @@ typedef enum:uint64 {
     corpRoleStarbaseCaretaker 	= 288230376151711744LL,
     corpRoleFittingManager 	= 576460752303423488LL,
     corpRoleInfrastructureTacticalOfficer = 144115188075855872LL,
-    
+
     //Some Combos
     corpRoleAllHangar		= (corpRoleHangarCanTake1|corpRoleHangarCanTake2|corpRoleHangarCanTake3|corpRoleHangarCanTake4|corpRoleHangarCanTake5|corpRoleHangarCanTake6|corpRoleHangarCanTake7|corpRoleHangarCanQuery1|corpRoleHangarCanQuery2|corpRoleHangarCanQuery3|corpRoleHangarCanQuery4|corpRoleHangarCanQuery5|corpRoleHangarCanQuery6|corpRoleHangarCanQuery7),
     corpRoleAllAccount 		= (corpRoleJuniorAccountant|corpRoleAccountCanTake1|corpRoleAccountCanTake2|corpRoleAccountCanTake3|corpRoleAccountCanTake4|corpRoleAccountCanTake5|corpRoleAccountCanTake6|corpRoleAccountCanTake7),
@@ -762,7 +762,7 @@ def IsJunkLocation(locationID):
 
 */
 
-// This is the 
+// This is the
 #define EVEMU_MINIMUM_ID 140000000
 
 #define IsAgent(itemID) \

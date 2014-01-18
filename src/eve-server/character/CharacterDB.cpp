@@ -126,13 +126,13 @@ PyRep *CharacterDB::GetCharacterList(uint32 accountID) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        " characterID,"
-        " itemName AS characterName,"
-        " deletePrepareDateTime,"
-        " gender,"
-        " typeID"
+        "  characterID,"
+        "  itemName AS characterName,"
+        "  deletePrepareDateTime,"
+        "  gender,"
+        "  typeID"
         " FROM character_ "
-        "    LEFT JOIN entity ON characterID = itemID"
+        "  LEFT JOIN entity ON characterID = itemID"
         " WHERE accountID=%u", accountID))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
@@ -189,28 +189,56 @@ PyRep *CharacterDB::GetCharSelectInfo(uint32 characterID) {
     uint32 unprocessedNotifications = 0;
     uint32 daysLeft = 14;
     uint32 userType = 23;
-    uint64 skillQueueEndTime = ( Win32TimeNow() + (5*Win32Time_Hour) + (25*Win32Time_Minute) );
     uint64 allianceMemberStartDate = Win32TimeNow() - 15*Win32Time_Day;
     uint64 startDate = Win32TimeNow() - 24*Win32Time_Day;
 
     if(!sDatabase.RunQuery(res,
-        "SELECT "
-        " itemName AS shortName,bloodlineID,gender,bounty,character_.corporationID,allianceID,title,startDateTime,createDateTime,"
-        " securityRating,character_.balance, 0 As aurBalance,character_.stationID,solarSystemID,constellationID,regionID,"
-        " petitionMessage,logonMinutes,tickerName, %u AS worldSpaceID, '%s' AS shipName, %u AS shipTypeID, %u AS unreadMailCount,"
-        " %u AS upcomingEventCount, %u AS unprocessedNotifications, %u AS daysLeft, %u AS userType, 0 AS paperDollState, 0 AS newPaperdollState,"
-        " 0 AS oldPaperdollState, skillPoints, %" PRIu64 " AS skillQueueEndTime, %" PRIu64 " AS allianceMemberStartDate, %" PRIu64 " AS startDate,"
-        " 0 AS locationSecurity"
+        "SELECT " // fixed DB query -allan 01/09/14
+        "  entity.itemName AS shortName, "
+        "  bloodlineTypes.bloodlineID, "
+        "  character_.gender, "
+        "  character_.bounty, "
+        "  character_.corporationID, "
+        "  corporation.allianceID, "
+        "  character_.title, "
+        "  character_.startDateTime, "
+        "  character_.createDateTime, "
+        "  character_.securityRating, "
+        "  character_.balance, "
+        "  character_.aurBalance, "
+        "  character_.stationID, "
+        "  character_.solarSystemID, "
+        "  character_.constellationID, "
+        "  character_.regionID, "
+        "  character_.petitionMessage, "
+        "  character_.logonMinutes, "
+        "  corporation.tickerName, "
+        "  %u AS worldSpaceID, "
+        "  '%s' AS shipName, "
+        "  %u AS shipTypeID, "
+        "  %u AS unreadMailCount,"
+        "  %u AS upcomingEventCount, "
+        "  %u AS unprocessedNotifications, "
+        "  %u AS daysLeft, "
+        "  %u AS userType, "
+        "  0 AS paperDollState, "
+        "  0 AS newPaperdollState,"
+        "  0 AS oldPaperdollState, "
+        "  skillPoints, "
+        "  skillQueueEndTime, "
+        "  %" PRIu64 " AS allianceMemberStartDate, "
+        "  %" PRIu64 " AS startDate, "
+        "  0 AS locationSecurity "
         " FROM character_ "
-        "    LEFT JOIN entity ON characterID = itemID"
-        "    LEFT JOIN corporation USING (corporationID)"
-        "    LEFT JOIN bloodlineTypes USING (typeID)"
-        " WHERE characterID=%u", worldSpaceID, shipName.c_str(), shipTypeID, unreadMailCount, upcomingEventCount, unprocessedNotifications, daysLeft, userType, skillQueueEndTime, allianceMemberStartDate, startDate, characterID))
+        "    LEFT JOIN entity ON entity.itemID = character_.characterID "
+        "    LEFT JOIN chrSkillQueueTime USING (characterID) "
+        "    LEFT JOIN corporation USING (corporationID) "
+        "    LEFT JOIN bloodlineTypes USING (typeID) "
+        " WHERE characterID=%u", worldSpaceID, shipName.c_str(), shipTypeID, unreadMailCount, upcomingEventCount, unprocessedNotifications, daysLeft, userType, allianceMemberStartDate, startDate, characterID))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
-
     return DBResultToCRowset(res);
 }
 
@@ -218,24 +246,24 @@ PyObject *CharacterDB::GetCharPublicInfo(uint32 characterID) {
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
-        "SELECT "
-        " entity.typeID,"
-        " character_.corporationID,"
-        " chrBloodlines.raceID,"
-        " bloodlineTypes.bloodlineID,"
-        " character_.ancestryID,"
-        " character_.careerID,"
-        " character_.schoolID,"
-        " character_.careerSpecialityID,"
-        " entity.itemName AS characterName,"
-        " 0 as age,"    //hack
-        " character_.createDateTime,"
-        " character_.gender,"
-        " character_.characterID,"
-        " character_.description,"
-        " character_.corporationDateTime"
+        "SELECT "       // fixed DB Query   -allan 01/11/14
+        "  entity.typeID,"
+        "  entity.itemName AS characterName,"
+        "  character_.corporationID,"
+        "  chrBloodlines.raceID,"
+        "  bloodlineTypes.bloodlineID,"
+        "  character_.ancestryID,"
+        "  character_.careerID,"
+        "  character_.schoolID,"
+        "  character_.careerSpecialityID,"
+        "  character_.age,"
+        "  character_.createDateTime,"
+        "  character_.gender,"
+        "  character_.characterID,"
+        "  character_.description,"
+        "  character_.corporationDateTime"
         " FROM character_ "
-        "    LEFT JOIN entity ON characterID = itemID"
+        "    LEFT JOIN entity ON entity.itemID = character_.characterID "
         "    LEFT JOIN bloodlineTypes USING (typeID)"
         "    LEFT JOIN chrBloodlines USING (bloodlineID)"
         " WHERE characterID=%u", characterID))
@@ -260,7 +288,7 @@ void CharacterDB::GetCharacterData(uint32 characterID, std::map<std::string, uin
     DBResultRow row;
 
     if(!sDatabase.RunQuery(res,
-        "SELECT "
+        "SELECT "       // fixed DB Query   -allan 01/11/14
         "  character_.corporationID, "
         "  character_.stationID, "
         "  character_.solarSystemID, "
@@ -275,8 +303,8 @@ void CharacterDB::GetCharacterData(uint32 characterID, std::map<std::string, uin
         "  character_.shipID, "
         "  entity.locationID "
         " FROM character_ "
-        "  LEFT JOIN corporation USING (corporationID) "
-        "  LEFT JOIN entity ON entity.itemID = character_.characterID "
+        "    LEFT JOIN corporation USING (corporationID) "
+        "    LEFT JOIN entity ON entity.itemID = character_.characterID "
         " WHERE characterID = %u",
         characterID))
     {
@@ -313,11 +341,11 @@ PyObject *CharacterDB::GetCharPublicInfo3(uint32 characterID) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT "
-        " character_.bounty,"
-        " character_.title,"
-        " character_.startDateTime,"
-        " character_.description,"
-        " character_.corporationID"
+        "  character_.bounty,"
+        "  character_.title,"
+        "  character_.startDateTime,"
+        "  character_.description,"
+        "  character_.corporationID"
         " FROM character_"
         " WHERE characterID=%u", characterID))
     {
@@ -359,7 +387,7 @@ bool CharacterDB::GetCharClones(uint32 characterID, std::vector<uint32> &into) {
         "  itemID"
         " FROM entity"
         " WHERE ownerID = %u"
-        " and flag='400'",
+        "   and flag='400'",
         characterID))
     {
         _log(DATABASE__ERROR, "Failed to query clones of char %u: %s.", characterID, res.error.c_str());
@@ -383,8 +411,8 @@ bool CharacterDB::GetActiveClone(uint32 characterID, uint32 &itemID) {
         "  itemID"
         " FROM entity"
         " WHERE ownerID = %u"
-        " and flag='400'"
-        " and customInfo='active'",
+        "   and flag='400'"
+        "   and customInfo='active'",
         characterID))
     {
         _log(DATABASE__ERROR, "Failed to query active clone of char %u: %s.", characterID, res.error.c_str());
@@ -409,8 +437,8 @@ bool CharacterDB::GetActiveCloneType(uint32 characterID, uint32 &typeID) {
         "  typeID"
         " FROM entity"
         " WHERE ownerID = %u"
-        " and flag='400'"
-        " and customInfo='active'",
+        "   and flag='400'"
+        "   and customInfo='active'",
         characterID))
     {
         _log(DATABASE__ERROR, "Failed to query active clone of char %u: %s.", characterID, res.error.c_str());
@@ -443,7 +471,7 @@ bool CharacterDB::GetCharHomeStation(uint32 characterID, uint32 &stationID) {
 		_log(DATABASE__ERROR, "Could't get the location of the clone for char %u", characterID );
 		return false;
 	}
-    
+
 	DBResultRow row;
     res.GetRow(row);
     stationID = row.GetUInt(0);
@@ -455,7 +483,7 @@ bool CharacterDB::GetAttributesFromAncestry(uint32 ancestryID, uint8 &intelligen
 
     if (!sDatabase.RunQuery(res,
         " SELECT "
-        "        intelligence, charisma, perception, memory, willpower "
+        "  intelligence, charisma, perception, memory, willpower "
         " FROM chrAncestries "
         " WHERE ancestryID = %u ", ancestryID))
     {
@@ -482,9 +510,9 @@ bool CharacterDB::GetCareerBySchool(uint32 schoolID, uint32 &careerID) {
     DBQueryResult res;
     if (!sDatabase.RunQuery(res,
      "SELECT "
-     " careerID, "
-     " schoolID, "
-     " raceID "
+     "  careerID, "
+     "  schoolID, "
+     "  raceID "
      " FROM careers"
      " WHERE schoolID = %u", schoolID))
     {
@@ -532,7 +560,7 @@ bool CharacterDB::GetCorporationBySchool(uint32 schoolID, uint32 &corporationID)
 bool CharacterDB::GetLocationCorporationByCareer(CharacterData &cdata) {
     DBQueryResult res;
     if (!sDatabase.RunQuery(res,
-     "SELECT "
+     "SELECT "      // fixed DB Query   -allan 01/02/14
      "  chrSchools.corporationID, "
      "  chrSchools.schoolID, "
      "  corporation.allianceID, "
@@ -541,9 +569,9 @@ bool CharacterDB::GetLocationCorporationByCareer(CharacterData &cdata) {
      "  staStations.constellationID, "
      "  staStations.regionID "
      " FROM staStations"
-     "  LEFT JOIN corporation ON corporation.stationID=staStations.stationID"
-     "  LEFT JOIN chrSchools ON corporation.corporationID=chrSchools.corporationID"
-     "  LEFT JOIN careers ON chrSchools.schoolID=careers.schoolID"
+     "    LEFT JOIN corporation ON corporation.stationID=staStations.stationID"
+     "    LEFT JOIN chrSchools ON corporation.corporationID=chrSchools.corporationID"
+     "    LEFT JOIN careers ON chrSchools.schoolID=careers.schoolID"
      " WHERE careers.careerID = %u", cdata.careerID))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
@@ -640,12 +668,12 @@ bool CharacterDB::DoesCorporationExist(uint32 corpID) {
 }
 
 void CharacterDB::SetAvatar(uint32 charID, PyRep* hairDarkness) {
-	//populate the DB wiht avatar information
+	//populate the DB with avatar information
 	DBerror err;
 	if(!sDatabase.RunQuery(err,
 		"INSERT INTO avatars ("
-		"charID, hairDarkness)"
-		"VALUES (%u, %f)", 
+		"  charID, hairDarkness)"
+		" VALUES (%u, %f)",
 		charID, hairDarkness->AsFloat()->value()))
 	{
 		codelog(SERVICE__ERROR, "Error in query: %s", err.c_str());
@@ -657,8 +685,8 @@ void CharacterDB::SetAvatarColors(uint32 charID, uint32 colorID, uint32 colorNam
 	DBerror err;
 	if(!sDatabase.RunQuery(err,
 		"INSERT INTO avatar_colors ("
-		"charID, colorID, colorNameA, colorNameBC, weight, gloss)"
-		"VALUES (%u, %u, %u, %u, %f, %f)", 
+		"  charID, colorID, colorNameA, colorNameBC, weight, gloss)"
+		" VALUES (%u, %u, %u, %u, %f, %f)",
 		charID, colorID, colorNameA, colorNameBC, weight, gloss))
 	{
 		codelog(SERVICE__ERROR, "Error in query: %s", err.c_str());
@@ -670,11 +698,11 @@ void CharacterDB::SetAvatarModifiers(uint32 charID, PyRep* modifierLocationID,  
 	DBerror err;
 	if(!sDatabase.RunQuery(err,
 		"INSERT INTO avatar_modifiers ("
-		"charID, modifierLocationID, paperdollResourceID, paperdollResourceVariation)"
-		"VALUES (%u, %u, %u, %u)", 
-		charID, 
-		modifierLocationID->AsInt()->value(), 
-		paperdollResourceID->AsInt()->value(), 
+		"  charID, modifierLocationID, paperdollResourceID, paperdollResourceVariation)"
+		" VALUES (%u, %u, %u, %u)",
+		charID,
+		modifierLocationID->AsInt()->value(),
+		paperdollResourceID->AsInt()->value(),
 		paperdollResourceVariation->IsInt() ? paperdollResourceVariation->AsInt()->value() : NULL ))
 	{
 		codelog(SERVICE__ERROR, "Error in query: %s", err.c_str());
@@ -686,12 +714,12 @@ void CharacterDB::SetAvatarSculpts(uint32 charID, PyRep* sculptLocationID, PyRep
 	DBerror err;
 	if(!sDatabase.RunQuery(err,
 		"INSERT INTO avatar_sculpts ("
-		"charID, sculptLocationID, weightUpDown, weightLeftRight, weightForwardBack)"
-		"VALUES (%u, %u, %f, %f, %f)", 
-		charID, 
-		sculptLocationID->AsInt()->value(), 
-		weightUpDown->IsFloat() ? weightUpDown->AsFloat()->value() : NULL, 
-		weightLeftRight->IsFloat() ? weightLeftRight->AsFloat()->value() : NULL, 
+		"  charID, sculptLocationID, weightUpDown, weightLeftRight, weightForwardBack)"
+		" VALUES (%u, %u, %f, %f, %f)",
+		charID,
+		sculptLocationID->AsInt()->value(),
+		weightUpDown->IsFloat() ? weightUpDown->AsFloat()->value() : NULL,
+		weightLeftRight->IsFloat() ? weightLeftRight->AsFloat()->value() : NULL,
 		weightForwardBack->IsFloat() ? weightForwardBack->AsFloat()->value() : NULL))
 	{
 		codelog(SERVICE__ERROR, "Error in query: %s", err.c_str());
@@ -703,7 +731,7 @@ bool CharacterDB::GetSkillsByRace(uint32 raceID, std::map<uint32, uint32> &into)
 
     if (!sDatabase.RunQuery(res,
         "SELECT "
-        "        skillTypeID, levels"
+        "  skillTypeID, levels"
         " FROM raceSkills "
         " WHERE raceID = %u ", raceID))
     {
@@ -730,7 +758,7 @@ bool CharacterDB::GetSkillsByCareer(uint32 careerID, std::map<uint32, uint32> &i
 
     if (!sDatabase.RunQuery(res,
         "SELECT "
-        "        skillTypeID, levels"
+        "  skillTypeID, levels"
         " FROM careerSkills"
         " WHERE careerID = %u", careerID))
     {
@@ -757,7 +785,7 @@ bool CharacterDB::GetSkillsByCareerSpeciality(uint32 careerSpecialityID, std::ma
 
     if (!sDatabase.RunQuery(res,
         "SELECT "
-        "        skillTypeID, levels"
+        "  skillTypeID, levels"
         " FROM specialitySkills"
         " WHERE specialityID = %u", careerSpecialityID))
     {
@@ -817,8 +845,8 @@ bool CharacterDB::SetNote(uint32 ownerID, uint32 itemID, const char *str) {
         sDatabase.DoEscapeString(escaped, str);
 
         if (!sDatabase.RunQuery(err,
-            "REPLACE INTO `chrNotes` (itemID, ownerID, note)    "
-            "VALUES (%u, %u, '%s')",
+            "REPLACE INTO `chrNotes` (itemID, ownerID, note)"
+            " VALUES (%u, %u, '%s')",
             ownerID, itemID, escaped.c_str())
             )
         {
@@ -908,7 +936,7 @@ void CharacterDB::load_name_validation_set()
     DBQueryResult res;
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        " characterID, itemName AS characterName"
+        "  characterID, itemName AS characterName"
         " FROM character_"
         "    JOIN entity ON characterID = itemID"
         ))

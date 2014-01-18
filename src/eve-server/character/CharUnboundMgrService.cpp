@@ -279,7 +279,7 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
 
     cdata.bounty = 0;
     cdata.balance = sConfig.character.startBalance;
-    cdata.aurBalance = 0; // TODO Add aurBalance to the databas
+    cdata.aurBalance = sConfig.character.startAurBalance; // Added aurBalance    -allan 01/07/14
     cdata.securityRating = sConfig.character.startSecRating;
     cdata.logonMinutes = 0;
     cdata.title = "No Title";
@@ -309,18 +309,10 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
         return NULL;
     }
 
-	//this builds appearance data from strdict --- no longer relevant with the next gen stuff
-    //capp.Build(arg.appearance);
+	//this builds appearance data from strdict
 	capp.Build(char_item->itemID(), arg.avatarInfo);
 
     // add attribute bonuses
-    // (use Set_##_persist to properly persist attributes into DB)
-    /*char_item->Set_intelligence_persist(intelligence);
-    char_item->Set_charisma_persist(charisma);
-    char_item->Set_perception_persist(perception);
-    char_item->Set_memory_persist(memory);
-    char_item->Set_willpower_persist(willpower);*/
-
     char_item->SetAttribute(AttrIntelligence, intelligence);
     char_item->SetAttribute(AttrCharisma, charisma);
     char_item->SetAttribute(AttrPerception, perception);
@@ -345,19 +337,12 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
             continue;
         }
 
-        //_log(CLIENT__MESSAGE, "Training skill %u to level %d (%d points)", i->typeID(), i->skillLevel(), i->skillPoints());
-        //i->Set_skillLevel( cur->second );
         skillLevel = cur->second;
         i->SetAttribute(AttrSkillLevel, skillLevel );
-        //i->Set_skillPoints( i->GetSPForLevel( cur->second ) );
-        skillPoints = i->GetSPForLevel( EvilNumber((uint64)cur->second) );
-        skillPoints.to_float();
-        //if( !(skillPoints.to_int()) )
-        //    sLog.Error( "CharacterService::Handle_CreateCharacter2()", "skillPoints.to_int() failed, resulting in a floating point value larger than a 64-bit signed integer... o.O !!" );
-        i->SetAttribute(AttrSkillPoints, skillPoints );
-		//i->ForceAttributesChanged();
-		//i->ForceDefaultAttributesChanged();
+        skillPoints = i->GetSPForLevel( skillLevel );
+        i->SetAttribute(AttrSkillPoints, skillPoints.get_float() );
         i->SaveAttributes();
+        _log(CLIENT__MESSAGE, "Training skill %u to level %d (%d points)", i->typeID(), skillLevel, skillPoints.get_float());
     }
 
     //now set up some initial inventory:
@@ -370,8 +355,8 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
     if( !initInvItem )
         codelog(CLIENT__ERROR, "%s: Failed to spawn a starting item", char_item->itemName().c_str());
 
-    // add 1 unit of "Tritanium"
-    ItemData itemTritanium( 34, char_item->itemID(), char_item->locationID(), flagHangar, 1 );
+    // add 1000 units of "Tritanium"    -allan 01/10/14
+    ItemData itemTritanium( 34, char_item->itemID(), char_item->locationID(), flagHangar, 1000 );
     initInvItem = m_manager->item_factory.SpawnItem( itemTritanium );
 
     // add 1 unit of "Clone Grade Alpha"

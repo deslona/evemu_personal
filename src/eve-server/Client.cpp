@@ -956,8 +956,8 @@ void Client::SendNotification(const PyAddress &dest, EVENotificationStream &noti
         p->named_payload = new PyDict();
         p->named_payload->SetItemString("sn", new PyInt(m_nextNotifySequence++));
     }
-
-    sLog.Log("Client","Sending notify of type %s with ID type %s", dest.service.c_str(), dest.bcast_idtype.c_str());
+        //  changed log back to debug   -allan 01/11/14
+    sLog.Debug("Client","Sending notify of type %s with ID type %s", dest.service.c_str(), dest.bcast_idtype.c_str());
     if(is_log_enabled(CLIENT__NOTIFY_REP))
     {
         PyLogDumpVisitor dumper(CLIENT__NOTIFY_REP, CLIENT__NOTIFY_REP, "", true, true);
@@ -1754,8 +1754,8 @@ bool Client::Handle_CallReq( PyPacket* packet, PyCallStream& req )
     if( req.method == "BeanCount" )
         sLog.Error("Client","BeanCount");
     else
-        //this should be sLog.Debug, but because of the number of messages, I left it as .Log for readability, and ease of finding other debug messages
-        sLog.Log("Server", "%s call made to %s",req.method.c_str(),packet->dest.service.c_str());
+        //  changed log back to debug   -allan 01/11/14
+        sLog.Debug("Server", "%s call made to %s",req.method.c_str(),packet->dest.service.c_str());
 
     //build arguments
     PyCallArgs args( this, req.arg_tuple, req.arg_dict );

@@ -455,22 +455,22 @@ PyRep *ConfigDB::GetCelestialStatistic(uint32 celestialID) {
 
 PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID) {
 
-    sLog.Error("ConfigDB::GetDynamicCelestials", "This query is intentionally made to yield an empty result.  It must be re-worked to provide actual data!");
+    sLog.Warning("ConfigDB::GetDynamicCelestials", "This query is intentionally made to yield an empty result.  It must be re-worked to provide actual data!");
 
     const std::string query = " SELECT "
-                              "     `itemID`, "
-                              "     `entity`.`typeID`, "
-                              "     `invTypes`.`groupID`, "
-                              "     `itemName`, "
+                              "     e.itemID, "
+                              "     e.typeID, "
+                              "     t.groupID, "
+                              "     e.itemName, "
                               "     0, " // This field refers to the orbitID of the dynamic celestial and needs to be implemented
                               "     0, " // This field refers to the boolean value of isConnector.  It may signify some sort of mission jump bridge
-                              "     `x`, "
-                              "     `y`, "
-                              "     `z` "
-                              " FROM `entity` JOIN `invTypes` ON `entity`.`typeID` = `invTypes`.`typeID`"
-                              " WHERE "
-                              "     `locationID` = %u AND " // In the future, the locationID field needs to be constrained to being a solarSystemID
-                              "     `groupID` = -1"; // This is set to -1 because we do not know what the ID(s) of dynamic celestials is/are.
+                              "     e.x, "
+                              "     e.y, "
+                              "     e.z "
+                              " FROM entityStatic AS e LEFT JOIN invTypes AS t USING (typeID)"
+                              " WHERE e.locationID = %u";
+                              /*AND " // In the future, the locationID field needs to be constrained to being a solarSystemID
+                              "     `groupID` = -1"; // This is set to -1 because we do not know what the ID(s) of dynamic celestials is/are. */
 
     DBQueryResult result;
     DBResultRow currentRow;

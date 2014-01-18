@@ -91,15 +91,19 @@ PyResult BookmarkService::Handle_BookmarkLocation(PyCallArgs &call)
     GPoint point;
 
     ////////////////////////////////////////
-    // Verify expected packet structure:
+    // Verify expected packet structure:            updated 18Jan14   -allan
     //
     // call.tuple
     //       |
     //       |--> [0] PyInt:      itemID for bookmark location (itemID from entity table, stargateID from mapjumps table, etc)
-    //       |--> [1] PyWString:  label for the bookmark
-    //       \--> [2] PyWString:  text for the "note" field in the bookmark (NOTE: this type will be PyString when it equals "")
+    //       |--> [1] PyInt:
+    //       |--> [2] PyWString:  label for the bookmark
+    //       \--> [3] PyString:  text for the "note" field in the bookmark
+    //
+    /**  02:38:34 L BookmarkService::Handle_BookmarkLocation(): size= 4, 0 = 12800186, 1 = Integer, 2 = WString, 3 = String */
     ////////////////////////////////////////
 
+      sLog.Log( "BookmarkService::Handle_BookmarkLocation()", "size= %u, 0 = %u, 1 = %s, 2 = %s, 3 = %s", call.tuple->size(), call.tuple->GetItem(0)->TypeString(), call.tuple->GetItem(1)->TypeString(), call.tuple->GetItem(2)->TypeString(), call.tuple->GetItem(3)->TypeString()  );
     if ( (call.tuple->size() < 3) )
     {
         sLog.Error( "BookmarkService::Handle_BookmarkLocation()", "%s: call.tuple is of size %u, expected 3.", call.client->GetName(), call.tuple->size() );
@@ -112,31 +116,31 @@ PyResult BookmarkService::Handle_BookmarkLocation(PyCallArgs &call)
         return NULL;
     }
 
-    if ( !(call.tuple->GetItem(0)->IsInt()) )
+    if ( !(call.tuple->GetItem(1)->IsInt()) )
     {
-        sLog.Error( "BookmarkService::Handle_BookmarkLocation()", "%s: call.tuple->GetItem(0) is of the wrong type: '%s'.  Expected PyInt type.", call.client->GetName(), call.tuple->GetItem(0)->TypeString() );
+        sLog.Error( "BookmarkService::Handle_BookmarkLocation()", "%s: call.tuple->GetItem(0) is of the wrong type: '%s'.  Expected PyInt type.", call.client->GetName(), call.tuple->GetItem(1)->TypeString() );
         return NULL;
     }
     else
-        itemID = call.tuple->GetItem( 0 )->AsInt()->value();
-
-    if ( call.tuple->GetItem( 1 )->IsString() )
-        label = call.tuple->GetItem( 1 )->AsString()->content();
-    else if ( call.tuple->GetItem( 1 )->IsWString() )
-        label = call.tuple->GetItem( 1 )->AsWString()->content();
-    else
-    {
-        sLog.Error( "BookmarkService::Handle_BookmarkLocation()", "%s: call.tuple->GetItem(1) is of the wrong type: '%s'.  Expected PyString or PyWString type.", call.client->GetName(), call.tuple->GetItem(2)->TypeString() );
-        return NULL;
-    }
+        itemID = call.tuple->GetItem( 1 )->AsInt()->value();
 
     if ( call.tuple->GetItem( 2 )->IsString() )
-        note = call.tuple->GetItem( 2 )->AsString()->content();
+        label = call.tuple->GetItem( 2 )->AsString()->content();
     else if ( call.tuple->GetItem( 2 )->IsWString() )
-        note = call.tuple->GetItem( 2 )->AsWString()->content();
+        label = call.tuple->GetItem( 2 )->AsWString()->content();
     else
     {
-        sLog.Error( "BookmarkService::Handle_BookmarkLocation()", "%s: call.tuple->GetItem(2) is of the wrong type: '%s'.  Expected PyString or PyWString type.", call.client->GetName(), call.tuple->GetItem(3)->TypeString() );
+        sLog.Error( "BookmarkService::Handle_BookmarkLocation()", "%s: call.tuple->GetItem(2) is of the wrong type: '%s'.  Expected PyString or PyWString type.", call.client->GetName(), call.tuple->GetItem(2)->TypeString() );
+        return NULL;
+    }
+
+    if ( call.tuple->GetItem( 3 )->IsString() )
+        note = call.tuple->GetItem( 3 )->AsString()->content();
+    else if ( call.tuple->GetItem( 3 )->IsWString() )
+        note = call.tuple->GetItem( 3 )->AsWString()->content();
+    else
+    {
+        sLog.Error( "BookmarkService::Handle_BookmarkLocation()", "%s: call.tuple->GetItem(2) is of the wrong type: '%s'.  Expected PyString or PyWString type.", call.client->GetName(), call.tuple->GetItem(2)->TypeString() );
         return NULL;
     }
 

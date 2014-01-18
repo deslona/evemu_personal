@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 from elementtree import ElementTree
 
@@ -47,9 +48,9 @@ def print_usage():
 #==================================================================================================
 def mysql_update_invTypes_basePrice(mysql_db, mysql_cursor, typeID, avg_sell_price, verbose):
     # Create mysql query to update basePrice of supplied typeID with the supplied avg_sell_price:
-    
+
     # NOTE: basePrice field is 1000 times actual price!
-    
+
     query_string = "UPDATE `invTypes` SET `basePrice` = " + str(avg_sell_price) + " WHERE `typeID` = " + str(typeID)
 
     if (verbose == 1):
@@ -59,14 +60,14 @@ def mysql_update_invTypes_basePrice(mysql_db, mysql_cursor, typeID, avg_sell_pri
         mysql_cursor.execute(query_string)
 
         results = mysql_cursor.fetchall()
-    
+
         if (verbose == 1):
             print "RESP = \"", results, "\""
 
         mysql_db.commit()
     except:
         mysql_db.rollback()
-        
+
     return results
 #==================================================================================================
 
@@ -101,7 +102,7 @@ def eve_central_query_market_data(regionID,option):
 
     return ""
 #==================================================================================================
-        
+
 
 #==================================================================================================
 #==================================================================================================
@@ -160,7 +161,7 @@ print "<mysql_db_name> = ", mysql_db_name
 print "option = ", option
 print ""
 #sys.exit(0)
-    
+
 # MySQLDB: Connect to the MySQL Database
 db = MySQLdb.connect(
         host = mysql_server_IP,
@@ -231,9 +232,10 @@ for row in results:
 
 # Unit test typeID information collection:
 #print typeID_List
-#print len(typeID_List)
+print "typeID_List length = ", len(typeID_List)
 #print typeName_List
-#print len(typeName_List)
+print "typeName_List length = ", len(typeName_List)
+print "\n"
 
 typeID_Progress = 0
 typeID_List_length = len(typeID_List)
@@ -246,7 +248,7 @@ for region in range(0,regionID_List_length):
     regionProgress = 100.0 * ((1.0*region)/regionID_List_length)
 
     # Inner Loop - Loop through entire list of typeIDs
-    for index in range(0,range(1,typeID_List_length-1)
+    for index in range(1,typeID_List_length-1):
         typeID = typeID_List[index]
         typeID_Progress = 100.0 * ((1.0*index)/typeID_List_length)
 
@@ -257,7 +259,7 @@ for region in range(0,regionID_List_length):
             print "Response from eve-central:"
             print contents
             print "END RESPONSE"
-        
+
         if (contents[0:5] == "<?xml"):
             # Parse the XML response from EVE-Central
             # See usage here for ElementTree:  http://effbot.org/zone/element-index.htm
@@ -294,25 +296,25 @@ for region in range(0,regionID_List_length):
                                     #create mysql query to update table data
                                     mysql_update_invTypes_basePrice(db, cursor, typeID, avg_sell_price, verbose)
                                     print "[%.2f" % typeID_Progress, "%] ", "typeID", int(typeID), "[", typeName_List[index], "]  BASE PRICE UPDATED: ", avg_sell_price, "ISK"
-                                
+
                                 if (option == options[1]):
                                     print "OPTION '", options[1], "' not supported at this time!"
-                                
+
                                 if (option == options[2]):
                                     print "OPTION '", options[2], "' not supported at this time!"
-                                
+
                                 if (option == options[3]):
                                     print "OPTION '", options[3], "' not supported at this time!"
-                                
+
                                 if (option == options[4]):
                                     print "OPTION '", options[4], "' not supported at this time!"
-                                
+
                                 if (option == options[5]):
                                     print "OPTION '", options[5], "' not supported at this time!"
-                                
+
                                 if (option == options[6]):
                                     print "OPTION '", options[6], "' not supported at this time!"
-                            
+
                     #print "typeID=", int(d.attrib.get("id")), ": AVG_SELL =", avg_sell_price, " AVG_BUY =", avg_buy_price
         else:
             print "[%.2f" % typeID_Progress, "%] ", "typeID", int(typeID), "[", typeName_List[index], "]  NO DATA... SKIPPING..."

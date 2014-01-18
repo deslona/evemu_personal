@@ -128,17 +128,23 @@ PyObject *ServiceDB::GetSolRow(uint32 systemID) const
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
-        //not sure if this is gunna be valid all the time...
         "SELECT "
-        "    itemID,entity.typeID,ownerID,locationID,flag,contraband,singleton,quantity,"
-        "    invGroups.groupID, invGroups.categoryID,"
-        "    customInfo"
-        " FROM entity "
-        "    LEFT JOIN invTypes ON entity.typeID=invTypes.typeID"
-        "    LEFT JOIN invGroups ON invTypes.groupID=invGroups.groupID"
-        " WHERE entity.itemID=%u",
-        systemID
-    ))
+        " e.itemID,"
+        " e.typeID,"
+        " e.ownerID,"
+        " e.locationID,"
+        " e.flag,"
+        " e.contraband,"
+        " e.singleton,"
+        " e.quantity,"
+        " g.groupID,"
+        " g.categoryID,"
+        " e.customInfo"
+        " FROM entityStatic AS e"
+        "  LEFT JOIN invTypes AS t ON t.typeID = e.typeID"
+        "  LEFT JOIN invGroups AS g ON g.groupID = t.groupID"
+        " WHERE e.itemID=%u",
+        systemID ))
     {
         _log(SERVICE__ERROR, "Error in GetSolRow query: %s", res.error.c_str());
         return(0);
@@ -273,14 +279,14 @@ bool ServiceDB::GetStationInfo(uint32 stationID, uint32 *systemID, uint32 *const
     DBQueryResult res;
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        " solarSystemID,"
-        " constellationID,"
-        " regionID,"
-        " x, y, z,"
-        " dockEntryX, dockEntryY, dockEntryZ,"
-        " dockOrientationX, dockOrientationY, dockOrientationZ"
-        " FROM staStations"
-        " LEFT JOIN staStationTypes USING (stationTypeID)"
+        " s.solarSystemID,"
+        " s.constellationID,"
+        " s.regionID,"
+        " s.x, s.y, s.z,"
+        " st.dockEntryX, st.dockEntryY, st.dockEntryZ,"
+        " st.dockOrientationX, st.dockOrientationY, st.dockOrientationZ"
+        " FROM staStations AS s"
+        " LEFT JOIN staStationTypes AS st USING (stationTypeID)"
         " WHERE stationID = %u",
         stationID))
     {

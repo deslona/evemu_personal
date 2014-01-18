@@ -384,7 +384,7 @@ void LSCDB::GetChannelNames(uint32 charID, std::vector<std::string> & names) {
         "    mapConstellations.constellationName, "
         "    mapRegions.regionName "
         " FROM character_ "
-        "    LEFT JOIN entity ON character_.characterID = entity.itemID "
+        "    LEFT JOIN entity ON entity.itemID = character_.characterID "
         "    LEFT JOIN corporation ON character_.corporationID = corporation.corporationID "
         "    LEFT JOIN mapSolarSystems ON character_.solarSystemID = mapSolarSystems.solarSystemID "
         "    LEFT JOIN mapConstellations ON character_.constellationID = mapConstellations.constellationID "

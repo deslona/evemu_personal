@@ -38,10 +38,12 @@ EVEServerConfig::EVEServerConfig()
     // Set sane defaults
 
     // rates
-    rates.skillRate = 1.0;
+    rates.skillRate = 1.0;          //  only used if > 1 in config
     rates.npcBountyMultiply = 1.0;
     rates.secRate = 1.0;
     rates.corporationStartupCost = 1599800;
+    rates.MaxSPforBonus = 0;      // SPperMin*2 stops at 1.6M SP...removed in Incursion.  this is for testing
+                                  //  set to 0 for GetSPperMin check in Character.cpp.  only used if defined in config.
 
     // account
     account.autoAccountRole = 0;
@@ -49,6 +51,7 @@ EVEServerConfig::EVEServerConfig()
 
     // character
     character.startBalance = 6666000000.0f;
+    character.startAurBalance = 60000.0f;
     character.startStation = 0;
     character.startSecRating = 0.0;
     character.startCorporation = 0;
@@ -102,10 +105,11 @@ bool EVEServerConfig::ProcessEveServer( const TiXmlElement* ele )
 
 bool EVEServerConfig::ProcessRates( const TiXmlElement* ele )
 {
-    AddValueParser( "skillRate", rates.skillRate );
+    AddValueParser( "skillRate", rates.skillRate );     // implemented into GetSPperMin -allan 01/11/14
     AddValueParser( "secRate", rates.secRate );
     AddValueParser( "npcBountyMultiply", rates.npcBountyMultiply );
     AddValueParser( "corporationStartupCost", rates.corporationStartupCost );
+    AddValueParser( "MaxSPforBonus", rates.MaxSPforBonus );   // added config entry instead of hard-coded  -allan 01/11/14
 
     const bool result = ParseElementChildren( ele );
 
@@ -113,6 +117,7 @@ bool EVEServerConfig::ProcessRates( const TiXmlElement* ele )
     RemoveParser( "secRate" );
     RemoveParser( "npcBountyMultiply" );
     RemoveParser( "corporationStartupCost" );
+    RemoveParser( "MaxSPforBonus" );
 
     return result;
 }
@@ -133,6 +138,7 @@ bool EVEServerConfig::ProcessAccount( const TiXmlElement* ele )
 bool EVEServerConfig::ProcessCharacter( const TiXmlElement* ele )
 {
     AddValueParser( "startBalance", character.startBalance );
+    AddValueParser( "startAurBalance", character.startAurBalance );  // added config entry and implemented  -allan 01/10/14
     AddValueParser( "startStation", character.startStation );
     AddValueParser( "startSecRating", character.startSecRating );
     AddValueParser( "startCorporation", character.startCorporation );
@@ -141,6 +147,7 @@ bool EVEServerConfig::ProcessCharacter( const TiXmlElement* ele )
     const bool result = ParseElementChildren( ele );
 
     RemoveParser( "startBalance" );
+    RemoveParser( "startAurBalance" );
     RemoveParser( "startStation" );
     RemoveParser( "startSecRating" );
     RemoveParser( "startCorporation" );

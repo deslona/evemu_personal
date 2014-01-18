@@ -41,7 +41,7 @@ public:
      */
     EVEServerConfig();
 
-    /// From <rates/>
+    // From <rates/>
     struct
     {
         /// Rate at which skills train compared to normal speed
@@ -50,11 +50,13 @@ public:
         float secRate;
         /// Modifier for npc bounties automatically awarded for shooting down npc enemies.
         float npcBountyMultiply;
-	/// Startup Cost to create a corporation.
-	double corporationStartupCost;
+        /// Startup Cost to create a corporation.
+        double corporationStartupCost;
+        /// SP ceiling for double SP/Min    -allan 01/11/14
+        double MaxSPforBonus;
     } rates;
 
-    /// From <account/>
+    // From <account/>
     struct
     {
         /// Role to assign to auto created account; set to 0 to disable auto account creation.
@@ -63,11 +65,13 @@ public:
         std::string loginMessage;
     } account;
 
-    /// From <character/>
+    // From <character/>
     struct
     {
         /// Money balance of new created characters.
         double startBalance;
+        /// Aura balance of new created characters.   -allan 01/10/14
+        double startAurBalance;
         /// Starting station ID for new characters
         uint32 startStation;
         /// Starting security rating for new characters.

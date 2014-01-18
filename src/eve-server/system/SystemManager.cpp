@@ -233,8 +233,10 @@ public:
                     ShipEntity * shipObj = new ShipEntity( ship, &system, *(system.GetServiceMgr()), location );
                     return shipObj;
                 }
-                else
+                /*
+                else            //  we dont need an error stating a player and their ship is in space.
                     sLog.Error("DynamicEntityFactory::BuildEntity()", "We do not want to create ShipEntity objects for ANY ships owned by players, only those left in space owned by no one." );
+                */
             } break;
             case EVEDB::invCategories::Deployable: {        // Deployable structures of all kinds!  Warp disruptor bubbles.
                 location.x = entity.x;
@@ -477,7 +479,7 @@ public:
                         entity.itemName.c_str(),
                         location
                     );
-					
+
                     InventoryItemRef npcRef = system.GetServiceMgr()->item_factory.GetItem( entity.itemID );
                     if( !npcRef )
                         throw PyException( MakeCustomError( "Unable to spawn item #%u:'%s' of type %u.", entity.itemID, entity.itemName.c_str(), entity.typeID ) );
@@ -627,7 +629,7 @@ bool SystemManager::BootSystem() {
         _log(SERVICE__ERROR, "Unable to do initial spawns during boot of system %u.", m_systemID);
         return false;
     }
-    
+
 
     return true;
 }
@@ -772,9 +774,10 @@ SystemEntity *SystemManager::get(uint32 entityID) const {
 /* maybe this is the reason why warping sucks... */
 //in m/s
 double SystemManager::GetWarpSpeed() const {
-    //right now, warp speed is hard coded to 3 AU/s
+    //right now, warp speed is hard coded to 6 AU/s
     _log(COMMON__WARNING, "SystemManager::GetWarpSpeed is hard coded to 3 AU right now!");
-    return(3.0f * ONE_AU_IN_METERS);
+    return(6.0f * ONE_AU_IN_METERS);
+    //  will need to get ship warp speed from db
 }
 
 void SystemManager::MakeSetState(const SystemBubble *bubble, DoDestiny_SetState &ss) const

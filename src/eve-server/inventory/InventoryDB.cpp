@@ -37,10 +37,10 @@ bool InventoryDB::GetCategory(EVEItemCategories category, CategoryData &into) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        " categoryName,"
-        " description,"
-        " published"
-        " FROM invCategories"
+        "  categoryName,"
+        "  description,"
+        "  published "
+        " FROM invCategories "
         " WHERE categoryID=%u",
         uint32(category)))
     {
@@ -66,17 +66,17 @@ bool InventoryDB::GetGroup(uint32 groupID, GroupData &into) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        " categoryID,"
-        " groupName,"
-        " description,"
-        " useBasePrice,"
-        " allowManufacture,"
-        " allowRecycler,"
-        " anchored,"
-        " anchorable,"
-        " fittableNonSingleton,"
-        " published"
-        " FROM invGroups"
+        "  categoryID,"
+        "  groupName,"
+        "  description,"
+        "  useBasePrice,"
+        "  allowManufacture,"
+        "  allowRecycler,"
+        "  anchored,"
+        "  anchorable,"
+        "  fittableNonSingleton,"
+        "  published "
+        " FROM invGroups "
         " WHERE groupID=%u",
         groupID))
     {
@@ -109,20 +109,20 @@ bool InventoryDB::GetType(uint32 typeID, TypeData &into) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        " groupID,"
-        " typeName,"
-        " description,"
-        " radius,"
-        " mass,"
-        " volume,"
-        " capacity,"
-        " portionSize,"
-        " raceID,"
-        " basePrice,"
-        " published,"
-        " marketGroupID,"
-        " chanceOfDuplicating"
-        " FROM invTypes"
+        "  groupID,"
+        "  typeName,"
+        "  description,"
+        "  radius,"
+        "  mass,"
+        "  volume,"
+        "  capacity,"
+        "  portionSize,"
+        "  raceID,"
+        "  basePrice,"
+        "  published,"
+        "  marketGroupID,"
+        "  chanceOfDuplicating "
+        " FROM invTypes "
         " WHERE typeID=%u",
         typeID))
     {
@@ -158,8 +158,8 @@ bool InventoryDB::GetTypeEffectsList(uint32 typeID, std::vector<uint32> &into) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        " effectID"
-        " FROM dgmTypeEffects"
+        "  effectID "
+        " FROM dgmTypeEffects "
         " WHERE typeID=%u",
         typeID))
     {
@@ -174,7 +174,7 @@ bool InventoryDB::GetTypeEffectsList(uint32 typeID, std::vector<uint32> &into) {
 		into.push_back( row.GetUInt(0) );
 
     if( into.size() == 0 ) {
-        _log(ITEM__DEBUG, "No type effects found for type %u.", typeID);
+         _log(ITEM__DEBUG, "No type effects found for type %u.", typeID);
         return false;
     }
 
@@ -186,19 +186,19 @@ bool InventoryDB::GetBlueprintType(uint32 blueprintTypeID, BlueprintTypeData &in
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        " parentBlueprintTypeID,"
-        " productTypeID,"
-        " productionTime,"
-        " techLevel,"
-        " researchProductivityTime,"
-        " researchMaterialTime,"
-        " researchCopyTime,"
-        " researchTechTime,"
-        " productivityModifier,"
-        " materialModifier,"
-        " wasteFactor / 100,"   // we have it in db as percentage ...
-        " maxProductionLimit"
-        " FROM invBlueprintTypes"
+        "  parentBlueprintTypeID,"
+        "  productTypeID,"
+        "  productionTime,"
+        "  techLevel,"
+        "  researchProductivityTime,"
+        "  researchMaterialTime,"
+        "  researchCopyTime,"
+        "  researchTechTime,"
+        "  productivityModifier,"
+        "  materialModifier,"
+        "  wasteFactor / 100,"   // we have it in db as percentage ...
+        "  maxProductionLimit "
+        " FROM invBlueprintTypes "
         " WHERE blueprintTypeID=%u",
         blueprintTypeID))
     {
@@ -247,8 +247,8 @@ bool InventoryDB::GetCharacterType(uint32 bloodlineID, CharacterTypeData &into) 
         "  intelligence,"
         "  shortDescription,"
         "  shortMaleDescription,"
-        "  shortFemaleDescription"
-        " FROM chrBloodlines"
+        "  shortFemaleDescription "
+        " FROM chrBloodlines "
         " WHERE bloodlineID = %u",
         bloodlineID))
     {
@@ -286,7 +286,7 @@ bool InventoryDB::GetCharacterTypeByBloodline(uint32 bloodlineID, uint32 &charac
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        "  typeID"
+        "  typeID "
         " FROM bloodlineTypes"
         " WHERE bloodlineID = %u",
         bloodlineID))
@@ -348,7 +348,7 @@ bool InventoryDB::GetShipType(uint32 shipTypeID, ShipTypeData &into) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        " weaponTypeID, miningTypeID, skillTypeID"
+        "   weaponTypeID, miningTypeID, skillTypeID"
         " FROM shipTypes"
         " WHERE shipTypeID = %u",
         shipTypeID))
@@ -375,10 +375,10 @@ bool InventoryDB::GetStationType(uint32 stationTypeID, StationTypeData &into) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        " 0 as dockingBayGraphicID, 0 as hangarGraphicID,"
-        " dockEntryX, dockEntryY, dockEntryZ,"
-        " dockOrientationX, dockOrientationY, dockOrientationZ,"
-        " operationID, officeSlots, reprocessingEfficiency, conquerable"
+        "  0 as dockingBayGraphicID, 0 as hangarGraphicID,"
+        "  dockEntryX, dockEntryY, dockEntryZ,"
+        "  dockOrientationX, dockOrientationY, dockOrientationZ,"
+        "  operationID, officeSlots, reprocessingEfficiency, conquerable"
         " FROM staStationTypes"
         " WHERE stationTypeID = %u",
         stationTypeID))
@@ -415,8 +415,8 @@ bool InventoryDB::GetItem(uint32 itemID, ItemData &into) {
         //region
         if(!sDatabase.RunQuery(res,
             "SELECT"
-            " regionName, 3 AS typeID, factionID, 1 AS locationID, 0 AS flag, 0 AS contraband,"
-            " 1 AS singleton, 1 AS quantity, x, y, z, '' AS customInfo"
+            "  regionName, 3 AS typeID, factionID, 1 AS locationID, 0 AS flag, 0 AS contraband,"
+            "  1 AS singleton, 1 AS quantity, x, y, z, '' AS customInfo"
             " FROM mapRegions"
             " WHERE regionID=%u", itemID))
         {
@@ -427,8 +427,8 @@ bool InventoryDB::GetItem(uint32 itemID, ItemData &into) {
         //contellation
         if(!sDatabase.RunQuery(res,
             "SELECT"
-            " constellationName, 4 AS typeID, factionID, regionID, 0 AS flag, 0 AS contraband,"
-            " 1 AS singleton, 1 AS quantity, x, y, z, '' AS customInfo"
+            "  constellationName, 4 AS typeID, factionID, regionID, 0 AS flag, 0 AS contraband,"
+            "  1 AS singleton, 1 AS quantity, x, y, z, '' AS customInfo"
             " FROM mapConstellations"
             " WHERE constellationID=%u", itemID))
         {
@@ -439,8 +439,8 @@ bool InventoryDB::GetItem(uint32 itemID, ItemData &into) {
         //solar system
         if(!sDatabase.RunQuery(res,
             "SELECT"
-            " solarSystemName, 5 AS typeID, factionID, constellationID, 0 AS flag, 0 AS contraband,"
-            " 1 AS singleton, 1 AS quantity, x, y, z, '' AS customInfo"
+            "  solarSystemName, 5 AS typeID, factionID, constellationID, 0 AS flag, 0 AS contraband,"
+            "  1 AS singleton, 1 AS quantity, x, y, z, '' AS customInfo"
             " FROM mapSolarSystems"
             " WHERE solarSystemID=%u", itemID))
         {
@@ -451,8 +451,8 @@ bool InventoryDB::GetItem(uint32 itemID, ItemData &into) {
         //use mapDenormalize
         if(!sDatabase.RunQuery(res,
             "SELECT"
-            " itemName, typeID, 1 AS ownerID, solarSystemID, 0 AS flag, 0 AS contraband,"
-            " 1 AS singleton, 1 AS quantity, x, y, z, '' AS customInfo"
+            "  itemName, typeID, 1 AS ownerID, solarSystemID, 0 AS flag, 0 AS contraband,"
+            "  1 AS singleton, 1 AS quantity, x, y, z, '' AS customInfo"
             " FROM mapDenormalize"
             " WHERE itemID=%u", itemID))
         {
@@ -463,8 +463,8 @@ bool InventoryDB::GetItem(uint32 itemID, ItemData &into) {
         //use mapDenormalize LEFT-JOIN-ing mapSolarSystems to get factionID
         if(!sDatabase.RunQuery(res,
             "SELECT"
-            " itemName, typeID, factionID, solarSystemID, 0 AS flag, 0 AS contraband,"
-            " 1 AS singleton, 1 AS quantity, mapDenormalize.x, mapDenormalize.y, mapDenormalize.z, '' AS customInfo"
+            "  itemName, typeID, factionID, solarSystemID, 0 AS flag, 0 AS contraband,"
+            "  1 AS singleton, 1 AS quantity, mapDenormalize.x, mapDenormalize.y, mapDenormalize.z, '' AS customInfo"
             " FROM mapDenormalize"
             " LEFT JOIN mapSolarSystems USING (solarSystemID)"
             " WHERE itemID=%u", itemID))
@@ -476,8 +476,8 @@ bool InventoryDB::GetItem(uint32 itemID, ItemData &into) {
         //station
         if(!sDatabase.RunQuery(res,
             "SELECT"
-            " stationName, stationTypeID, corporationID, solarSystemID, 0 AS flag, 0 AS contraband,"
-            " 1 AS singleton, 1 AS quantity, x, y, z, '' AS customInfo"
+            "  stationName, stationTypeID, corporationID, solarSystemID, 0 AS flag, 0 AS contraband,"
+            "  1 AS singleton, 1 AS quantity, x, y, z, '' AS customInfo"
             " FROM staStations"
             " WHERE stationID=%u", itemID))
         {
@@ -488,8 +488,8 @@ bool InventoryDB::GetItem(uint32 itemID, ItemData &into) {
         //fallback to entity
         if(!sDatabase.RunQuery(res,
             "SELECT"
-            " itemName, typeID, ownerID, locationID, flag, contraband,"
-            " singleton, quantity, x, y, z, customInfo"
+            "  itemName, typeID, ownerID, locationID, flag, contraband,"
+            "  singleton, quantity, x, y, z, customInfo"
             " FROM entity WHERE itemID=%u", itemID))
         {
             codelog(SERVICE__ERROR, "Error in query for item %u: %s", itemID, res.error.c_str());
@@ -567,16 +567,16 @@ bool InventoryDB::SaveItem(uint32 itemID, const ItemData &data) {
     if(!sDatabase.RunQuery(err,
         "UPDATE entity"
         " SET"
-        " itemName = '%s',"
-        " typeID = %u,"
-        " ownerID = %u,"
-        " locationID = %u,"
-        " flag = %u,"
-        " contraband = %u,"
-        " singleton = %u,"
-        " quantity = %u,"
-        " x = %f, y = %f, z = %f,"
-        " customInfo = '%s'"
+        "  itemName = '%s',"
+        "  typeID = %u,"
+        "  ownerID = %u,"
+        "  locationID = %u,"
+        "  flag = %u,"
+        "  contraband = %u,"
+        "  singleton = %u,"
+        "  quantity = %u,"
+        "  x = %f, y = %f, z = %f,"
+        "  customInfo = '%s'"
         " WHERE itemID = %u",
         nameEsc.c_str(),
         data.typeID,
@@ -632,7 +632,7 @@ bool InventoryDB::GetItemContents(uint32 itemID, std::vector<uint32> &into)
 
     if( !sDatabase.RunQuery( res,
         "SELECT "
-        " itemID"
+        "  itemID"
         " FROM entity "
         " WHERE locationID = %u",
         itemID ) )
@@ -653,7 +653,7 @@ bool InventoryDB::GetItemContents(uint32 itemID, EVEItemFlags flag, std::vector<
 
     if( !sDatabase.RunQuery( res,
         "SELECT "
-        " itemID"
+        "  itemID"
         " FROM entity "
         " WHERE locationID=%u"
         "  AND flag=%d",
@@ -676,7 +676,7 @@ bool InventoryDB::GetItemContents(uint32 itemID, EVEItemFlags flag, uint32 owner
 
     if( !sDatabase.RunQuery( res,
         "SELECT "
-        " itemID"
+        "  itemID"
         " FROM entity "
         " WHERE locationID=%u"
         "  AND flag=%d"
@@ -700,9 +700,9 @@ bool InventoryDB::LoadTypeAttributes(uint32 typeID, EVEAttributeMgr &into) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        " attributeID,"
-        " valueInt,"
-        " valueFloat"
+        "  attributeID,"
+        "  valueInt,"
+        "  valueFloat"
         " FROM dgmTypeAttributes"
         " WHERE typeID=%u",
         typeID))
@@ -756,9 +756,9 @@ bool InventoryDB::LoadItemAttributes(uint32 itemID, EVEAttributeMgr &into) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        " attributeID,"
-        " valueInt,"
-        " valueFloat"
+        "  attributeID,"
+        "  valueInt,"
+        "  valueFloat"
         " FROM entity_attributes"
         " WHERE itemID=%u",
         itemID))
@@ -836,8 +836,7 @@ bool InventoryDB::EraseAttribute(uint32 itemID, uint32 attributeID) {
 bool InventoryDB::EraseAttributes(uint32 itemID) {
     DBerror err;
     if(!sDatabase.RunQuery(err,
-        "DELETE"
-        " FROM entity_attributes"
+        "DELETE FROM entity_attributes"
         " WHERE itemID=%u",
         itemID))
     {
@@ -852,10 +851,10 @@ bool InventoryDB::GetBlueprint(uint32 blueprintID, BlueprintData &into) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        " copy,"
-        " materialLevel,"
-        " productivityLevel,"
-        " licensedProductionRunsRemaining"
+        "  copy,"
+        "  materialLevel,"
+        "  productivityLevel,"
+        "  licensedProductionRunsRemaining"
         " FROM invBlueprints"
         " WHERE blueprintID=%u",
         blueprintID))
@@ -884,9 +883,9 @@ bool InventoryDB::NewBlueprint(uint32 blueprintID, const BlueprintData &data) {
     if(!sDatabase.RunQuery(err,
         "INSERT"
         " INTO invBlueprints"
-        " (blueprintID, copy, materialLevel, productivityLevel, licensedProductionRunsRemaining)"
+        "  (blueprintID, copy, materialLevel, productivityLevel, licensedProductionRunsRemaining)"
         " VALUES"
-        " (%u, %u, %u, %u, %d)",
+        "  (%u, %u, %u, %u, %d)",
         blueprintID, data.copy, data.materialLevel, data.productivityLevel, data.licensedProductionRunsRemaining))
     {
         _log(DATABASE__ERROR, "Unable to create new blueprint entry for blueprint %u: %s.", blueprintID, err.c_str());
@@ -902,10 +901,10 @@ bool InventoryDB::SaveBlueprint(uint32 blueprintID, const BlueprintData &data) {
     if(!sDatabase.RunQuery(err,
         "UPDATE invBlueprints"
         " SET"
-        " copy = %u,"
-        " materialLevel = %u,"
-        " productivityLevel = %u,"
-        " licensedProductionRunsRemaining = %d"
+        "  copy = %u,"
+        "  materialLevel = %u,"
+        "  productivityLevel = %u,"
+        "  licensedProductionRunsRemaining = %d"
         " WHERE blueprintID = %u",
         uint32(data.copy),
         data.materialLevel,
@@ -923,8 +922,7 @@ bool InventoryDB::DeleteBlueprint(uint32 blueprintID) {
     DBerror err;
 
     if(!sDatabase.RunQuery(err,
-        "DELETE"
-        " FROM invBlueprints"
+        "DELETE FROM invBlueprints"
         " WHERE blueprintID=%u",
         blueprintID))
     {
@@ -939,31 +937,31 @@ bool InventoryDB::GetCharacter(uint32 characterID, CharacterData &into) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        "  chr.accountID,"
-        "  chr.title,"
-        "  chr.description,"
-        "  chr.gender,"
-        "  chr.bounty,"
-        "  chr.balance,"
-        "  chr.aurBalance,"
-        "  chr.securityRating,"
-        "  chr.logonMinutes,"
-        "  chr.corporationID,"
-        "  crp.allianceID,"
-        "  chr.stationID,"
-        "  chr.solarSystemID,"
-        "  chr.constellationID,"
-        "  chr.regionID,"
-        "  chr.ancestryID,"
-        "  chr.careerID,"
-        "  chr.schoolID,"
-        "  chr.careerSpecialityID,"
-        "  chr.startDateTime,"
-        "  chr.createDateTime,"
-        "  chr.corporationDateTime,"
-        "  chr.shipID"
+        "   chr.accountID,"
+        "   chr.title,"
+        "   chr.description,"
+        "   chr.gender,"
+        "   chr.bounty,"
+        "   chr.balance,"
+        "   chr.aurBalance,"
+        "   chr.securityRating,"
+        "   chr.logonMinutes,"
+        "   chr.corporationID,"
+        "   crp.allianceID,"
+        "   chr.stationID,"
+        "   chr.solarSystemID,"
+        "   chr.constellationID,"
+        "   chr.regionID,"
+        "   chr.ancestryID,"
+        "   chr.careerID,"
+        "   chr.schoolID,"
+        "   chr.careerSpecialityID,"
+        "   chr.startDateTime,"
+        "   chr.createDateTime,"
+        "   chr.corporationDateTime,"
+        "   chr.shipID"
         " FROM character_ AS chr"
-        " LEFT JOIN corporation AS crp USING (corporationID)"
+        "  LEFT JOIN corporation AS crp USING (corporationID)"
         " WHERE characterID = %u",
         characterID))
     {
@@ -1095,20 +1093,20 @@ bool InventoryDB::NewCharacter(uint32 characterID, const CharacterData &data, co
     if(!sDatabase.RunQuery(err,
         "INSERT INTO character_"
         // CharacterData:
-        "  (characterID, accountID, title, description, bounty, balance, securityRating, petitionMessage,"
+        "  (characterID, accountID, title, description, bounty, balance, aurBalance, securityRating, petitionMessage,"
         "   logonMinutes, corporationID, corpRole, rolesAtAll, rolesAtBase, rolesAtHQ, rolesAtOther,"
         "   corporationDateTime, startDateTime, createDateTime,"
         "   ancestryID, careerID, schoolID, careerSpecialityID, gender,"
         "   stationID, solarSystemID, constellationID, regionID, freeRespecs, lastRespecDateTime, nextRespecDateTime)"
         " VALUES"
         // CharacterData:
-        "  (%u, %u, '%s', '%s', %f, %f, %f, '%s',"
+        "  (%u, %u, '%s', '%s', %f, %f, %f, %f, '%s',"
         "   %u, %u, %" PRIu64 ", %" PRIu64 ", %" PRIu64 ", %" PRIu64 ", %" PRIu64 ", "
         "   %" PRIu64 ", %" PRIu64 ", %" PRIu64 ","
         "   %u, %u, %u, %u, %u,"
         "   %u, %u, %u, %u, %u, %u, %u)",
         // CharacterData:
-        characterID, data.accountID, titleEsc.c_str(), descriptionEsc.c_str(), data.bounty, data.balance, data.securityRating, "No petition",
+        characterID, data.accountID, titleEsc.c_str(), descriptionEsc.c_str(), data.bounty, data.balance, data.aurBalance, data.securityRating, "No petition",
         data.logonMinutes, data.corporationID, corpData.corpRole, corpData.rolesAtAll, corpData.rolesAtBase, corpData.rolesAtHQ, corpData.rolesAtOther,
         data.corporationDateTime, data.startDateTime, data.createDateTime,
         data.ancestryID, data.careerID, data.schoolID, data.careerSpecialityID, data.gender,
@@ -1395,7 +1393,7 @@ bool InventoryDB::GetCelestialObject(uint32 celestialID, CelestialObjectData &in
         // This Celestial object is a static celestial, so get its data from the 'mapDenormalize' table:
         if(!sDatabase.RunQuery(res,
             "SELECT"
-            " security, radius, celestialIndex, orbitIndex"
+            "  security, radius, celestialIndex, orbitIndex"
             " FROM mapDenormalize"
             " WHERE itemID = %u",
             celestialID))
@@ -1422,8 +1420,8 @@ bool InventoryDB::GetCelestialObject(uint32 celestialID, CelestialObjectData &in
         // and if it's not there either, then flag an error.
         if(!sDatabase.RunQuery(res,
             "SELECT"
-            " entity.itemID, "
-            " invTypes.radius "
+            "  entity.itemID, "
+            "  invTypes.radius "
             " FROM entity "
             "  LEFT JOIN invTypes ON entity.typeID = invTypes.typeID"
             " WHERE entity.itemID = %u",
@@ -1454,11 +1452,11 @@ bool InventoryDB::GetSolarSystem(uint32 solarSystemID, SolarSystemData &into) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        " xMin, yMin, zMin,"
-        " xMax, yMax, zMax,"
-        " luminosity,"
-        " border, fringe, corridor, hub, international, regional, constellation,"
-        " security, factionID, radius, sunTypeID, securityClass"
+        "  xMin, yMin, zMin,"
+        "  xMax, yMax, zMax,"
+        "  luminosity,"
+        "  border, fringe, corridor, hub, international, regional, constellation,"
+        "  security, factionID, radius, sunTypeID, securityClass"
         " FROM mapSolarSystems"
         " WHERE solarSystemID=%u", solarSystemID))
     {
@@ -1498,8 +1496,8 @@ bool InventoryDB::GetStation(uint32 stationID, StationData &into) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        " security, dockingCostPerVolume, maxShipVolumeDockable, officeRentalCost, operationID,"
-        " reprocessingEfficiency, reprocessingStationsTake, reprocessingHangarFlag"
+        "  security, dockingCostPerVolume, maxShipVolumeDockable, officeRentalCost, operationID,"
+        "  reprocessingEfficiency, reprocessingStationsTake, reprocessingHangarFlag"
         " FROM staStations"
         " WHERE stationID = %u",
         stationID))
@@ -1532,7 +1530,7 @@ bool InventoryDB::LoadSkillQueue(uint32 characterID, SkillQueue &into) {
 
     if( !sDatabase.RunQuery( res,
         "SELECT"
-        " typeID, level"
+        "  typeID, level"
         " FROM chrSkillQueue"
         " WHERE characterID = %u"
         " ORDER BY orderIndex ASC",
@@ -1561,9 +1559,9 @@ bool InventoryDB::LoadCertificates( uint32 characterID, Certificates &into )
 
     if( !sDatabase.RunQuery( res,
          "SELECT"
-          " certificateID,"
-         " grantDate,"
-         " visibilityFlags"
+         "  certificateID,"
+         "  grantDate,"
+         "  visibilityFlags"
          " FROM chrCertificates"
          " WHERE characterID=%u",
          characterID ))
@@ -1592,8 +1590,7 @@ bool InventoryDB::SaveCertificates( uint32 characterID, const Certificates &from
     DBerror err;
 
     if( !sDatabase.RunQuery( err,
-         "DELETE"
-         " FROM chrCertificates"
+         "DELETE FROM chrCertificates"
          " WHERE characterID = %u",
          characterID ))
     {
@@ -1633,10 +1630,10 @@ bool InventoryDB::SaveCertificates( uint32 characterID, const Certificates &from
 
 bool InventoryDB::SaveSkillQueue(uint32 characterID, const SkillQueue &queue) {
     DBerror err;
+    DBerror err2;
 
     if( !sDatabase.RunQuery( err,
-        "DELETE"
-        " FROM chrSkillQueue"
+        "DELETE FROM chrSkillQueue"
         " WHERE characterID = %u",
         characterID ) )
     {
@@ -1644,12 +1641,18 @@ bool InventoryDB::SaveSkillQueue(uint32 characterID, const SkillQueue &queue) {
         return false;
     }
 
+    if( !sDatabase.RunQuery( err2, "DELETE FROM chrSkillQueueTime WHERE characterID = %u ", characterID ) )
+    {
+        _log(DATABASE__ERROR, "Failed to delete skill queue end time of character %u: %s.", characterID, err2.c_str());
+        return false;
+    }
     if( queue.empty() )
         // nothing else to do
         return true;
 
     // now build insert query:
     std::string query;
+    EvilNumber chrTimeRemaining = EvilTimeNow();
 
     for(size_t i = 0; i < queue.size(); i++)
     {
@@ -1661,6 +1664,14 @@ bool InventoryDB::SaveSkillQueue(uint32 characterID, const SkillQueue &queue) {
         if( i != 0 )
             query += ',';
         query += buf;
+        /**   to show training time on char select screen.....  -allan 01/17/14
+        const SkillRef &skill = queue[i];
+        EvilNumber sp = skill->GetAttribute(AttrSkillPoints);
+        EvilNumber needSP = EVIL_SKILL_BASE_POINTS * skill->GetAttribute(AttrSkillTimeConstant) * EvilNumber::pow(2, (2.5*(skill.level)));
+        EvilNumber leftSP = needSP - sp;
+          // time remain = leftsp / spmin
+        chrTimeRemaining += leftSP;
+        */
     }
 
     if( !sDatabase.RunQuery( err,
@@ -1672,9 +1683,19 @@ bool InventoryDB::SaveSkillQueue(uint32 characterID, const SkillQueue &queue) {
         _log(DATABASE__ERROR, "Failed to insert skill queue of character %u: %s.", characterID, err.c_str());
         return false;
     }
+       // another hack for right now....  -allan 01/17/14
+    chrTimeRemaining = chrTimeRemaining * EvilTime_Second + (5*Win32Time_Hour) + (25*Win32Time_Minute);
+
+    if( !sDatabase.RunQuery( err2, "INSERT INTO chrSkillQueueTime (characterID, skillQueueEndTime) VALUES (%u, %u) ", characterID, chrTimeRemaining ) )
+    {
+        _log(DATABASE__ERROR, "Failed to set skillQueueEndTime for character %u: %s", characterID, err2.c_str());
+        return false;
+    }
+    sLog.Log("InventoryDB::SaveSkillQueue","  Saved skillQueueEndTime as %u", chrTimeRemaining );
 
     return true;
 }
+
 bool InventoryDB::GetTypeID(uint32 itemID, uint32 &typeID)
 {
     DBQueryResult res;
@@ -1682,7 +1703,7 @@ bool InventoryDB::GetTypeID(uint32 itemID, uint32 &typeID)
 
     if(!sDatabase.RunQuery(res,
         " SELECT "
-        " typeID "
+        "  typeID "
         " FROM entity "
         " WHERE itemID = %u ",itemID))
     {
@@ -1705,7 +1726,7 @@ bool InventoryDB::GetModulePowerSlotByTypeID(uint32 typeID, uint32 &into)
 
     if(!sDatabase.RunQuery(res,
         " SELECT "
-        " groupID "
+        "  groupID "
         " FROM invTypes "
         " WHERE typeID = '%u' ",
         typeID))
@@ -1740,10 +1761,9 @@ bool InventoryDB::GetModulePowerSlotByTypeID(uint32 typeID, uint32 &into)
             return true;
     }
 
-
     if(!sDatabase.RunQuery(res,
         " SELECT "
-        " effectID "
+        "  effectID "
         " FROM dgmTypeEffects "
         " WHERE typeID = '%u' AND ( effectID = 11 OR effectID = 12 OR effectID = 13 ) ",
         typeID))
@@ -1770,7 +1790,6 @@ bool InventoryDB::GetModulePowerSlotByTypeID(uint32 typeID, uint32 &into)
         return true;
     } else
         throw PyException( MakeCustomError( "Item of type: %u is not fittable (could be a rig, as they haven't been implemented)", typeID ) );
-
 }
 
 bool InventoryDB::GetOpenPowerSlots(uint32 slotType, ShipRef ship, uint32 &into)
@@ -1813,8 +1832,7 @@ bool InventoryDB::GetOpenPowerSlots(uint32 slotType, ShipRef ship, uint32 &into)
 
     for( uint32 flag = firstFlag; flag < (firstFlag + slotsOnShip); flag++ )
     {
-        // this is far from efficient as we are iterating trough all of the ships item slots.... every iteration... so this will be slow when you got loads of players
-        // with a single free slot.
+        // this is far from efficient as we are iterating through all of the ships item slots.... every iteration... so this will be slow when you got loads of players with a single free slot.
         if(ship->IsEmptyByFlag((EVEItemFlags)flag))
         {
             into = flag;

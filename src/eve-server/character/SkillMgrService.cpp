@@ -110,7 +110,7 @@ PyResult SkillMgrBound::Handle_GetEndOfTraining(PyCallArgs &call) {
 PyResult SkillMgrBound::Handle_GetSkillHistory( PyCallArgs& call )
 {
     sLog.Debug( "SkillMgrBound", "Called GetSkillHistory stub." );
-
+  //  need info from DB
     util_Rowset rowset;
 
     rowset.header.push_back( "logDateTime" );
@@ -169,7 +169,6 @@ PyResult SkillMgrBound::Handle_GetSkillQueueAndFreePoints(PyCallArgs &call) {
     CharacterRef ch = call.client->GetChar();
 
     ch->ClearSkillQueue();
-
     SkillQueue_Element el;
     std::vector<PyRep*>::const_iterator cur, end;
     cur = args.queue->begin();
@@ -213,9 +212,9 @@ PyResult SkillMgrBound::Handle_RespecCharacter(PyCallArgs &call)
         codelog(CLIENT__ERROR, "Failed to decode RespecCharacter arguments");
         return NULL;
     }
-	
+
 	CharacterRef cref = call.client->GetChar();
-	if(cref->GetSkillInTraining() != NULL) 
+	if(cref->GetSkillInTraining() != NULL)
 		throw(PyException(MakeUserError("RespecSkillInTraining")));
 
     // return early if this is an illegal call
@@ -263,8 +262,7 @@ PyResult SkillMgrBound::Handle_CharStartTrainingSkillByTypeID( PyCallArgs& call 
         codelog( CLIENT__ERROR, "%s: failed to decode arguments", call.client->GetName() );
         return NULL;
     }
-
-	sLog.Error("SkillMgrBound::Handle_CharStartTrainingSkillByTypeID()", "TODO: This is used on resuming skill queue, so should be implemented" );
+      sLog.Error("SkillMgrBound::Handle_CharStartTrainingSkillByTypeID()", "TODO: This is used on resuming skill queue, so should be implemented" );
     //sLog.Debug( "SkillMgrBound", "Called CharStartTrainingSkillByTypeID stub." );
 
     return NULL;
@@ -299,6 +297,5 @@ PyResult SkillMgrBound::Handle_InjectSkillIntoBrain(PyCallArgs &call)
         }
     }
 
-    // TODO: send notification that the skill(s) injection was successful.
     return NULL;
 }

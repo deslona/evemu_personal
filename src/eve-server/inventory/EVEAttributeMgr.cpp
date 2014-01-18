@@ -521,7 +521,7 @@ bool AttributeMap::SendAttributeChanges( PyTuple* attrChange )
 {
     if (attrChange == NULL)
     {
-        sLog.Error("AttributeMap", "unable to send NULL packet");
+        sLog.Error("AttributeMap::SendAttributeChanges()", "unable to send NULL packet");
         return false;
     }
 
@@ -842,7 +842,7 @@ bool AttributeMap::Delete()
 {
     // Remove all attributes from the entity_default_attributes table or entity_attributes table for this item:
     DBerror err;
-    
+
 	if(mDefault)
 	{
 		if(!sDatabase.RunQuery(err,

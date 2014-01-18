@@ -1,5 +1,5 @@
 /*
-SQLyog Community Edition- MySQL GUI v7.11 
+SQLyog Community Edition- MySQL GUI v7.11
 MySQL - 5.0.67-community-nt : Database - eve_evemu_dynamic
 *********************************************************************
 */
@@ -119,7 +119,7 @@ CREATE TABLE `bookmarkFolders` (
 	`ownerID` int (10),
 	`creatorID` int (10),
 	PRIMARY KEY (`folderID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Table structure for table `cacheLocations` */
 
@@ -363,6 +363,18 @@ CREATE TABLE `chrStandings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Data for the table `chrStandings` */
+
+/*Table structure for table chrSkillQueueTime` */
+
+DROP TABLE IF EXISTS `chrSkillQueueTime`;
+
+CREATE TABLE `chrSkillQueueTime` (
+  `characterID` bigint(20) NOT NULL default '0',
+  `skillQueueEndTime` bigint(20) DEFAULT '0'
+  PRIMARY KEY  (`characterID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+/* Data for table `chrSkillQueueTime` */
 
 /*Table structure for table `corporation` */
 

@@ -33,7 +33,7 @@
 #include "inventory/InventoryDB.h"
 #include "character/Skill.h"
 
-#define MAX_SP_FOR_100PCT_TRAINING_BONUS    1600000     // After 1.6 million Skill Points are trained, the 100% bonus to skill training goes away
+#define MAX_SP_FOR_100PCT_TRAINING_BONUS    16000000     // After 16 million Skill Points, double sp/min removed.
 
 /**
  * Simple container for raw character type data.
@@ -130,7 +130,7 @@ protected:
         const CharacterTypeData &_charData
     );
 
-    /*
+    /**
      * Member functions
      */
     using ItemType::_Load;
@@ -278,7 +278,7 @@ public:
    double weightUpDown;
    double weightLeftRight;
    double weightForwardBack;
-   
+
    void Build(uint32 ownerID, PyDict* data);
 
 private:
@@ -343,7 +343,7 @@ public:
      */
     static CharacterRef Spawn(ItemFactory &factory, ItemData &data, CharacterData &charData, CorpMemberInfo &corpData);
 
-    /*
+    /**
      * Primary public interface:
      */
     bool AlterBalance(double balanceChange);
@@ -394,7 +394,7 @@ public:
     /**
      * Calculates Total Skillpoints the character has trained
      *
-     * @return Skillpoints per minute rate.
+     * @return Skillpoints the character has trained
      */
     EvilNumber GetTotalSPTrained() { return m_totalSPtrained; };
     /**
@@ -409,20 +409,21 @@ public:
      */
     EvilNumber GetEndOfTraining() const;
 
-    /* InjectSkillIntoBrain(InventoryItem *skill)
+    /** InjectSkillIntoBrain(InventoryItem *skill)
      *
      * Perform injection of passed skill into the character.
      * @author xanarox
      * @param InventoryItem
      */
     bool InjectSkillIntoBrain(SkillRef skill);
-    /*
+    /**
      * GM Version, allows level set
      */
     bool InjectSkillIntoBrain(SkillRef skill, uint8 level);
-    /* AddSkillToSkillQueue()
+    /** AddSkillToSkillQueue()
      *
      * This will add a skill into the skill queue.
+     *  also add total training time to char object for callback on select screen
      * @author xanarox
      */
     void AddToSkillQueue(uint32 typeID, uint8 level);
@@ -435,25 +436,25 @@ public:
      */
     void UpdateSkillQueue();
 
-    /* GrantCertificate( uint32 certificateID )
+    /** GrantCertificate( uint32 certificateID )
      *
      * This will add a certificate into the character
      * @author almamu
      */
     bool GrantCertificate( uint32 certificateID );
-    /* UpdateCertificate( uint32 certificateID, bool pub )
+    /** UpdateCertificate( uint32 certificateID, bool pub )
      *
      * This will change the public status of the certificate
      * @author almamu
      */
     void UpdateCertificate( uint32 certificateID, bool pub );
-    /* HasCertificate( uint32 certificateID )
+    /** HasCertificate( uint32 certificateID )
      *
      * This will check if the player has a certificate
      * @author almamu
      */
     bool HasCertificate( uint32 certificateID ) const;
-    /* GetCertificates( )
+    /** GetCertificates( )
      *
      * This will check if the player has a certificate
      * @author almamu
@@ -468,19 +469,20 @@ public:
     PyObject *GetCharacterBaseAttributes();
 
 
-    /*
+    /**
      * Primary public packet builders:
      */
     PyDict *CharGetInfo();
     PyObject *GetDescription() const;
-    /* GetSkillQueue()
+
+    /** GetSkillQueue()
      *
      * This will get the skills from the skill queue for a character.
      * @author xanarox
     */
     PyTuple *GetSkillQueue();
 
-    /*
+    /**
      * Public fields:
      */
     const CharacterType &   type() const { return static_cast<const CharacterType &>(InventoryItem::type()); }
@@ -499,7 +501,7 @@ public:
     double                  aurBalance() const { return m_aurBalance; }
     double                  securityRating() const { return m_securityRating; }
     uint32                  logonMinutes() const { return m_logonMinutes; }
-    void                    addSecurityRating( double secutiryAmount ) { m_securityRating += secutiryAmount; }
+    void                    addSecurityRating( double securityAmount ) { m_securityRating += securityAmount; }
 
     // Corporation:
     uint32                  corporationID() const { return m_corporationID; }
@@ -526,7 +528,7 @@ public:
     uint32                  schoolID() const { return m_schoolID; }
     uint32                  careerSpecialityID() const { return m_careerSpecialityID; }
 
-    // Some importand dates:
+    // Some important dates:
     uint64                  startDateTime() const { return m_startDateTime; }
     uint64                  createDateTime() const { return m_createDateTime; }
     uint64                  corporationDateTime() const { return m_corporationDateTime; }

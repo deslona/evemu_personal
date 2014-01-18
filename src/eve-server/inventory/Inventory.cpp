@@ -78,38 +78,35 @@ Inventory *Inventory::Cast(InventoryItemRef item)
         case EVEDB::invCategories::Effects:
         case EVEDB::invCategories::Lights:
         case EVEDB::invCategories::Cells:
-            sLog.Warning("Inventory", "unhandled item categoryID used on cast");
+            sLog.Debug("Inventory", "unhandled item categoryID used on cast");
             break;
-
         case EVEDB::invCategories::Owner:
-            sLog.Warning("Inventory", "Owner item categoryID used on cast");
-
+            sLog.Debug("Inventory", "Owner item categoryID used on cast");
             //return OwnerRef::StaticCast( item ).get();
-
             break;
         case EVEDB::invCategories::WorldSpace:
-            sLog.Warning("Inventory", "WorldSpace item categoryID used on cast");
+            sLog.Debug("Inventory", "WorldSpace item categoryID used on cast");
             break;
         case EVEDB::invCategories::Skill:
-            sLog.Warning("Inventory", "Skill item categoryID used on cast");
+            sLog.Debug("Inventory", "Skill item categoryID used on cast");
             //return SkillRef::StaticCast( item ).get();
             break;
         case EVEDB::invCategories::Celestial:
-            sLog.Warning("Inventoy", "Celestial item categoryID used on cast");
-            //don't know ho to do this but it's missing in a lot of places in the log
+            sLog.Debug("Inventoy", "Celestial item categoryID used on cast");
+            //don't know how to do this but it's missing in a lot of places in the log
             //it says that the return is not of Inventory type
             //return CelestialObjectRef::StaticCast( item ).get();
             break;
         case EVEDB::invCategories::Station:
-            sLog.Warning("Inventory", "Station item categoryID used on cast");
+            sLog.Debug("Inventory", "Station item categoryID used on cast");
             return StationRef::StaticCast( item ).get();
             break;
         case EVEDB::invCategories::Structure:
-            sLog.Warning("Inventory", "Structure item categoryID used on cast");
+            sLog.Debug("Inventory", "Structure item categoryID used on cast");
             return StructureRef::StaticCast( item ).get();
             break;
         case EVEDB::invCategories::Ship:
-            sLog.Warning("Inventory", "Ship item categoryID used on cast");
+            sLog.Debug("Inventory", "Ship item categoryID used on cast");
             return ShipRef::StaticCast( item ).get();
             break;
     }
@@ -462,7 +459,7 @@ void Inventory::StackAll(EVEItemFlags locFlag, uint32 forOwner)
 double Inventory::GetStoredVolume(EVEItemFlags locationFlag) const
 {
     //double totalVolume = 0.0;
-    EvilNumber totalVolume(0.0);
+    EvilNumber totalVolume(0.0f);
     //TODO: And implement Sizes for packaged ships
 
     std::map<uint32, InventoryItemRef>::const_iterator cur, end;
