@@ -129,16 +129,6 @@
   empty calls:
   CallPing
   CallGetPostAuthenticationMessage
-  CallGetCharactersToSelect
-  CallGetCharCreationInfo
-  CallGetAttributeTypes
-  CallShipGetInfo
-  CallCharGetInfo
-  CallGetMyKillRights
-  CallGetBookmarks
-  CallGetChannels
-  CallGetInitialState
-  CallGetMyMessages
   CallGetFactionInfo
   CallGetStuckSystems
   CallGetOwnerNoteLabels

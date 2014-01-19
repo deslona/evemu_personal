@@ -212,7 +212,28 @@
       <int name="stationID" />
     </tupleInline>
   </elementDef>
+<!--
+  empty calls:
+  CallGetCharactersToSelect
+  CallGetCharCreationInfo
+  CallGetAttributeTypes
+  CallShipGetInfo
+  CallCharGetInfo
+  CallGetMyKillRights
+  CallGetBookmarks
+  CallGetChannels
+  CallGetInitialState
+  CallGetMyMessages
+-->
 
+<!--
+   unimplemented calls
+GetInsurancePrice
+CreateFolder
+LoadAmmoToBank
+GetCareerAgents
+GetSolarSystemVisits
+-->
 </elements>
 
 

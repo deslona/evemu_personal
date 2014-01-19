@@ -1683,15 +1683,17 @@ bool InventoryDB::SaveSkillQueue(uint32 characterID, const SkillQueue &queue) {
         _log(DATABASE__ERROR, "Failed to insert skill queue of character %u: %s.", characterID, err.c_str());
         return false;
     }
+      sLog.Log("InventoryDB::SaveSkillQueue","  Saved skillQueueEndTime as %u", chrTimeRemaining );
+
        // another hack for right now....  -allan 01/17/14
-    chrTimeRemaining = chrTimeRemaining * EvilTime_Second + (5*Win32Time_Hour) + (25*Win32Time_Minute);
+    chrTimeRemaining = ( chrTimeRemaining + (5*EvilNumber_Hour) + (25*EvilNumber_Minute) );
 
     if( !sDatabase.RunQuery( err2, "INSERT INTO chrSkillQueueTime (characterID, skillQueueEndTime) VALUES (%u, %u) ", characterID, chrTimeRemaining ) )
     {
         _log(DATABASE__ERROR, "Failed to set skillQueueEndTime for character %u: %s", characterID, err2.c_str());
         return false;
     }
-    sLog.Log("InventoryDB::SaveSkillQueue","  Saved skillQueueEndTime as %u", chrTimeRemaining );
+      sLog.Log("InventoryDB::SaveSkillQueue","  Saved skillQueueEndTime as %u", chrTimeRemaining );
 
     return true;
 }

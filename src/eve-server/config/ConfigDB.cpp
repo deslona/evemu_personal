@@ -467,7 +467,7 @@ PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID) {
                               "     e.x, "
                               "     e.y, "
                               "     e.z "
-                              " FROM entityStatic AS e LEFT JOIN invTypes AS t USING (typeID)"
+                              " FROM entity AS e LEFT JOIN invTypes AS t USING (typeID)"
                               " WHERE e.locationID = %u";
                               /*AND " // In the future, the locationID field needs to be constrained to being a solarSystemID
                               "     `groupID` = -1"; // This is set to -1 because we do not know what the ID(s) of dynamic celestials is/are. */

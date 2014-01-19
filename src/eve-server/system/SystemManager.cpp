@@ -234,7 +234,7 @@ public:
                     return shipObj;
                 }
                 /*
-                else            //  we dont need an error stating a player and their ship is in space.
+                else            //  we dont need an error stating a player and their ship is in space.  -allan
                     sLog.Error("DynamicEntityFactory::BuildEntity()", "We do not want to create ShipEntity objects for ANY ships owned by players, only those left in space owned by no one." );
                 */
             } break;
