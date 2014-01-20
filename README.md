@@ -1,5 +1,7 @@
 # Introduction
 EVEmu modified to support the latest Crucible client v360229
+***   tested under SLES11.3  ***
+***  no support for winblows ***
 
 # Disclaimer
 
@@ -11,12 +13,15 @@ and we do not support that. We are not responsible for what others
 do with the source code downloaded from this project.
 
 # Status
-- Login works again
 - Character selection and creation is working
 - Character avatar creation is working
 - Walking in station is now possible
 - Items and Ships display in station
 - Undocking and Docking is working
+- Skill Training is working
+- Injecting Skills is working
+- BookMarks are mostly working
+- Targetting is working
 
 
 # Legal

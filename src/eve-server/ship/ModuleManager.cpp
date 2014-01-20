@@ -948,10 +948,10 @@ void ModuleManager::UnfitModule(uint32 itemID)
 bool ModuleManager::_fitModule(InventoryItemRef item, EVEItemFlags flag)
 {
     bool verifyFailed = false;
-	GenericModule * mod = ModuleFactory(item, ShipRef(m_Ship));
+    GenericModule * mod = ModuleFactory(item, ShipRef(m_Ship));
 
-	// Set module's pointer to its owner ModuleManager's log object:
-	mod->SetLog(m_pLog);
+    // Set module's pointer to its owner ModuleManager's log object:
+    mod->SetLog(m_pLog);
 
     // Check for max turret modules allowed:
     if( mod->isTurretFitted() && (m_Modules->GetFittedTurretCount() == m_Ship->GetMaxTurrentHardpoints().get_int()) )
@@ -986,7 +986,6 @@ bool ModuleManager::_fitModule(InventoryItemRef item, EVEItemFlags flag)
     else
     {
         // Fit Module now that all checks have passed:
-        //m_Modules->AddModule(mod->flag(), mod);
         m_Modules->AddModule(flag, mod);
     }
 
@@ -1313,7 +1312,7 @@ int32 ModuleManager::RemoveSubsystemEffect(uint32 attributeID, uint32 originator
     {
         modMap = m_LocalSubsystemModifierMaps->find(attributeID)->second;
         modMap->m_MapIsDirty = true;
-        
+
         if( modMap->m_ModifierMap.find(modifierRef->GetModifierValue()) != modMap->m_ModifierMap.end() )
         {
             modMap->m_MapIsDirty = true;
@@ -1411,7 +1410,7 @@ int32 ModuleManager::RemoveShipSkillEffect(uint32 attributeID, uint32 originator
     {
         modMap = m_LocalShipSkillModifierMaps->find(attributeID)->second;
         modMap->m_MapIsDirty = true;
-        
+
         if( modMap->m_ModifierMap.find(modifierRef->GetModifierValue()) != modMap->m_ModifierMap.end() )
         {
             modMap->m_MapIsDirty = true;

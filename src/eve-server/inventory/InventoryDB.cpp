@@ -1686,7 +1686,7 @@ bool InventoryDB::SaveSkillQueue(uint32 characterID, const SkillQueue &queue) {
       sLog.Log("InventoryDB::SaveSkillQueue","  Saved skillQueueEndTime as %u", chrTimeRemaining );
 
        // another hack for right now....  -allan 01/17/14
-    chrTimeRemaining = ( chrTimeRemaining + (5*EvilNumber_Hour) + (25*EvilNumber_Minute) );
+    chrTimeRemaining = ( chrTimeRemaining + (5*EvilTime_Hour) + (25*EvilTime_Minute) );
 
     if( !sDatabase.RunQuery( err2, "INSERT INTO chrSkillQueueTime (characterID, skillQueueEndTime) VALUES (%u, %u) ", characterID, chrTimeRemaining ) )
     {

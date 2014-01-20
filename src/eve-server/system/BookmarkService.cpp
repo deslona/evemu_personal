@@ -101,7 +101,7 @@ PyResult BookmarkService::Handle_BookmarkLocation(PyCallArgs &call)
     // call.tuple
     //       |
     //       |--> [0] PyInt:      itemID for bookmark location (itemID from entity table, stargateID from mapjumps table, etc)
-    //       |--> [1] PyInt:        unknown 8 digit interger
+    //       |--> [1] PyInt:       CreatorID (CharacterID)
     //       |--> [2] PyWString:  label for the bookmark
     //       \--> [3] PyString:  text for the "note" field in the bookmark
     //
@@ -109,7 +109,7 @@ PyResult BookmarkService::Handle_BookmarkLocation(PyCallArgs &call)
         13:13:35 L BookmarkService::Handle_BookmarkLocation(): itemID = 140000000, typeID = 5   */
     ////////////////////////////////////////
 
-      sLog.Debug( "BookmarkService::Handle_BookmarkLocation()", "size= %u, 0 = %u, 1 = %s, 2 = %s, 3 = %s", call.tuple->size(), call.tuple->GetItem(0)->TypeString(), call.tuple->GetItem(1)->TypeString(), call.tuple->GetItem(2)->TypeString(), call.tuple->GetItem(3)->TypeString()  );
+      sLog.Log( "BookmarkService::Handle_BookmarkLocation()", "size= %u, 0 = %u, 1 = %s, 2 = %s, 3 = %s", call.tuple->size(), call.tuple->GetItem(0)->TypeString(), call.tuple->GetItem(1)->TypeString(), call.tuple->GetItem(2)->TypeString(), call.tuple->GetItem(3)->TypeString()  );
     if ( (call.tuple->size() < 4) )
     {
         sLog.Error( "BookmarkService::Handle_BookmarkLocation()", "%s: call.tuple is of size %u, expected 4.", call.client->GetName(), call.tuple->size() );
@@ -122,13 +122,21 @@ PyResult BookmarkService::Handle_BookmarkLocation(PyCallArgs &call)
         return NULL;
     }
 
-    if ( !(call.tuple->GetItem(1)->IsInt()) )
+    if ( !(call.tuple->GetItem(0)->IsInt()) )
     {
-        sLog.Error( "BookmarkService::Handle_BookmarkLocation()", "%s: call.tuple->GetItem(0) is of the wrong type: '%s'.  Expected PyInt type.", call.client->GetName(), call.tuple->GetItem(1)->TypeString() );
+        sLog.Error( "BookmarkService::Handle_BookmarkLocation()", "%s: call.tuple->GetItem(0) is of the wrong type: '%s'.  Expected PyInt type.", call.client->GetName(), call.tuple->GetItem(0)->TypeString() );
         return NULL;
     }
     else
-        itemID = call.tuple->GetItem( 1 )->AsInt()->value();
+        itemID = call.tuple->GetItem( 0 )->AsInt()->value();    //  itemID
+
+    if ( !(call.tuple->GetItem(1)->IsInt()) )
+    {
+        sLog.Error( "BookmarkService::Handle_BookmarkLocation()", "%s: call.tuple->GetItem(1) is of the wrong type: '%s'.  Expected PyInt type.", call.client->GetName(), call.tuple->GetItem(1)->TypeString() );
+        return NULL;
+    }
+    else
+        creatorID = call.tuple->GetItem( 1 )->AsInt()->value();    //  creatorID
 
     if ( call.tuple->GetItem( 2 )->IsString() )
         label = call.tuple->GetItem( 2 )->AsString()->content();
@@ -150,16 +158,16 @@ PyResult BookmarkService::Handle_BookmarkLocation(PyCallArgs &call)
         return NULL;
     }
 
-    // Get typeID for this itemID:
+    // Get typeID for this itemID:  typeID 5 = solarsystem
     typeID = m_db.FindBookmarkTypeID(itemID);
 
-    // Get x,y,z location in space of the character:
+    // Get x,y,z location in space of the character:    ...this isnt right.  should be the point of the bm based on type
     point = call.client->GetPosition();
 
-    // Get locationID for this character:
+    // Get locationID for this character:   .....this isnt right.  should be the solar sys of the bm based on type
     locationID = call.client->GetLocationID();
 
-      sLog.Debug( "BookmarkService::Handle_BookmarkLocation()", "itemID = %u, typeID = %u", itemID, typeID );
+      sLog.Log( "BookmarkService::Handle_BookmarkLocation()", "itemID = %u, typeID = %u", itemID, typeID );
     ////////////////////////////////////////
     // Save bookmark info to database:
     ////////////////////////////////////////

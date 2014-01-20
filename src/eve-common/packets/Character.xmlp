@@ -230,6 +230,7 @@
    unimplemented calls
 GetInsurancePrice
 CreateFolder
+GetAllianceSystems
 LoadAmmoToBank
 GetCareerAgents
 GetSolarSystemVisits

@@ -84,7 +84,6 @@ bool DBcore::RunQuery(DBQueryResult &into, const char *query_fmt, ...) {
     //sLog.Debug("%s",query);
     //End Debug Stuff
 
-
     return true;
 }
 

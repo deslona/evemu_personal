@@ -61,32 +61,33 @@ bool SystemDB::LoadSystemEntities(uint32 systemID, std::vector<DBSystemEntity> &
     return true;
 }
 
+//  are these player-owned?  for now, lets act like they are...pull from 'entity' table.  -allan
 bool SystemDB::LoadSystemDynamicEntities(uint32 systemID, std::vector<DBSystemDynamicEntity> &into) {
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        "    entity.itemID,"
-        "   entity.itemName,"
-        "    entity.typeID,"
-        "   entity.ownerID,"
-        "   entity.locationID,"
-        "   entity.flag,"
-        "    invTypes.groupID,"
-        "    invGroups.categoryID,"
-        "   0,"//"   character_.corporationID,"
-        "   0,"//"   corporation.allianceID,"
-        "   x,"
-        "   y,"
-        "   z"
+        "  entity.itemID,"
+        "  entity.itemName,"
+        "  entity.typeID,"
+        "  entity.ownerID,"
+        "  entity.locationID,"
+        "  entity.flag,"
+        "  invTypes.groupID,"
+        "  invGroups.categoryID,"
+        "  0,"//"   character_.corporationID,"
+        "  0,"//"   corporation.allianceID,"
+        "  x,"
+        "  y,"
+        "  z"
         " FROM entity, invTypes, invGroups"//, character_, corporation"
         " WHERE"
-        "        entity.typeID=invTypes.typeID"
-        "    AND invTypes.groupID=invGroups.groupID"
-        "    AND invGroups.categoryID NOT IN (%d,%d)"
+        "   entity.typeID=invTypes.typeID"
+        "  AND invTypes.groupID=invGroups.groupID"
+        "  AND invGroups.categoryID NOT IN (%d,%d)"
         //"   AND character_.characterID = entity.ownerID"
         //"   AND corporation.corporationID = character_.corporationID"
-        "    AND locationID=%u",
+        "  AND locationID=%u",
         //excluded categories:
             //celestials:
             EVEDB::invCategories::_System, EVEDB::invCategories::Station,
@@ -127,7 +128,7 @@ PyObject *SystemDB::ListFactions() {
 
     if(!sDatabase.RunQuery(res,
         "SELECT "
-        " factionID"
+        "  factionID"
         " FROM chrFactions "))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
@@ -142,10 +143,10 @@ PyObject *SystemDB::ListJumps(uint32 stargateID) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT "
-        " celestialID AS toCelestialID,"
-        " solarSystemID AS locationID"
+        "   celestialID AS toCelestialID,"
+        "   solarSystemID AS locationID"
         " FROM mapJumps "
-        "    LEFT JOIN mapDenormalize ON celestialID=itemID"
+        "  LEFT JOIN mapDenormalize ON celestialID=itemID"
         " WHERE stargateID=%u", stargateID))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
