@@ -1630,7 +1630,7 @@ bool InventoryDB::SaveCertificates( uint32 characterID, const Certificates &from
 
 bool InventoryDB::SaveSkillQueue(uint32 characterID, const SkillQueue &queue) {
     DBerror err;
-    DBerror err2;
+    //DBerror err2;
 
     if( !sDatabase.RunQuery( err,
         "DELETE FROM chrSkillQueue"
@@ -1640,19 +1640,20 @@ bool InventoryDB::SaveSkillQueue(uint32 characterID, const SkillQueue &queue) {
         _log(DATABASE__ERROR, "Failed to delete skill queue of character %u: %s.", characterID, err.c_str());
         return false;
     }
-
+/**
     if( !sDatabase.RunQuery( err2, "DELETE FROM chrSkillQueueTime WHERE characterID = %u ", characterID ) )
     {
         _log(DATABASE__ERROR, "Failed to delete skill queue end time of character %u: %s.", characterID, err2.c_str());
         return false;
-    }
+    }*/
+
     if( queue.empty() )
         // nothing else to do
         return true;
 
     // now build insert query:
     std::string query;
-    EvilNumber chrTimeRemaining = EvilTimeNow();
+    //uint64 chrTimeRemaining = Win32TimeNow();
 
     for(size_t i = 0; i < queue.size(); i++)
     {
@@ -1683,18 +1684,18 @@ bool InventoryDB::SaveSkillQueue(uint32 characterID, const SkillQueue &queue) {
         _log(DATABASE__ERROR, "Failed to insert skill queue of character %u: %s.", characterID, err.c_str());
         return false;
     }
-      sLog.Log("InventoryDB::SaveSkillQueue","  Saved skillQueueEndTime as %u", chrTimeRemaining );
+      //sLog.Log("InventoryDB::SaveSkillQueue","  Saved skillQueueEndTime as %u", chrTimeRemaining );
 
-       // another hack for right now....  -allan 01/17/14
-    chrTimeRemaining = ( chrTimeRemaining + (5*EvilTime_Hour) + (25*EvilTime_Minute) );
-
+       // another hack for right now....still testing  -allan 01/17/14
+    //chrTimeRemaining = ( chrTimeRemaining +  (5*Win32Time_Hour) + (25*Win32Time_Minute) );
+/**
     if( !sDatabase.RunQuery( err2, "INSERT INTO chrSkillQueueTime (characterID, skillQueueEndTime) VALUES (%u, %u) ", characterID, chrTimeRemaining ) )
     {
         _log(DATABASE__ERROR, "Failed to set skillQueueEndTime for character %u: %s", characterID, err2.c_str());
         return false;
     }
-      sLog.Log("InventoryDB::SaveSkillQueue","  Saved skillQueueEndTime as %u", chrTimeRemaining );
-
+      //sLog.Log("InventoryDB::SaveSkillQueue","  Saved skillQueueEndTime as %u", chrTimeRemaining );
+    */
     return true;
 }
 

@@ -380,7 +380,6 @@ SystemManager *EntityList::FindOrBootSystem(uint32 systemID) {
     if(res != m_systems.end())
         return(res->second);
 
-    sLog.Log("Entity List", "Booting system %u", systemID);
 /*
     ItemData idata(
         5,
@@ -392,10 +391,12 @@ SystemManager *EntityList::FindOrBootSystem(uint32 systemID) {
 */
     SystemManager *mgr = new SystemManager(systemID, *m_services);//, idata);
     if(!mgr->BootSystem()) {
+        sLog.Warning("Entity List", "Booting system %u failed", systemID);
         delete mgr;
         return NULL;
     }
 
+    sLog.Success("Entity List", "Booted system %u", systemID);
     m_systems[systemID] = mgr;
     return mgr;
 }

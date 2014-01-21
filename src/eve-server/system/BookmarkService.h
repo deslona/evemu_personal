@@ -53,6 +53,7 @@ protected:
     PyCallable_DECL_CALL(BookmarkLocation)
     PyCallable_DECL_CALL(DeleteBookmarks)
     PyCallable_DECL_CALL(UpdateBookmark)
+    PyCallable_DECL_CALL(CreateFolder)
 };
 
 #endif

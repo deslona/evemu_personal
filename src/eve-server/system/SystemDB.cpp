@@ -39,6 +39,7 @@ bool SystemDB::LoadSystemEntities(uint32 systemID, std::vector<DBSystemEntity> &
     ))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        sLog.Warning("SystemDB::LoadSystemEntities", "  Loading system entities for system %u failed", systemID);
         return false;
     }
 
@@ -58,6 +59,7 @@ bool SystemDB::LoadSystemEntities(uint32 systemID, std::vector<DBSystemEntity> &
         into.push_back(entry);
     }
 
+    sLog.Success("SystemDB::LoadSystemEntities", "  System entities for system %u loaded", systemID);
     return true;
 }
 
