@@ -113,13 +113,14 @@ CREATE TABLE `bookmarks` (
 
 DROP TABLE IF EXISTS `bookmarkFolders`;
 
-CREATE TABLE `bookmarkFolders` (
-	`folderID` int (10),
-	`folderName` varchar (255),
-	`ownerID` int (10),
-	`creatorID` int (10),
-	PRIMARY KEY (`folderID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE IF NOT EXISTS `bookmarkFolders` (
+  `folderID` int(10) unsigned NOT NULL,
+  `folderName` varchar(255) DEFAULT NULL,
+  `ownerID` int(10) DEFAULT NULL,
+  `creatorID` int(10) DEFAULT NULL,
+  PRIMARY KEY (`folderID`),
+  KEY `ownerID` (`ownerID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ;
 
 /*Table structure for table `cacheLocations` */
 

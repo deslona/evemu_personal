@@ -379,7 +379,7 @@ PyResult InventoryBound::Handle_SetPassword(PyCallArgs &call) {
     return NULL;
 }
 
-//01:10:27 L InventoryBound::Handle_CreateBookmarkVouchers(): size= 3, 0 = List(P{�), 1 = Integer, 2 = Boolean
+//01:10:27 L InventoryBound::Handle_CreateBookmarkVouchers(): size= 3, 0 = List, 1 = Integer, 2 = Boolean
 PyResult InventoryBound::Handle_CreateBookmarkVouchers(PyCallArgs &call)        // size, bmID, flag, ismove
 {
   sLog.Log( "InventoryBound::Handle_CreateBookmarkVouchers()", "size= %u, 0 = %s, 1 = %s, 2 = %s", call.tuple->size(), call.tuple->GetItem(0)->TypeString(), call.tuple->GetItem(1)->TypeString(), call.tuple->GetItem(2)->TypeString() );

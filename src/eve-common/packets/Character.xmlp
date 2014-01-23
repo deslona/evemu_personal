@@ -2,6 +2,29 @@
 
 <elements>
 
+<!--
+   unimplemented calls
+GetInsurancePrice....wrong place..currently in InsuranceService
+GetAllianceSystems
+LoadAmmoToBank
+GetCareerAgents
+GetSolarSystemVisits
+-->
+
+<!--
+  empty calls:
+  CallGetCharactersToSelect
+  CallGetCharCreationInfo
+  CallGetAttributeTypes
+  CallShipGetInfo
+  CallCharGetInfo
+  CallGetMyKillRights
+  CallGetBookmarks
+  CallGetChannels
+  CallGetInitialState
+  CallGetMyMessages
+-->
+
   <include file="packets/General.h" />
 
   <elementDef name="RspGetCharactersToSelect">
@@ -212,29 +235,6 @@
       <int name="stationID" />
     </tupleInline>
   </elementDef>
-<!--
-  empty calls:
-  CallGetCharactersToSelect
-  CallGetCharCreationInfo
-  CallGetAttributeTypes
-  CallShipGetInfo
-  CallCharGetInfo
-  CallGetMyKillRights
-  CallGetBookmarks
-  CallGetChannels
-  CallGetInitialState
-  CallGetMyMessages
--->
-
-<!--
-   unimplemented calls
-GetInsurancePrice
-CreateFolder
-GetAllianceSystems
-LoadAmmoToBank
-GetCareerAgents
-GetSolarSystemVisits
--->
 </elements>
 
 
