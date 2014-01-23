@@ -48,7 +48,7 @@ BookmarkService::BookmarkService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(BookmarkService, UpdateFolder)
     PyCallable_REG_CALL(BookmarkService, DeleteFolder)
     PyCallable_REG_CALL(BookmarkService, MoveBookmarksToFolder)
-    PyCallable_REG_CALL(BookmarkService, CreateBookmarkVouchers)
+   // PyCallable_REG_CALL(BookmarkService, CreateBookmarkVouchers)  <- this is found in InventoryBound  -allan
 }
 
 BookmarkService::~BookmarkService() {
@@ -267,10 +267,10 @@ PyResult BookmarkService::Handle_BookmarkLocation(PyCallArgs &call)
 }
 
 //15:37:47 L BookmarkService::Handle_DeleteBookmarks(): size= 1, 0 = ObjectEx
-PyResult BookmarkService::Handle_DeleteBookmarks(PyCallArgs &call)
+PyResult BookmarkService::Handle_DeleteBookmarks(PyCallArgs &call)          //not working
 {
   sLog.Log( "BookmarkService::Handle_DeleteBookmarks()", "size= %u, 0 = %s", call.tuple->size(),
-            call.tuple->GetItem(0)->TypeString() );
+            call.tuple->GetItem(0)->TypeString() );  //call.tuple->GetItem(0)->AsInt()->value() fails...server crash
 
     if(call.tuple->IsList())
     {
@@ -295,8 +295,8 @@ PyResult BookmarkService::Handle_DeleteBookmarks(PyCallArgs &call)
       }
     }else if(call.tuple->IsTuple())
     {
-      /**
       sLog.Log( "BookmarkService::Handle_DeleteBookmarks()", "Call is PyTuple");
+      /**
       uint32 bookmarkID;
       bookmarkID = call.tuple->GetItem( 0 )->AsObjectEx()->value(); <---  this causes a problem.  i am now at a loss....
       m_db.DeleteBookmarkFromDatabase( call.client->GetCharacterID(), bookmarkID );
@@ -466,8 +466,6 @@ PyResult BookmarkService::Handle_UpdateFolder(PyCallArgs &call)     // working
 //21:35:25 L BookmarkService::Handle_DeleteFolder(): size= 1, 0 = Integer(1)
 PyResult BookmarkService::Handle_DeleteFolder(PyCallArgs &call)     // working
 {
-  sLog.Debug( "BookmarkService::Handle_DeleteFolder()", "size= %u, 0 = %s(%u)", call.tuple->size(),
-            call.tuple->GetItem(0)->TypeString(), call.tuple->GetItem(0)->AsInt()->value() );
     uint32 folderID =  call.tuple->GetItem( 0 )->AsInt()->value();
     uint32 ownerID = call.client->GetCharacterID();
 
@@ -480,20 +478,12 @@ PyResult BookmarkService::Handle_DeleteFolder(PyCallArgs &call)     // working
     return(new PyNone());
 }
 
+//16:02:12 L BookmarkService::Handle_MoveBookmarksToFolder(): size= 2, 0 = Integer(2), 1 = ObjectEx
 PyResult BookmarkService::Handle_MoveBookmarksToFolder(PyCallArgs &call)
 {
-//16:02:12 L BookmarkService::Handle_MoveBookmarksToFolder(): size= 2, 0 = Integer(2), 1 = Integer
   sLog.Log( "BookmarkService::Handle_MoveBookmarksToFolder()", "size= %u, 0 = %s, 1 = %s", call.tuple->size(),
-            call.tuple->GetItem(0)->TypeString(), call.tuple->GetItem(1)->TypeString() );
+            call.tuple->GetItem(0)->TypeString(), call.tuple->GetItem(1)->TypeString() );  //call.tuple->GetItem(0)->AsInt()->value() fails...server crash
 
     return(new PyNone());
 }
 
-
-PyResult BookmarkService::Handle_CreateBookmarkVouchers(PyCallArgs &call)
-{
-  sLog.Log( "BookmarkService::Handle_CreateBookmarkVouchers()", "size= %u, 0 = %s", call.tuple->size(),
-            call.tuple->GetItem(0)->TypeString() );
-
-    return(new PyNone());
-}

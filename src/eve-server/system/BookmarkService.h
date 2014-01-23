@@ -61,7 +61,6 @@ protected:
     PyCallable_DECL_CALL(UpdateFolder)
     PyCallable_DECL_CALL(DeleteFolder)
     PyCallable_DECL_CALL(MoveBookmarksToFolder)
-    PyCallable_DECL_CALL(CreateBookmarkVouchers)
 };
 
 #endif
