@@ -36,6 +36,10 @@ class BookmarkService
 {
 public:
     static const uint32 MAX_BOOKMARK_ID;
+    static const uint32 MAX_BM_FOLDER_ID;
+
+    uint32 GetNextAvailableBookmarkID();
+    uint32 GetNextAvailableFolderID();
 
     BookmarkService(PyServiceMgr *mgr);
     virtual ~BookmarkService();
@@ -54,6 +58,10 @@ protected:
     PyCallable_DECL_CALL(DeleteBookmarks)
     PyCallable_DECL_CALL(UpdateBookmark)
     PyCallable_DECL_CALL(CreateFolder)
+    PyCallable_DECL_CALL(UpdateFolder)
+    PyCallable_DECL_CALL(DeleteFolder)
+    PyCallable_DECL_CALL(MoveBookmarksToFolder)
+    PyCallable_DECL_CALL(CreateBookmarkVouchers)
 };
 
 #endif

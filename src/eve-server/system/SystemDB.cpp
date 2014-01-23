@@ -160,37 +160,25 @@ PyObject *SystemDB::ListJumps(uint32 stargateID) {
 
 uint32 SystemDB::GetObjectLocationID( uint32 itemID ) {
 
-    //TODO: implement database logic and query
+    //TODO: test database logic and query       -allan 22Jan14
+    DBQueryResult res;
 
-    return 0;
+    if(!sDatabase.RunQuery(res,
+        "SELECT "
+        "   locationID"
+        " FROM entity "
+        " WHERE itemID=%u",
+        itemID
+        ))
+    {
+        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        return NULL;
+    }
+
+    DBResultRow row;
+    if (res.GetRow(row)) {
+      return (row.GetUInt(0));
+    }else
+      return 0;
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
