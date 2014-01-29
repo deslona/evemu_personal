@@ -39,14 +39,23 @@ MapService::MapService(PyServiceMgr *mgr)
 
     PyCallable_REG_CALL(MapService, GetStationExtraInfo)
     PyCallable_REG_CALL(MapService, GetSolarSystemPseudoSecurities)
-    PyCallable_REG_CALL(MapService, GetStuckSystems)
-    PyCallable_REG_CALL(MapService, GetHistory)
-    PyCallable_REG_CALL(MapService, GetIncursionGlobalReport)
-    PyCallable_REG_CALL(MapService, GetStationCount)
-    PyCallable_REG_CALL(MapService, GetAllianceSystems)
     PyCallable_REG_CALL(MapService, GetSolarSystemVisits)
+    PyCallable_REG_CALL(MapService, GetBeaconCount)
+
+    /**  not handled yet...these are empty calls  */
+    PyCallable_REG_CALL(MapService, GetStuckSystems)
+    PyCallable_REG_CALL(MapService, GetRecentSovActivity)
+    PyCallable_REG_CALL(MapService, GetDeadspaceAgentsMap)
+    PyCallable_REG_CALL(MapService, GetDeadspaceComplexMap)
+    PyCallable_REG_CALL(MapService, GetIncursionGlobalReport)
+    PyCallable_REG_CALL(MapService, GetSystemsInIncursions)
+    PyCallable_REG_CALL(MapService, GetSystemsInIncursionsGM)
+    PyCallable_REG_CALL(MapService, GetStationCount)    //ColorStarsByStationCount
+    PyCallable_REG_CALL(MapService, GetAllianceSystems)    // wrong place
     PyCallable_REG_CALL(MapService, GetMapLandmarks)
-    PyCallable_REG_CALL(MapService, GetMyExtraMapInfoAgents)
+    PyCallable_REG_CALL(MapService, GetMyExtraMapInfoAgents)  //ColorStarsByMyAgents
+    PyCallable_REG_CALL(MapService, GetClusterSessionStatistics)    // wrong place
+    PyCallable_REG_CALL(MapService, GetHistory)
 }
 
 MapService::~MapService() {
@@ -122,11 +131,66 @@ PyResult MapService::Handle_GetSolarSystemPseudoSecurities(PyCallArgs &call) {
     return result;
 }
 
+//02:38:07 L MapService::Handle_GetSolarSystemVisits(): size= 0
+PyResult MapService::Handle_GetSolarSystemVisits(PyCallArgs &call)
+{
+  uint32 systemID = 0;
+  uint16 visits = 0;
+  uint32 charID = call.client->GetCharacterID();
+
+  m_db.GetSolSystemVisits(charID);
+
+    PyTuple* res = NULL;
+
+    PyTuple* tuple0 = new PyTuple( 1 );
+
+    tuple0->items[ 0 ] = new PyInt( systemID );
+    tuple0->items[ 1 ] = new PyInt( visits );
+
+    res = tuple0;
+
+    return res;
+}
+
+//02:38:07 L MapService::Handle_GetBeaconCount(): size= 0
+PyResult MapService::Handle_GetBeaconCount(PyCallArgs &call)
+{
+    /**
+    ColorStarsByCynosuralFields
+    */
+    uint8 none = 0;
+    //m_db.GetDynamicData(0, 0)
+    PyTuple* res = NULL;
+    PyTuple* tuple0 = new PyTuple( 1 );
+
+    tuple0->items[ 0 ] = new PyInt( none );
+
+    res = tuple0;
+
+    return res;
+}
+
 /** not handled */
 PyResult MapService::Handle_GetStuckSystems(PyCallArgs &call)
 {
   sLog.Log( "MapService::Handle_GetStuckSystems()", "size= %u, 0 = %s", call.tuple->size(),
             call.tuple->GetItem(0)->TypeString() );
+
+    uint8 none = 0;
+
+    PyTuple* res = NULL;
+    PyTuple* tuple0 = new PyTuple( 1 );
+
+    tuple0->items[ 0 ] = new PyInt( none );
+
+    res = tuple0;
+
+    return res;
+}
+
+PyResult MapService::Handle_GetRecentSovActivity(PyCallArgs &call)
+{
+  sLog.Log( "MapService::Handle_GetRecentSovActivity()", "size= %u", call.tuple->size() );
 
     PyRep *result = NULL;
 
@@ -135,12 +199,26 @@ PyResult MapService::Handle_GetStuckSystems(PyCallArgs &call)
     return result;
 }
 
-PyResult MapService::Handle_GetHistory(PyCallArgs &call)
+PyResult MapService::Handle_GetDeadspaceAgentsMap(PyCallArgs &call)
 {
-  sLog.Log( "MapService::Handle_GetHistory()", "size= %u, 0 = %s", call.tuple->size(),
-            call.tuple->GetItem(0)->TypeString() );
+  sLog.Log( "MapService::Handle_GetDeadspaceAgentsMap()", "size= %u", call.tuple->size() );
 
-    return NULL;
+    PyRep *result = NULL;
+
+    result = new PyDict();
+
+    return result;
+}
+
+PyResult MapService::Handle_GetDeadspaceComplexMap(PyCallArgs &call)
+{
+  sLog.Log( "MapService::Handle_GetDeadspaceComplexMap()", "size= %u", call.tuple->size() );
+
+    PyRep *result = NULL;
+
+    result = new PyDict();
+
+    return result;
 }
 
 PyResult MapService::Handle_GetIncursionGlobalReport(PyCallArgs &call)
@@ -151,11 +229,25 @@ PyResult MapService::Handle_GetIncursionGlobalReport(PyCallArgs &call)
     return NULL;
 }
 
-PyResult MapService::Handle_GetStationCount(PyCallArgs &call)
+PyResult MapService::Handle_GetSystemsInIncursions(PyCallArgs &call)
 {
-  sLog.Log( "MapService::Handle_GetStationCount()", "size= %u, 0 = %s", call.tuple->size(),
+  sLog.Log( "MapService::Handle_GetSystemsInIncursions()", "size= %u, 0 = %s", call.tuple->size(),
             call.tuple->GetItem(0)->TypeString() );
 
+    return NULL;
+}
+
+PyResult MapService::Handle_GetSystemsInIncursionsGM(PyCallArgs &call)
+{
+  sLog.Log( "MapService::Handle_GetSystemsInIncursionsGM()", "size= %u, 0 = %s", call.tuple->size(),
+            call.tuple->GetItem(0)->TypeString() );
+
+    return NULL;
+}
+
+//02:51:49 L MapService::Handle_GetStationCount(): size= 0  -ColorStarsByStationCount
+PyResult MapService::Handle_GetStationCount(PyCallArgs &call)
+{
     return NULL;
 }
 
@@ -165,28 +257,6 @@ PyResult MapService::Handle_GetAllianceSystems(PyCallArgs &call)
             call.tuple->GetItem(0)->TypeString() );
 
     return NULL;
-}
-
-//02:38:07 L MapService::Handle_GetSolarSystemVisits(): size= 0
-PyResult MapService::Handle_GetSolarSystemVisits(PyCallArgs &call)
-{
-
-  uint32 systemID = 0;
-  uint16 visits = 0;
-  uint32 charID = call.client->GetCharacterID();
-
-  m_db.GetSolSystemVisits(charID);
-
-    PyTuple* res = NULL;
-
-    PyTuple* tuple0 = new PyTuple( 2 );
-
-    tuple0->items[ 0 ] = new PyInt( systemID );
-    tuple0->items[ 0 ] = new PyInt( visits );
-
-    res = tuple0;
-
-    return res;
 }
 
 PyResult MapService::Handle_GetMapLandmarks(PyCallArgs &call)
@@ -199,8 +269,59 @@ PyResult MapService::Handle_GetMapLandmarks(PyCallArgs &call)
 
 PyResult MapService::Handle_GetMyExtraMapInfoAgents(PyCallArgs &call)  //ColorStarsByMyAgents
 {
-  sLog.Log( "MapService::Handle_GetMyExtraMapInfoAgents()", "size= %u, 0 = %s", call.tuple->size(),
-            call.tuple->GetItem(0)->TypeString() );
+  sLog.Log( "MapService::Handle_GetMyExtraMapInfoAgents()", "size= %u", call.tuple->size() );
 
-    return NULL;
+    uint8 none = 0;
+
+    PyTuple* res = NULL;
+    PyTuple* tuple0 = new PyTuple( 1 );
+
+    tuple0->items[ 0 ] = new PyInt( none );
+
+    res = tuple0;
+
+    return res;
+}
+
+PyResult MapService::Handle_GetClusterSessionStatistics(PyCallArgs &call)   //ColorStarsByNumPilots
+{
+    /**
+    ColorStarsByNumPilots
+    */
+    //m_db.GetDynamicData(0, 0)
+    uint8 none = 0;
+
+    PyTuple* res = NULL;
+    PyTuple* tuple0 = new PyTuple( 1 );
+
+    tuple0->items[ 0 ] = new PyInt( none );
+
+    res = tuple0;
+
+    return res;
+}
+
+//02:52:11 L CorpMgrService::Handle_GetAssetInventory(): size= 2, 0 = Integer (3), 1 = Integer (24)    -ColorStarsByFactionKills
+//02:52:13 L CorpMgrService::Handle_GetAssetInventory(): size= 2, 0 = Integer (1), 1 = Integer (1)     -ColorStarsByJumps1Hour
+//02:52:14 L CorpMgrService::Handle_GetAssetInventory(): size= 2, 0 = Integer (3), 1 = Integer (1)     -ColorStarsByPodKills
+PyResult MapService::Handle_GetHistory(PyCallArgs &call)
+{
+    /**
+    ColorStarsByJumps1Hour
+    ColorStarsByPodKills
+    ColorStarsByFactionKills
+    ColorStarsByKills
+    GetKillLast24H
+    */
+    uint32 int1 = call.tuple->GetItem(0)->AsInt()->value();
+    uint32 int2 = call.tuple->GetItem(1)->AsInt()->value();
+    //m_db.GetDynamicData(int1, int2)
+    PyTuple* res = NULL;
+    PyTuple* tuple0 = new PyTuple( 1 );
+
+    tuple0->items[ 0 ] = new PyInt( int1 );
+
+    res = tuple0;
+
+    return res;
 }

@@ -548,8 +548,10 @@ bool AttributeMap::SendAttributeChanges( PyTuple* attrChange )
         {
             if( client->Destiny() == NULL )
             {
-                sLog.Warning( "AttributeMap::SendAttributeChanges()", "client->Destiny() returned NULL" );
-                //return false;
+              if(IsStation(client->GetLocationID()))   // in station....no destiny manager.
+                return true;
+              sLog.Warning( "AttributeMap::SendAttributeChanges()", "client->Destiny() returned NULL" );
+              return false;
             }
             else
                 client->QueueDestinyEvent(&attrChange);

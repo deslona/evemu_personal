@@ -820,9 +820,6 @@ CREATE TABLE `crpStandings` (
   PRIMARY KEY  (`corporationID`,`fromID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- No longer needed
-DROP TABLE IF EXISTS entityStatic;
-
 DROP TABLE IF EXISTS `chrSkillQueue`;
 
 CREATE TABLE `chrSkillQueue` (
@@ -832,7 +829,7 @@ CREATE TABLE `chrSkillQueue` (
 	`level` INT(10) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
 
--- Mail subsystem
+
 DROP TABLE IF EXISTS `mailLabel`;
 CREATE TABLE `mailLabel` (
 	`id` INT(10) NOT NULL AUTO_INCREMENT,
@@ -842,5 +839,116 @@ CREATE TABLE `mailLabel` (
 	`ownerID` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
 	PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/* Table structure for table `mapOreBySystemSecurityClass` */
+
+CREATE TABLE IF NOT EXISTS `mapOreBySystemSecurityClass` (
+  `systemSecurityClass` char(2) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Veldspar` bit(1) DEFAULT NULL,
+  `Scordite` bit(1) DEFAULT NULL,
+  `Pyroxeres` bit(1) DEFAULT NULL,
+  `Plagioclase` bit(1) DEFAULT NULL,
+  `Omber` bit(1) DEFAULT NULL,
+  `Kernite` bit(1) DEFAULT NULL,
+  `Jaspet` bit(1) DEFAULT NULL,
+  `Hemorphite` bit(1) DEFAULT NULL,
+  `Hedbergite` bit(1) DEFAULT NULL,
+  `Gneiss` bit(1) DEFAULT NULL,
+  `DarkOchre` bit(1) DEFAULT NULL,
+  `Spodumain` bit(1) DEFAULT NULL,
+  `Crokite` bit(1) DEFAULT NULL,
+  `Bistot` bit(1) DEFAULT NULL,
+  `Arkanor` bit(1) DEFAULT NULL,
+  `Mercoxit` bit(1) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+/*  Dumping data for table `mapOreBySystemSecurityClass`  */
+
+INSERT INTO `mapOreBySystemSecurityClass` (`systemSecurityClass`, `Veldspar`, `Scordite`, `Pyroxeres`, `Plagioclase`, `Omber`, `Kernite`, `Jaspet`, `Hemorphite`, `Hedbergite`, `Gneiss`, `DarkOchre`, `Spodumain`, `Crokite`, `Bistot`, `Arkanor`, `Mercoxit`) VALUES
+('A', b'1', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('B', b'1', b'1', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('B1', b'1', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('B2', b'1', b'1', b'1', b'0', b'0', b'1', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('B3', b'1', b'1', b'1', b'0', b'0', b'1', b'1', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('C', b'1', b'1', b'1', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('C1', b'1', b'1', b'1', b'1', b'0', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('C2', b'1', b'1', b'1', b'1', b'0', b'1', b'0', b'0', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('D', b'1', b'1', b'0', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('D1', b'1', b'1', b'0', b'1', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('D2', b'1', b'1', b'0', b'1', b'1', b'0', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('D3', b'1', b'1', b'0', b'1', b'1', b'0', b'1', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('E', b'1', b'1', b'0', b'1', b'1', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('E1', b'1', b'1', b'0', b'1', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('F', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'1', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('F1', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'0', b'0'),
+('F2', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'1', b'1', b'1', b'0', b'1', b'0', b'0', b'0', b'0'),
+('F3', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'1', b'1', b'1', b'0', b'1', b'0', b'1', b'0', b'0'),
+('F4', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'1', b'1', b'1', b'0', b'1', b'0', b'1', b'1', b'0'),
+('F5', b'1', b'1', b'1', b'0', b'1', b'0', b'0', b'1', b'1', b'1', b'0', b'1', b'0', b'1', b'1', b'0'),
+('F6', b'1', b'1', b'1', b'0', b'1', b'0', b'0', b'1', b'1', b'1', b'0', b'1', b'0', b'1', b'1', b'1'),
+('F7', b'1', b'1', b'1', b'1', b'1', b'0', b'0', b'1', b'1', b'1', b'0', b'1', b'0', b'1', b'1', b'1'),
+('G', b'1', b'1', b'0', b'1', b'1', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('G1', b'1', b'1', b'0', b'1', b'1', b'1', b'0', b'0', b'0', b'1', b'0', b'0', b'0', b'0', b'0', b'0'),
+('G2', b'1', b'1', b'1', b'1', b'1', b'1', b'0', b'0', b'0', b'1', b'0', b'0', b'0', b'0', b'0', b'0'),
+('G3', b'1', b'1', b'1', b'1', b'1', b'1', b'0', b'0', b'0', b'1', b'0', b'1', b'0', b'0', b'0', b'0'),
+('G4', b'1', b'1', b'1', b'1', b'1', b'1', b'0', b'0', b'0', b'1', b'0', b'1', b'0', b'1', b'0', b'0'),
+('G5', b'1', b'1', b'1', b'1', b'1', b'1', b'0', b'0', b'0', b'1', b'0', b'1', b'1', b'1', b'0', b'0'),
+('G6', b'1', b'1', b'1', b'1', b'1', b'1', b'0', b'0', b'0', b'1', b'0', b'1', b'1', b'1', b'0', b'1'),
+('G7', b'1', b'1', b'1', b'1', b'1', b'1', b'0', b'0', b'0', b'1', b'1', b'1', b'1', b'1', b'0', b'1'),
+('H', b'1', b'1', b'1', b'0', b'0', b'0', b'1', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('H1', b'1', b'1', b'1', b'0', b'0', b'0', b'1', b'1', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('H2', b'1', b'1', b'1', b'0', b'0', b'0', b'1', b'1', b'1', b'0', b'1', b'0', b'0', b'0', b'0', b'0'),
+('H3', b'1', b'1', b'1', b'0', b'0', b'1', b'1', b'1', b'1', b'0', b'1', b'0', b'0', b'0', b'0', b'0'),
+('H4', b'1', b'1', b'1', b'0', b'0', b'1', b'1', b'1', b'1', b'0', b'1', b'0', b'1', b'0', b'0', b'0'),
+('H5', b'1', b'1', b'1', b'0', b'0', b'1', b'1', b'1', b'1', b'0', b'1', b'1', b'1', b'0', b'0', b'0'),
+('H6', b'1', b'1', b'1', b'0', b'0', b'1', b'1', b'1', b'1', b'0', b'1', b'1', b'1', b'0', b'0', b'1'),
+('H7', b'1', b'1', b'1', b'0', b'0', b'1', b'1', b'1', b'1', b'0', b'1', b'1', b'1', b'0', b'1', b'1'),
+('I', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'1', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('I1', b'1', b'1', b'0', b'0', b'1', b'0', b'1', b'1', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('I2', b'1', b'1', b'0', b'0', b'1', b'0', b'1', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'0', b'0'),
+('I3', b'1', b'1', b'0', b'0', b'1', b'0', b'1', b'1', b'1', b'1', b'0', b'1', b'0', b'0', b'0', b'0'),
+('I4', b'1', b'1', b'0', b'0', b'1', b'0', b'1', b'1', b'1', b'1', b'1', b'1', b'0', b'0', b'0', b'0'),
+('I5', b'1', b'1', b'0', b'0', b'1', b'0', b'1', b'1', b'1', b'1', b'1', b'1', b'0', b'0', b'1', b'0'),
+('I6', b'1', b'1', b'0', b'0', b'1', b'0', b'1', b'1', b'1', b'1', b'1', b'1', b'0', b'0', b'1', b'1'),
+('I7', b'1', b'1', b'0', b'0', b'1', b'1', b'1', b'1', b'1', b'1', b'1', b'1', b'0', b'0', b'1', b'1'),
+('J', b'1', b'1', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('J1', b'1', b'1', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'0', b'1', b'0', b'0', b'0', b'0', b'0'),
+('J2', b'1', b'1', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'0', b'1', b'0', b'1', b'0', b'0', b'0'),
+('J3', b'1', b'1', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'0', b'1', b'0', b'1', b'1', b'0', b'0'),
+('J4', b'1', b'1', b'1', b'1', b'0', b'0', b'1', b'1', b'0', b'0', b'1', b'0', b'1', b'1', b'0', b'0'),
+('J5', b'1', b'1', b'1', b'1', b'0', b'0', b'1', b'1', b'1', b'0', b'1', b'0', b'1', b'1', b'0', b'0'),
+('J6', b'1', b'1', b'1', b'1', b'0', b'0', b'1', b'1', b'1', b'0', b'1', b'0', b'1', b'1', b'0', b'1'),
+('J7', b'1', b'1', b'1', b'1', b'0', b'0', b'1', b'1', b'1', b'0', b'1', b'0', b'1', b'1', b'0', b'1'),
+('K', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'1', b'1', b'0', b'0', b'0', b'0', b'0', b'0', b'0'),
+('K1', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'1', b'1', b'0', b'1', b'0', b'0', b'0', b'0', b'0'),
+('K2', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'1', b'1', b'0', b'1', b'1', b'0', b'0', b'0', b'0'),
+('K3', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'1', b'1', b'0', b'1', b'1', b'1', b'0', b'0', b'0'),
+('K4', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'1', b'1', b'0', b'1', b'1', b'1', b'1', b'0', b'0'),
+('K5', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'1', b'1', b'0', b'1', b'1', b'1', b'1', b'1', b'0'),
+('K6', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'1', b'1', b'0', b'1', b'1', b'1', b'1', b'1', b'1'),
+('K7', b'1', b'1', b'0', b'0', b'1', b'0', b'0', b'1', b'1', b'1', b'1', b'1', b'1', b'1', b'1', b'1');
+
+/* Table structure for table `mapDynamicData`  */
+
+CREATE TABLE IF NOT EXISTS `mapDynamicData` (
+  `solSystemID` int(10) NOT NULL,
+  `cynoFields` int(10) DEFAULT '0',
+  `jumpsHour` int(10) DEFAULT '0',
+  `killsHour` int(10) DEFAULT '0',
+  `kills24Hours` int(10) DEFAULT '0',
+  `numPilots` int(10) DEFAULT '0',
+  `podKillsHour` int(10) DEFAULT '0',
+  `podKills24Hour` int(10) DEFAULT '0',
+  KEY `solSystemID` (`solSystemID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+/*  Table structure for table `chrVisitedSystems` */
+
+CREATE TABLE IF NOT EXISTS `chrVisitedSystems` (
+  `characterID` int(20) NOT NULL,
+  `solSystemID` int(10) NOT NULL,
+  `visits` int(10) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`characterID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

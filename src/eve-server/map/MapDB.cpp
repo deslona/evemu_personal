@@ -27,7 +27,8 @@
 
 #include "map/MapDB.h"
 
-PyObject *MapDB::GetPseudoSecurities() {
+PyObject *MapDB::GetPseudoSecurities()
+{
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res, "SELECT solarSystemID, security FROM mapSolarSystems"))
@@ -39,7 +40,8 @@ PyObject *MapDB::GetPseudoSecurities() {
     return DBResultToRowset(res);
 }
 
-PyObject *MapDB::GetStationExtraInfo() {
+PyObject *MapDB::GetStationExtraInfo()
+{
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
@@ -55,7 +57,8 @@ PyObject *MapDB::GetStationExtraInfo() {
     return DBResultToRowset(res);
 }
 
-PyObject *MapDB::GetStationOpServices() {
+PyObject *MapDB::GetStationOpServices()
+{
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
@@ -71,7 +74,8 @@ PyObject *MapDB::GetStationOpServices() {
     return DBResultToRowset(res);
 }
 
-PyObject *MapDB::GetStationServiceInfo() {
+PyObject *MapDB::GetStationServiceInfo()
+{
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
@@ -87,7 +91,8 @@ PyObject *MapDB::GetStationServiceInfo() {
     return DBResultToRowset(res);
 }
 
-PyObject *MapDB::GetStationCount() {
+PyObject *MapDB::GetStationCount()
+{
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
@@ -104,7 +109,8 @@ PyObject *MapDB::GetStationCount() {
     return DBResultToRowset(res);
 }
 
-PyObject *MapDB::GetSolSystemVisits(uint32 charID) {
+PyObject *MapDB::GetSolSystemVisits(uint32 charID)
+{
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
@@ -123,7 +129,31 @@ PyObject *MapDB::GetSolSystemVisits(uint32 charID) {
     return DBResultToRowset(res);
 }
 
+//  called from MapService by multiple functions based on passed values
+PyObject *GetDynamicData(uint8 int1, uint8 int2)
+{
+    DBQueryResult res;
 
+    if(!sDatabase.RunQuery(res,
+        "SELECT "
+        "  solSystemID, "
+        "  beaconCount,"
+        "  cynoFields,"
+        "  jumpsHour,"
+        "  killsHour,"
+        "  kills24Hours,"
+        "  numPilots,"
+        "  podKillsHour,"
+        "  podKills24Hour,"
+        " FROM mapDynamicData "
+        ))
+    {
+        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        return NULL;
+    }
+
+    return DBResultToRowset(res);
+}
 
 
 

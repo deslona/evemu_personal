@@ -144,6 +144,22 @@ bool Inventory::LoadContents(ItemFactory &factory)
     sLog.Log("Inventory", "Recursively loading contents of inventory %u", inventoryID() );
 
     //load the list of items we need
+    //  PUT SOME FUCKING CHECKS FOR SYSTEM ENTITIES IN HERE!!!!
+    /**
+05:39:20 L Inventory: Recursively loading contents of inventory 60009112
+05:39:20 E Inventory::LoadContents(): Failed to resolve pointer to Client object currently using the ItemFactory.
+05:39:20 E Inventory::LoadContents(): WARNING! Loading Contents while ItemFactory::GetUsingClient() returned NULL!
+05:39:20 [DBError] No data found for character 3008958.
+05:39:20 E Inventory::LoadContents(): Failed to load item 3008958 contained in 60009112. Skipping.
+05:39:20 E Inventory::LoadContents(): Failed to resolve pointer to Client object currently using the ItemFactory.
+05:39:20 E Inventory::LoadContents(): WARNING! Loading Contents while ItemFactory::GetUsingClient() returned NULL!
+05:39:20 [DBError] No data found for character 3015108.
+05:39:20 E Inventory::LoadContents(): Failed to load item 3015108 contained in 60009112. Skipping.
+05:39:20 E Inventory::LoadContents(): Failed to resolve pointer to Client object currently using the ItemFactory.
+05:39:20 E Inventory::LoadContents(): WARNING! Loading Contents while ItemFactory::GetUsingClient() returned NULL!
+05:39:20 [DBError] No data found for character 3015117.
+05:39:20 E Inventory::LoadContents(): Failed to load item 3015117 contained in 60009112. Skipping.
+*/
     std::vector<uint32> items;
     if( !GetItems( factory, items ) )
     {

@@ -1042,17 +1042,12 @@ void Client::StargateJump(uint32 fromGate, uint32 toGate) {
     _postMove(msJump, 5000);
 
     //  save the system for later use..(with checks for previous visit)
-    uint32 visits = 0;
+    uint32 visits = 1;
     DBQueryResult res;
-
-    if(!sDatabase.RunQuery(res,
+    sDatabase.RunQuery(res,
         " INSERT INTO chrVisitedSystems (characterID, solSystemID, visits)"
         " VALUES (%u, %u, %u)",  GetCharacterID(), solarSystemID, visits
-        ))
-    {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
-        return;
-    }
+        );
 }
 
 void Client::SetDockingPoint(GPoint &dockPoint)

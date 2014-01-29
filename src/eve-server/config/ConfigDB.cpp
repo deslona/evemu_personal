@@ -278,27 +278,28 @@ PyObjectEx *ConfigDB::GetMapObjects(uint32 entityID, bool wantRegions,
 PyObject *ConfigDB::GetMap(uint32 solarSystemID) {
     DBQueryResult res;
 
-#   pragma message( "a lot of missing data in GetMap" )
-
     //how in the world do they get a list in the freakin rowset for destinations???
+    //   .....  like this..    -allan
     if(!sDatabase.RunQuery(res,
         "SELECT "
-        "   itemID,"
-        "   itemName,"
-        "   typeID,"
-        "   groupID,"
-        "   solarSystemID AS locationID,"
-        "   x,y,z,"
-        "   NULL AS orbitID,"
-        "   NULL AS destinations,"
-        "   NULL AS xMin,"
-        "   NULL AS xMax,"
-        "   NULL AS yMin,"
-        "   NULL AS yMax,"
-        "   NULL AS zMin,"
-        "   NULL AS zMax,"
-        "   NULL AS luminosity"
-        " FROM mapDenormalize"
+        "   s.solarSystemID AS locationID,"
+        "   s.xMin AS xMin,"
+        "   s.xMax AS xMax,"
+        "   s.yMin AS yMin,"
+        "   s.yMax AS yMax,"
+        "   s.zMin AS zMin,"
+        "   s.zMax AS zMax,"
+        "   s.luminosity AS luminosity,"
+        "   d.x AS x, d.y AS y, d.z AS z,"
+        "   d.itemID,"
+        "   d.itemName,"
+        "   d.typeID,"
+        "   d.groupID,"
+        "   d.orbitID AS orbitID,"
+        "   j.celestialID AS destinations"       // groupID = 10 (stargate) this is the toSolarSystemID field...
+        " FROM mapSolarSystems AS s"
+        "  LEFT JOIN mapDenormalize AS d USING (solarSystemID)"
+        "  LEFT JOIN mapJumps AS j ON j.stargateID = d.itemID"
         " WHERE solarSystemID=%u", solarSystemID
     ))
     {
@@ -312,7 +313,6 @@ PyObject *ConfigDB::GetMap(uint32 solarSystemID) {
 PyObject *ConfigDB::ListLanguages() {
     DBQueryResult res;
 
-    //how in the world do they get a list in the freakin rowset for destinations???
     if(!sDatabase.RunQuery(res,
         "SELECT "
         "   languageID,languageName,translatedLanguageName"
@@ -373,7 +373,7 @@ PyRep *ConfigDB::GetCelestialStatistic(uint32 celestialID) {
     if (!sDatabase.RunQuery(res,
         " SELECT "
         " groupID "
-        " FROM invNames "
+        " FROM mapDenormalize "
         " WHERE itemID = %u ", celestialID))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
@@ -453,21 +453,21 @@ PyRep *ConfigDB::GetCelestialStatistic(uint32 celestialID) {
     return DBResultToCRowset(res);
 }
 
-PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID) {
-
-    sLog.Warning("ConfigDB::GetDynamicCelestials", "This query is intentionally made to yield an empty result.  It must be re-worked to provide actual data!");
-
+PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID)
+{
     const std::string query = " SELECT "
                               "     e.itemID, "
                               "     e.typeID, "
                               "     t.groupID, "
                               "     e.itemName, "
-                              "     0, " // This field refers to the orbitID of the dynamic celestial and needs to be implemented
+                              "     m.orbitID, "
                               "     0, " // This field refers to the boolean value of isConnector.  It may signify some sort of mission jump bridge
                               "     e.x, "
                               "     e.y, "
                               "     e.z "
-                              " FROM entity AS e LEFT JOIN invTypes AS t USING (typeID)"
+                              " FROM entity AS e"
+                              "  LEFT JOIN invTypes AS t USING (typeID)"
+                              "  LEFT JOIN mapDenormalize AS m USING (itemID)"
                               " WHERE e.locationID = %u";
                               /*AND " // In the future, the locationID field needs to be constrained to being a solarSystemID
                               "     `groupID` = -1"; // This is set to -1 because we do not know what the ID(s) of dynamic celestials is/are. */

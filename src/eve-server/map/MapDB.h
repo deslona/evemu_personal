@@ -37,6 +37,7 @@ public:
     PyObject *GetStationServiceInfo();
     PyObject *GetStationCount();
     PyObject *GetSolSystemVisits(uint32);
+    PyObject *GetDynamicData(uint8, uint8);
 
 protected:
 };
