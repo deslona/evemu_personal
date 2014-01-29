@@ -220,6 +220,7 @@ public:
      * @return True if load succeeds, false if fails.
      */
     bool LoadSkillQueue(uint32 characterID, SkillQueue &into);
+    bool LoadPausedSkillQueue(uint32 characterID, SkillQueue &into);
     /**
      * Saves skill queue.
      *
@@ -228,6 +229,7 @@ public:
      * @return True if save succeeds, false if fails.
      */
     bool SaveSkillQueue(uint32 characterID, const SkillQueue &queue);
+    bool SavePausedSkillQueue(uint32 characterID, const SkillQueue &queue);
     // Certificates:
     struct currentCertificates {
         uint32 certificateID;

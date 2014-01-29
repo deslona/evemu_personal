@@ -48,6 +48,10 @@ protected:
     PyCallable_DECL_CALL(GetHistory)
     PyCallable_DECL_CALL(GetIncursionGlobalReport)
     PyCallable_DECL_CALL(GetStationCount)
+    PyCallable_DECL_CALL(GetAllianceSystems)
+    PyCallable_DECL_CALL(GetSolarSystemVisits)
+    PyCallable_DECL_CALL(GetMapLandmarks)
+    PyCallable_DECL_CALL(GetMyExtraMapInfoAgents)  //ColorStarsByMyAgents
 };
 
 #endif

@@ -141,7 +141,7 @@ int main( int argc, char* argv[] )
     // Under Visual Studio setup memory leak detection
     _CrtSetDbgFlag( _CRTDBG_LEAK_CHECK_DF | _CrtSetDbgFlag( _CRTDBG_REPORT_FLAG ) );
 #endif /* defined( HAVE_CRTDBG_H ) && !defined( NDEBUG ) */
-
+/**
     printf("Copyright (C) 2006-2011 EVEmu Team. http://evemu.org/\n");
     printf("This program is free software; you can redistribute it and/or modify it under\n");
     printf("the terms of the GNU Lesser General Public License as published by the Free \n");
@@ -153,7 +153,7 @@ int main( int argc, char* argv[] )
     printf("FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more\n");
     printf("details.\n");
     printf("\n");
-
+*/
     // Load server configuration
     if( !sConfig.ParseFile( CONFIG_FILE ) )
     {
@@ -164,13 +164,10 @@ int main( int argc, char* argv[] )
     }
 
     sLog.InitializeLogging(sConfig.files.logDir);
-    sLog.Log("server init", "Loading server configuration...");
-
-    sLog.Log("", "" );
-    sLog.Log("SERVER VERSION", "EVEmu " EVEMU_VERSION );
-    sLog.Log("", "" );
+    sLog.Log("server init", "Loading server...");
+    sLog.Log("SERVER VERSION", "EVEmu 0.7.12-allan" );
+    sLog.Log("BUILD DATE", "25 January 2014");
     sLog.Log("SOURCE", "get at " EVEMU_REPOSITORY );
-    sLog.Log("", "" );
     sLog.Log("SERVER INIT", "\n"
         "\tSupported Client: %s\n"
         "\tVersion %.2f\n"
@@ -249,7 +246,7 @@ int main( int argc, char* argv[] )
      */
     sLog.Log("server init", "Creating services.");
 
-    // Please keep the services list clean so it's easyier to find something
+    // Please keep the services list clean so it's easier to find things
 
     services.RegisterService(new AccountService(&services));
     services.RegisterService(new AgentMgrService(&services));
@@ -346,8 +343,10 @@ int main( int argc, char* argv[] )
 	sDGM_Skill_Bonus_Modifiers_Table.Initialize();
 	//sLog.Log("server init", "---> sDGM_Ship_Bonus_Modifiers_Table: Loading...");
 	//sDGM_Ship_Bonus_Modifiers_Table.Initialize();
+    //sLog.Log("server init", "---> sDGM_Implant_Bonus_Modifiers_Table: Loading...");
+    //sDGM_Implant_Bonus_Modifiers_Table.Initialize();
 
-    sLog.Log("server init", "Init done.");
+    sLog.Success("server init", "Init done.");
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	//     !!!  DO NOT PUT ANY INITIALIZATION CODE OR CALLS BELOW THIS LINE   !!!
@@ -396,24 +395,24 @@ int main( int argc, char* argv[] )
             Sleep( MAIN_LOOP_DELAY - etime );
     }
 
-    sLog.Log("server shutdown", "Main loop stopped" );
+    sLog.Warning("server shutdown", "Main loop stopped" );
 
     // Shutting down EVE Client TCP listener
     tcps.Close();
-    sLog.Log("server shutdown", "TCP listener stopped." );
+    sLog.Warning("server shutdown", "TCP listener stopped." );
 
     // Shutting down API Server:
     sAPIServer.Stop();
-    sLog.Log("server shutdown", "Image Server TCP listener stopped." );
+    sLog.Warning("server shutdown", "Image Server TCP listener stopped." );
 
     // Shutting down Image Server:
     sImageServer.Stop();
-    sLog.Log("server shutdown", "API Server TCP listener stopped." );
+    sLog.Warning("server shutdown", "API Server TCP listener stopped." );
 
     services.serviceDB().SetServerOnlineStatus(false);
-	sLog.Log("server shutdown", "SERVER IS NOW [OFFLINE]");
+	sLog.Error("server shutdown", "SERVER IS NOW [OFFLINE]");
 
-    sLog.Log("server shutdown", "Cleanup db cache" );
+    sLog.Warning("server shutdown", "Cleanup db cache" );
     delete _sDgmTypeAttrMgr;
 
     log_close_logfile();
@@ -421,7 +420,7 @@ int main( int argc, char* argv[] )
     //std::cout << std::endl << "press the ENTER key to exit...";  std::cin.get();
 
 	// Shut down the Item system ensuring ALL items get saved to the database:
-	sLog.Log("server shutdown", "Shutting down Item Factory." );
+	sLog.Warning("server shutdown", "Shutting down Item Factory." );
 
 	return 0;
 }

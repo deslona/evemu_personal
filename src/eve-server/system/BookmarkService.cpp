@@ -310,12 +310,7 @@ PyResult BookmarkService::Handle_DeleteBookmarks(PyCallArgs &call)          //no
       return NULL;
     }
 
-    PyTuple* result = new PyTuple(2);
-
-    result->items[0] = m_db.GetBookmarks(call.client->GetCharacterID());
-    result->items[1] = m_db.GetFolders(call.client->GetCharacterID());
-
-    return result;
+    return(new PyNone());
 }
 
 
@@ -481,9 +476,11 @@ PyResult BookmarkService::Handle_DeleteFolder(PyCallArgs &call)     // working
 //16:02:12 L BookmarkService::Handle_MoveBookmarksToFolder(): size= 2, 0 = Integer(2), 1 = ObjectEx
 PyResult BookmarkService::Handle_MoveBookmarksToFolder(PyCallArgs &call)
 {
-  sLog.Log( "BookmarkService::Handle_MoveBookmarksToFolder()", "size= %u, 0 = %s, 1 = %s", call.tuple->size(),
-            call.tuple->GetItem(0)->TypeString(), call.tuple->GetItem(1)->TypeString() );  //call.tuple->GetItem(0)->AsInt()->value() fails...server crash
+  uint32 size = call.tuple->size();
+  uint32 int1 = call.tuple->GetItem(0)->AsInt()->value();
+  std::string string = "can\'t get"; //call.tuple->GetItem(1)->AsObjectEx()->content();
+  sLog.Log( "CorpMgrService::Handle_GetAssetInventory()", "size= %u, 0 = int (%u), 1 = ObjectEx (%s)", size, int1, string.c_str() );
 
-    return(new PyNone());
+  return(new PyNone());
 }
 

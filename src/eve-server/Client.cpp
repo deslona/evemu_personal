@@ -161,11 +161,10 @@ void Client::Process() {
 
     // Check Character Save Timer Expiry:
     if( GetChar()->CheckSaveTimer() )
+    {
         GetChar()->SaveCharacter();
-
-    // Check Ship Save Timer Expiry:
-    if( GetShip()->CheckSaveTimer() )
         GetShip()->SaveShip();
+    }
 
     // Check Module Manager Save Timer Expiry:
     //if( mModulesMgr.CheckSaveTimer() )
@@ -1034,13 +1033,26 @@ void Client::StargateJump(uint32 fromGate, uint32 toGate) {
 
     m_moveSystemID = solarSystemID;
     m_movePoint = position;
-    m_movePoint.MakeRandomPointOnSphere( 15000 );   // Make Jump-In point a random spot on a 10km radius sphere about the stargate
+    m_movePoint.MakeRandomPointOnSphere( 10000 );   // Make Jump-In point a random spot on a 10km radius sphere about the stargate
 
     m_destiny->SendJumpOut(fromGate);
     //TODO: send 'effects.GateActivity' on 'toGate' at the same time
 
     //delay the move so they can see the JumpOut animation
     _postMove(msJump, 5000);
+
+    //  save the system for later use..(with checks for previous visit)
+    uint32 visits = 0;
+    DBQueryResult res;
+
+    if(!sDatabase.RunQuery(res,
+        " INSERT INTO chrVisitedSystems (characterID, solSystemID, visits)"
+        " VALUES (%u, %u, %u)",  GetCharacterID(), solarSystemID, visits
+        ))
+    {
+        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        return;
+    }
 }
 
 void Client::SetDockingPoint(GPoint &dockPoint)
@@ -1573,10 +1585,10 @@ bool Client::_VerifyLogin( CryptoChallengePacket& ccp )
     //sLog.Debug("Client","%s: Received Client Challenge.", GetAddress().c_str());
     //sLog.Debug("Client","Login with %s:", ccp.user_name.c_str());
 
-    if (!services().serviceDB().GetAccountInformation( 
-				ccp.user_name.c_str(), 
-				ccp.user_password_hash.c_str(), 
-				account_info)) 
+    if (!services().serviceDB().GetAccountInformation(
+				ccp.user_name.c_str(),
+				ccp.user_password_hash.c_str(),
+				account_info))
 	{
         goto error_login_auth_failed;
     }

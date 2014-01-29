@@ -775,7 +775,7 @@ SystemEntity *SystemManager::get(uint32 entityID) const {
 //in m/s
 double SystemManager::GetWarpSpeed() const {
     //right now, warp speed is hard coded to 6 AU/s
-    _log(COMMON__WARNING, "SystemManager::GetWarpSpeed is hard coded to 3 AU right now!");
+    _log(COMMON__WARNING, "SystemManager::GetWarpSpeed is hard coded to 6 AU right now!");
     return(6.0f * ONE_AU_IN_METERS);
     //  will need to get ship warp speed from db
 }

@@ -73,7 +73,7 @@ void EntityList::Process()
         active_client = *client_cur;
         if(!active_client->ProcessNet())
         {
-            sLog.Log("Entity List", "Destroying client for account %u", active_client->GetAccountID());
+            sLog.Debug("Entity List", "Destroying client for account %u", active_client->GetAccountID());
             SafeDelete(active_client);
 
             client_tmp = client_cur++;

@@ -49,7 +49,7 @@ public:
 
     bool DeleteBookmarkFromDatabase(uint32 ownerID, uint32 bookmarkID);
 
-    bool DeleteBookmarksFromDatabase(uint32 ownerID, std::vector<unsigned long> *bookmarkList);
+    bool DeleteBookmarksFromDatabase(uint32 ownerID, std::vector<unsigned long> * bookmarkList);
 
     bool UpdateBookmarkInDatabase(uint32 bookmarkID, uint32 ownerID, std::string memo, std::string note);
 

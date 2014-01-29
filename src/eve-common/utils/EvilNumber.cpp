@@ -29,11 +29,11 @@
 #include "utils/EvilNumber.h"
 
 const EvilNumber EvilTime_Second = 10000000;
-const EvilNumber EvilTime_Minute = Win32Time_Second * 60;
-const EvilNumber EvilTime_Hour = Win32Time_Minute * 60;
-const EvilNumber EvilTime_Day = Win32Time_Hour * 24;
-const EvilNumber EvilTime_Month = Win32Time_Day * 30;
-const EvilNumber EvilTime_Year = Win32Time_Month * 12;
+const EvilNumber EvilTime_Minute = EvilTime_Second * 60;
+const EvilNumber EvilTime_Hour = EvilTime_Minute * 60;
+const EvilNumber EvilTime_Day = EvilTime_Hour * 24;
+const EvilNumber EvilTime_Month = EvilTime_Day * 30;
+const EvilNumber EvilTime_Year = EvilTime_Month * 12;
 
 const EvilNumber EvilPI = 3.14159265358979323846;
 const EvilNumber EvilE = 2.71828182845904523536;

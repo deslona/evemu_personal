@@ -104,6 +104,25 @@ PyObject *MapDB::GetStationCount() {
     return DBResultToRowset(res);
 }
 
+PyObject *MapDB::GetSolSystemVisits(uint32 charID) {
+    DBQueryResult res;
+
+    if(!sDatabase.RunQuery(res,
+        " SELECT "
+        "   solSystemID, "
+        "   visits"
+        " FROM chrVisitedSystems "
+        " WHERE characterID = %u ",
+        charID
+        ))
+    {
+        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        return NULL;
+    }
+
+    return DBResultToRowset(res);
+}
+
 
 
 

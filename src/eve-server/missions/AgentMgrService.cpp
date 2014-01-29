@@ -96,6 +96,7 @@ AgentMgrService::AgentMgrService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(AgentMgrService, GetMyJournalDetails)
     PyCallable_REG_CALL(AgentMgrService, GetMyEpicJournalDetails)
     PyCallable_REG_CALL(AgentMgrService, GetSolarSystemOfAgent)
+    PyCallable_REG_CALL(AgentMgrService, GetCareerAgents)
 }
 
 AgentMgrService::~AgentMgrService() {
@@ -258,23 +259,31 @@ PyResult AgentMgrBound::Handle_GetMyJournalDetails(PyCallArgs &call) {
     return result;
 }
 
-PyResult AgentMgrBound::Handle_GetMissionBriefingInfo(PyCallArgs &call) {
-
+/** not handled */
+PyResult AgentMgrBound::Handle_GetMissionBriefingInfo(PyCallArgs &call)
+{
     sLog.Debug("Server", "Called GetMissionBriefingInfo Stub.");
 
     return NULL;
 }
 
-PyResult AgentMgrBound::Handle_GetAgentLocationWrap(PyCallArgs &call) {
-
+PyResult AgentMgrBound::Handle_GetAgentLocationWrap(PyCallArgs &call)
+{
     sLog.Debug("Server", "Called GetAgentLocationWrap Stub.");
 
     return NULL;
 }
 
-PyResult AgentMgrBound::Handle_GetMissionObjectiveInfo(PyCallArgs &call) {
-
+PyResult AgentMgrBound::Handle_GetMissionObjectiveInfo(PyCallArgs &call)
+{
     sLog.Debug("Server", "Called GetMissionObjectiveInfo Stub.");
+
+    return NULL;
+}
+
+PyResult AgentMgrService::Handle_GetCareerAgents(PyCallArgs &call)
+{
+    sLog.Debug("Server", "Called GetCareerAgents Stub.");
 
     return NULL;
 }

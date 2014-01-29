@@ -413,7 +413,7 @@ bool TCPConnection::RecvData( char* errbuf )
         }
         else if( status == 0 )
         {
-            snprintf( errbuf, TCPCONN_ERRBUF_SIZE, "TCPConnection::RecvData(): Connection closed" );
+            //snprintf( errbuf, TCPCONN_ERRBUF_SIZE, "TCPConnection::RecvData(): Connection closed" );
 
             return false;
         }
@@ -431,9 +431,9 @@ bool TCPConnection::RecvData( char* errbuf )
             {
                 if( errbuf )
 #ifdef HAVE_WINSOCK2_H
-                    snprintf( errbuf, TCPCONN_ERRBUF_SIZE, "TCPConnection::RecvData(): Error: %i", WSAGetLastError() );
+                    //snprintf( errbuf, TCPCONN_ERRBUF_SIZE, "TCPConnection::RecvData(): Error: %i", WSAGetLastError() );
 #else /* !HAVE_WINSOCK2_H */
-                    snprintf( errbuf, TCPCONN_ERRBUF_SIZE, "TCPConnection::RecvData(): Error: %s", strerror( errno ) );
+                    //snprintf( errbuf, TCPCONN_ERRBUF_SIZE, "TCPConnection::RecvData(): Error: %s", strerror( errno ) );
 #endif /* !HAVE_WINSOCK2_H */
 
                 return false;
@@ -497,7 +497,7 @@ void TCPConnection::TCPConnectionLoop()
 #endif /* HAVE_WINDOWS_H */
 
 #ifndef HAVE_WINDOWS_H
-    sLog.Log( "Threading", "Starting TCPConnectionLoop with thread ID %d", pthread_self() );
+    sLog.Debug( "Threading", "Starting TCPConnectionLoop with thread ID %d", pthread_self() );
 #endif /* !HAVE_WINDOWS_H */
 
     mMLoopRunning.Lock();
@@ -522,6 +522,6 @@ void TCPConnection::TCPConnectionLoop()
     mMLoopRunning.Unlock();
 
 #ifndef HAVE_WINDOWS_H
-    sLog.Log( "Threading", "Ending TCPConnectionLoop with thread ID %d", pthread_self() );
+    sLog.Debug( "Threading", "Ending TCPConnectionLoop with thread ID %d", pthread_self() );
 #endif /* !HAVE_WINDOWS_H */
 }

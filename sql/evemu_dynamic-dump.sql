@@ -204,6 +204,7 @@ CREATE TABLE `character_` (
   `petitionMessage` varchar(85) NOT NULL default '',
   `logonMinutes` int(10) unsigned NOT NULL default '0',
   `skillPoints` double NOT NULL default '0',
+  `skillQueueEndTime` bigint(20) unsigned NOT NULL DEFAULT '0',
   `corporationID` int(10) unsigned NOT NULL default '0',
   `corpRole` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
   `rolesAtAll` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
@@ -352,6 +353,18 @@ CREATE TABLE `chrOwnerNote` (
 
 /*Data for the table `chrOwnerNote` */
 
+/* Table structure for table `chrPausedSkillQueue` */
+
+CREATE TABLE IF NOT EXISTS `chrPausedSkillQueue` (
+  `characterID` int(10) unsigned NOT NULL,
+  `orderIndex` int(10) unsigned NOT NULL,
+  `typeID` int(10) unsigned NOT NULL,
+  `level` int(10) unsigned NOT NULL,
+  PRIMARY KEY  (`characterID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*Data for the table `chrPausedSkillQueue` */
+
 /*Table structure for table `chrStandings` */
 
 DROP TABLE IF EXISTS `chrStandings`;
@@ -364,18 +377,6 @@ CREATE TABLE `chrStandings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Data for the table `chrStandings` */
-
-/*Table structure for table chrSkillQueueTime` */
-
-DROP TABLE IF EXISTS `chrSkillQueueTime`;
-
-CREATE TABLE `chrSkillQueueTime` (
-  `characterID` bigint(20) NOT NULL default '0',
-  `skillQueueEndTime` bigint(20) DEFAULT '0'
-  PRIMARY KEY  (`characterID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-/* Data for table `chrSkillQueueTime` */
 
 /*Table structure for table `corporation` */
 

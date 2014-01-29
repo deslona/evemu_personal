@@ -87,7 +87,6 @@ public:
     PyCallable_DECL_CALL(GetInfoWindowDataForChar)
     PyCallable_DECL_CALL(GetLockedItemLocations)
     PyCallable_DECL_CALL(AddCorporation)
-    //PyCallable_DECL_CALL(GetMember)
     PyCallable_DECL_CALL(GetSuggestedTickerNames)
     PyCallable_DECL_CALL(GetOffices)
     PyCallable_DECL_CALL(GetStations)
@@ -418,7 +417,7 @@ PyResult CorpRegistryBound::Handle_GetOffices(PyCallArgs &call) {
     PyBoundObject *bObj;
     bObj = new SparseCorpOfficeListBound(m_manager, m_db);
     if(bObj == NULL) {
-        _log(SERVICE__ERROR, "%s: Unable to create bound object for:", call.client->GetName());
+        _log(SERVICE__ERROR, "%s: Unable to create bound object for:", call.client->GetName()); //errors here
         return NULL;
     }
 

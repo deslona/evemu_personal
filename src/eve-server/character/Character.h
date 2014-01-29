@@ -423,7 +423,6 @@ public:
     /** AddSkillToSkillQueue()
      *
      * This will add a skill into the skill queue.
-     *  also add total training time to char object for callback on select screen
      * @author xanarox
      */
     void AddToSkillQueue(uint32 typeID, uint8 level);
@@ -432,10 +431,21 @@ public:
      */
     void ClearSkillQueue();
     /**
+     * Pauses skill queue.
+     */
+    void PauseSkillQueue();
+    /**
+     * Loads Paused skill queue.
+     */
+    void LoadPausedSkillQueue();
+    /**
      * Updates skill queue.
      */
     void UpdateSkillQueue();
-
+    /**
+     * Update skill training end time on char select screen.
+     */
+    void UpdateSkillQueueEndTime( const SkillQueue &queue);
     /** GrantCertificate( uint32 certificateID )
      *
      * This will add a certificate into the character

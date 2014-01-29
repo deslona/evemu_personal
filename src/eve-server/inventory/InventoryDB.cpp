@@ -1553,6 +1553,34 @@ bool InventoryDB::LoadSkillQueue(uint32 characterID, SkillQueue &into) {
     return true;
 }
 
+bool InventoryDB::LoadPausedSkillQueue(uint32 characterID, SkillQueue &into) {
+    DBQueryResult res;
+
+    if( !sDatabase.RunQuery( res,
+        "SELECT"
+        "  typeID, level"
+        " FROM chrPausedSkillQueue"
+        " WHERE characterID = %u"
+        " ORDER BY orderIndex ASC",
+        characterID ) )
+    {
+        _log(DATABASE__ERROR, "Failed to query skill queue of character %u: %s.", characterID, res.error.c_str());
+        return false;
+    }
+
+    DBResultRow row;
+    while( res.GetRow( row ) )
+    {
+        QueuedSkill qs;
+        qs.typeID = row.GetUInt( 0 );
+        qs.level = row.GetUInt( 1 );
+
+        into.push_back( qs );
+    }
+
+    return true;
+}
+
 bool InventoryDB::LoadCertificates( uint32 characterID, Certificates &into )
 {
     DBQueryResult res;
@@ -1630,7 +1658,6 @@ bool InventoryDB::SaveCertificates( uint32 characterID, const Certificates &from
 
 bool InventoryDB::SaveSkillQueue(uint32 characterID, const SkillQueue &queue) {
     DBerror err;
-    //DBerror err2;
 
     if( !sDatabase.RunQuery( err,
         "DELETE FROM chrSkillQueue"
@@ -1640,12 +1667,6 @@ bool InventoryDB::SaveSkillQueue(uint32 characterID, const SkillQueue &queue) {
         _log(DATABASE__ERROR, "Failed to delete skill queue of character %u: %s.", characterID, err.c_str());
         return false;
     }
-/**
-    if( !sDatabase.RunQuery( err2, "DELETE FROM chrSkillQueueTime WHERE characterID = %u ", characterID ) )
-    {
-        _log(DATABASE__ERROR, "Failed to delete skill queue end time of character %u: %s.", characterID, err2.c_str());
-        return false;
-    }*/
 
     if( queue.empty() )
         // nothing else to do
@@ -1653,7 +1674,6 @@ bool InventoryDB::SaveSkillQueue(uint32 characterID, const SkillQueue &queue) {
 
     // now build insert query:
     std::string query;
-    //uint64 chrTimeRemaining = Win32TimeNow();
 
     for(size_t i = 0; i < queue.size(); i++)
     {
@@ -1665,14 +1685,6 @@ bool InventoryDB::SaveSkillQueue(uint32 characterID, const SkillQueue &queue) {
         if( i != 0 )
             query += ',';
         query += buf;
-        /**   to show training time on char select screen.....  -allan 01/17/14
-        const SkillRef &skill = queue[i];
-        EvilNumber sp = skill->GetAttribute(AttrSkillPoints);
-        EvilNumber needSP = EVIL_SKILL_BASE_POINTS * skill->GetAttribute(AttrSkillTimeConstant) * EvilNumber::pow(2, (2.5*(skill.level)));
-        EvilNumber leftSP = needSP - sp;
-          // time remain = leftsp / spmin
-        chrTimeRemaining += leftSP;
-        */
     }
 
     if( !sDatabase.RunQuery( err,
@@ -1684,18 +1696,50 @@ bool InventoryDB::SaveSkillQueue(uint32 characterID, const SkillQueue &queue) {
         _log(DATABASE__ERROR, "Failed to insert skill queue of character %u: %s.", characterID, err.c_str());
         return false;
     }
-      //sLog.Log("InventoryDB::SaveSkillQueue","  Saved skillQueueEndTime as %u", chrTimeRemaining );
 
-       // another hack for right now....still testing  -allan 01/17/14
-    //chrTimeRemaining = ( chrTimeRemaining +  (5*Win32Time_Hour) + (25*Win32Time_Minute) );
-/**
-    if( !sDatabase.RunQuery( err2, "INSERT INTO chrSkillQueueTime (characterID, skillQueueEndTime) VALUES (%u, %u) ", characterID, chrTimeRemaining ) )
+    return true;
+}
+
+bool InventoryDB::SavePausedSkillQueue(uint32 characterID, const SkillQueue &queue) {
+    DBerror err;
+
+    if( !sDatabase.RunQuery( err,
+        "DELETE FROM chrPausedSkillQueue"
+        " WHERE characterID = %u",
+        characterID ) )
     {
-        _log(DATABASE__ERROR, "Failed to set skillQueueEndTime for character %u: %s", characterID, err2.c_str());
+        _log(DATABASE__ERROR, "Failed to delete skill queue of character %u: %s.", characterID, err.c_str());
         return false;
     }
-      //sLog.Log("InventoryDB::SaveSkillQueue","  Saved skillQueueEndTime as %u", chrTimeRemaining );
-    */
+
+    if( queue.empty() )
+        // nothing else to do
+        return true;
+
+    std::string query;
+
+    for(size_t i = 0; i < queue.size(); i++)
+    {
+        const QueuedSkill &qs = queue[ i ];
+
+        char buf[ 64 ];
+        snprintf( buf, 64, "(%u, %lu, %u, %u)", characterID, (unsigned long)i, qs.typeID, qs.level );
+
+        if( i != 0 )
+            query += ',';
+        query += buf;
+    }
+
+    if( !sDatabase.RunQuery( err,
+        "INSERT"
+        " INTO chrPausedSkillQueue (characterID, orderIndex, typeID, level)"
+        " VALUES %s",
+        query.c_str() ) )
+    {
+        _log(DATABASE__ERROR, "Failed to insert paused skill queue of character %u: %s.", characterID, err.c_str());
+        return false;
+    }
+
     return true;
 }
 

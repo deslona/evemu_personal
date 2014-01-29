@@ -406,6 +406,18 @@ bool CorporationDB::AddCorporation(Call_AddCorporation & corpInfo, uint32 charID
         // were working...
     }
 
+    // update character join corp date
+    if (!sDatabase.RunQuery(err,
+        " INSERT INTO character_ ("
+        " corporationDateTime"
+        " ) VALUES ("
+        "   %" PRIu64 ")"
+        " WHERE characterID = %u", Win32TimeNow(), charID
+        ))
+    {
+        codelog(SERVICE__ERROR, "Error in query: %s", err.c_str());
+    }
+
     return true;
 }
 

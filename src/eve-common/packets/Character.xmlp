@@ -5,10 +5,9 @@
 <!--
    unimplemented calls
 GetInsurancePrice....wrong place..currently in InsuranceService
-GetAllianceSystems
 LoadAmmoToBank
-GetCareerAgents
-GetSolarSystemVisits
+GetNote --??
+IsBrowserInLockdown
 -->
 
 <!--

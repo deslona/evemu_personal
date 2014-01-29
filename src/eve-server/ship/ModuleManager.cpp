@@ -1004,7 +1004,7 @@ void ModuleManager::Online(uint32 itemID)
     if( mod != NULL )
 	{
         mod->Online();
-		m_pLog->Log("ModuleManager::Online()", "Module '%s' going Online", mod->getItem()->itemName().c_str());
+		//m_pLog->Log("ModuleManager::Online()", "Module '%s' going Online", mod->getItem()->itemName().c_str());
 	}
 }
 
@@ -1019,7 +1019,7 @@ void ModuleManager::Offline(uint32 itemID)
     if( mod != NULL )
 	{
         mod->Offline();
-		m_pLog->Log("ModuleManager::Offline()", "Module '%s' going Offline", mod->getItem()->itemName().c_str());
+		//m_pLog->Log("ModuleManager::Offline()", "Module '%s' going Offline", mod->getItem()->itemName().c_str());
 	}
 }
 
@@ -1049,7 +1049,7 @@ int32 ModuleManager::Activate(uint32 itemID, std::string effectName, uint32 targ
 		else
 		{
 			mod->Activate(targetID);
-			m_pLog->Log("ModuleManager::Activate()", "Module '%s' Activating...", mod->getItem()->itemName().c_str());
+			//m_pLog->Log("ModuleManager::Activate()", "Module '%s' Activating...", mod->getItem()->itemName().c_str());
 		}
     }
 
@@ -1074,7 +1074,7 @@ void ModuleManager::Deactivate(uint32 itemID, std::string effectName)
 		else
 		{
 			mod->Deactivate();
-			m_pLog->Log("ModuleManager::Deactivate()", "Module '%s' Deactivating...", mod->getItem()->itemName().c_str());
+			//m_pLog->Log("ModuleManager::Deactivate()", "Module '%s' Deactivating...", mod->getItem()->itemName().c_str());
 		}
     }
 }

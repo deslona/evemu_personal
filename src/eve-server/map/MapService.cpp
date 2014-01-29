@@ -43,6 +43,10 @@ MapService::MapService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(MapService, GetHistory)
     PyCallable_REG_CALL(MapService, GetIncursionGlobalReport)
     PyCallable_REG_CALL(MapService, GetStationCount)
+    PyCallable_REG_CALL(MapService, GetAllianceSystems)
+    PyCallable_REG_CALL(MapService, GetSolarSystemVisits)
+    PyCallable_REG_CALL(MapService, GetMapLandmarks)
+    PyCallable_REG_CALL(MapService, GetMyExtraMapInfoAgents)
 }
 
 MapService::~MapService() {
@@ -118,8 +122,12 @@ PyResult MapService::Handle_GetSolarSystemPseudoSecurities(PyCallArgs &call) {
     return result;
 }
 
-/* not handled */
-PyResult MapService::Handle_GetStuckSystems(PyCallArgs &call) {
+/** not handled */
+PyResult MapService::Handle_GetStuckSystems(PyCallArgs &call)
+{
+  sLog.Log( "MapService::Handle_GetStuckSystems()", "size= %u, 0 = %s", call.tuple->size(),
+            call.tuple->GetItem(0)->TypeString() );
+
     PyRep *result = NULL;
 
     result = new PyDict();
@@ -127,23 +135,72 @@ PyResult MapService::Handle_GetStuckSystems(PyCallArgs &call) {
     return result;
 }
 
-PyResult MapService::Handle_GetHistory(PyCallArgs &call) {
-
-    sLog.Debug("Server", "Called GetHistory Stub.");
-
-    return NULL;
-}
-
-PyResult MapService::Handle_GetIncursionGlobalReport(PyCallArgs &call) {
-
-    sLog.Debug("Server", "Called GetIncursionGlobalReport Stub.");
+PyResult MapService::Handle_GetHistory(PyCallArgs &call)
+{
+  sLog.Log( "MapService::Handle_GetHistory()", "size= %u, 0 = %s", call.tuple->size(),
+            call.tuple->GetItem(0)->TypeString() );
 
     return NULL;
 }
 
-PyResult MapService::Handle_GetStationCount(PyCallArgs &call) {
+PyResult MapService::Handle_GetIncursionGlobalReport(PyCallArgs &call)
+{
+  sLog.Log( "MapService::Handle_GetIncursionGlobalReport()", "size= %u, 0 = %s", call.tuple->size(),
+            call.tuple->GetItem(0)->TypeString() );
 
-    sLog.Debug("Server", "Called GetStationCount stub.");
+    return NULL;
+}
 
-    return new PyDict;
+PyResult MapService::Handle_GetStationCount(PyCallArgs &call)
+{
+  sLog.Log( "MapService::Handle_GetStationCount()", "size= %u, 0 = %s", call.tuple->size(),
+            call.tuple->GetItem(0)->TypeString() );
+
+    return NULL;
+}
+
+PyResult MapService::Handle_GetAllianceSystems(PyCallArgs &call)
+{
+  sLog.Log( "MapService::Handle_GetAllianceSystems()", "size= %u, 0 = %s", call.tuple->size(),
+            call.tuple->GetItem(0)->TypeString() );
+
+    return NULL;
+}
+
+//02:38:07 L MapService::Handle_GetSolarSystemVisits(): size= 0
+PyResult MapService::Handle_GetSolarSystemVisits(PyCallArgs &call)
+{
+
+  uint32 systemID = 0;
+  uint16 visits = 0;
+  uint32 charID = call.client->GetCharacterID();
+
+  m_db.GetSolSystemVisits(charID);
+
+    PyTuple* res = NULL;
+
+    PyTuple* tuple0 = new PyTuple( 2 );
+
+    tuple0->items[ 0 ] = new PyInt( systemID );
+    tuple0->items[ 0 ] = new PyInt( visits );
+
+    res = tuple0;
+
+    return res;
+}
+
+PyResult MapService::Handle_GetMapLandmarks(PyCallArgs &call)
+{
+  sLog.Log( "MapService::Handle_GetMapLandmarks()", "size= %u, 0 = %s", call.tuple->size(),
+            call.tuple->GetItem(0)->TypeString() );
+
+    return NULL;
+}
+
+PyResult MapService::Handle_GetMyExtraMapInfoAgents(PyCallArgs &call)  //ColorStarsByMyAgents
+{
+  sLog.Log( "MapService::Handle_GetMyExtraMapInfoAgents()", "size= %u, 0 = %s", call.tuple->size(),
+            call.tuple->GetItem(0)->TypeString() );
+
+    return NULL;
 }

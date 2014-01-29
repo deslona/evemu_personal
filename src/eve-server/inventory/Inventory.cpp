@@ -141,7 +141,7 @@ bool Inventory::LoadContents(ItemFactory &factory)
         return true;
     }
 
-    sLog.Debug("Inventory", "Recursively loading contents of inventory %u", inventoryID() );
+    sLog.Log("Inventory", "Recursively loading contents of inventory %u", inventoryID() );
 
     //load the list of items we need
     std::vector<uint32> items;

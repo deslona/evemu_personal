@@ -94,7 +94,8 @@ PyResult SkillMgrBound::Handle_GetCharacterAttributeModifiers(PyCallArgs &call) 
 PyResult SkillMgrBound::Handle_CharStopTrainingSkill(PyCallArgs &call) {
     CharacterRef ch = call.client->GetChar();
 
-    // clear & update ...
+    // clear & update
+    ch->PauseSkillQueue();  // this saves current queue to chrPausedSkillQueue as the next line deletes it.
     ch->ClearSkillQueue();
     ch->UpdateSkillQueue();
 
@@ -254,18 +255,15 @@ PyResult SkillMgrBound::Handle_GetRespecInfo( PyCallArgs& call )
     return result;
 }
 
+//13:43:18 L SkillMgrBound::Handle_CharStartTrainingSkillByTypeID(): size= 1, 0 = Integer(3308) <- this is skill#
 PyResult SkillMgrBound::Handle_CharStartTrainingSkillByTypeID( PyCallArgs& call )
 {
-    Call_SingleIntegerArg args;
-    if( !args.Decode( &call.tuple ) )
-    {
-        codelog( CLIENT__ERROR, "%s: failed to decode arguments", call.client->GetName() );
-        return NULL;
-    }
-      sLog.Error("SkillMgrBound::Handle_CharStartTrainingSkillByTypeID()", "TODO: This is used on resuming skill queue, so should be implemented" );
-    //sLog.Debug( "SkillMgrBound", "Called CharStartTrainingSkillByTypeID stub." );
+    CharacterRef ch = call.client->GetChar();
 
-    return NULL;
+    ch->LoadPausedSkillQueue();
+    //ch->UpdateSkillQueue();
+
+    return ch->GetSkillQueue();
 }
 
 PyResult SkillMgrBound::Handle_InjectSkillIntoBrain(PyCallArgs &call)

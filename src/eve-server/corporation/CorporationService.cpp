@@ -44,6 +44,12 @@ CorporationService::CorporationService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(CorporationService, GetAllCorpMedals)
     PyCallable_REG_CALL(CorporationService, GetRecruitmentAdTypes)
     PyCallable_REG_CALL(CorporationService, GetRecruitmentAdsByCriteria)
+    PyCallable_REG_CALL(CorporationService, GetRecruitmentAdRegistryData)
+    PyCallable_REG_CALL(CorporationService, SetAccountKey)
+    PyCallable_REG_CALL(CorporationService, IsEnemyFaction)
+    PyCallable_REG_CALL(CorporationService, GetVoteCasesByCorporation)
+    PyCallable_REG_CALL(CorporationService, MoveCorpHQHere)
+    PyCallable_REG_CALL(CorporationService, GetAutomaticPaySettings)
 }
 
 CorporationService::~CorporationService() {
@@ -121,7 +127,7 @@ PyResult CorporationService::Handle_GetFactionInfo(PyCallArgs &call) {
 
 PyResult CorporationService::Handle_GetCorpInfo(PyCallArgs &call) {
 
-    sLog.Debug("Server", "Called GetCorpInfo Stub.");
+    sLog.Log("Server", "Called GetCorpInfo Stub.");
 
     return NULL;
 }
@@ -170,7 +176,7 @@ PyResult CorporationService::Handle_GetAllCorpMedals( PyCallArgs& call )
         return NULL;
     }
 
-    sLog.Debug( "CorporationService", "Called GetAllCorpMedals stub." );
+    sLog.Log( "CorporationService", "Called GetAllCorpMedals stub." );
 
     PyList* res = new PyList;
 
@@ -201,7 +207,7 @@ PyResult CorporationService::Handle_GetRecruitmentAdTypes( PyCallArgs& call )
 {
     //no args
 
-    sLog.Debug( "CorporationService", "Called GetRecruitmentAdTypes stub." );
+    sLog.Log( "CorporationService", "Called GetRecruitmentAdTypes stub." );
 
     util_Rowset rs;
 
@@ -228,7 +234,7 @@ PyResult CorporationService::Handle_GetRecruitmentAdsByCriteria( PyCallArgs& cal
         return NULL;
     }
 
-    sLog.Debug( "CorporationService", "Called GetRecruitmentAdsByCriteria stub." );
+    sLog.Log( "CorporationService", "Called GetRecruitmentAdsByCriteria stub." );
 
     util_Rowset rs;
 
@@ -247,3 +253,57 @@ PyResult CorporationService::Handle_GetRecruitmentAdsByCriteria( PyCallArgs& cal
 
     return rs.Encode();
 }
+
+/** not handled */
+PyResult CorporationService::Handle_GetRecruitmentAdRegistryData(PyCallArgs &call)
+{
+    sLog.Log("Server", "Called GetRecruitmentAdRegistryData Stub.");
+
+    return NULL;
+}
+
+PyResult CorporationService::Handle_SetAccountKey(PyCallArgs &call)
+{
+    sLog.Log("Server", "Called SetAccountKey Stub.");
+  sLog.Log( "CorporationService::Handle_SetAccountKey()", "size= %u, 0 = %s", call.tuple->size(),
+            call.tuple->GetItem(0)->TypeString() );
+
+    return NULL;
+}
+
+PyResult CorporationService::Handle_IsEnemyFaction(PyCallArgs &call)
+{
+    sLog.Log("Server", "Called IsEnemyFaction Stub.");
+  sLog.Log( "CorporationService::Handle_IsEnemyFaction()", "size= %u, 0 = %s", call.tuple->size(),
+            call.tuple->GetItem(0)->TypeString() );
+
+    return NULL;
+}
+
+PyResult CorporationService::Handle_GetVoteCasesByCorporation(PyCallArgs &call)
+{
+    sLog.Log("Server", "Called GetVoteCasesByCorporation Stub.");
+  sLog.Log( "CorporationService::Handle_GetVoteCasesByCorporation()", "size= %u, 0 = %s", call.tuple->size(),
+            call.tuple->GetItem(0)->TypeString() );
+
+    return NULL;
+}
+
+PyResult CorporationService::Handle_MoveCorpHQHere(PyCallArgs &call)
+{
+    sLog.Log("Server", "Called MoveCorpHQHere Stub.");
+  sLog.Log( "CorporationService::Handle_MoveCorpHQHere()", "size= %u, 0 = %s", call.tuple->size(),
+            call.tuple->GetItem(0)->TypeString() );
+
+    return NULL;
+}
+
+PyResult CorporationService::Handle_GetAutomaticPaySettings(PyCallArgs &call)
+{
+    sLog.Log("Server", "Called GetAutomaticPaySettings Stub.");
+  sLog.Log( "CorporationService::Handle_GetAutomaticPaySettings()", "size= %u, 0 = %s", call.tuple->size(),
+            call.tuple->GetItem(0)->TypeString() );
+
+    return NULL;
+}
+

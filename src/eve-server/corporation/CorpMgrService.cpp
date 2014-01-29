@@ -37,6 +37,7 @@ CorpMgrService::CorpMgrService(PyServiceMgr *mgr)
     _SetCallDispatcher(m_dispatch);
 
     PyCallable_REG_CALL(CorpMgrService, GetPublicInfo)
+    PyCallable_REG_CALL(CorpMgrService, GetAssetInventory)
 }
 
 CorpMgrService::~CorpMgrService() {
@@ -54,6 +55,19 @@ PyResult CorpMgrService::Handle_GetPublicInfo(PyCallArgs &call) {
     return m_db.GetCorporation(corpID.arg);
 }
 
+
+//22:33:36 L CorpMgrService::Handle_GetAssetInventory(): size= 2, 0 = int (1001000), 1 = string (varies)
+PyResult CorpMgrService::Handle_GetAssetInventory(PyCallArgs &call)
+{
+  uint32 size = call.tuple->size();
+  uint32 int1 = call.tuple->GetItem(0)->AsInt()->value();   // corpID
+  std::string string = call.tuple->GetItem(1)->AsString()->content();  // tab in corp asset window...offices, impounded, in space,
+                                                                       //      deliveries, lockdown, search.  also called from map.
+
+  sLog.Log( "CorpMgrService::Handle_GetAssetInventory()", "size= %u, 0 = int (%u), 1 = string (%s)", size, int1, string.c_str() );
+
+    return NULL;
+}
 
 
 
