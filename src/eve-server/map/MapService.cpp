@@ -132,22 +132,20 @@ PyResult MapService::Handle_GetSolarSystemPseudoSecurities(PyCallArgs &call) {
 }
 
 //02:38:07 L MapService::Handle_GetSolarSystemVisits(): size= 0
+//AttributeError: 'int' object has no attribute 'lastDateTime'
 PyResult MapService::Handle_GetSolarSystemVisits(PyCallArgs &call)
 {
   uint32 systemID = 0;
   uint16 visits = 0;
   uint32 charID = call.client->GetCharacterID();
+/**
+        PyTuple *result = new PyTuple(1);
 
-  m_db.GetSolSystemVisits(charID);
+        result->items[0] = m_db.GetSolSystemVisits(charID);
+        */
+  //m_db.
 
     PyTuple* res = NULL;
-
-    PyTuple* tuple0 = new PyTuple( 1 );
-
-    tuple0->items[ 0 ] = new PyInt( systemID );
-    tuple0->items[ 1 ] = new PyInt( visits );
-
-    res = tuple0;
 
     return res;
 }
@@ -156,7 +154,7 @@ PyResult MapService::Handle_GetSolarSystemVisits(PyCallArgs &call)
 PyResult MapService::Handle_GetBeaconCount(PyCallArgs &call)
 {
     /**
-    ColorStarsByCynosuralFields
+    ColorStarsByCynosuralFields  -AttributeError: 'tuple' object has no attribute 'iteritems'
     */
     uint8 none = 0;
     //m_db.GetDynamicData(0, 0)
@@ -223,46 +221,43 @@ PyResult MapService::Handle_GetDeadspaceComplexMap(PyCallArgs &call)
 
 PyResult MapService::Handle_GetIncursionGlobalReport(PyCallArgs &call)
 {
-  sLog.Log( "MapService::Handle_GetIncursionGlobalReport()", "size= %u, 0 = %s", call.tuple->size(),
-            call.tuple->GetItem(0)->TypeString() );
+  sLog.Log( "MapService::Handle_GetIncursionGlobalReport()", "size= %u", call.tuple->size() );
 
     return NULL;
 }
 
 PyResult MapService::Handle_GetSystemsInIncursions(PyCallArgs &call)
 {
-  sLog.Log( "MapService::Handle_GetSystemsInIncursions()", "size= %u, 0 = %s", call.tuple->size(),
-            call.tuple->GetItem(0)->TypeString() );
+  sLog.Log( "MapService::Handle_GetSystemsInIncursions()", "size= %u", call.tuple->size() );
 
     return NULL;
 }
 
+//20:38:53 L MapService::Handle_GetSystemsInIncursionsGM(): size= 0
 PyResult MapService::Handle_GetSystemsInIncursionsGM(PyCallArgs &call)
 {
-  sLog.Log( "MapService::Handle_GetSystemsInIncursionsGM()", "size= %u, 0 = %s", call.tuple->size(),
-            call.tuple->GetItem(0)->TypeString() );
-
     return NULL;
 }
 
-//02:51:49 L MapService::Handle_GetStationCount(): size= 0  -ColorStarsByStationCount
+//02:51:49 L MapService::Handle_GetStationCount(): size= 0
 PyResult MapService::Handle_GetStationCount(PyCallArgs &call)
 {
+  /**
+  ColorStarsByStationCount
+  */
     return NULL;
 }
 
 PyResult MapService::Handle_GetAllianceSystems(PyCallArgs &call)
 {
-  sLog.Log( "MapService::Handle_GetAllianceSystems()", "size= %u, 0 = %s", call.tuple->size(),
-            call.tuple->GetItem(0)->TypeString() );
+  sLog.Log( "MapService::Handle_GetAllianceSystems()", "size= %u", call.tuple->size() );
 
     return NULL;
 }
 
 PyResult MapService::Handle_GetMapLandmarks(PyCallArgs &call)
 {
-  sLog.Log( "MapService::Handle_GetMapLandmarks()", "size= %u, 0 = %s", call.tuple->size(),
-            call.tuple->GetItem(0)->TypeString() );
+  sLog.Log( "MapService::Handle_GetMapLandmarks()", "size= %u", call.tuple->size() );
 
     return NULL;
 }
@@ -270,6 +265,9 @@ PyResult MapService::Handle_GetMapLandmarks(PyCallArgs &call)
 PyResult MapService::Handle_GetMyExtraMapInfoAgents(PyCallArgs &call)  //ColorStarsByMyAgents
 {
   sLog.Log( "MapService::Handle_GetMyExtraMapInfoAgents()", "size= %u", call.tuple->size() );
+     /**
+     ColorStarsByMyAgents  -AttributeError: 'NoneType' object has no attribute 'Index'
+     */
 
     uint8 none = 0;
 
@@ -285,6 +283,7 @@ PyResult MapService::Handle_GetMyExtraMapInfoAgents(PyCallArgs &call)  //ColorSt
 
 PyResult MapService::Handle_GetClusterSessionStatistics(PyCallArgs &call)   //ColorStarsByNumPilots
 {
+  sLog.Log( "MapService::Handle_GetMyExtraMapInfoAgents()", "size= %u", call.tuple->size() );
     /**
     ColorStarsByNumPilots
     */
@@ -301,20 +300,23 @@ PyResult MapService::Handle_GetClusterSessionStatistics(PyCallArgs &call)   //Co
     return res;
 }
 
-//02:52:11 L CorpMgrService::Handle_GetAssetInventory(): size= 2, 0 = Integer (3), 1 = Integer (24)    -ColorStarsByFactionKills
+//02:52:11 L CorpMgrService::Handle_GetAssetInventory(): size= 2, 0 = Integer (3), 1 = Integer (24)    -ColorStarsByCynosuralFields - ColorStarsByFactionKills - ColorStarsByKills - GetKillLast24H
 //02:52:13 L CorpMgrService::Handle_GetAssetInventory(): size= 2, 0 = Integer (1), 1 = Integer (1)     -ColorStarsByJumps1Hour
 //02:52:14 L CorpMgrService::Handle_GetAssetInventory(): size= 2, 0 = Integer (3), 1 = Integer (1)     -ColorStarsByPodKills
+//13:37:09 L MapService::Handle_GetHistory(): size= 2, 0 = Interger (3), 1 = Interger (24)
+
 PyResult MapService::Handle_GetHistory(PyCallArgs &call)
 {
     /**
-    ColorStarsByJumps1Hour
-    ColorStarsByPodKills
-    ColorStarsByFactionKills
-    ColorStarsByKills
-    GetKillLast24H
+    ColorStarsByJumps1Hour  -AttributeError: 'int' object has no attribute 'value1'
+    ColorStarsByPodKills  -AttributeError: 'int' object has no attribute 'value3'
+    ColorStarsByFactionKills  -AttributeError: 'int' object has no attribute 'value2'
+    ColorStarsByKills  -AttributeError: 'int' object has no attribute 'value1'
+    GetKillLast24H  -AttributeError: 'int' object has no attribute 'solarSystemID'
     */
     uint32 int1 = call.tuple->GetItem(0)->AsInt()->value();
     uint32 int2 = call.tuple->GetItem(1)->AsInt()->value();
+      sLog.Log( "MapService::Handle_GetHistory()", "size= %u, 0 = Interger (%u), 1 = Interger (%u)", call.tuple->size(), int1, int2 );
     //m_db.GetDynamicData(int1, int2)
     PyTuple* res = NULL;
     PyTuple* tuple0 = new PyTuple( 1 );

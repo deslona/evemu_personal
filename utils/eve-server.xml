@@ -6,12 +6,14 @@ a likely exception to this goal).
 <eve-server>
     <rates>
         <!-- <corporationStartupCost>1599800</corporationStartupCost> -->
-        <!-- <skillRate>1.0</skillRate> -->
+        <!-- <skillRate>1.0</skillRate> -->      <!--  only used if > 1.0 -->
+        <!-- <MaxSPforBonus>1600000</MaxSPforBonus> -->     <!-- only used if != 0  -->
         <!-- <secRate>1.0</secRate> -->
         <!-- <npcBountyMultiply>1.0</npcBountyMultiply> -->
     </rates>
 
     <account>
+    <!--2-player, 8-low GM, 16-high GM, 32-admin, 4294967231-super-admin 5003499186008621056-role-gravy-->
         <!-- <autoAccountRole>0</autoAccountRole> -->
         <!-- <loginMessage>
             &lt;html&gt;
@@ -33,6 +35,7 @@ a likely exception to this goal).
 
     <character>
         <!-- <startBalance>6666000000.0</startBalance> -->
+        <!-- <startAurBalance>6000.0</startAurBalance> -->   <!-- AurBalance mostly working now...  -->
         <!-- <startStation>0</startStation> -->
         <!-- <startSecRating>0.0</startSecRating> -->
         <!-- <startCorporation>0</startCorporation> -->
@@ -58,7 +61,7 @@ a likely exception to this goal).
         <imageServer>localhost</imageServer>
         <imageServerPort>26001</imageServerPort>
         <apiServer>localhost</apiServer>
-        <apiServerPort>64</apiServerPort>
+        <apiServerPort>26002</apiServerPort>
     </net>
 
 </eve-server>

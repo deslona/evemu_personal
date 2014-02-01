@@ -876,12 +876,20 @@ void Character::UpdateSkillQueue()
     // update queue end time:
     UpdateSkillQueueEndTime(m_skillQueue);
 }
-//  this still needs work...have to check for multiple levels of same skill.
-//  right now, check is current level to trained level...so, l2, l3, l4 checks for l1->l2, l1->l3, l1->l4 then combines them.
-//  it wont check for previous level to level in queue....need to make check for that so it will only check l1->l4.
+//  this still needs work...in progress...see commented code for using flatSkillQueue
 void Character::UpdateSkillQueueEndTime(const SkillQueue &queue)
 {
     EvilNumber chrMinRemaining = 0;    // explicit init to 0
+    /**
+    std::map<uint32, QueuedSkill> flatSkillQueue;
+    const QueuedSkill &qs = queue;
+    //if (flatSkillQueue.find(qs.typeID) != flatSkillQueue.end()){
+    // flatSkillQueue.insert(std::make_pair(qs.typeID,qs));}
+    //  else{ flatSkillQueue.find(qs.typeID)->second.level = qs.level;}
+
+    //flatSkillQueue.insert(std::make_pair(qs.typeID,qs));
+    //flatSkillQueue.insert( std::pair<uint32, QueuedSkill>(qs.typeID, qs) );
+    */
 
     for(size_t i = 0; i < queue.size(); i++)    // loop thru skills currently in queue
     {
@@ -1109,8 +1117,7 @@ void Character::SetActiveShip(uint32 shipID)
 
 void Character::_CalculateTotalSPTrained()
 {
-    // Loop through all skills trained and calculate total SP this character has trained so far,
-    // NOT including the skill currently being trained:
+    // Loop through all skills trained and calculate total SP this character has trained so far
     EvilNumber totalSP = 0.0f;
     std::vector<InventoryItemRef> skills;
     GetSkillsList( skills );
@@ -1125,4 +1132,47 @@ void Character::_CalculateTotalSPTrained()
     m_totalSPtrained = totalSP;
 }
 
+
+void Character::VisitSystem(uint32 charID, uint32 solarSystemID)
+{
+    uint16 visits = GetSystemVisits(solarSystemID);
+    DBerror err;
+    if (visits)
+    {
+      visits ++;
+      if(!sDatabase.RunQuery(err,
+        "UPDATE chrVisitedSystems SET visits = %u, lastDateTime = %" PRIu64 " WHERE characterID = %u AND solarSystemID = %u",
+        visits, EvilTimeNow(), charID, solarSystemID
+        ))
+        {
+            sLog.Error("Character::VisitSystem","%s: Query Failed: %s", itemName().c_str(), err.c_str() );
+            return;
+        }   // 02:49:11 E DBCore Query: Query: UPDATE chrVisitedSystems SET visits = 4, lastDateTime = 130356317510000000 WHERE characterID = 1 AND solarSystemID = 140000000 failed because did not return a result
+    }else{
+      if(!sDatabase.RunQuery(err,
+        "INSERT INTO chrVisitedSystems (characterID, solarSystemID, visits, lastDateTime)"
+        "VALUES (%u, %u, 1, %" PRIu64 ")", charID, solarSystemID, EvilTimeNow()
+        ))
+        {
+            sLog.Error("Character::VisitSystem","%s: Query Failed: %s", itemName().c_str(), err.c_str() );
+            return;
+        }
+    }
+    sLog.Log("Character::VisitSystem","%s: Query saved as charID=%u, solSys=%u, visits=%u, lastTime=%" PRIu64 ")", itemName().c_str(), charID, solarSystemID, visits, EvilTimeNow() );
+}
+
+uint16 Character::GetSystemVisits(uint32 solarSystemID)
+{
+    DBQueryResult res;
+    sDatabase.RunQuery(res,
+      "SELECT visits FROM chrVisitedSystems WHERE characterID = %u AND solarSystemID = %u",
+      itemID(), solarSystemID
+      );
+
+    DBResultRow row;
+    if(res.GetRow(row))
+      return row.GetUInt(0);
+    else
+      return false;
+}
 

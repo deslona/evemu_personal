@@ -1,32 +1,4 @@
-# Introduction
-EVEmu modified to support the latest Crucible client v360229
-***   tested under SLES11.3  ***
-***  no support for winblows ***
-
-# Disclaimer
-
-***EVEmu is an educational project.***
- This means, our primary interest is to learn and teach us
-and our users more about C++ project development in a large
-scale. Our software is not intended for running public servers,
-and we do not support that. We are not responsible for what others
-do with the source code downloaded from this project.
-
-# Status
-- Character selection and creation is working
-- Character avatar creation is working
-- Walking in station is now possible
-- Items and Ships display in station
-- Undocking and Docking is working
-- Skill Training is working
-- Injecting Skills is working
-- BookMarks are mostly working
-- Targetting is working
-- Celestial Information from OverView is working
-- Planets and Services Info from Map(F10) is working
-
-
-# Legal
+/*
     ------------------------------------------------------------------------------------
     LICENSE:
     ------------------------------------------------------------------------------------
@@ -48,4 +20,15 @@ do with the source code downloaded from this project.
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
+    Author:        Allan
+*/
 
+#include "eve-server.h"
+
+#include "EVEServerConfig.h"
+#include "scanning/Scanning.h"
+#include "scanning/ScanningDB.h"
+
+ScanningDB::ScanningDB()
+{
+}

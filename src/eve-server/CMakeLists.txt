@@ -345,6 +345,15 @@ SET( pos_SOURCE
      "${TARGET_SOURCE_DIR}/pos/PosMgrService.cpp"
      "${TARGET_SOURCE_DIR}/pos/Structure.cpp" )
 
+SET( scan_INCLUDE
+     "${TARGET_INCLUDE_DIR}/scanning/Scanning.h"
+     "${TARGET_INCLUDE_DIR}/scanning/ScanningDB.h"
+     "${TARGET_INCLUDE_DIR}/scanning/ScanMgrService.h")
+SET( scan_SOURCE
+     "${TARGET_SOURCE_DIR}/scanning/Scanning.cpp"
+     "${TARGET_SOURCE_DIR}/scanning/ScanningDB.cpp"
+     "${TARGET_SOURCE_DIR}/scanning/ScanMgrService.cpp")
+
 SET( ship_INCLUDE
      "${TARGET_INCLUDE_DIR}/ship/BeyonceService.h"
      "${TARGET_INCLUDE_DIR}/ship/DestinyManager.h"
@@ -384,7 +393,7 @@ SET( ship_modules_INCLUDE
      "${TARGET_INCLUDE_DIR}/ship/modules/PassiveModules.h"
      "${TARGET_INCLUDE_DIR}/ship/modules/RigModule.h"
      "${TARGET_INCLUDE_DIR}/ship/modules/SubSystemModules.h"
-     "${TARGET_INCLUDE_DIR}/ship/modules/propulsion_modules/Afterburner.h" 
+     "${TARGET_INCLUDE_DIR}/ship/modules/propulsion_modules/Afterburner.h"
 	 "${TARGET_INCLUDE_DIR}/ship/modules/weapon_modules/EnergyTurret.h" )
 SET( ship_modules_SOURCE
      "${TARGET_SOURCE_DIR}/ship/modules/ActiveModules.cpp"
@@ -393,7 +402,7 @@ SET( ship_modules_SOURCE
      "${TARGET_SOURCE_DIR}/ship/modules/PassiveModules.cpp"
      "${TARGET_SOURCE_DIR}/ship/modules/RigModule.cpp"
      "${TARGET_SOURCE_DIR}/ship/modules/SubSystemModules.cpp"
-     "${TARGET_SOURCE_DIR}/ship/modules/propulsion_modules/Afterburner.cpp" 
+     "${TARGET_SOURCE_DIR}/ship/modules/propulsion_modules/Afterburner.cpp"
 	 "${TARGET_SOURCE_DIR}/ship/modules/weapon_modules/EnergyTurret.cpp")
     #"${TARGET_SOURCE_DIR}/ship/modules/.cpp"
     #"${TARGET_SOURCE_DIR}/ship/modules/.cpp" )
@@ -441,6 +450,8 @@ SET( system_INCLUDE
      "${TARGET_INCLUDE_DIR}/system/BookmarkDB.h"
      "${TARGET_INCLUDE_DIR}/system/BookmarkService.h"
      "${TARGET_INCLUDE_DIR}/system/BubbleManager.h"
+     "${TARGET_INCLUDE_DIR}/system/Calendar.h"
+     "${TARGET_INCLUDE_DIR}/system/CalendarMgrService.h"
      "${TARGET_INCLUDE_DIR}/system/Celestial.h"
      "${TARGET_INCLUDE_DIR}/system/Container.h"
      "${TARGET_INCLUDE_DIR}/system/Damage.h"
@@ -458,6 +469,8 @@ SET( system_SOURCE
      "${TARGET_SOURCE_DIR}/system/BookmarkDB.cpp"
      "${TARGET_SOURCE_DIR}/system/BookmarkService.cpp"
      "${TARGET_SOURCE_DIR}/system/BubbleManager.cpp"
+     "${TARGET_SOURCE_DIR}/system/Calendar.cpp"
+     "${TARGET_SOURCE_DIR}/system/CalendarMgrService.cpp"
      "${TARGET_SOURCE_DIR}/system/Celestial.cpp"
      "${TARGET_SOURCE_DIR}/system/Container.cpp"
      "${TARGET_SOURCE_DIR}/system/Damage.cpp"
@@ -495,6 +508,7 @@ SOURCE_GROUP( "src\\mining"        FILES ${mining_INCLUDE} )
 SOURCE_GROUP( "src\\missions"      FILES ${missions_INCLUDE} )
 SOURCE_GROUP( "src\\npc"           FILES ${npc_INCLUDE} )
 SOURCE_GROUP( "src\\pos"           FILES ${pos_INCLUDE} )
+SOURCE_GROUP( "src\\scanning"      FILES ${scan_INCLUDE} )
 SOURCE_GROUP( "src\\ship"          FILES ${ship_INCLUDE} )
 SOURCE_GROUP( "src\\ship\\modules" FILES ${ship_modules_INCLUDE} )
 SOURCE_GROUP( "src\\ship\\modules\\components" FILES ${ship_modules_components_INCLUDE} )
@@ -522,6 +536,7 @@ SOURCE_GROUP( "src\\mining"        FILES ${mining_SOURCE} )
 SOURCE_GROUP( "src\\missions"      FILES ${missions_SOURCE} )
 SOURCE_GROUP( "src\\npc"           FILES ${npc_SOURCE} )
 SOURCE_GROUP( "src\\pos"           FILES ${pos_SOURCE} )
+SOURCE_GROUP( "src\\scanning"      FILES ${scan_SOURCE} )
 SOURCE_GROUP( "src\\ship"          FILES ${ship_SOURCE} )
 SOURCE_GROUP( "src\\ship\\modules" FILES ${ship_modules_SOURCE} )
 SOURCE_GROUP( "src\\ship\\modules\\components" FILES ${ship_modules_components_SOURCE} )
@@ -550,6 +565,7 @@ ADD_EXECUTABLE( "${TARGET_NAME}"
                 ${missions_INCLUDE}       ${missions_SOURCE}
                 ${npc_INCLUDE}            ${npc_SOURCE}
                 ${pos_INCLUDE}            ${pos_SOURCE}
+                ${scan_INCLUDE}           ${scan_SOURCE}
                 ${ship_INCLUDE}           ${ship_SOURCE}
                 ${ship_modules_INCLUDE}   ${ship_modules_SOURCE}
                 ${ship_modules_components_INCLUDE} ${ship_modules_components_SOURCE}
@@ -570,6 +586,5 @@ TARGET_LINK_LIBRARIES( "${TARGET_NAME}"
 
 INSTALL( TARGETS "${TARGET_NAME}"
          RUNTIME DESTINATION "bin" )
-INSTALL( FILES "${TARGET_UTILS_DIR}/eve-server.xml"
-               "${TARGET_UTILS_DIR}/devtools.raw"
+INSTALL( FILES "${TARGET_UTILS_DIR}/devtools.raw"
          DESTINATION "etc" )

@@ -296,7 +296,7 @@ PyObject *ConfigDB::GetMap(uint32 solarSystemID) {
         "   d.typeID,"
         "   d.groupID,"
         "   d.orbitID AS orbitID,"
-        "   j.celestialID AS destinations"       // groupID = 10 (stargate) this is the toSolarSystemID field...
+        "   j.celestialID AS destinations"
         " FROM mapSolarSystems AS s"
         "  LEFT JOIN mapDenormalize AS d USING (solarSystemID)"
         "  LEFT JOIN mapJumps AS j ON j.stargateID = d.itemID"

@@ -293,6 +293,10 @@ PyResult BookmarkService::Handle_DeleteBookmarks(PyCallArgs &call)          //no
           sLog.Error( "BookmarkService::Handle_DeleteBookmarks()", "%s: call.tuple->GetItem( 0 )->AsList()->size() == 0.  Expected size >= 1.", call.client->GetName() );
           return NULL;
       }
+    }else if(call.tuple->IsObjectEx())
+    {
+      sLog.Error( "BookmarkService::Handle_DeleteBookmarks()", "Call is ObjectEx.");
+      return NULL;
     }else if(call.tuple->IsTuple())
     {
       sLog.Log( "BookmarkService::Handle_DeleteBookmarks()", "Call is PyTuple");
@@ -301,10 +305,6 @@ PyResult BookmarkService::Handle_DeleteBookmarks(PyCallArgs &call)          //no
       bookmarkID = call.tuple->GetItem( 0 )->AsObjectEx()->value(); <---  this causes a problem.  i am now at a loss....
       m_db.DeleteBookmarkFromDatabase( call.client->GetCharacterID(), bookmarkID );
       */
-    }else if(call.tuple->IsObjectEx())
-    {
-      sLog.Error( "BookmarkService::Handle_DeleteBookmarks()", "Call is ObjectEx.");
-      return NULL;
     }else{
       sLog.Error( "BookmarkService::Handle_DeleteBookmarks()", "Call is NotDefined.  Returning NULL.");
       return NULL;
@@ -473,13 +473,13 @@ PyResult BookmarkService::Handle_DeleteFolder(PyCallArgs &call)     // working
     return(new PyNone());
 }
 
-//16:02:12 L BookmarkService::Handle_MoveBookmarksToFolder(): size= 2, 0 = Integer(2), 1 = ObjectEx
+//16:02:12 L BookmarkService::Handle_MoveBookmarksToFolder(): size= 2, 0 = int (2), 1 = ObjectEx (can't get)
 PyResult BookmarkService::Handle_MoveBookmarksToFolder(PyCallArgs &call)
 {
-  uint32 size = call.tuple->size();
-  uint32 int1 = call.tuple->GetItem(0)->AsInt()->value();
-  std::string string = "can\'t get"; //call.tuple->GetItem(1)->AsObjectEx()->content();
-  sLog.Log( "CorpMgrService::Handle_GetAssetInventory()", "size= %u, 0 = int (%u), 1 = ObjectEx (%s)", size, int1, string.c_str() );
+  uint8 size = call.tuple->size();
+  uint16 int1 = call.tuple->GetItem(0)->AsInt()->value();
+  std::string string = "can\'t get"; //call.tuple->GetItem(1)->AsObjectEx()->content(); IsObjectEx
+  sLog.Log( "BookmarkService::Handle_MoveBookmarksToFolder()", "size= %u, 0 = int (%u), 1 = ObjectEx (%s)", size, int1, string.c_str() );
 
   return(new PyNone());
 }

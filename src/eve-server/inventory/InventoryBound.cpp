@@ -382,29 +382,24 @@ PyResult InventoryBound::Handle_SetPassword(PyCallArgs &call) {
 //01:10:27 L InventoryBound::Handle_CreateBookmarkVouchers(): size= 3, 0 = List, 1 = Integer, 2 = Boolean
 PyResult InventoryBound::Handle_CreateBookmarkVouchers(PyCallArgs &call)        // size, bmID, flag, ismove
 {
-  sLog.Log( "InventoryBound::Handle_CreateBookmarkVouchers()", "size= %u, 0 = %s, 1 = %s, 2 = %s", call.tuple->size(), call.tuple->GetItem(0)->TypeString(), call.tuple->GetItem(1)->TypeString(), call.tuple->GetItem(2)->TypeString() );
-
       PyList *list = call.tuple->GetItem( 0 )->AsList();
-      uint32 i;
+      uint8 i;
       uint32 bookmarkID;
-      uint32 typeID = 51;   // bookmark defs from invTypes
-      uint32 groupID = 24;
-      uint32 iconID = 1700;
-      uint32 dataID = 16687167;
-      uint32 typeNameID = 101192;
 
       if( list->size() > 0 )
       {
           for(i=0; i<(list->size()); i++)
           {
               bookmarkID = call.tuple->GetItem( 0 )->AsList()->GetItem(i)->AsInt()->value();
-             sLog.Log( "InventoryBound::Handle_CreateBookmarkVouchers()", "bookmarkID = %u", bookmarkID );
-          // code to copy bm to hangar....
-          //  just need base item with bookmarkID.
+                              //ItemData ( typeID, ownerID, locationID, flag, quantity, customInfo, contraband)
+              ItemData itemBookmarkVoucher( 51, call.client->GetCharacterID(), call.client->GetLocationID(), flagHangar, 1 );
+              InventoryItemRef i = m_manager->item_factory.SpawnItem( itemBookmarkVoucher );
+              //i.name = "Bookmark";
           }
+          sLog.Log( "InventoryBound::Handle_CreateBookmarkVouchers()", "%u Vouchers created", list->size() );
           //  when bm is copied to another players places tab, copy data from db using bookmarkID
       }else{
-          sLog.Error( "InventoryBound::Handle_CreateBookmarkVouchers()", "%s: call.tuple->GetItem( 0 )->AsList()->size() == 0.  Expected size >= 1.", call.client->GetName() );
+          sLog.Error( "InventoryBound::Handle_CreateBookmarkVouchers()", "%s: call.tuple->GetItem( 0 )->AsList()->size() == 0.  Expected size > 0.", call.client->GetName() );
           return NULL;
       }
 

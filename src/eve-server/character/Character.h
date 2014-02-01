@@ -548,7 +548,9 @@ public:
     void SaveCharacter();
     void SaveSkillQueue() const;
     void SaveCertificates() const;
-    void SetActiveShip(uint32 shipID);
+    void SetActiveShip( uint32 );
+    void VisitSystem( uint32, uint32 );
+    uint16 GetSystemVisits( uint32 );
 
 protected:
     Character(

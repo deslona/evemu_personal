@@ -1041,13 +1041,8 @@ void Client::StargateJump(uint32 fromGate, uint32 toGate) {
     //delay the move so they can see the JumpOut animation
     _postMove(msJump, 5000);
 
-    //  save the system for later use..(with checks for previous visit)
-    uint32 visits = 1;
-    DBQueryResult res;
-    sDatabase.RunQuery(res,
-        " INSERT INTO chrVisitedSystems (characterID, solSystemID, visits)"
-        " VALUES (%u, %u, %u)",  GetCharacterID(), solarSystemID, visits
-        );
+    // used for showing Visited Systems in Map(F10)  -allan 30Jan14
+    GetChar()->VisitSystem(GetCharacterID(), solarSystemID);
 }
 
 void Client::SetDockingPoint(GPoint &dockPoint)
@@ -1176,9 +1171,9 @@ double Client::GetPropulsionStrength() const {
 
     /**
      * if we don't have a ship return bogus propulsion strength
-     * @note we should report a error for this
      */
     if( !GetShip() )
+        sLog.Log("Client","%s: Calling Client::GetPropulsionStrength() with no shipID", GetName());
         return 3.0f;
 
     /**
