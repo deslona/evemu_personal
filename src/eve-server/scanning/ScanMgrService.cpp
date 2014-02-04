@@ -36,7 +36,7 @@ ScanMgrService::ScanMgrService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(ScanMgrService, CallAny)
+    PyCallable_REG_CALL(ScanMgrService, GetSystemScanMgr)
 
 }
 
@@ -44,9 +44,13 @@ ScanMgrService::~ScanMgrService() {
     delete m_dispatch;
 }
 
-PyResult ScanMgrService::Handle_CallAny( PyCallArgs& call )
+//02:17:50 L ScanMgrService::Handle_GetSystemScanMgr(): size= 0
+PyResult ScanMgrService::Handle_GetSystemScanMgr( PyCallArgs& call )
 {
-    sLog.Log( "ScanMgrService", "Called ? stub." );
-
+  sLog.Log( "ScanMgrService::Handle_GetSystemScanMgr()", "size= %u", call.tuple->size() );
+  /**
+   ConeScan  -AttributeError: 'NoneType' object has no attribute 'ConeScan'
+   RequestScans  -AttributeError: 'NoneType' object has no attribute 'RequestScans'
+  */
     return NULL;
 }

@@ -20,37 +20,32 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Allan
 */
 
-#ifndef __FACTION_WAR_MGR__H__INCL__
-#define __FACTION_WAR_MGR__H__INCL__
+#include "eve-server.h"
 
-#include "standing/FactionWarMgrDB.h"
-#include "PyService.h"
+#include "PyServiceCD.h"
+#include "system/IndexManager.h"
 
-class FactionWarMgrService : public PyService
+PyCallable_Make_InnerDispatcher(IndexManager)
+
+IndexManager::IndexManager(PyServiceMgr *mgr)
+: PyService(mgr, "devIndexManager"),
+  m_dispatch(new Dispatcher(this))
 {
-public:
-    FactionWarMgrService(PyServiceMgr *mgr);
-    ~FactionWarMgrService();
+    _SetCallDispatcher(m_dispatch);
 
-    PyCallable_DECL_CALL(GetWarFactions)
-    PyCallable_DECL_CALL(GetFWSystems)
-    PyCallable_DECL_CALL(GetMyCharacterRankOverview)
-    PyCallable_DECL_CALL(GetFactionMilitiaCorporation)
-    PyCallable_DECL_CALL(GetCharacterRankInfo)
-    PyCallable_DECL_CALL(GetFactionalWarStatus)
-    PyCallable_DECL_CALL(IsEnemyFaction)
-    PyCallable_DECL_CALL(JoinFactionAsCharacter)
+    PyCallable_REG_CALL(IndexManager, GetAllDevelopmentIndices)
+}
 
-private:
-    class Dispatcher;
-    Dispatcher *const m_dispatch;
+IndexManager::~IndexManager() {
+    delete m_dispatch;
+}
 
-    FactionWarMgrDB m_db;
-};
+PyResult IndexManager::Handle_GetAllDevelopmentIndices( PyCallArgs& call )
+{
+  sLog.Log( "IndexManager::Handle_GetAllDevelopmentIndices()", "size= %u", call.tuple->size() );
 
-#endif /* __FACTION_WAR_MGR_SERVICE__H__INCL__ */
-
-
+    return NULL;
+}

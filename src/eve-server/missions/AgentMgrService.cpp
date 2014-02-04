@@ -183,29 +183,34 @@ PyResult AgentMgrService::Handle_GetMyEpicJournalDetails( PyCallArgs& call )
 {
     //no args
 
-    sLog.Debug( "AgentMgrService", "Called GetMyEpicJournalDetails stub." );
+  sLog.Log( "AgentMgrBound::Handle_GetMyEpicJournalDetails()", "size= %u", call.tuple->size() );
 
     return new PyList;
 }
 
+//21:02:49 L AgentMgrBound::Handle_GetSolarSystemOfAgent(): size= 1
+PyResult AgentMgrService::Handle_GetSolarSystemOfAgent(PyCallArgs &call)
+{
+  //uint8 size = call.tuple->size();
+  //uint16 int1 = call.tuple->GetItem(0)->AsInt()->value();
+  //uint16 int2 = call.tuple->GetItem(1)->AsInt()->value();
+  sLog.Log( "AgentMgrService::Handle_GetSolarSystemOfAgent()", "size= %u, 0=%s", call.tuple->size(), call.tuple->GetItem( 0 )->TypeString() );
 
-PyResult AgentMgrService::Handle_GetSolarSystemOfAgent(PyCallArgs &call) {
-
-    sLog.Debug("AgentMgrService", "Called GetSolarSystemOfAgent Stub.");
-
-    return NULL;
+    return new PyInt( 0 );
 }
 
 PyResult AgentMgrBound::Handle_GetInfoServiceDetails( PyCallArgs& call )
 {
     //takes no arguments
 
-    sLog.Debug( "AgentMgrBound", "Called GetInfoServiceDetails stub." );
+  sLog.Log( "AgentMgrBound::Handle_GetInfoServiceDetails()", "size= %u", call.tuple->size() );
 
     return new PyNone;
 }
 
+//21:13:12 L AgentMgrBound::Handle_DoAction(): size= 1
 PyResult AgentMgrBound::Handle_DoAction(PyCallArgs &call) {
+  sLog.Log( "AgentMgrBound::Handle_DoAction()", "size= %u, 0=%s", call.tuple->size(), call.tuple->GetItem( 0 )->TypeString() );
     //takes a single argument, which may be None, or may be an integer actionID
     Call_SingleArg args;
     if(!args.Decode(&call.tuple)) {
@@ -220,6 +225,7 @@ PyResult AgentMgrBound::Handle_DoAction(PyCallArgs &call) {
     res.dialogue = new PyList;
 
     std::map<uint32, std::string> choices;
+//00:20:34 E AgentMgrBound::Handle_DoAction(): args.arg->IsInt() failed.  Expected type Int, got type None
     if( !(args.arg->IsInt()) )
     {
         sLog.Error( "AgentMgrBound::Handle_DoAction()", "args.arg->IsInt() failed.  Expected type Int, got type %s", args.arg->TypeString() );
@@ -245,6 +251,7 @@ PyResult AgentMgrBound::Handle_DoAction(PyCallArgs &call) {
 
 
 PyResult AgentMgrBound::Handle_GetMyJournalDetails(PyCallArgs &call) {
+  sLog.Log( "AgentMgrBound::Handle_GetMyJournalDetails()", "size= %u", call.tuple->size() );
     PyRep *result = NULL;
 
     PyTuple *t = new PyTuple(3);
@@ -260,30 +267,28 @@ PyResult AgentMgrBound::Handle_GetMyJournalDetails(PyCallArgs &call) {
 }
 
 /** not handled */
+//21:13:12 L AgentMgrBound::Handle_GetMissionBriefingInfo(): size= 0
 PyResult AgentMgrBound::Handle_GetMissionBriefingInfo(PyCallArgs &call)
 {
-    sLog.Debug("Server", "Called GetMissionBriefingInfo Stub.");
-
-    return NULL;
+    return new PyInt( 0 );
 }
 
+//21:13:12 L AgentMgrBound::Handle_GetAgentLocationWrap(): size= 0
 PyResult AgentMgrBound::Handle_GetAgentLocationWrap(PyCallArgs &call)
 {
-    sLog.Debug("Server", "Called GetAgentLocationWrap Stub.");
-
-    return NULL;
+    return new PyInt( 0 );
 }
 
 PyResult AgentMgrBound::Handle_GetMissionObjectiveInfo(PyCallArgs &call)
 {
-    sLog.Debug("Server", "Called GetMissionObjectiveInfo Stub.");
+  sLog.Log( "AgentMgrBound::Handle_GetMissionObjectiveInfo()", "size= %u", call.tuple->size() );
 
-    return NULL;
+    return new PyInt( 0 );
 }
 
 PyResult AgentMgrService::Handle_GetCareerAgents(PyCallArgs &call)
 {
     sLog.Debug("Server", "Called GetCareerAgents Stub.");
 
-    return NULL;
+    return new PyInt( 0 );
 }

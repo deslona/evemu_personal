@@ -172,22 +172,22 @@ PyResult BookmarkService::Handle_BookmarkLocation(PyCallArgs &call)
     //
     // call.tuple  size=4
     //       |
-    //       |--> [0] PyInt:      sends sol system id for solarsystem bm, shipID for coordinate bm.
+    //       |--> [0] PyInt:      sends id of entity calling char is in...ship/station/system/pos/etc
     //       |--> [1] PyInt:       ownerID = charID of char making the bm
     //       |--> [2] PyWString:  label (called memo in db) for the bookmark
     //       \--> [3] PyString:  text for the "note" field in the bookmark
     //
     ////////////////////////////////////////
 
-    typeCheck = call.tuple->GetItem( 0 )->AsInt()->value();  //current shipID/stationID/POS_ID/etc...check for typeID
-    typeID = m_db.FindBookmarkTypeID(typeCheck);    // Get typeID for above itemID:
+    typeCheck = call.tuple->GetItem( 0 )->AsInt()->value();  //current shipID/stationID/POS_ID/systemID
+    typeID = m_db.FindBookmarkTypeID(typeCheck);    // get bm typeID
 
     if ( typeCheck >= 140000000 )      // entity #'s above 140m are player-owned
     {
         point = call.client->GetPosition();       // Get x,y,z location.  bm type is coordinate as "spot in xxx system"
         locationID = call.client->GetLocationID();       // locationID of bm is current sol system
         itemID = locationID;      //  locationID = itemID for coord bm.  shows jumps, s/c/r in bm window, green in system
-    }else if (typeID == 2502){  // typeCheck is not player-owned...maybe char is in station.  make station as bm
+    }else if ( typeID == 2502 ){  // not player-owned, check for station.
         point.x, point.y, point.z = 0, 0, 0;      // no x,y,z location.  bm type is station
         itemID =  call.tuple->GetItem( 0 )->AsInt()->value();  // this is stationID
         locationID = call.client->GetSystemID();       // get sol system of current station
@@ -272,6 +272,12 @@ PyResult BookmarkService::Handle_DeleteBookmarks(PyCallArgs &call)          //no
   sLog.Log( "BookmarkService::Handle_DeleteBookmarks()", "size= %u, 0 = %s", call.tuple->size(),
             call.tuple->GetItem(0)->TypeString() );  //call.tuple->GetItem(0)->AsInt()->value() fails...server crash
 
+        Call_SingleArg args;
+        if(!args.Decode(&call.tuple)) {
+            args.arg = new PyInt(0);
+        }
+
+        sLog.Log( "BookmarkService::Handle_DeleteBookmarks()", "Args Test = %u", args.arg );
     if(call.tuple->IsList())
     {
       sLog.Log( "BookmarkService::Handle_DeleteBookmarks()", "Call is PyList");

@@ -59,6 +59,7 @@ PyResult StationService::Handle_GetSolarSystem(PyCallArgs &call) {
     return new PyObject("util.CachedObject", new PyInt(system));
 }
 
+// station guest list shows ALL docked players no matter what station they're in.
 PyResult StationService::Handle_GetGuests(PyCallArgs &call) {
     PyList *res = new PyList();
 
@@ -72,12 +73,10 @@ PyResult StationService::Handle_GetGuests(PyCallArgs &call) {
         t->items[0] = new PyInt((*cur)->GetCharacterID());
         t->items[1] = new PyInt((*cur)->GetCorporationID());
         t->items[2] = new PyInt((*cur)->GetAllianceID());
-        t->items[3] = new PyInt(0);    //unknown, might be factionID
+        t->items[3] = new PyInt((*cur)->GetStationID());    //unknown, might be factionID
         res->AddItem(t);
     }
 
     return res;
 
-    //sLog.Debug("StationService", "Called GetGuests stub.");
-    //return NULL;
 }

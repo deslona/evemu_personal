@@ -72,6 +72,9 @@ public:
         PyCallable_REG_CALL(CorpRegistryBound, GetMember)
         PyCallable_REG_CALL(CorpRegistryBound, GetMembers)
         PyCallable_REG_CALL(CorpRegistryBound, GetSharesByShareholder)
+        PyCallable_REG_CALL(CorpRegistryBound, SetAccountKey)
+        PyCallable_REG_CALL(CorpRegistryBound, PayoutDividend)
+        PyCallable_REG_CALL(CorpRegistryBound, GetVoteCasesByCorporation)
 
 
     }
@@ -104,6 +107,9 @@ public:
     PyCallable_DECL_CALL(GetMember)
     PyCallable_DECL_CALL(GetMembers)
     PyCallable_DECL_CALL(GetSharesByShareholder)
+    PyCallable_DECL_CALL(SetAccountKey)
+    PyCallable_DECL_CALL(PayoutDividend)
+    PyCallable_DECL_CALL(GetVoteCasesByCorporation)
 
 
 
@@ -997,7 +1003,26 @@ PyResult CorpRegistryBound::Handle_UpdateLogo(PyCallArgs &call) {
 }
 
 PyResult CorpRegistryBound::Handle_GetSharesByShareholder(PyCallArgs &call) {
-    sLog.Log("CorpRegisrtyBound", "Called GetSharesByShareholder stub.");
+  sLog.Log( "CorpRegistryBound::Handle_GetSharesByShareholder()", "size= %u", call.tuple->size() );
+
+    return NULL;
+}
+
+//00:33:29 L CorpRegistryBound::Handle_SetAccountKey(): size= 1
+PyResult CorpRegistryBound::Handle_SetAccountKey(PyCallArgs &call) {
+  sLog.Log( "CorpRegistryBound::Handle_SetAccountKey()", "size= %u, 0=%s", call.tuple->size(), call.tuple->GetItem( 0 )->TypeString() );
+
+    return NULL;
+}
+
+PyResult CorpRegistryBound::Handle_PayoutDividend(PyCallArgs &call) {
+  sLog.Log( "CorpRegistryBound::Handle_PayoutDividend()", "size= %u", call.tuple->size() );
+
+    return NULL;
+}
+
+PyResult CorpRegistryBound::Handle_GetVoteCasesByCorporation(PyCallArgs &call) {
+  sLog.Log( "CorpRegistryBound::Handle_GetVoteCasesByCorporation()", "size= %u", call.tuple->size() );
 
     return NULL;
 }

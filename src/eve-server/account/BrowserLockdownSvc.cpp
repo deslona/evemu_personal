@@ -40,6 +40,7 @@ BrowserLockdownService::BrowserLockdownService( PyServiceMgr *mgr )
     PyCallable_REG_CALL(BrowserLockdownService, GetFlaggedSitesHash)
     PyCallable_REG_CALL(BrowserLockdownService, GetFlaggedSitesList)
     PyCallable_REG_CALL(BrowserLockdownService, GetDefaultHomePage)
+    PyCallable_REG_CALL(BrowserLockdownService, IsBrowserInLockdown)
 }
 
 BrowserLockdownService::~BrowserLockdownService() {
@@ -82,8 +83,10 @@ public:
 
 
 
+//02:40:18 L BrowserLockdownService::Handle_GetFlaggedSitesHash(): size= 0
 PyResult BrowserLockdownService::Handle_GetFlaggedSitesHash(PyCallArgs &call)
 {
+  sLog.Log( "BrowserLockdownService::Handle_GetFlaggedSitesHash()", "size= %u", call.tuple->size() );
     /* if cache hash is correct send CacheOK */
 
     /**
@@ -99,7 +102,9 @@ PyResult BrowserLockdownService::Handle_GetFlaggedSitesHash(PyCallArgs &call)
     return new CacheOK();
 }
 
+//02:40:18 L BrowserLockdownService::Handle_GetFlaggedSitesList(): size= 0
 PyResult BrowserLockdownService::Handle_GetFlaggedSitesList(PyCallArgs &call) {
+  sLog.Log( "BrowserLockdownService::Handle_GetFlaggedSitesList()", "size= %u", call.tuple->size() );
 
     //PyDict* args = new PyDict;
 
@@ -143,7 +148,13 @@ PyResult BrowserLockdownService::Handle_GetFlaggedSitesList(PyCallArgs &call) {
     return new PyObject( "objectCaching.CachedMethodCallResult", arg_tuple );
 }
 
-
 PyResult BrowserLockdownService::Handle_GetDefaultHomePage(PyCallArgs &call) {
+  sLog.Log( "BrowserLockdownService::Handle_GetDefaultHomePage()", "size= %u", call.tuple->size() );
     return NULL;
+}
+
+//00:37:03 L BrowserLockdownService::Handle_IsBrowserInLockdown(): size= 0
+PyResult BrowserLockdownService::Handle_IsBrowserInLockdown(PyCallArgs &call) {
+  // make config var to enable/diasble?
+    return 0;
 }

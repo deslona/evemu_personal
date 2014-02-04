@@ -28,6 +28,7 @@
 #define __SCANMGR_SERVICE_H_INCL__
 
 #include "scanning/ScanningDB.h"
+#include "scanning/Scanning.h"
 #include "PyService.h"
 
 class ScanMgrService : public PyService {
@@ -41,8 +42,7 @@ protected:
 
     ScanningDB m_db;
 
-
-    PyCallable_DECL_CALL(CallAny)
+    PyCallable_DECL_CALL(GetSystemScanMgr)
 
 };
 

@@ -41,6 +41,10 @@ FactionWarMgrService::FactionWarMgrService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(FactionWarMgrService, GetFWSystems)
     PyCallable_REG_CALL(FactionWarMgrService, GetMyCharacterRankOverview)
     PyCallable_REG_CALL(FactionWarMgrService, GetFactionMilitiaCorporation)
+    PyCallable_REG_CALL(FactionWarMgrService, GetCharacterRankInfo)
+    PyCallable_REG_CALL(FactionWarMgrService, GetFactionalWarStatus)
+    PyCallable_REG_CALL(FactionWarMgrService, IsEnemyFaction)
+    PyCallable_REG_CALL(FactionWarMgrService, JoinFactionAsCharacter)
 }
 
 FactionWarMgrService::~FactionWarMgrService()
@@ -105,6 +109,30 @@ PyResult FactionWarMgrService::Handle_GetFactionMilitiaCorporation(PyCallArgs &c
         return NULL;
     }
     return(new PyInt(m_db.GetFactionMilitiaCorporation(arg.arg)));
+}
+
+PyResult FactionWarMgrService::Handle_GetCharacterRankInfo(PyCallArgs &call) {
+  sLog.Log( "FactionWarMgrService::Handle_GetCharacterRankInfo()", "size= %u", call.tuple->size() );
+
+  return NULL;
+}
+
+PyResult FactionWarMgrService::Handle_GetFactionalWarStatus(PyCallArgs &call) {
+  sLog.Log( "FactionWarMgrService::Handle_GetFactionalWarStatus()", "size= %u", call.tuple->size() );
+
+  return NULL;
+}
+
+PyResult FactionWarMgrService::Handle_IsEnemyFaction(PyCallArgs &call) {
+  sLog.Log( "FactionWarMgrService::Handle_IsEnemyFaction()", "size= %u", call.tuple->size() );
+
+  return NULL;
+}
+
+PyResult FactionWarMgrService::Handle_JoinFactionAsCharacter(PyCallArgs &call) {
+  sLog.Log( "FactionWarMgrService::Handle_JoinFactionAsCharacter()", "size= %u", call.tuple->size() );
+
+  return NULL;
 }
 
 

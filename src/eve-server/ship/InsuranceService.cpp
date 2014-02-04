@@ -43,6 +43,7 @@ public:
         _SetCallDispatcher(m_dispatch);
 
         PyCallable_REG_CALL(InsuranceBound, GetInsurancePrice)
+        PyCallable_REG_CALL(InsuranceBound, GetContracts)
 
         m_strBoundObjectName = "InsuranceBound";
     }
@@ -54,6 +55,7 @@ public:
     }
 
     PyCallable_DECL_CALL(GetInsurancePrice)
+    PyCallable_DECL_CALL(GetContracts)
 
 protected:
     ShipDB* m_db;
@@ -83,25 +85,24 @@ PyBoundObject* InsuranceService::_CreateBoundObject( Client* c, const PyRep* bin
     return new InsuranceBound( m_manager, &m_db );
 }
 
-PyResult InsuranceService::Handle_GetInsurancePrice( PyCallArgs& call )
-{
-    sLog.Debug("InsuranceService", "Called GetInsurancePrice stub" );
-    return new PyFloat(0.0);
-}
-
 PyResult InsuranceBound::Handle_GetInsurancePrice( PyCallArgs& call )
 {
-    sLog.Debug("InsuranceBound", "Called GetInsurancePrice stub" );
+  sLog.Log( "InsuranceBound::Handle_GetInsurancePrice()", "size= %u", call.tuple->size() );
     return new PyFloat(0.0);
 }
 
 PyResult InsuranceService::Handle_GetContractForShip( PyCallArgs& call )
 {
-    sLog.Debug( "InsuranceService", "Called GetContractForShip stub." );
+  sLog.Log( "InsuranceService::Handle_GetContractForShip()", "size= %u", call.tuple->size() );
 
     return new PyNone;
 }
 
+PyResult InsuranceBound::Handle_GetContracts( PyCallArgs& call )
+{
+  sLog.Log( "InsuranceBound::Handle_GetContracts()", "size= %u", call.tuple->size() );
+    return NULL;
+}
 
 
 

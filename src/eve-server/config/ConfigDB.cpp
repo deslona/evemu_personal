@@ -456,15 +456,13 @@ PyRep *ConfigDB::GetCelestialStatistic(uint32 celestialID) {
 PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID)
 {
     const std::string query = " SELECT "
-                              "     e.itemID, "
-                              "     e.typeID, "
-                              "     t.groupID, "
-                              "     e.itemName, "
-                              "     m.orbitID, "
-                              "     0, " // This field refers to the boolean value of isConnector.  It may signify some sort of mission jump bridge
-                              "     e.x, "
-                              "     e.y, "
-                              "     e.z "
+                              "     e.itemID AS itemID, "
+                              "     e.typeID AS typeID, "
+                              "     t.groupID AS groupID, "
+                              "     e.itemName AS itemName, "
+                              "     m.orbitID AS orbitID, "
+                              "     0, " //This field refers to the boolean value of isConnector...which i cant find
+                              "     e.x AS x, e.y AS y, e.z AS z "
                               " FROM entity AS e"
                               "  LEFT JOIN invTypes AS t USING (typeID)"
                               "  LEFT JOIN mapDenormalize AS m USING (itemID)"

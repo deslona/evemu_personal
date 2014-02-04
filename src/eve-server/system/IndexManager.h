@@ -20,37 +20,25 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Allan
 */
 
-#ifndef __FACTION_WAR_MGR__H__INCL__
-#define __FACTION_WAR_MGR__H__INCL__
 
-#include "standing/FactionWarMgrDB.h"
+#ifndef __DEVIDXMGR_SERVICE_H_INCL__
+#define __DEVIDXMGR_SERVICE_H_INCL__
+
 #include "PyService.h"
 
-class FactionWarMgrService : public PyService
-{
+class IndexManager : public PyService {
 public:
-    FactionWarMgrService(PyServiceMgr *mgr);
-    ~FactionWarMgrService();
+    IndexManager(PyServiceMgr *mgr);
+    virtual ~IndexManager();
 
-    PyCallable_DECL_CALL(GetWarFactions)
-    PyCallable_DECL_CALL(GetFWSystems)
-    PyCallable_DECL_CALL(GetMyCharacterRankOverview)
-    PyCallable_DECL_CALL(GetFactionMilitiaCorporation)
-    PyCallable_DECL_CALL(GetCharacterRankInfo)
-    PyCallable_DECL_CALL(GetFactionalWarStatus)
-    PyCallable_DECL_CALL(IsEnemyFaction)
-    PyCallable_DECL_CALL(JoinFactionAsCharacter)
-
-private:
+protected:
     class Dispatcher;
     Dispatcher *const m_dispatch;
 
-    FactionWarMgrDB m_db;
+    PyCallable_DECL_CALL(GetAllDevelopmentIndices)
 };
 
-#endif /* __FACTION_WAR_MGR_SERVICE__H__INCL__ */
-
-
+#endif

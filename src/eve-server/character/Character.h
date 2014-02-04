@@ -444,8 +444,11 @@ public:
     void UpdateSkillQueue();
     /**
      * Update skill training end time on char select screen.
+     * @author allan
      */
-    void UpdateSkillQueueEndTime( const SkillQueue &queue);
+    void UpdateSkillQueueEndTime();
+    void UpdateSkillQueueEndTime( const SkillQueue &queue );
+    void RemoveSkillFromQueue(uint32, uint16);
     /** GrantCertificate( uint32 certificateID )
      *
      * This will add a certificate into the character

@@ -45,6 +45,8 @@
 #include "admin/SlashService.h"
 // apiserver services
 #include "apiserver/APIServer.h"
+// calendar services
+#include "system/CalendarMgrService.h"
 // cache services
 #include "cache/BulkMgrService.h"
 #include "cache/ObjCacheService.h"
@@ -78,6 +80,8 @@
 #include "dogmaim/DogmaService.h"
 // imageserver services
 #include "imageserver/ImageServer.h"
+// development index service
+#include "system/IndexManager.h"
 // inventory services
 #include "inventory/InvBrokerService.h"
 // mail services
@@ -103,6 +107,8 @@
 // pos services
 #include "pos/PlanetMgr.h"
 #include "pos/PosMgrService.h"
+// scanning services
+#include "scanning/ScanMgrService.h"
 // ship services
 #include "ship/BeyonceService.h"
 #include "ship/FleetProxy.h"
@@ -165,8 +171,8 @@ int main( int argc, char* argv[] )
 
     sLog.InitializeLogging(sConfig.files.logDir);
     sLog.Log("server init", "Loading server...");
-    sLog.Log("SERVER VERSION", "EVEmu 0.7.13-allan" );
-    sLog.Log("BUILD DATE", "30 January 2014");
+    sLog.Log("SERVER VERSION", "EVEmu 0.7.15-allan" );
+    sLog.Log("BUILD DATE", "1 February 2014");
     sLog.Log("SOURCE", "get at " EVEMU_REPOSITORY );
     sLog.Log("SERVER INIT", "\n"
         "\tSupported Client: %s\n"
@@ -258,6 +264,7 @@ int main( int argc, char* argv[] )
     services.RegisterService(new BookmarkService(&services));
     services.RegisterService(new BrowserLockdownService(&services));
     services.RegisterService(new BulkMgrService(&services));
+    services.RegisterService(new CalendarMgrService(&services));
     services.RegisterService(new CertificateMgrService(&services));
     services.RegisterService(new CharFittingMgrService(&services));
     services.RegisterService(new CharUnboundMgrService(&services));
@@ -281,6 +288,7 @@ int main( int argc, char* argv[] )
     services.RegisterService(new FactoryService(&services));
     services.RegisterService(new FleetProxyService(&services));
     services.RegisterService(new HoloscreenMgrService(&services));
+    services.RegisterService(new IndexManager(&services));
     services.RegisterService(new InfoGatheringMgr(&services));
     services.RegisterService(new InsuranceService(&services));
     services.RegisterService(new InvBrokerService(&services));
@@ -308,6 +316,7 @@ int main( int argc, char* argv[] )
     services.RegisterService(new RamProxyService(&services));
     services.RegisterService(new RepairService(&services));
     services.RegisterService(new ReprocessingService(&services));
+    services.RegisterService(new ScanMgrService(&services));
     services.RegisterService(new ShipService(&services));
     services.RegisterService(new SkillMgrService(&services));
     services.RegisterService(new SlashService(&services, &command_dispatcher));

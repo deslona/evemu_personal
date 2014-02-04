@@ -48,6 +48,7 @@ CharMgrService::CharMgrService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(CharMgrService, GetSettingsInfo)
     PyCallable_REG_CALL(CharMgrService, GetCharacterDescription)
     PyCallable_REG_CALL(CharMgrService, SetCharacterDescription)
+    PyCallable_REG_CALL(CharMgrService, GetNote)
 }
 
 CharMgrService::~CharMgrService() {
@@ -74,6 +75,7 @@ PyResult CharMgrService::Handle_GetContactList(PyCallArgs &call)
 
 PyResult CharMgrService::Handle_GetOwnerNoteLabels(PyCallArgs &call)
 {
+  sLog.Log( "CharMgrService::Handle_GetOwnerNoteLabels()", "size= %u", call.tuple->size() );
     // just a dummy for now
     DBRowDescriptor *header = new DBRowDescriptor();
     header->AddColumn("noteID", DBTYPE_I4);
@@ -128,10 +130,9 @@ PyResult CharMgrService::Handle_GetPublicInfo3(PyCallArgs &call) {
     return result;
 }
 
+//02:17:26 L CharMgrService::Handle_GetTopBounties(): size= 0
 PyResult CharMgrService::Handle_GetTopBounties( PyCallArgs& call )
 {
-    sLog.Debug( "CharMgrService", "Called GetTopBounties stub." );
-
     util_Rowset rs;
     rs.lines = new PyList;
 
@@ -169,23 +170,37 @@ PyResult CharMgrService::Handle_GetHomeStation( PyCallArgs& call )
 
 PyResult CharMgrService::Handle_GetFactions( PyCallArgs& call )
 {
-    sLog.Debug( "CharMgrService", "Called GetFactions stub." );
+  sLog.Log( "CharMgrService::Handle_GetFactions()", "size= %u", call.tuple->size() );
 
     return NULL;
 }
 
+//19:13:15 L CharMgrService::Handle_SetActivityStatus(): size=2, 0=Int(1), 1=Int(601)
+//21:13:10 L CharMgrService::Handle_SetActivityStatus(): size=2, 0=Int(0), 1=Int(624)
+//19:19:26 L CharMgrService::Handle_SetActivityStatus(): size=2, 0=Int(0), 1=Int(970)
+//23:09:19 L CharMgrService::Handle_SetActivityStatus(): size=2, 0=Int(0), 1=Int(1322)
+//20:25:58 L CharMgrService::Handle_SetActivityStatus(): size=2, 0=Int(0), 1=Int(1491)
+//20:52:27 L CharMgrService::Handle_SetActivityStatus(): size=2, 0=Int(0), 1=Int(1525)
+//19:59:37 L CharMgrService::Handle_SetActivityStatus(): size=2, 0=Int(0), 1=Int(1819)
+//17:41:34 L CharMgrService::Handle_SetActivityStatus(): size=2, 0=Int(0), 1=Int(3593)
+//20:00:56 L CharMgrService::Handle_SetActivityStatus(): size=2, 0=Int(0), 1=Int(4076)
+//02:38:37 L CharMgrService::Handle_SetActivityStatus(): size=2, 0=Int(0), 1=Int(5541)
 PyResult CharMgrService::Handle_SetActivityStatus( PyCallArgs& call )
 {
-    sLog.Debug( "CharMgrService", "Called SetActivityStatus stub." );
+  uint8 size = call.tuple->size();
+  //std::string string1 = call.tuple->GetItem( 0 )->TypeString();
+  //std::string string2 = call.tuple->GetItem( 1 )->TypeString();
+  uint16 int1 = call.tuple->GetItem(0)->AsInt()->value();
+  uint16 int2 = call.tuple->GetItem(1)->AsInt()->value();
+  sLog.Log( "CharMgrService::Handle_SetActivityStatus()", "size=%u, 0=Int(%u), 1=Int(%u) ", size, int1, int2   );
 
-    return NULL;
+    return new PyInt( 0 );
 }
 
+//02:17:22 L CharMgrService::Handle_GetSettingsInfo(): size= 0
 PyResult CharMgrService::Handle_GetSettingsInfo( PyCallArgs& call )
 {
-    sLog.Debug( "CharMgrService", "Called GetSettingsInfo stub." );
-
-    return NULL;
+    return new PyInt( 0 );
 }
 
 PyResult CharMgrService::Handle_GetCharacterDescription(PyCallArgs &call)
@@ -222,6 +237,13 @@ PyResult CharMgrService::Handle_SetCharacterDescription(PyCallArgs &call)
         return NULL;
     }
     c->SetDescription(args.arg.c_str());
+
+    return NULL;
+}
+
+PyResult CharMgrService::Handle_GetNote( PyCallArgs& call )
+{
+  sLog.Log( "CharMgrService::Handle_GetNote()", "size= %u", call.tuple->size() );
 
     return NULL;
 }

@@ -36,20 +36,17 @@ CalendarMgrService::CalendarMgrService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    /**  Don't know any CalendarMgr calls yet...
-    PyCallable_REG_CALL(CalendarMgrService, GetPublicInfo)
-    */
+    PyCallable_REG_CALL(CalendarMgrService, GetResponsesForCharacter)
 }
 
 CalendarMgrService::~CalendarMgrService() {
     delete m_dispatch;
 }
 
-/**
-PyResult CalendarMgrService::Handle_( PyCallArgs& call )
+//02:17:55 L CalendarMgrService::Handle_GetResponsesForCharacter(): size= 0
+PyResult CalendarMgrService::Handle_GetResponsesForCharacter( PyCallArgs& call )
 {
-    sLog.Debug( "CalendarMgrService", "Called ? stub." );
+  sLog.Log( "CalendarMgrService::Handle_GetResponsesForCharacter()", "size= %u", call.tuple->size() );
 
     return NULL;
 }
-*/

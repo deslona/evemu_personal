@@ -50,6 +50,7 @@ TutorialService::~TutorialService() {
 }
 
 PyResult TutorialService::Handle_GetTutorialInfo(PyCallArgs &call) {
+  sLog.Log( "TutorialService::Handle_GetTutorialInfo()", "size= %u", call.tuple->size() );
     Call_GetTutorialInfo args;
     if(!args.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "Can't parse args.");
@@ -86,27 +87,31 @@ PyResult TutorialService::Handle_GetTutorialInfo(PyCallArgs &call) {
 }
 
 PyResult TutorialService::Handle_GetTutorials(PyCallArgs &call) {
+  sLog.Log( "TutorialService::Handle_GetTutorials()", "size= %u", call.tuple->size() );
     return(m_db.GetAllTutorials());
 }
 
 PyResult TutorialService::Handle_GetCriterias(PyCallArgs &call) {
+  sLog.Log( "TutorialService::Handle_GetCriterias()", "size= %u", call.tuple->size() );
     return(m_db.GetAllCriterias());
 }
 
 PyResult TutorialService::Handle_GetCategories(PyCallArgs &call) {
+  sLog.Log( "TutorialService::Handle_GetCategories()", "size= %u", call.tuple->size() );
     return(m_db.GetCategories());
 }
 
 PyResult TutorialService::Handle_GetContextHelp( PyCallArgs& call )
 {
-    sLog.Debug( "TutorialService", "Called GetContextHelp stub." );
+  sLog.Log( "TutorialService::Handle_GetContextHelp()", "size= %u", call.tuple->size() );
 
     return new PyList;
 }
 
+//00:25:53 L TutorialService::Handle_GetCharacterTutorialState(): size= 0
 PyResult TutorialService::Handle_GetCharacterTutorialState( PyCallArgs& call )
 {
-    sLog.Debug( "TutorialService", "Called GetCharacterTutorialState stub." );
+  sLog.Log( "TutorialService::Handle_GetCharacterTutorialState()", "size= %u", call.tuple->size() );
 
     util_Rowset rs;
     rs.lines = new PyList;
@@ -119,9 +124,10 @@ PyResult TutorialService::Handle_GetCharacterTutorialState( PyCallArgs& call )
     return rs.Encode();
 }
 
+//00:25:58 L TutorialService::Handle_GetTutorialsAndConnections(): size= 0
 PyResult TutorialService::Handle_GetTutorialsAndConnections( PyCallArgs& call )
 {
-    sLog.Debug( "TutorialService", "Called GetTutorialsAndConnections stub." );
+  sLog.Log( "TutorialService::Handle_GetTutorialsAndConnections()", "size= %u", call.tuple->size() );
 
     return new PyNone;
 }

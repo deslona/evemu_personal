@@ -49,14 +49,14 @@ LPService::~LPService()
 
 PyResult LPService::Handle_GetLPExchangeRates( PyCallArgs& call )
 {
-    sLog.Debug( "LPService", "Called GetLPExchangeRates stub." );
+  sLog.Log( "LPService::Handle_GetLPExchangeRates()", "size= %u", call.tuple->size() );
 
     return new PyList;
 }
 
 PyResult LPService::Handle_GetLPForCharacterCorp( PyCallArgs& call )
 {
-    sLog.Debug( "LPService", "Called GetLPForCharacterCorp stub." );
+  sLog.Log( "LPService::Handle_GetLPForCharacterCorp()", "size= %u", call.tuple->size() );
 
     return new PyInt( 0 );
 }
@@ -64,16 +64,14 @@ PyResult LPService::Handle_GetLPForCharacterCorp( PyCallArgs& call )
 PyResult LPService::Handle_GetLPsForCharacter( PyCallArgs& call )
 {
     //no args
-
-    sLog.Debug( "LPService", "Called GetLPsForCharacter stub." );
+  sLog.Log( "LPService::Handle_GetLPsForCharacter()", "size= %u", call.tuple->size() );
 
     return new PyList;
 }
 
 PyResult LPService::Handle_GetAvailableOffersFromCorp( PyCallArgs& call )
 {
-
-    sLog.Debug( "LPService", "Called GetAvailableOffersFromCorp stub." );
+  sLog.Log( "LPService::Handle_GetAvailableOffersFromCorp()", "size= %u", call.tuple->size() );
 
     return new PyList;
 }

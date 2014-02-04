@@ -59,6 +59,7 @@ public:
         PyCallable_REG_CALL(ShipBound, Eject)
         PyCallable_REG_CALL(ShipBound, LeaveShip)
         PyCallable_REG_CALL(ShipBound, ActivateShip)
+        PyCallable_REG_CALL(ShipBound, ChangeDroneSettings)
     }
 
     virtual ~ShipBound() {delete m_dispatch;}
@@ -77,6 +78,7 @@ public:
     PyCallable_DECL_CALL(Eject)
     PyCallable_DECL_CALL(LeaveShip)
     PyCallable_DECL_CALL(ActivateShip)
+    PyCallable_DECL_CALL(ChangeDroneSettings)
 
 protected:
     ShipDB& m_db;
@@ -1148,4 +1150,11 @@ PyResult ShipBound::Handle_ActivateShip(PyCallArgs &call)
     rsp->items[2] = new BuiltinSet();
 
     return rsp;
+}
+
+PyResult ShipBound::Handle_ChangeDroneSettings(PyCallArgs &call)
+{
+  sLog.Log( "ShipBound::Handle_ChangeDroneSettings()", "size= %u", call.tuple->size() );
+
+    return NULL;
 }

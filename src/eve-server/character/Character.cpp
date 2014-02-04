@@ -541,8 +541,9 @@ SkillRef Character::GetSkill(uint32 skillTypeID) const
 SkillRef Character::GetSkillInTraining() const
 {
     InventoryItemRef item;
-    if (!FindSingleByFlag(flagSkillInTraining, item))
+    if (!FindSingleByFlag(flagSkillInTraining, item)){
         sLog.Debug("Character","  Unable to find skill in training");
+    }
 
     return SkillRef::StaticCast( item );
 }
@@ -874,7 +875,7 @@ void Character::UpdateSkillQueue()
     SaveSkillQueue();
 
     // update queue end time:
-    UpdateSkillQueueEndTime(m_skillQueue);
+    //UpdateSkillQueueEndTime(m_skillQueue);
 }
 //  this still needs work...in progress...see commented code for using flatSkillQueue
 void Character::UpdateSkillQueueEndTime(const SkillQueue &queue)
@@ -906,7 +907,22 @@ void Character::UpdateSkillQueueEndTime(const SkillQueue &queue)
         _log(DATABASE__ERROR, "Failed to set skillQueueEndTime for character %u: %s", itemID(), err.c_str());
         return;
     }
-    return;
+    sLog.Debug("Character::UpdateSkillQueueEndTime()", " %s (%u):  Saved Queue Data to DB", itemName().c_str(), itemID());
+}
+
+void Character::UpdateSkillQueueEndTime()
+{
+    UpdateSkillQueueEndTime(m_skillQueue);
+}
+
+void Character::RemoveSkillFromQueue(uint32 charID, uint16 skillID)
+{
+    DBerror err;
+    if( !sDatabase.RunQuery( err, "DELETE FROM chrSkillQueue WHERE characterID = %u AND typeID = %u ", charID, skillID ) )
+    {
+        _log(DATABASE__ERROR, "Failed to delete skill %u for character %u: %s", skillID, charID, err.c_str());
+        return;
+    }
 }
 
 PyDict *Character::CharGetInfo() {
@@ -1147,7 +1163,7 @@ void Character::VisitSystem(uint32 charID, uint32 solarSystemID)
         {
             sLog.Error("Character::VisitSystem","%s: Query Failed: %s", itemName().c_str(), err.c_str() );
             return;
-        }   // 02:49:11 E DBCore Query: Query: UPDATE chrVisitedSystems SET visits = 4, lastDateTime = 130356317510000000 WHERE characterID = 1 AND solarSystemID = 140000000 failed because did not return a result
+        }
     }else{
       if(!sDatabase.RunQuery(err,
         "INSERT INTO chrVisitedSystems (characterID, solarSystemID, visits, lastDateTime)"

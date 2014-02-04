@@ -39,10 +39,7 @@ protected:
     class Dispatcher;
     Dispatcher *const m_dispatch;
 
-
-    /**  Don't know any scanMgr calls yet
-    PyCallable_DECL_CALL(?)
-    */
+    PyCallable_DECL_CALL(GetResponsesForCharacter)
 };
 
 #endif
