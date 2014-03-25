@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Zhur, Allan
 */
 #ifndef __MAPDB_H_INCL__
 #define __MAPDB_H_INCL__
@@ -37,7 +37,7 @@ public:
     PyObject *GetStationServiceInfo();
     PyObject *GetStationCount();
     PyObject *GetSolSystemVisits(uint32);
-    PyObject *GetDynamicData(uint8, uint8);
+    PyObject *GetDynamicData(uint32, uint32);
 
 protected:
 };

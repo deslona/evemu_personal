@@ -40,7 +40,10 @@ public:
     PyObjectEx *GetAgents();
     bool LoadAgentActions(uint32 agentID, std::map<uint32, AgentActions *> &into);
 
-    //AgentLevel *LoadAgentLevel(uint8 level);
+ 	bool LoadAgentLocation(uint32 agentID, uint32 &locationID,
+ 	uint32 &locationType, uint32 &solarSystemID);
+
+   // AgentLevel *LoadAgentLevel(uint8 level);
 
 protected:
 };

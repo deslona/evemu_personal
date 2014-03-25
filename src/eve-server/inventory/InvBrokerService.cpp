@@ -45,6 +45,7 @@ public:
 
         m_strBoundObjectName = "InvBrokerBound";
 
+		PyCallable_REG_CALL(InvBrokerBound, GetContainerContents);
         PyCallable_REG_CALL(InvBrokerBound, GetInventoryFromId)
         PyCallable_REG_CALL(InvBrokerBound, GetInventory)
         PyCallable_REG_CALL(InvBrokerBound, SetLabel)
@@ -60,6 +61,7 @@ public:
         delete this;
     }
 
+	PyCallable_DECL_CALL(GetContainerContents)
     PyCallable_DECL_CALL(GetInventoryFromId)
     PyCallable_DECL_CALL(GetInventory)
     PyCallable_DECL_CALL(SetLabel)
@@ -124,6 +126,43 @@ PyBoundObject *InvBrokerService::_CreateBoundObject(Client *c, const PyRep *bind
     args.Dump(CLIENT__MESSAGE, "    ");
 
     return new InvBrokerBound(m_manager, args.entityID);
+}
+
+PyResult InvBrokerBound::Handle_GetContainerContents(PyCallArgs &call)
+{
+	/* Call Arguments:
+	Call Arguments:
+	    Tuple: 2 elements
+			[ 0] Integer field: 140000055		// itemID - the container to search
+			[ 1] Integer field: 60014719		// stationID
+	Call Named Arguments:
+		Argument 'machoVersion':
+			Integer field: 1
+	*/
+	//call.Dump(SERVICE__CALLS);
+
+	uint32 itemID = call.tuple->GetItem(0)->AsInt()->value();
+
+	// TODO: check if container is allowed to be examined
+
+	// get list of items in conatiner and return it to client
+    DBQueryResult res;
+	if(!sDatabase.RunQuery(res,
+		"SELECT "
+		"  e.itemID, "
+		"  e.flag as flagID, "
+		"  e.typeID, "
+		"  e.quantity as stacksize "
+		"FROM "
+		"  entity e "
+		"WHERE "
+		"  locationID=%d AND "
+		"  flag=5", itemID))
+	{
+        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+		return NULL;
+	}
+	return(DBResultToCRowset(res));
 }
 
 //this is a view into the entire inventory item.

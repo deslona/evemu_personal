@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Zhur, Allan
 */
 
 #include "eve-server.h"
@@ -37,6 +37,7 @@ m_dispatch(new Dispatcher(this))
     _SetCallDispatcher(m_dispatch);
 
     PyCallable_REG_CALL(OnlineStatusService, GetInitialState)
+    PyCallable_REG_CALL(OnlineStatusService, GetOnlineStatus)
 }
 
 OnlineStatusService::~OnlineStatusService() {
@@ -45,7 +46,9 @@ OnlineStatusService::~OnlineStatusService() {
 
 PyResult OnlineStatusService::Handle_GetInitialState(PyCallArgs &call) {
 
-    // this is used to query the initial online state of all friends. dummy.
+  sLog.Log( "OnlineStatusService::Handle_GetInitialState()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
+    // this is used to query the initial online state of all contacts.
 
     DBRowDescriptor *header = new DBRowDescriptor();
     header->AddColumn("contactID", DBTYPE_I4);
@@ -53,3 +56,17 @@ PyResult OnlineStatusService::Handle_GetInitialState(PyCallArgs &call) {
     CRowSet *rowset = new CRowSet( &header );
     return rowset;
 }
+
+PyResult OnlineStatusService::Handle_GetOnlineStatus(PyCallArgs &call) {
+
+  sLog.Log( "OnlineStatusService::Handle_GetOnlineStatus()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
+    // this is used to query the online state of all contacts
+
+    DBRowDescriptor *header = new DBRowDescriptor();
+    header->AddColumn("contactID", DBTYPE_I4);
+    header->AddColumn("online", DBTYPE_I4);
+    CRowSet *rowset = new CRowSet( &header );
+    return rowset;
+}
+

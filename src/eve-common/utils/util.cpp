@@ -829,3 +829,42 @@ std::wstring Strings::StringToWString( std::string & str )
 }
 
 }//namespace Utils
+
+/** ************************************/
+/** Start of Nerey's Utils code        */
+/** ************************************/
+
+bool IsLeapYear(int year)
+{
+    if (year % 4 != 0) return false;
+    if (year % 400 == 0) return true;
+    if (year % 100 == 0) return false;
+    return true;
+}
+
+int GetDaysInMonth(int year, int month)
+{
+    assert(month >= 0);
+    assert(month < 12);
+
+    int daysInMonths[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+    int days = daysInMonths[month];
+
+    if (month == 1 && IsLeapYear(year)) // February of a leap year
+        days += 1;
+
+    return days;
+}
+
+time_t addDays(int days)
+{
+    return time(0) + 86400 * days;
+}
+
+time_t addDays(const time_t &to, int days)
+{
+    return to + 86400 * days;
+}
+
+/** end of code  */

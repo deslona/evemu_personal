@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Zhur, Allan
 */
 
 #include "eve-server.h"
@@ -41,6 +41,7 @@ MapService::MapService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(MapService, GetSolarSystemPseudoSecurities)
     PyCallable_REG_CALL(MapService, GetSolarSystemVisits)
     PyCallable_REG_CALL(MapService, GetBeaconCount)
+    PyCallable_REG_CALL(MapService, GetHistory)
 
     /**  not handled yet...these are empty calls  */
     PyCallable_REG_CALL(MapService, GetStuckSystems)
@@ -52,10 +53,9 @@ MapService::MapService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(MapService, GetSystemsInIncursionsGM)
     PyCallable_REG_CALL(MapService, GetStationCount)    //ColorStarsByStationCount
     PyCallable_REG_CALL(MapService, GetAllianceSystems)    // wrong place
-    PyCallable_REG_CALL(MapService, GetMapLandmarks)
     PyCallable_REG_CALL(MapService, GetMyExtraMapInfoAgents)  //ColorStarsByMyAgents
-    PyCallable_REG_CALL(MapService, GetClusterSessionStatistics)    // wrong place
-    PyCallable_REG_CALL(MapService, GetHistory)
+    PyCallable_REG_CALL(MapService, GetVictoryPoints)
+
 }
 
 MapService::~MapService() {
@@ -131,48 +131,67 @@ PyResult MapService::Handle_GetSolarSystemPseudoSecurities(PyCallArgs &call) {
     return result;
 }
 
-//02:38:07 L MapService::Handle_GetSolarSystemVisits(): size= 0
-//AttributeError: 'int' object has no attribute 'lastDateTime'
 PyResult MapService::Handle_GetSolarSystemVisits(PyCallArgs &call)
-{
-  uint32 systemID = 0;
-  uint16 visits = 0;
-  uint32 charID = call.client->GetCharacterID();
-/**
-        PyTuple *result = new PyTuple(1);
+{       // passes no args
+    uint32 charID = call.client->GetCharacterID();
+    return (m_db.GetSolSystemVisits(charID));
+}
 
-        result->items[0] = m_db.GetSolSystemVisits(charID);
-        */
-  //m_db.
 
-    PyTuple* res = NULL;
+//02:52:11 L MapService::Handle_GetHistory(): size= 2, 0 = Integer (3), 1 = Integer (24)    -ColorStarsByCynosuralFields - ColorStarsByFactionKills - ColorStarsByKills - GetKillLast24H
+//02:52:13 L MapService::Handle_GetHistory(): size= 2, 0 = Integer (1), 1 = Integer (1)     -ColorStarsByJumps1Hour
+//02:52:14 L MapService::Handle_GetHistory(): size= 2, 0 = Integer (3), 1 = Integer (1)     -ColorStarsByPodKills
+//21:20:25 L MapService::Handle_GetHistory(): size= 2, 0 = Interger (5), 1 = Interger (24)  -ColorStarsByKills
+PyResult MapService::Handle_GetHistory(PyCallArgs &call) {
+    /**
 
-    return res;
+00:59:46 [SvcCall] Service map: calling GetHistory
+00:59:46 [Debug]   Call Arguments:
+00:59:46 [Debug]       Tuple: 2 elements
+00:59:46 [Debug]         [ 0] Integer field: 1
+00:59:46 [Debug]         [ 1] Integer field: 1
+00:59:46 [Debug]   Call Named Arguments:
+00:59:46 [Debug]     Argument 'machoVersion':
+00:59:46 [Debug]         Integer field: 1
+00:59:46 L MapService::Handle_GetHistory(): size= 2, 0 = Interger (1), 1 = Interger (1)
+    */
+
+  //call.Dump(SERVICE__CALLS);
+
+    uint32 int1 = call.tuple->GetItem(0)->AsInt()->value();
+    uint32 int2 = call.tuple->GetItem(1)->AsInt()->value();
+      sLog.Log( "MapService::Handle_GetHistory()", "size= %u, 0 = Interger (%u), 1 = Interger (%u)", call.tuple->size(), int1, int2 );
+
+    return (m_db.GetDynamicData(int1, int2));
 }
 
 //02:38:07 L MapService::Handle_GetBeaconCount(): size= 0
 PyResult MapService::Handle_GetBeaconCount(PyCallArgs &call)
 {
     /**
-    ColorStarsByCynosuralFields  -AttributeError: 'tuple' object has no attribute 'iteritems'
+    ColorStarsByCynosuralFields
     */
-    uint8 none = 0;
-    //m_db.GetDynamicData(0, 0)
-    PyTuple* res = NULL;
-    PyTuple* tuple0 = new PyTuple( 1 );
 
-    tuple0->items[ 0 ] = new PyInt( none );
-
-    res = tuple0;
-
-    return res;
+    return (m_db.GetDynamicData(10, 0));
 }
 
 /** not handled */
+
+//02:51:49 L MapService::Handle_GetStationCount(): size= 0
+PyResult MapService::Handle_GetStationCount(PyCallArgs &call)
+{
+  /**
+  ColorStarsByStationCount
+  - not real sure how to do this one.....see MapDB.cpp
+  */
+    return (m_db.GetStationCount());
+}
+
 PyResult MapService::Handle_GetStuckSystems(PyCallArgs &call)
 {
   sLog.Log( "MapService::Handle_GetStuckSystems()", "size= %u, 0 = %s", call.tuple->size(),
             call.tuple->GetItem(0)->TypeString() );
+    call.Dump(SERVICE__CALLS);
 
     uint8 none = 0;
 
@@ -186,9 +205,11 @@ PyResult MapService::Handle_GetStuckSystems(PyCallArgs &call)
     return res;
 }
 
+//22:49:23 L MapService::Handle_GetRecentSovActivity(): size= 0
 PyResult MapService::Handle_GetRecentSovActivity(PyCallArgs &call)
 {
   sLog.Log( "MapService::Handle_GetRecentSovActivity()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
 
     PyRep *result = NULL;
 
@@ -197,10 +218,15 @@ PyResult MapService::Handle_GetRecentSovActivity(PyCallArgs &call)
     return result;
 }
 
+//   DED Agent Site Report
 PyResult MapService::Handle_GetDeadspaceAgentsMap(PyCallArgs &call)
-{
+{/*
+23:25:52 [SvcCall]   Call Arguments:
+23:25:52 [SvcCall]       Tuple: 1 elements
+23:25:52 [SvcCall]         [ 0] String: 'EN'
   sLog.Log( "MapService::Handle_GetDeadspaceAgentsMap()", "size= %u", call.tuple->size() );
-
+    call.Dump(SERVICE__CALLS);
+*/
     PyRep *result = NULL;
 
     result = new PyDict();
@@ -208,10 +234,17 @@ PyResult MapService::Handle_GetDeadspaceAgentsMap(PyCallArgs &call)
     return result;
 }
 
+//  DED Deadspace Report
+//22:37:54 L MapService::Handle_GetDeadspaceComplexMap(): size= 1
 PyResult MapService::Handle_GetDeadspaceComplexMap(PyCallArgs &call)
-{
-  sLog.Log( "MapService::Handle_GetDeadspaceComplexMap()", "size= %u", call.tuple->size() );
+{/*
+23:25:52 [SvcCall]   Call Arguments:
+23:25:52 [SvcCall]       Tuple: 1 elements
+23:25:52 [SvcCall]         [ 0] String: 'EN'
 
+  sLog.Log( "MapService::Handle_GetDeadspaceComplexMap()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+*/
     PyRep *result = NULL;
 
     result = new PyDict();
@@ -222,6 +255,7 @@ PyResult MapService::Handle_GetDeadspaceComplexMap(PyCallArgs &call)
 PyResult MapService::Handle_GetIncursionGlobalReport(PyCallArgs &call)
 {
   sLog.Log( "MapService::Handle_GetIncursionGlobalReport()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
 
     return NULL;
 }
@@ -229,6 +263,7 @@ PyResult MapService::Handle_GetIncursionGlobalReport(PyCallArgs &call)
 PyResult MapService::Handle_GetSystemsInIncursions(PyCallArgs &call)
 {
   sLog.Log( "MapService::Handle_GetSystemsInIncursions()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
 
     return NULL;
 }
@@ -236,37 +271,39 @@ PyResult MapService::Handle_GetSystemsInIncursions(PyCallArgs &call)
 //20:38:53 L MapService::Handle_GetSystemsInIncursionsGM(): size= 0
 PyResult MapService::Handle_GetSystemsInIncursionsGM(PyCallArgs &call)
 {
-    return NULL;
-}
-
-//02:51:49 L MapService::Handle_GetStationCount(): size= 0
-PyResult MapService::Handle_GetStationCount(PyCallArgs &call)
-{
-  /**
-  ColorStarsByStationCount
-  */
+    call.Dump(SERVICE__CALLS);
     return NULL;
 }
 
 PyResult MapService::Handle_GetAllianceSystems(PyCallArgs &call)
 {
   sLog.Log( "MapService::Handle_GetAllianceSystems()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
 
     return NULL;
 }
 
-PyResult MapService::Handle_GetMapLandmarks(PyCallArgs &call)
+//   factional warfare shit
+PyResult MapService::Handle_GetVictoryPoints(PyCallArgs &call)
 {
-  sLog.Log( "MapService::Handle_GetMapLandmarks()", "size= %u", call.tuple->size() );
+  sLog.Log( "MapService::Handle_GetVictoryPoints()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
 
     return NULL;
 }
 
+//06:04:50 L MapService::Handle_GetMyExtraMapInfoAgents(): size= 0
 PyResult MapService::Handle_GetMyExtraMapInfoAgents(PyCallArgs &call)  //ColorStarsByMyAgents
 {
-  sLog.Log( "MapService::Handle_GetMyExtraMapInfoAgents()", "size= %u", call.tuple->size() );
      /**
      ColorStarsByMyAgents  -AttributeError: 'NoneType' object has no attribute 'Index'
+
+     --  this one will have to work in multiple steps....
+     1 - get calling char standing for each faction
+     2 - query agents from DB
+     3 - check char standing against needed standing for agent
+     4 - drop agents with standing > char standing
+     5 - list and return agents and systemID
      */
 
     uint8 none = 0;
@@ -275,53 +312,6 @@ PyResult MapService::Handle_GetMyExtraMapInfoAgents(PyCallArgs &call)  //ColorSt
     PyTuple* tuple0 = new PyTuple( 1 );
 
     tuple0->items[ 0 ] = new PyInt( none );
-
-    res = tuple0;
-
-    return res;
-}
-
-PyResult MapService::Handle_GetClusterSessionStatistics(PyCallArgs &call)   //ColorStarsByNumPilots
-{
-  sLog.Log( "MapService::Handle_GetMyExtraMapInfoAgents()", "size= %u", call.tuple->size() );
-    /**
-    ColorStarsByNumPilots
-    */
-    //m_db.GetDynamicData(0, 0)
-    uint8 none = 0;
-
-    PyTuple* res = NULL;
-    PyTuple* tuple0 = new PyTuple( 1 );
-
-    tuple0->items[ 0 ] = new PyInt( none );
-
-    res = tuple0;
-
-    return res;
-}
-
-//02:52:11 L CorpMgrService::Handle_GetAssetInventory(): size= 2, 0 = Integer (3), 1 = Integer (24)    -ColorStarsByCynosuralFields - ColorStarsByFactionKills - ColorStarsByKills - GetKillLast24H
-//02:52:13 L CorpMgrService::Handle_GetAssetInventory(): size= 2, 0 = Integer (1), 1 = Integer (1)     -ColorStarsByJumps1Hour
-//02:52:14 L CorpMgrService::Handle_GetAssetInventory(): size= 2, 0 = Integer (3), 1 = Integer (1)     -ColorStarsByPodKills
-//13:37:09 L MapService::Handle_GetHistory(): size= 2, 0 = Interger (3), 1 = Interger (24)
-
-PyResult MapService::Handle_GetHistory(PyCallArgs &call)
-{
-    /**
-    ColorStarsByJumps1Hour  -AttributeError: 'int' object has no attribute 'value1'
-    ColorStarsByPodKills  -AttributeError: 'int' object has no attribute 'value3'
-    ColorStarsByFactionKills  -AttributeError: 'int' object has no attribute 'value2'
-    ColorStarsByKills  -AttributeError: 'int' object has no attribute 'value1'
-    GetKillLast24H  -AttributeError: 'int' object has no attribute 'solarSystemID'
-    */
-    uint32 int1 = call.tuple->GetItem(0)->AsInt()->value();
-    uint32 int2 = call.tuple->GetItem(1)->AsInt()->value();
-      sLog.Log( "MapService::Handle_GetHistory()", "size= %u, 0 = Interger (%u), 1 = Interger (%u)", call.tuple->size(), int1, int2 );
-    //m_db.GetDynamicData(int1, int2)
-    PyTuple* res = NULL;
-    PyTuple* tuple0 = new PyTuple( 1 );
-
-    tuple0->items[ 0 ] = new PyInt( int1 );
 
     res = tuple0;
 

@@ -26,7 +26,8 @@
 #define __DAMAGE_H_INCL__
 
 class InventoryItem;
-class SystemEntity;
+//class SystemEntity;
+#include "system/SystemEntity.h"
 
 class Damage {
 public:
@@ -38,7 +39,9 @@ public:
             double _explosive,
             EVEEffectID _effect );
     Damage( SystemEntity *_source,
-            InventoryItemRef _weapon,    //damage derrived directly from weapon.
+            bool fatal_blow );          // weapon-less and charge-less constructor RESERVED for Killed() methods of derived SystemEntity objects
+    Damage( SystemEntity *_source,
+            InventoryItemRef _weapon,  // damage derrived directly from weapon.
             EVEEffectID _effect );
     Damage( SystemEntity *_source,
             InventoryItemRef _weapon,    //damage derrived directly from weapon+charge

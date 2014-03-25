@@ -387,7 +387,6 @@ bool AttributeMap::SetAttribute( uint32 attributeId, EvilNumber &num, bool nofit
             return false;
 
     itr->second = num;
-
 	mChanged = true;	// Mark the map as having been modified
 
     return true;
@@ -419,6 +418,7 @@ EvilNumber AttributeMap::GetAttribute( uint32 attributeId )
             case AttrCanFitShipType3:
             case AttrCanFitShipType4:
             case AttrSubSystemSlot:
+            case AttrReprocessingSkillType:
                 // DO NOT OUTPUT AN ERROR ON THESE MISSING ATTRIBUTES SINCE THEY ARE COMMONLY "MISSING" FROM MANY ITEMS
                 break;
 
@@ -457,6 +457,7 @@ EvilNumber AttributeMap::GetAttribute( const uint32 attributeId ) const
             case AttrCanFitShipType3:
             case AttrCanFitShipType4:
             case AttrSubSystemSlot:
+            case AttrReprocessingSkillType:
                 // DO NOT OUTPUT AN ERROR ON THESE MISSING ATTRIBUTES SINCE THEY ARE COMMONLY "MISSING" FROM MANY ITEMS
                 break;
 
@@ -873,7 +874,6 @@ bool AttributeMap::Delete()
 	}
 
 	mAttributes.clear();
-
 	mChanged = false; // just synced with database, no need to save
 
     return true;
@@ -891,4 +891,3 @@ AttributeMap::AttrMapItr AttributeMap::end()
 /************************************************************************/
 /* End of new attribute system                                          */
 /************************************************************************/
-

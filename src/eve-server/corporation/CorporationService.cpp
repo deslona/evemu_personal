@@ -49,7 +49,7 @@ CorporationService::CorporationService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(CorporationService, IsEnemyFaction)
     PyCallable_REG_CALL(CorporationService, GetVoteCasesByCorporation)
     PyCallable_REG_CALL(CorporationService, MoveCorpHQHere)
-    PyCallable_REG_CALL(CorporationService, GetAutomaticPaySettings)
+    PyCallable_REG_CALL(CorporationService, AddCorporateContact)
 }
 
 CorporationService::~CorporationService() {
@@ -126,20 +126,40 @@ PyResult CorporationService::Handle_GetFactionInfo(PyCallArgs &call) {
 }
 
 PyResult CorporationService::Handle_GetCorpInfo(PyCallArgs &call) {
-
-    sLog.Log("Server", "Called GetCorpInfo Stub.");
+      sLog.Log( "CorporationService::Handle_GetCorpInfo()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
 
     return NULL;
 }
 
 
 PyResult CorporationService::Handle_GetNPCDivisions(PyCallArgs &call) {
+  /*
+22:34:34 L CorporationService::Handle_GetNPCDivisions(): size= 0
+22:34:34 [SvcCall]   Call Arguments:
+22:34:34 [SvcCall]       Tuple: Empty
+22:34:34 [SvcCall]   Call Named Arguments:
+22:34:34 [SvcCall]     Argument 'machoVersion':
+22:34:34 [SvcCall]         Integer field: 1
+      sLog.Log( "CorporationService::Handle_GetNPCDivisions()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
+  */
     PyRep *result = m_db.ListNPCDivisions();
 
-    return result;
+    return (result);
 }
 
 PyResult CorporationService::Handle_GetEmploymentRecord(PyCallArgs &call) {
+  /*
+22:37:40 [SvcCall] Service corporationSvc: calling GetEmploymentRecord
+22:37:40 L CorporationService::Handle_GetEmploymentRecord(): size= 1
+22:37:40 [SvcCall]   Call Arguments:
+22:37:40 [SvcCall]       Tuple: 1 elements
+22:37:40 [SvcCall]         [ 0] Integer field: 140000000
+22:37:40 [SvcCall]   Call Named Arguments:
+22:37:40 [SvcCall]     Argument 'machoVersion':
+22:37:40 [SvcCall]         Integer field: 1
+*/
     Call_SingleIntegerArg args;
     if (!args.Decode(&call.tuple)) {
         codelog(SERVICE__ERROR, "Bad arguments");
@@ -257,53 +277,47 @@ PyResult CorporationService::Handle_GetRecruitmentAdsByCriteria( PyCallArgs& cal
 /** not handled */
 PyResult CorporationService::Handle_GetRecruitmentAdRegistryData(PyCallArgs &call)
 {
-    sLog.Log("Server", "Called GetRecruitmentAdRegistryData Stub.");
-
+      sLog.Log( "CorporationService::Handle_GetRecruitmentAdRegistryData()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
     return NULL;
 }
 
 PyResult CorporationService::Handle_SetAccountKey(PyCallArgs &call)
 {
-    sLog.Log("Server", "Called SetAccountKey Stub.");
-  sLog.Log( "CorporationService::Handle_SetAccountKey()", "size= %u, 0 = %s", call.tuple->size(),
-            call.tuple->GetItem(0)->TypeString() );
-
+      sLog.Log( "CorporationService::Handle_SetAccountKey()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
     return NULL;
 }
 
 PyResult CorporationService::Handle_IsEnemyFaction(PyCallArgs &call)
 {
-    sLog.Log("Server", "Called IsEnemyFaction Stub.");
-  sLog.Log( "CorporationService::Handle_IsEnemyFaction()", "size= %u, 0 = %s", call.tuple->size(),
-            call.tuple->GetItem(0)->TypeString() );
+      sLog.Log( "CorporationService::Handle_IsEnemyFaction()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
 
     return NULL;
 }
 
 PyResult CorporationService::Handle_GetVoteCasesByCorporation(PyCallArgs &call)
 {
-    sLog.Log("Server", "Called GetVoteCasesByCorporation Stub.");
-  sLog.Log( "CorporationService::Handle_GetVoteCasesByCorporation()", "size= %u, 0 = %s", call.tuple->size(),
-            call.tuple->GetItem(0)->TypeString() );
+      sLog.Log( "CorporationService::Handle_GetVoteCasesByCorporation()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
 
     return NULL;
 }
 
 PyResult CorporationService::Handle_MoveCorpHQHere(PyCallArgs &call)
 {
-    sLog.Log("Server", "Called MoveCorpHQHere Stub.");
-  sLog.Log( "CorporationService::Handle_MoveCorpHQHere()", "size= %u, 0 = %s", call.tuple->size(),
-            call.tuple->GetItem(0)->TypeString() );
+      sLog.Log( "CorporationService::Handle_MoveCorpHQHere()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
 
     return NULL;
 }
 
-PyResult CorporationService::Handle_GetAutomaticPaySettings(PyCallArgs &call)
+
+PyResult CorporationService::Handle_AddCorporateContact(PyCallArgs &call)
 {
-    sLog.Log("Server", "Called GetAutomaticPaySettings Stub.");
-  sLog.Log( "CorporationService::Handle_GetAutomaticPaySettings()", "size= %u, 0 = %s", call.tuple->size(),
-            call.tuple->GetItem(0)->TypeString() );
+      sLog.Log( "CorporationService::Handle_AddCorporateContact()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
 
     return NULL;
 }
-

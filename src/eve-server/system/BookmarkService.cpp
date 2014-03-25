@@ -20,12 +20,13 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Zhur, Allan
 */
 
 #include "eve-server.h"
 
 #include "PyServiceCD.h"
+#include "PyBoundObject.h"
 #include "system/BookmarkService.h"
 
 // Set the maximum number for any user-created bookmark and folder.
@@ -269,15 +270,18 @@ PyResult BookmarkService::Handle_BookmarkLocation(PyCallArgs &call)
 //15:37:47 L BookmarkService::Handle_DeleteBookmarks(): size= 1, 0 = ObjectEx
 PyResult BookmarkService::Handle_DeleteBookmarks(PyCallArgs &call)          //not working
 {
-  sLog.Log( "BookmarkService::Handle_DeleteBookmarks()", "size= %u, 0 = %s", call.tuple->size(),
-            call.tuple->GetItem(0)->TypeString() );  //call.tuple->GetItem(0)->AsInt()->value() fails...server crash
+  /** cant get python code to work...need more code for objectex in xmlp
+    Call_DeleteBookmarks args;
 
-        Call_SingleArg args;
-        if(!args.Decode(&call.tuple)) {
-            args.arg = new PyInt(0);
-        }
+    if(!args.Decode(&call.tuple)) {
+        _log(SERVICE__ERROR, "Failed to decode args.");
+        return NULL;
+    }
 
-        sLog.Log( "BookmarkService::Handle_DeleteBookmarks()", "Args Test = %u", args.arg );
+    uint16 bookmarkID = call.byname["bookmarkID"]->AsInt()->value();
+*/
+  /*
+
     if(call.tuple->IsList())
     {
       sLog.Log( "BookmarkService::Handle_DeleteBookmarks()", "Call is PyList");
@@ -306,17 +310,20 @@ PyResult BookmarkService::Handle_DeleteBookmarks(PyCallArgs &call)          //no
     }else if(call.tuple->IsTuple())
     {
       sLog.Log( "BookmarkService::Handle_DeleteBookmarks()", "Call is PyTuple");
-      /**
-      uint32 bookmarkID;
-      bookmarkID = call.tuple->GetItem( 0 )->AsObjectEx()->value(); <---  this causes a problem.  i am now at a loss....
-      m_db.DeleteBookmarkFromDatabase( call.client->GetCharacterID(), bookmarkID );
-      */
+
+      //uint32 bookmarkID;
+      //bookmarkID = call.tuple->GetItem( 0 )->AsObjectEx()->value(); <---  this causes a problem.  i am now at a loss....
+      //m_db.DeleteBookmarkFromDatabase( call.client->GetCharacterID(), bookmarkID );
+
     }else{
-      sLog.Error( "BookmarkService::Handle_DeleteBookmarks()", "Call is NotDefined.  Returning NULL.");
+      */
+      sLog.Error( "BookmarkService::Handle_DeleteBookmarks()", "Service is not handled yet.  Returning NULL.");
       return NULL;
+      /*
     }
 
     return(new PyNone());
+    */
 }
 
 
@@ -430,8 +437,10 @@ PyResult BookmarkService::Handle_CreateFolder(PyCallArgs &call)     // working
         ownerID,
         creatorID
     );
+    return NULL;
 
-    return(new PyNone());
+  // needs either a 'real' return or nothing.....
+  //return(new PyNone());  *SRVERROR* AttributeError: 'tuple' object has no attribute 'folderID'
 }
 
 //15:13:38 L BookmarkService::Handle_UpdateFolder(): size= 2, 0 = Integer (2), 1 = WString
@@ -482,11 +491,20 @@ PyResult BookmarkService::Handle_DeleteFolder(PyCallArgs &call)     // working
 //16:02:12 L BookmarkService::Handle_MoveBookmarksToFolder(): size= 2, 0 = int (2), 1 = ObjectEx (can't get)
 PyResult BookmarkService::Handle_MoveBookmarksToFolder(PyCallArgs &call)
 {
-  uint8 size = call.tuple->size();
-  uint16 int1 = call.tuple->GetItem(0)->AsInt()->value();
-  std::string string = "can\'t get"; //call.tuple->GetItem(1)->AsObjectEx()->content(); IsObjectEx
-  sLog.Log( "BookmarkService::Handle_MoveBookmarksToFolder()", "size= %u, 0 = int (%u), 1 = ObjectEx (%s)", size, int1, string.c_str() );
+  /*
+    Call_MoveBookmarksToFolder args;
 
-  return(new PyNone());
+    if(!args.Decode(&call.tuple)) {
+        _log(SERVICE__ERROR, "Failed to decode args.");
+        return NULL;
+    }
+
+    uint16 folderID = call.byname["folderID"]->AsInt()->value();
+    //  need to get bookmarks as a list using call.byname["bookmarkID"]->AsList();
+*/
+      sLog.Error( "BookmarkService::Handle_MoveBookmarksToFolder()", "Service is not handled yet.  Returning NULL.");
+      return NULL;
+  //return(new PyNone());
+  // needs either a 'real' return or nothing.....*SRVERROR* TypeError: 'NoneType' object is not iterable
 }
 

@@ -1,0 +1,33 @@
+
+<elements>
+
+  <elementDef name="Call_DeleteBookmarks">
+    <tupleInline>
+      <objectEx name="DeleteBookmarks" type2="true">
+        <tupleInline>
+          <tupleInline>
+            <listInline>
+              <int name="bookmarkID" />
+            </listInline>
+          </tupleInline>
+        </tupleInline>
+      </objectEx>
+    </tupleInline>
+  </elementDef>
+
+  <elementDef name="Call_MoveBookmarksToFolder">
+    <tupleInline>
+      <int name="folderID" />
+      <objectEx name="MoveBookmarks" type2="true">
+        <tupleInline>
+          <tupleInline>
+            <listInline>
+              <int name="bookmarkID" />
+            </listInline>
+          </tupleInline>
+        </tupleInline>
+      </objectEx>
+    </tupleInline>
+  </elementDef>
+
+</elements>

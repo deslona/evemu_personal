@@ -26,6 +26,8 @@
 #include "eve-server.h"
 
 #include "Client.h"
+#include "npc/NPC.h"
+#include "npc/NPCAI.h"
 #include "admin/AllCommands.h"
 #include "admin/CommandDB.h"
 #include "inventory/AttributeEnum.h"
@@ -34,6 +36,7 @@
 #include "manufacturing/Blueprint.h"
 #include "ship/DestinyManager.h"
 #include "ship/Drone.h"
+#include "system/Damage.h"
 #include "system/SystemManager.h"
 #include "system/SystemBubble.h"
 
@@ -190,7 +193,8 @@ PyResult Command_search( Client* who, CommandDB* db, PyServiceMgr* services, con
 
 PyResult Command_translocate( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args )
 {
-
+    return Command_tr(who,db,services,args);
+/*
     if( args.argCount() < 2 ) {
         throw PyException( MakeCustomError("Correct Usage: /transloacte [entityID]") );
     }
@@ -217,21 +221,137 @@ PyResult Command_translocate( Client* who, CommandDB* db, PyServiceMgr* services
 
     who->MoveToLocation( loc, p );
     return new PyString( "Translocation successful." );
+*/
 }
 
 
 PyResult Command_tr( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args )
 {
-    if( args.argCount() < 3 ) {
-        throw PyException( MakeCustomError("Correct Usage: /tr [entityID]") );
+    std::string usageString =
+        "Correct Usage:<br><br>\
+        - General Notes:<br>\
+        + tr is same as translocate command<br>\
+        + object being teleported MUST be in space<br>\
+        + destination object MUST be in space<br>\
+        + 'entityID #1' MUST be a currently logged-in character<br>\
+        + 'entityID #2' can be a character, ship, NPC, station, belt, stargate, or solar system<br>\
+        + 'me' string is allowed for [character name] to indicate YOU being teleported<br><br>\
+        /tr [entityID #1] - teleport YOU to 'entityID'<br>\
+        /tr [character name] - teleport YOU to 'character name'<br>\
+        /tr [solarSystemID] - teleport YOU into 'solarSystemID' system<br>\
+        /tr [solar system name] - teleport YOU into 'solar system name' system<br>\
+        /tr [entityID #1|character name] [entityID #2|character name|solarSystemID|solar system name] - teleport 'entityID #1' or 'character name' to 'entityID #2', 'character name' or solar system<br>\
+        /tr x y z - teleport YOU to a specific (x,y,z) coordinate in the current solar system<br>\
+        ";
+
+    // Error if there are NO arguments past first string "tr" or "translocate":
+    if( args.argCount() < 2 ) {
+        throw PyException( MakeCustomError(usageString.c_str()) );
     }
 
-    const std::string& name = args.arg( 1 );
-    if( "me" != name )
-        throw PyException( MakeCustomError( "Translocate (/TR) to non-me who '%s' is not supported yet.", name.c_str() ) );
+    // Argument Discovery
+    Client * p_targetClient = NULL;
+    SystemEntity * destinationEntity = NULL;
+    uint32 solarSystemID = 0;
+    GPoint destinationPoint(0,0,0);
+    uint32 argsCount = args.argCount();
+    std::string name1 = args.arg( 1 );
+    std::string name2 = "";
+    bool isFirstArgName = false;
+    bool isSecondArgName = false;
+    uint32 trMode = 0;
+    enum TR_MODE
+    {
+        TR_MODE_ME_TO_ENTITY = 1,
+        TR_MODE_ME_TO_CHARACTER,
+        TR_MODE_ME_TO_SOLARSYSTEMID,
+        TR_MODE_ME_TO_SOLARSYSTEM,
+        TR_MODE_ENTITY_TO_ENTITY,
+        TR_MODE_ENTITY_TO_CHARACTER,
+        TR_MODE_ENTITY_TO_SOLARSYSTEMID,
+        TR_MODE_ENTITY_TO_SOLARSYSTEM,
+        TR_MODE_CHARACTER_TO_ENTITY,
+        TR_MODE_CHARACTER_TO_CHARACTER,
+        TR_MODE_CHARACTER_TO_SOLARSYSTEMID,
+        TR_MODE_CHARACTER_TO_SOLARSYSTEM
+    };
 
-    if( !args.isNumber( 2 ) )
-        throw PyException( MakeCustomError( "Argument 1 should be an entity ID" ) );
+    isFirstArgName = args.isNumber(1) ? false : true;
+
+    // First, determine nature of First argument
+    if( isFirstArgName )
+    {
+        // First argument is a string, find out if it's a character or solar system:
+        if( (name1 == "me") && (argsCount < 3) )
+            throw PyException( MakeCustomError(std::string(usageString+"<br><br>FIRST ARGUMENT WAS 'me' BUT MISSING SECOND ARGUMENT!").c_str()) );
+
+        if( name1 == "me" )
+            p_targetClient = who;
+        else
+        {
+            // First argument is a string of a character or solar system:
+            //TODO
+        }
+    }
+    else
+    {
+        // First argument is a number, find out if it's a character, ship, NPC, station, belt, stargate, or solar system:
+        //TODO
+        p_targetClient = who;
+        solarSystemID = atoi( args.arg( 1 ).c_str() );
+        destinationPoint = GPoint( 1245789420000.0f, -1725486480000.0f, 1485125480000.0f );
+        trMode = 1;
+    }
+
+    if( argsCount == 3 )
+    {
+        // We are transporting either THIS client 'who' or some other entity or character to somewhere:
+        name2 = args.arg( 2 );
+        isSecondArgName = args.isNumber(2) ? false : true;
+
+        // Determine nature of Second argument
+        if( isSecondArgName )
+        {
+            // Second argument is a string, find out if it's a character or solar system:
+            //TODO
+            throw PyException( MakeCustomError(std::string(usageString+"<br><br>NOT SUPPORTED YET!").c_str()) );
+        }
+        else
+        {
+            // Second argument is a number, find out if it's a character, ship, NPC, station, belt, stargate, or solar system:
+            //TODO
+            throw PyException( MakeCustomError(std::string(usageString+"<br><br>NOT SUPPORTED YET!").c_str()) );
+        }
+    }
+
+    if( argsCount == 4 )
+    {
+        // SPECIAL CASE:  We are transporting ourselves to a specific (x,y,z) coordinate in the current solar system:
+        p_targetClient = who;
+        solarSystemID = who->GetLocationID();
+        if( !IsSolarSystem(solarSystemID) )
+            throw PyException( MakeCustomError(std::string(usageString+"<br><br>YOU MUST BE IN SPACE!").c_str()) );
+
+        if( args.isNumber(2) && args.isNumber(3) && args.isNumber(4) )
+            destinationPoint = GPoint( atoi(args.arg(2).c_str()), atoi(args.arg(3).c_str()), atoi(args.arg(4).c_str()) );
+    }
+
+    if( trMode == 0 )
+        throw PyException( MakeCustomError(std::string(usageString+"<br><br>UNABLE TO DETERMINE FORMAT OF ARGUMENTS 1 and 2!").c_str()) );
+
+    //solarSystemID = destinationEntity->GetLocationID();
+    //destinationPoint = destinationEntity->GetPosition();
+
+    // We're still going, so we know now we have a target to translocate AND a destination solar system AND destination coordinates, so let's do the translocate:
+    //    p_targetClient - target character in a ship to translocate (Client *)
+    //    solarSystemID - destination solar system ID
+    //    destinationPoint - destination coordinates (GPoint)
+
+    p_targetClient->Destiny()->SendJumpOutEffect("effects.JumpOut", solarSystemID);
+    p_targetClient->MoveToLocation(solarSystemID, destinationPoint);
+    p_targetClient->Destiny()->SendJumpInEffect("effects.JumpIn");
+
+/*
     uint32 loc = atoi( args.arg( 2 ).c_str() );
 
     sLog.Log( "Command", "Translocate to %u.", loc );
@@ -252,6 +372,7 @@ PyResult Command_tr( Client* who, CommandDB* db, PyServiceMgr* services, const S
     }
 
     who->MoveToLocation( loc , p );
+*/
     return new PyString( "Translocation successful." );
 }
 
@@ -425,6 +546,9 @@ PyResult Command_spawnn( Client* who, CommandDB* db, PyServiceMgr* services, con
 PyResult Command_spawn( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args )
 {
     uint32 typeID = 0;
+    uint32 spawnCount = 1;
+    uint32 spawnIndex = 0;
+    uint32 maximumSpawnCountAllowed = 100;
     uint32 actualTypeID = 0;
     std::string actualTypeName = "";
     uint32 actualGroupID = 0;
@@ -434,9 +558,13 @@ PyResult Command_spawn( Client* who, CommandDB* db, PyServiceMgr* services, cons
     ShipRef ship;
     double radius;
     bool offsetLocationSet = false;
+    std::string usage = "Correct Usage: <br><br> /spawn [typeID(int)/typeName(string)] <br><br>With optional spawn count: <br> /spawn [typeID(int)/typeName(string)] [count] <br><br>With optional count and (X,Y,Z) coordinate: <br> /spawn [typeID(int/typeName(string)] [count] [x(float)] [y(float)] [z(float)]";
+
+    if( !who->IsInSpace() )
+        throw PyException( MakeCustomError( usage.c_str() ) );
 
     if( args.argCount() < 2 ) {
-        throw PyException( MakeCustomError("Correct Usage: /spawn [typeID(int)/typeName(string)]  with optional X Y Z coordinate as in /spawn [typeID(int/typeName(string)] [x(float)] [y(float)] [z(float)]") );
+        throw PyException( MakeCustomError( usage.c_str() ) );
     }
 
     if( !(args.isNumber( 1 )) )
@@ -444,100 +572,116 @@ PyResult Command_spawn( Client* who, CommandDB* db, PyServiceMgr* services, cons
 
     typeID = atoi( args.arg( 1 ).c_str() );
 
-    if( !who->IsInSpace() )
-        throw PyException( MakeCustomError( "You must be in space to spawn things." ) );
-
     // Search for item type using typeID:
     if( !(db->ItemSearch(typeID, actualTypeID, actualTypeName, actualGroupID, actualCategoryID, actualRadius) ) )
     {
         return new PyString( "Unknown typeID or typeName returned no matches." );
     }
 
-    // Check to see if the X Y Z optional coordinates were supplied with the command:
-    GPoint offsetLocation;
     if( args.argCount() > 2 )
     {
         if( !(args.isNumber(2)) )
-            throw PyException( MakeCustomError( "Argument 2 should be the X distance from your ship in meters you want the item spawned" ) );
+            throw PyException( MakeCustomError( "Argument 3 should be the number of spawns of this type you want to create" ) );
 
-		if( args.argCount() > 3 )
-			if( !(args.isNumber(3)) )
-	            throw PyException( MakeCustomError( "Argument 3 should be the Y distance from your ship in meters you want the item spawned" ) );
-		else
-            throw PyException( MakeCustomError( "TOO FEW PARAMETERS: Correct Usage: /spawn [typeID(int)/typeName(string)]  with optional X Y Z coordinate as in /spawn [typeID(int/typeName(string)] [x(float)] [y(float)] [z(float)]" ) );
+        spawnCount = atoi( args.arg(2).c_str() );
+        if( spawnCount > maximumSpawnCountAllowed)
+            throw PyException( MakeCustomError( "Argument 3, spawn count, is allowed to be no more than 100" ) );
+    }
 
-		if( args.argCount() > 4 )
-			if( !(args.isNumber(4)) )
-				throw PyException( MakeCustomError( "Argument 4 should be the Z distance from your ship in meters you want the item spawned" ) );
-		else
-            throw PyException( MakeCustomError( "TOO FEW PARAMETERS: Correct Usage: /spawn [typeID(int)/typeName(string)]  with optional X Y Z coordinate as in /spawn [typeID(int/typeName(string)] [x(float)] [y(float)] [z(float)]" ) );
+    // Check to see if the X Y Z optional coordinates were supplied with the command:
+    GPoint offsetLocation;
+    if( args.argCount() > 3 )
+    {
+        if( !(args.isNumber(3)) )
+            throw PyException( MakeCustomError( "Argument 4 should be the X distance from your ship in meters you want the item spawned" ) );
 
-        offsetLocation.x = atoi( args.arg( 2 ).c_str() );
-        offsetLocation.y = atoi( args.arg( 3 ).c_str() );
-        offsetLocation.z = atoi( args.arg( 4 ).c_str() );
+        if( args.argCount() > 4 )
+        {
+            if( !(args.isNumber(4)) )
+                throw PyException( MakeCustomError( "Argument 5 should be the Y distance from your ship in meters you want the item spawned" ) );
+        }
+        else
+            throw PyException( MakeCustomError( "TOO FEW PARAMETERS: %s", usage.c_str() ) );
+
+        if( args.argCount() > 5 )
+        {
+            if( !(args.isNumber(5)) )
+                throw PyException( MakeCustomError( "Argument 6 should be the Z distance from your ship in meters you want the item spawned" ) );
+        }
+        else
+            throw PyException( MakeCustomError( "TOO FEW PARAMETERS: %s", usage.c_str() ) );
+
+        offsetLocation.x = atoi( args.arg( 3 ).c_str() );
+        offsetLocation.y = atoi( args.arg( 4 ).c_str() );
+        offsetLocation.z = atoi( args.arg( 5 ).c_str() );
         offsetLocationSet = true;
     }
 
-    GPoint loc( who->GetPosition() );
+    GPoint loc;
 
-    if( offsetLocationSet )
+    for(spawnIndex=0; spawnIndex < spawnCount; spawnIndex++)
     {
-        // An X, Y, Z coordinate offset was specified along with the command, so use this to calculate
-        // the final cooridnate of the newly spawned item:
-        loc.x += offsetLocation.x;
-        loc.y += offsetLocation.y;
-        loc.z += offsetLocation.z;
+        loc = who->GetPosition();
+
+        if( offsetLocationSet )
+        {
+            // An X, Y, Z coordinate offset was specified along with the command, so use this to calculate
+            // the final cooridnate of the newly spawned item:
+            loc.x += offsetLocation.x;
+            loc.y += offsetLocation.y;
+            loc.z += offsetLocation.z;
+        }
+        else
+        {
+            // Calculate a random coordinate on the sphere centered on the player's position with
+            // a radius equal to the radius of the ship/celestial being spawned times 10 for really good measure of separation:
+            radius = (actualRadius * 5.0) * (double)(MakeRandomInt( 1, 3));     // Scale the distance from player that the object will spawn to between 10x and 15x the object's radius
+            loc.MakeRandomPointOnSphere( radius );
+        }
+
+        // Spawn the item:
+        ItemData idata(
+            actualTypeID,
+            1, // owner is EVE System
+            who->GetLocationID(),
+            flagAutoFit,
+            actualTypeName.c_str(),
+            loc
+        );
+
+        item = services->item_factory.SpawnItem( idata );
+        if( !item )
+            throw PyException( MakeCustomError( "Unable to spawn item of type %u.", typeID ) );
+
+        DBSystemDynamicEntity entity;
+
+        entity.allianceID = 0;
+        entity.categoryID = actualCategoryID;
+        entity.corporationID = 0;
+        entity.flag = 0;
+        entity.groupID = actualGroupID;
+        entity.itemID = item->itemID();
+        entity.itemName = actualTypeName;
+        entity.locationID = who->GetLocationID();
+        entity.ownerID = 1;
+        entity.typeID = actualTypeID;
+        entity.x = loc.x;
+        entity.y = loc.y;
+        entity.z = loc.z;
+
+        // Actually do the spawn using SystemManager's BuildEntity:
+        if( !(who->System()->BuildDynamicEntity( who, entity )) )
+            return new PyString( "Spawn Failed: typeID or typeName not supported." );
+
+        // TEST FOR FUN:  If this is a drone, make its destiny manager orbit the ship that spawned it like a little lost puppy...
+        if( item->categoryID() == EVEDB::invCategories::Drone )
+        {
+            ((DroneEntity *)(who->System()->get( entity.itemID )))->Destiny()->SetSpeedFraction( 1.0, true );
+            ((DroneEntity *)(who->System()->get( entity.itemID )))->Destiny()->Orbit( who, 1000.0, true );
+        }
     }
-    else
-    {
-        // Calculate a random coordinate on the sphere centered on the player's position with
-        // a radius equal to the radius of the ship/celestial being spawned times 10 for really good measure of separation:
-        radius = (actualRadius * 5.0) * (double)(MakeRandomInt( 1, 3));     // Scale the distance from player that the object will spawn to between 10x and 15x the object's radius
-        loc.MakeRandomPointOnSphere( radius );
-    }
 
-    // Spawn the item:
-    ItemData idata(
-        actualTypeID,
-        1, // owner is EVE System
-        who->GetLocationID(),
-        flagAutoFit,
-        actualTypeName.c_str(),
-        loc
-    );
-
-    item = services->item_factory.SpawnItem( idata );
-    if( !item )
-        throw PyException( MakeCustomError( "Unable to spawn item of type %u.", typeID ) );
-
-    DBSystemDynamicEntity entity;
-
-    entity.allianceID = 0;
-    entity.categoryID = actualCategoryID;
-    entity.corporationID = 0;
-    entity.flag = 0;
-    entity.groupID = actualGroupID;
-    entity.itemID = item->itemID();
-    entity.itemName = actualTypeName;
-    entity.locationID = who->GetLocationID();
-    entity.ownerID = 1;
-    entity.typeID = actualTypeID;
-    entity.x = loc.x;
-    entity.y = loc.y;
-    entity.z = loc.z;
-
-    // Actually do the spawn using SystemManager's BuildEntity:
-    if( !(who->System()->BuildDynamicEntity( who, entity )) )
-        return new PyString( "Spawn Failed: typeID or typeName not supported." );
-
-    // TEST FOR FUN:  If this is a drone, make its destiny manager orbit the ship that spawned it like a little lost puppy...
-    if( item->categoryID() == EVEDB::invCategories::Drone )
-    {
-        ((DroneEntity *)(who->System()->get( entity.itemID )))->Destiny()->SetSpeedFraction( 1.0, true );
-        ((DroneEntity *)(who->System()->get( entity.itemID )))->Destiny()->Orbit( who, 1000.0, true );
-    }
-
-    sLog.Log( "Command", "%s: Spawned %u.", who->GetName(), typeID );
+    sLog.Log( "Command", "%s: Spawned %u in space, %u times", who->GetName(), typeID, spawnCount );
 
     return new PyString( "Spawn successful." );
 }
@@ -565,6 +709,8 @@ PyResult Command_location( Client* who, CommandDB* db, PyServiceMgr* services, c
         loc.x, loc.y, loc.z,
         vel.length()
     );
+
+    who->SendInfoModalMsg( reply );
 
     return new PyString( reply );
 }
@@ -672,7 +818,7 @@ PyResult Command_setattr( Client* who, CommandDB* db, PyServiceMgr* services, co
         target = args.arg( 1 );
         if( target != "myship" )
             throw PyException( MakeCustomError( "1st argument should be an entity ID ('myship'=current ship) (got %s).", args.arg( 1 ).c_str() ) );
-        
+
         itemID = who->GetShipID();
     }
     else
@@ -768,14 +914,14 @@ PyResult Command_fit(Client* who, CommandDB* db, PyServiceMgr* services, const S
 
 PyResult Command_giveallskills( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args )
 {
-    uint8 level = 5;			// Ensure that ALL skills trained are trained to level 5
+    uint8 level = 5;            // Ensure that ALL skills trained are trained to level 5
     CharacterRef character;
     EVEItemFlags flag;
     uint32 gty = 1;
     //uint8 oldSkillLevel = 0;
     EvilNumber oldSkillLevel(0);
     uint32 ownerID = 0;
-	Client * clientPtr = NULL;
+    Client * clientPtr = NULL;
 
     if( args.argCount() >= 2 )
     {
@@ -783,10 +929,10 @@ PyResult Command_giveallskills( Client* who, CommandDB* db, PyServiceMgr* servic
         {
             ownerID = atoi( args.arg( 1 ).c_str() );
             clientPtr = services->entity_list.FindCharacter( ownerID );
-			if( clientPtr == NULL )
-				throw PyException( MakeCustomError( "ERROR: Cannot find character #%d", ownerID ) );
-			else
-				character = clientPtr->GetChar();
+            if( clientPtr == NULL )
+                throw PyException( MakeCustomError( "ERROR: Cannot find character #%d", ownerID ) );
+            else
+                character = clientPtr->GetChar();
         }
         else if( args.arg( 1 ) == "me" )
         {
@@ -808,7 +954,7 @@ PyResult Command_giveallskills( Client* who, CommandDB* db, PyServiceMgr* servic
         else
             throw PyException( MakeCustomError( "Argument 1 must be Character ID or Character Name ") );
     }
-	else
+    else
         throw PyException( MakeCustomError("Correct Usage: /giveallskills [Character Name or ID]") );
 
     SkillRef skill;
@@ -816,57 +962,57 @@ PyResult Command_giveallskills( Client* who, CommandDB* db, PyServiceMgr* servic
     // Make sure character reference is not NULL before trying to use it:
     if( character != NULL )
     {
-		// Query Database to get list of ALL skills, then LOOP through each one, checking character for skill, setting level to 5:
-		// QUERY DB FOR LIST OF ALL SKILLS:
-		//		SELECT * FROM `invTypes` WHERE `groupID` IN (SELECT groupID FROM invGroups WHERE categoryID = 16)
-		// LOOP through each skill
-		std::vector<uint32> skillList;
-		db->FullSkillList( skillList );
+        // Query Database to get list of ALL skills, then LOOP through each one, checking character for skill, setting level to 5:
+        // QUERY DB FOR LIST OF ALL SKILLS:
+        //      SELECT * FROM `invTypes` WHERE `groupID` IN (SELECT groupID FROM invGroups WHERE categoryID = 16)
+        // LOOP through each skill
+        std::vector<uint32> skillList;
+        db->FullSkillList( skillList );
 
-		std::vector<uint32>::const_iterator skill_cur, skill_end;
-		skill_cur = skillList.begin();
-		skill_end = skillList.end();
+        std::vector<uint32>::const_iterator skill_cur, skill_end;
+        skill_cur = skillList.begin();
+        skill_end = skillList.end();
 
-		uint32 skillID = 0;
-		for( ; skill_cur != skill_end; skill_cur++ )
-		{
-			skillID = *skill_cur;
-			if(character->HasSkill( skillID ) )
-			{
-				// Character already has this skill, so let's get the current level and check to see
-				// if we need to update its level to what's required:
-				SkillRef oldSkill = character->GetSkill( skillID );
-				oldSkillLevel = oldSkill->GetAttribute( AttrSkillLevel );
+        uint32 skillID = 0;
+        for( ; skill_cur != skill_end; skill_cur++ )
+        {
+            skillID = *skill_cur;
+            if(character->HasSkill( skillID ) )
+            {
+                // Character already has this skill, so let's get the current level and check to see
+                // if we need to update its level to what's required:
+                SkillRef oldSkill = character->GetSkill( skillID );
+                oldSkillLevel = oldSkill->GetAttribute( AttrSkillLevel );
 
-				// Now check the current level to the required level and update it
-				if( oldSkillLevel < level )
-					character->InjectSkillIntoBrain( oldSkill, level);
-			}
-			else
-			{
-				// Character DOES NOT have this skill, so spawn a new one and then add this
-				// to the character with required level and skill points:
-				ItemData idata(
-					skillID,
-					ownerID,
-					0, //temp location
-					flag = (EVEItemFlags)flagSkill,
-					gty
-				);
+                // Now check the current level to the required level and update it
+                if( oldSkillLevel < level )
+                    character->InjectSkillIntoBrain( oldSkill, level);
+            }
+            else
+            {
+                // Character DOES NOT have this skill, so spawn a new one and then add this
+                // to the character with required level and skill points:
+                ItemData idata(
+                    skillID,
+                    ownerID,
+                    0, //temp location
+                    flag = (EVEItemFlags)flagSkill,
+                    gty
+                );
 
-				InventoryItemRef item = services->item_factory.SpawnItem( idata );
-				skill = SkillRef::StaticCast( item );
+                InventoryItemRef item = services->item_factory.SpawnItem( idata );
+                skill = SkillRef::StaticCast( item );
 
-				if( !item )
-					throw PyException( MakeCustomError( "ERROR: Unable to create item of type %s.", item->typeID() ) );
+                if( !item )
+                    throw PyException( MakeCustomError( "ERROR: Unable to create item of type %s.", item->typeID() ) );
 
-				character->InjectSkillIntoBrain( skill, level);
-			}
-		}
-		// END LOOP
+                character->InjectSkillIntoBrain( skill, level);
+            }
+        }
+        // END LOOP
     }
-	else
-		throw PyException( MakeCustomError( "ERROR: Unable to validate character object, it was found to be NULL!" ) );
+    else
+        throw PyException( MakeCustomError( "ERROR: Unable to validate character object, it was found to be NULL!" ) );
 
     return new PyString ("Skill Gifting Failure");
 }
@@ -952,6 +1098,7 @@ PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, 
                 character->InjectSkillIntoBrain( oldSkill, level);
                 return new PyString ( "Gifting skills complete" );
             }
+            skill = oldSkill;
         }
         else
         {
@@ -973,6 +1120,19 @@ PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, 
 
             character->InjectSkillIntoBrain( skill, level);
             return new PyString ( "Gifting skills complete" );
+        }
+
+        // Either way, this character now has this skill trained to the specified level, so inform client:
+        if( who != NULL )
+        {
+            OnSkillTrained ost;
+            ost.itemID = skill->itemID();
+
+            PyTuple* tmp = ost.Encode();
+            who->QueueDestinyEvent( &tmp );
+            PySafeDecRef( tmp );
+
+            who->UpdateSkillTraining();
         }
     }
 
@@ -1070,6 +1230,7 @@ PyResult Command_heal( Client* who, CommandDB* db, PyServiceMgr* services, const
         who->GetShip()->SetAttribute(AttrDamage, 0);
         EvilNumber shield_charge = who->GetShip()->GetAttribute(AttrShieldCapacity);
         who->GetShip()->SetAttribute(AttrShieldCharge, shield_charge);
+        who->GetShip()->SetAttribute(AttrCharge, who->GetShip()->GetAttribute(AttrCapacitorCapacity) );
     }
     if( args.argCount() == 2 )
     {
@@ -1336,28 +1497,85 @@ PyResult Command_kill( Client* who, CommandDB* db, PyServiceMgr* services, const
         // an object that IS a DynamicSystemEntity!!!
         DynamicSystemEntity * shipEntity = (DynamicSystemEntity *)(who->System()->get(entity));
         if( shipEntity == NULL )
-		{
-			throw PyException( MakeCustomError("/kill cannot process this object") );
-			sLog.Error("GMCommands - Command_kill()", "Cannot process this object, aborting kill: %s [%u]", itemRef->itemName().c_str(), itemRef->itemID());
-		}
-		else
-		{
-			if(shipEntity->IsNPC())
-			{
-				sLog.Warning("GMCommands - Command_kill()", "command unavailable for killing NPC type entities at this time - see code for more information - GMCommands.cpp");
-				//shipEntity->Killed(<fill with an instance of Damage class populated with appropriate information>);
-			}
-			else
-			{
-				shipEntity->Destiny()->SendTerminalExplosion();
-				shipEntity->Bubble()->Remove(shipEntity, true);
-				// Uncomment the following line once you want the kill command to really remove the object from the database 'entity' table forever:
-				//itemRef->Delete();
-			}
-		}
+        {
+            throw PyException( MakeCustomError("/kill cannot process this object") );
+            sLog.Error("GMCommands - Command_kill()", "Cannot process this object, aborting kill: %s [%u]", itemRef->itemName().c_str(), itemRef->itemID());
+        }
+        else
+        {
+            if(shipEntity->IsNPC())
+            {
+                NPC * npcEntity = shipEntity->CastToNPC();
+                //npcEntity->AI()->ClearAllTargets();
+                //npcEntity->Destiny()->SendTerminalExplosion();
+                //npcEntity->Bubble()->Remove(npcEntity, true);
+                //npcEntity->System()->RemoveEntity(npcEntity);
+                Damage fatal_blow((static_cast<SystemEntity*>(who)),true);
+                npcEntity->Killed(fatal_blow);
+                delete npcEntity;
+            }
+            else
+            {
+                //shipEntity->Destiny()->SendTerminalExplosion();
+                //shipEntity->Bubble()->Remove(shipEntity, true);
+                Damage fatal_blow((static_cast<SystemEntity*>(who)),true);
+                shipEntity->Killed(fatal_blow);
+                itemRef->Delete();
+            }
+        }
     }
     else
         throw PyException( MakeCustomError("Correct Usage: /kill <entityID>") );
+
+    return NULL;
+}
+
+PyResult Command_killallnpcs( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args )
+{
+    if( args.argCount() == 1 )
+    {
+        std::set<SystemEntity *> whosBubbleEntityList;
+        who->Bubble()->GetEntities(whosBubbleEntityList);
+        std::set<SystemEntity *>::const_iterator cur, end;
+        cur = whosBubbleEntityList.begin();
+        end = whosBubbleEntityList.end();
+        for(; cur != end; cur++) {
+            if( (*cur)->IsNPC() )
+            {
+                //shipEntity->Killed(<fill with an instance of Damage class populated with appropriate information>);
+                NPC * npcEntity = (*cur)->CastToNPC();
+                //npcEntity->AI()->ClearAllTargets();
+                //npcEntity->Destiny()->SendTerminalExplosion();
+                //npcEntity->Bubble()->Remove(npcEntity, true);
+                //npcEntity->System()->RemoveEntity(npcEntity);
+                Damage fatal_blow((static_cast<SystemEntity*>(who)),true);
+                npcEntity->Killed(fatal_blow);
+                delete npcEntity;
+            }
+        }
+    }
+    else
+        throw PyException( MakeCustomError("Correct Usage: /killallnpcs") );
+
+    return NULL;
+}
+
+PyResult Command_cloak( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args )
+{
+    if( args.argCount() == 1 )
+    {
+        if( who->IsInSpace() )
+        {
+            if( who->Destiny()->IsCloaked() )
+                who->Destiny()->UnCloak();
+            else
+                who->Destiny()->Cloak();
+        }
+        else
+            throw PyException( MakeCustomError("ERROR!  You MUST be in space to cloak!") );
+    }
+    else
+        throw PyException( MakeCustomError("Correct Usage: /cloak") );
 
     return NULL;
 }

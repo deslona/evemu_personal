@@ -28,8 +28,6 @@
 class MissionDB;
 class Agent;
 
-#if 0
-
 typedef enum {
     //totally made up right now:
     MissionUnseen,
@@ -62,8 +60,6 @@ public:
 };
 
 
-
-
 class AgentOfferSpec {
 public:
     std::string    offerName;
@@ -87,8 +83,6 @@ public:
 };
 
 
-
-
 class AgentResearchSpec {
 public:
     uint32        typeID;
@@ -107,11 +101,6 @@ public:
 };
 
 
-
-
-
-
-
 class MissionDB;
 
 class ClientJournal {
@@ -127,12 +116,6 @@ public:
     std::vector<AgentResearch *> research;    //we own these
 };
 
-
-
-
-
-
-
 class AgentMissionSet {
 public:
     AgentMissionSet();
@@ -145,7 +128,6 @@ public:
     std::vector<const AgentResearchSpec *> research;    //we own these
 };
 
-#endif
 
 class Client;
 
@@ -166,17 +148,16 @@ public:
 
     uint32 GetLoyaltyPoints(Client *who);
     void DoAction(Client *who, uint32 actionID, std::string &say, std::map<uint32, std::string> &choices);
+	PyRep* GetLocation();
 
 protected:
     const uint32 m_agentID;
     std::map<uint32, AgentActions *> m_actions;    //we own these.
-//    AgentLevel *m_agentLevel;
+
+	//AgentLevel *m_agentLevel;
+ 	uint32 m_solarSystemID;
+ 	uint32 m_locationID;
+ 	uint32 m_locationType;
 };
 
-
-
-
-
 #endif
-
-

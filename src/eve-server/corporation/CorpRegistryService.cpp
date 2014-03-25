@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:     Zhur
+    Author:     Zhur, Allan
 */
 
 #include "eve-server.h"
@@ -314,7 +314,6 @@ bool CorpRegistryBound::JoinCorporation(Client *who, uint32 newCorpID, const Cor
     return true;
 }
 
-/* this is a stubb */
 PyResult CorpRegistryBound::Handle_GetMember(PyCallArgs &call) {
 //    uint32 item = 0;
     //item += 1;
@@ -601,7 +600,9 @@ typedef enum {  //from eveConstants
     crpApplicationRenegotiatedByCorporation = 5,
     crpApplicationAcceptedByCorporation = 6
 } CorpApplicationStatus;
+
 PyResult CorpRegistryBound::Handle_UpdateApplicationOffer(PyCallArgs &call) {
+    call.Dump(SERVICE__CALLS);
     /** Incoming:
      *  Tuple
      *   - int 140000017    <- this is the charID, whose app should be handled
@@ -663,8 +664,6 @@ PyResult CorpRegistryBound::Handle_UpdateApplicationOffer(PyCallArgs &call) {
     case crpApplicationAcceptedByCorporation: /// accepted
     {
         // the acceptor corporation MUST have free space!!
-
-
         /// OnCorporationApplicationChanged
         ApplicationInfo newInfo(true);
         ApplicationInfo oldInfo(true);
@@ -1002,15 +1001,27 @@ PyResult CorpRegistryBound::Handle_UpdateLogo(PyCallArgs &call) {
     return m_db.GetCorporation(notif.key);
 }
 
+//22:31:22 L CorpRegistryBound::Handle_GetSharesByShareholder(): size= 1
 PyResult CorpRegistryBound::Handle_GetSharesByShareholder(PyCallArgs &call) {
-  sLog.Log( "CorpRegistryBound::Handle_GetSharesByShareholder()", "size= %u", call.tuple->size() );
+  /*
+16:55:44 L CorpRegistryBound::Handle_GetSharesByShareholder(): size= 1, 0=Boolean
+16:55:44 [SvcCall]   Call Arguments:
+16:55:44 [SvcCall]       Tuple: 1 elements
+16:55:44 [SvcCall]         [ 0] Boolean field: false
+16:55:44 [SvcCall]   Call Named Arguments:
+16:55:44 [SvcCall]     Argument 'machoVersion':
+16:55:44 [SvcCall]         Integer field: 1
 
+  sLog.Log( "CorpRegistryBound::Handle_GetSharesByShareholder()","size= %u, 0=%s", call.tuple->size(), call.tuple->GetItem( 0 )->TypeString() );
+    call.Dump(SERVICE__CALLS);
+*/
     return NULL;
 }
 
 //00:33:29 L CorpRegistryBound::Handle_SetAccountKey(): size= 1
 PyResult CorpRegistryBound::Handle_SetAccountKey(PyCallArgs &call) {
   sLog.Log( "CorpRegistryBound::Handle_SetAccountKey()", "size= %u, 0=%s", call.tuple->size(), call.tuple->GetItem( 0 )->TypeString() );
+    call.Dump(SERVICE__CALLS);
 
     return NULL;
 }
@@ -1018,11 +1029,15 @@ PyResult CorpRegistryBound::Handle_SetAccountKey(PyCallArgs &call) {
 PyResult CorpRegistryBound::Handle_PayoutDividend(PyCallArgs &call) {
   sLog.Log( "CorpRegistryBound::Handle_PayoutDividend()", "size= %u", call.tuple->size() );
 
+    call.Dump(SERVICE__CALLS);
     return NULL;
 }
 
+//21:59:17 L CorpRegistryBound::Handle_GetVoteCasesByCorporation(): size= 3
+//21:59:20 L CorpRegistryBound::Handle_GetVoteCasesByCorporation(): size= 1
 PyResult CorpRegistryBound::Handle_GetVoteCasesByCorporation(PyCallArgs &call) {
   sLog.Log( "CorpRegistryBound::Handle_GetVoteCasesByCorporation()", "size= %u", call.tuple->size() );
 
+    call.Dump(SERVICE__CALLS);
     return NULL;
 }

@@ -45,12 +45,32 @@ ScanMgrService::~ScanMgrService() {
 }
 
 //02:17:50 L ScanMgrService::Handle_GetSystemScanMgr(): size= 0
-PyResult ScanMgrService::Handle_GetSystemScanMgr( PyCallArgs& call )
-{
+PyResult ScanMgrService::Handle_GetSystemScanMgr( PyCallArgs& call ) {
+  /*
+01:49:51 L ScanMgrService::Handle_GetSystemScanMgr(): size= 0
+01:49:51 [SvcCall]   Call Arguments:
+01:49:51 [SvcCall]       Tuple: Empty
+01:49:51 [SvcCall]   Call Named Arguments:
+01:49:51 [SvcCall]     Argument 'machoVersion':
+01:49:51 [SvcCall]         Integer field: 1
+
+/client/script/parklife/scansvc.py(194) RequestScans
+        self = <svc.ScanSvc instance at 0x06556AD0>
+        scanMan = None
+        probes = None
+AttributeError: 'NoneType' object has no attribute 'RequestScans'
+*/
   sLog.Log( "ScanMgrService::Handle_GetSystemScanMgr()", "size= %u", call.tuple->size() );
   /**
    ConeScan  -AttributeError: 'NoneType' object has no attribute 'ConeScan'
    RequestScans  -AttributeError: 'NoneType' object has no attribute 'RequestScans'
   */
-    return NULL;
+  call.Dump(SERVICE__CALLS);
+
+    PyDict *res = new PyDict();
+
+    res->SetItem("ConeScan", new PyInt(1) ) ;
+    res->SetItem("RequestScans", new PyInt(2) ) ;
+
+    return res;
 }

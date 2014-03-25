@@ -27,7 +27,8 @@
 
 #include "manufacturing/RamProxyDB.h"
 
-PyRep *RamProxyDB::GetJobs2(const uint32 ownerID, const bool completed, const uint64 fromDate, const uint64 toDate) {
+PyRep *RamProxyDB::GetJobs2(const uint32 ownerID, const bool completed) //, const uint64 fromDate, const uint64 toDate)
+{
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
@@ -64,10 +65,10 @@ PyRep *RamProxyDB::GetJobs2(const uint32 ownerID, const bool completed, const ui
         " LEFT JOIN ramAssemblyLineStations AS station ON assemblyLine.containerID = station.stationID"
         " WHERE job.ownerID = %u"
         " AND job.completedStatusID %s 0"
-        " AND job.installTime >= %" PRIu64
-        " AND job.endProductionTime <= %" PRIu64
+        //" AND job.installTime >= %" PRIu64
+        //" AND job.endProductionTime <= %" PRIu64
         " GROUP BY job.jobID",
-        ownerID, (completed ? "!=" : "="), fromDate, toDate))
+        ownerID, (completed ? "!=" : "=") )) //, fromDate, toDate))
     {
         _log(DATABASE__ERROR, "Failed to query jobs for owner %u: %s", ownerID, res.error.c_str());
         return NULL;
@@ -86,9 +87,11 @@ PyRep *RamProxyDB::AssemblyLinesSelectPublic(const uint32 regionID) {
         " station.solarSystemID AS containerLocationID,"
         " station.assemblyLineTypeID,"
         " station.quantity,"
-        " station.ownerID"
+        " station.ownerID,"
+		" types.activityID"
         " FROM ramAssemblyLineStations AS station"
         " LEFT JOIN crpNPCCorporations AS corp ON station.ownerID = corp.corporationID"
+		" LEFT JOIN ramAssemblyLineTypes as types ON station.assemblyLineTypeID = types.assemblyLineTypeID"
         " WHERE station.ownerID = corp.corporationID"
         " AND station.regionID = %u",
         regionID))
@@ -97,7 +100,7 @@ PyRep *RamProxyDB::AssemblyLinesSelectPublic(const uint32 regionID) {
         return NULL;
     }
 
-    return DBResultToRowset(res);
+    return DBResultToCRowset(res);
 }
 PyRep *RamProxyDB::AssemblyLinesSelectPersonal(const uint32 charID) {
     DBQueryResult res;
@@ -204,13 +207,13 @@ bool RamProxyDB::GetAssemblyLineProperties(const uint32 assemblyLineID, double &
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        " assemblyLineType.baseMaterialMultiplier,"
-        " assemblyLineType.baseTimeMultiplier,"
-        " assemblyLine.costInstall,"
-        " assemblyLine.costPerHour"
-        " FROM ramAssemblyLines AS assemblyLine"
-        " LEFT JOIN ramAssemblyLineTypes AS assemblyLineType ON assemblyLine.assemblyLineTypeID = assemblyLineType.assemblyLineTypeID"
-        " WHERE assemblyLine.assemblyLineID = %u",
+        " alt.baseMaterialMultiplier,"
+        " alt.baseTimeMultiplier,"
+        " al.costInstall,"
+        " al.costPerHour"
+        " FROM ramAssemblyLines AS al"
+        " LEFT JOIN ramAssemblyLineTypes AS alt ON al.assemblyLineTypeID = alt.assemblyLineTypeID"
+        " WHERE al.assemblyLineID = %u",
         assemblyLineID))
     {
         _log(DATABASE__ERROR, "Failed to query properties for assembly line %u: %s.", assemblyLineID, res.error.c_str());
@@ -264,7 +267,11 @@ bool RamProxyDB::GetAssemblyLineVerifyProperties(const uint32 assemblyLineID, ui
     return true;
 }
 
-bool RamProxyDB::InstallJob(const uint32 ownerID, const  uint32 installerID, const uint32 assemblyLineID, const uint32 installedItemID, const uint64 beginProductionTime, const uint64 endProductionTime, const char *description, const uint32 runs, const EVEItemFlags outputFlag, const uint32 installedInSolarSystem, const int32 licensedProductionRuns) {
+bool RamProxyDB::InstallJob(const uint32 ownerID, const  uint32 installerID,
+        const uint32 assemblyLineID, const uint32 installedItemID,
+        const uint64 beginProductionTime, const uint64 endProductionTime,
+        const char *description, const uint32 runs, const EVEItemFlags outputFlag,
+        const uint32 installedInSolarSystem, const int32 licensedProductionRuns) {
     DBerror err;
 
     // insert job
@@ -364,6 +371,26 @@ uint32 RamProxyDB::CountResearchJobs(const uint32 installerID) {
 
 bool RamProxyDB::GetRequiredItems(const uint32 typeID, const EVERamActivity activity, std::vector<RequiredItem> &into) {
     DBQueryResult res;
+    DBResultRow row;
+
+    if (activity == 1) {
+        if(!sDatabase.RunQuery(res,
+            "SELECT"
+            " m.materialTypeID,"
+            " m.quantity"
+            " FROM invTypeMaterials as m "
+            " LEFT JOIN invBlueprintTypes AS bpTypes "
+            "   ON m.typeID = bpTypes.productTypeID"
+            " WHERE bpTypes.blueprintTypeID = %u",
+            typeID) )
+        {
+            _log(DATABASE__ERROR, "Failed to query data to build BillOfMaterials: %s.", res.error.c_str());
+            return false;
+        }
+        // only materials in this table
+        while(res.GetRow(row))
+            into.push_back(RequiredItem(row.GetUInt(0), row.GetUInt(1), 1.0, false));
+    }
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
@@ -371,7 +398,7 @@ bool RamProxyDB::GetRequiredItems(const uint32 typeID, const EVERamActivity acti
         " material.quantity,"
         " material.damagePerJob,"
         " IF(materialGroup.categoryID = 16, 1, 0) AS isSkill"
-        " FROM typeActivityMaterials AS material"
+        " FROM ramTypeRequirements AS material"
         " LEFT JOIN invTypes AS materialType ON material.requiredTypeID = materialType.typeID"
         " LEFT JOIN invGroups AS materialGroup ON materialType.groupID = materialGroup.groupID"
         " WHERE material.typeID = %u"
@@ -384,7 +411,6 @@ bool RamProxyDB::GetRequiredItems(const uint32 typeID, const EVERamActivity acti
         return false;
     }
 
-    DBResultRow row;
     while(res.GetRow(row))
         into.push_back(RequiredItem(row.GetUInt(0), row.GetUInt(1), row.GetFloat(2), row.GetInt(3) ? true : false));
 
@@ -491,10 +517,10 @@ uint32 RamProxyDB::GetTech2Blueprint(const uint32 blueprintTypeID) {
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
-                "SELECT blueprintTypeID"
-                " FROM invBlueprintTypes"
-                " WHERE parentBlueprintTypeID = %u",
-                blueprintTypeID))
+        "SELECT blueprintTypeID"
+        " FROM invBlueprintTypes"
+        " WHERE parentBlueprintTypeID = %u",
+        blueprintTypeID))
     {
         _log(DATABASE__ERROR, "Unable to get T2 type for type ID %u: %s", blueprintTypeID, res.error.c_str());
         return 0;
@@ -535,10 +561,10 @@ uint32 RamProxyDB::GetRegionOfContainer(const uint32 containerID) {
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
-                "SELECT regionID"
-                " FROM ramAssemblyLineStations"
-                " WHERE stationID = %u",
-                containerID))
+        "SELECT regionID"
+        " FROM ramAssemblyLineStations"
+        " WHERE stationID = %u",
+        containerID))
     {
         _log(DATABASE__ERROR, "Unable to query region for container %u: %s", containerID, res.error.c_str());
         return 0;
@@ -559,12 +585,12 @@ bool RamProxyDB::_GetMultipliers(const uint32 assemblyLineID, uint32 groupID, do
 
     // check table ramAssemblyLineTypeDetailPerGroup first
     if(!sDatabase.RunQuery(res,
-                "SELECT materialMultiplier, timeMultiplier"
-                " FROM ramAssemblyLineTypeDetailPerGroup"
-                " JOIN ramAssemblyLines USING (assemblyLineTypeID)"
-                " WHERE assemblyLineID = %u"
-                " AND groupID = %u",
-                assemblyLineID, groupID))
+        "SELECT materialMultiplier, timeMultiplier"
+        " FROM ramAssemblyLineTypeDetailPerGroup"
+        " JOIN ramAssemblyLines USING (assemblyLineTypeID)"
+        " WHERE assemblyLineID = %u"
+        " AND groupID = %u",
+        assemblyLineID, groupID))
     {
         _log(DATABASE__ERROR, "Failed to check producability of group %u by line %u: %s", groupID, assemblyLineID, res.error.c_str());
         return false;
@@ -579,13 +605,13 @@ bool RamProxyDB::_GetMultipliers(const uint32 assemblyLineID, uint32 groupID, do
 
     // then ramAssemblyLineTypeDetailPerCategory
     if(!sDatabase.RunQuery(res,
-                "SELECT materialMultiplier, timeMultiplier"
-                " FROM ramAssemblyLineTypeDetailPerCategory"
-                " JOIN ramAssemblyLines USING (assemblyLineTypeID)"
-                " JOIN invGroups USING (categoryID)"
-                " WHERE assemblyLineID = %u"
-                " AND groupID = %u",
-                assemblyLineID, groupID))
+        "SELECT materialMultiplier, timeMultiplier"
+        " FROM ramAssemblyLineTypeDetailPerCategory"
+        " JOIN ramAssemblyLines USING (assemblyLineTypeID)"
+        " JOIN invGroups USING (categoryID)"
+        " WHERE assemblyLineID = %u"
+        " AND groupID = %u",
+        assemblyLineID, groupID))
     {
         _log(DATABASE__ERROR, "Failed to check producability of group %u by line %u: %s", groupID, assemblyLineID, res.error.c_str());
         return false;

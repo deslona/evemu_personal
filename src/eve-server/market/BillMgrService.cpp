@@ -33,22 +33,20 @@ PyCallable_Make_InnerDispatcher(BillMgrService)
 
 BillMgrService::BillMgrService(PyServiceMgr *mgr)
 : PyService(mgr, "billMgr"),
-  m_dispatch(new Dispatcher(this))
-{
+  m_dispatch(new Dispatcher(this)) {
     _SetCallDispatcher(m_dispatch);
 
     PyCallable_REG_CALL(BillMgrService, GetBillTypes)
     PyCallable_REG_CALL(BillMgrService, GetCorporationBills)
     PyCallable_REG_CALL(BillMgrService, GetCorporationBillsReceivable)
+    PyCallable_REG_CALL(BillMgrService, GetAutomaticPaySettings)
 }
 
 BillMgrService::~BillMgrService() {
     delete m_dispatch;
 }
 
-
-PyResult BillMgrService::Handle_GetBillTypes( PyCallArgs& call )
-{
+PyResult BillMgrService::Handle_GetBillTypes( PyCallArgs& call ) {
     PyRep* result = NULL;
 
     ObjectCachedMethodID method_id(GetName(), "GetBillTypes");
@@ -77,32 +75,14 @@ PyResult BillMgrService::Handle_GetCorporationBills(PyCallArgs &call) {
 
     return m_db.GetCorporationBills(corpID, true);
 }
+
 PyResult BillMgrService::Handle_GetCorporationBillsReceivable(PyCallArgs &call) {
     uint32 corpID = call.client->GetCorporationID();
 
     return m_db.GetCorporationBills(corpID, false);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//00:29:03 L BillMgrService::Handle_GetAutomaticPaySettings(): size= 0
+PyResult BillMgrService::Handle_GetAutomaticPaySettings(PyCallArgs &call) {
+    return NULL;
+}

@@ -29,6 +29,7 @@
 #include "PyServiceCD.h"
 #include "cache/ObjCacheService.h"
 #include "dogmaim/DogmaIMService.h"
+#include "ship/modules/Modules.h"
 #include "system/SystemManager.h"
 
 class DogmaIMBound
@@ -61,6 +62,7 @@ public:
         PyCallable_REG_CALL(DogmaIMBound, CancelOverloading)
 		PyCallable_REG_CALL(DogmaIMBound, SetModuleOnline)
 		PyCallable_REG_CALL(DogmaIMBound, TakeModuleOffline)
+        PyCallable_REG_CALL(DogmaIMBound, LoadAmmoToBank)
         PyCallable_REG_CALL(DogmaIMBound, AddTarget)
         PyCallable_REG_CALL(DogmaIMBound, RemoveTarget)
         PyCallable_REG_CALL(DogmaIMBound, ClearTargets)
@@ -87,11 +89,12 @@ public:
     PyCallable_DECL_CALL(CancelOverloading)
 	PyCallable_DECL_CALL(SetModuleOnline)
 	PyCallable_DECL_CALL(TakeModuleOffline)
+    PyCallable_DECL_CALL(LoadAmmoToBank)
     PyCallable_DECL_CALL(AddTarget)
     PyCallable_DECL_CALL(RemoveTarget)
     PyCallable_DECL_CALL(ClearTargets)
-    
-    
+
+
 
 protected:
     Dispatcher *const m_dispatch;
@@ -214,7 +217,7 @@ PyResult DogmaIMBound::Handle_GetTargeters(PyCallArgs &call) {
 
 PyResult DogmaIMBound::Handle_SetModuleOnline( PyCallArgs& call ) {
 	Call_TwoIntegerArgs args; //locationID, moduleID
-	
+
 	if( !args.Decode( &call.tuple ) )
     {
         codelog( SERVICE__ERROR, "Unable to decode arguments from '%s'", call.client->GetName() );
@@ -228,7 +231,7 @@ PyResult DogmaIMBound::Handle_SetModuleOnline( PyCallArgs& call ) {
 
 PyResult DogmaIMBound::Handle_TakeModuleOffline( PyCallArgs& call ) {
 	Call_TwoIntegerArgs args; //locationID, moduleID
-	
+
 	if( !args.Decode( &call.tuple ) )
     {
         codelog( SERVICE__ERROR, "Unable to decode arguments from '%s'", call.client->GetName() );
@@ -238,6 +241,55 @@ PyResult DogmaIMBound::Handle_TakeModuleOffline( PyCallArgs& call ) {
 	call.client->GetShip()->Offline(args.arg2);
 
 	return NULL;
+}
+
+PyResult DogmaIMBound::Handle_LoadAmmoToBank( PyCallArgs& call ) {
+   Call_Dogma_LoadAmmoToBank args;
+
+   if( !args.Decode( &call.tuple ) )
+    {
+        codelog( SERVICE__ERROR, "Unable to decode arguments from '%s'", call.client->GetName() );
+        return NULL;
+    }
+
+   // NOTES:
+   // args.chargeList will contain one or more entries, each of which is an itemID of a charge or stack of charges
+   // presumably, this list allows the player to select more than one stack of exact same ammo and drag whole selection
+   // onto the module to be loaded into it; then what can be loaded is, and a single stack of the remainder quantity is
+   // created and returned to the inventory the original selection of charges was pulled from.
+   // -- this still must be fully confirmed by testing on hybrid or projectile turrets or missile batteries
+
+   // WARNING!  Initial Implementation ONLY handles the FIRST entry in the args.chargeList,
+   // which is basically supporting only single charge stacks applied to module!
+
+   // Get Reference to Ship, Module, and Charge
+   ShipRef shipRef = call.client->GetShip();
+   InventoryItemRef moduleRef = shipRef->GetModule(args.moduleItemID);
+   if( moduleRef == NULL )
+   {
+       sLog.Error("DogmaIMBound::Handle_LoadAmmoToBank()", "ERROR: cannot find module into which charge should be loaded!  How did we get here!?!?!" );
+       return NULL;
+   }
+   EVEItemFlags moduleFlag = moduleRef->flag();
+   InventoryItemRef chargeRef;
+
+   if( !(args.chargeList.empty()) )
+       chargeRef = m_manager->item_factory.GetItem(args.chargeList.at(0));
+
+   // Move Charge into Ship's Inventory and change the Charge's flag to match flag of Module
+   uint32 loadedChargeID = shipRef->AddItem( moduleFlag, chargeRef );
+   //call.client->MoveItem(chargeRef->itemID(), call.client->GetShipID(), moduleFlag);
+
+    //Create new item id return result
+   if( loadedChargeID )
+   {
+       Call_SingleIntegerArg result;
+       result.arg = loadedChargeID;    //chargeRef->itemID();
+       //Return new item result
+       return result.Encode();
+   }
+
+   return NULL;
 }
 
 PyResult DogmaIMBound::Handle_Activate( PyCallArgs& call )

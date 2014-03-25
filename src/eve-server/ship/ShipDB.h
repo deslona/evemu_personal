@@ -35,6 +35,12 @@ class ShipDB
 public:
     PyTuple* GetFormations();
     static PyObject* GetEffectInformation(std::string effectName);
+
+	PyResult GetInsuranceInfoByShipID(uint32 shipID);
+	PyResult GetInsuranceContractsByOwnerID(uint32 ownerID);
+	bool InsertInsuranceByShipID(uint32 shipID, double fraction);
+	bool DeleteInsuranceByShipID(uint32 shipID);
+
 };
 
 

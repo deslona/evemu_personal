@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:     Zhur, Bloody.Rabbit
+    Author:     Zhur, Bloody.Rabbit, Allan
 */
 
 #include "eve-server.h"
@@ -420,6 +420,9 @@ uint32 Character::_Spawn(ItemFactory &factory,
 
 bool Character::_Load()
 {
+    if( !Owner::_Load() )
+        return false;
+
 	bool bLoadSuccessful = false;
 
     if( !LoadContents( m_factory ) )
@@ -538,6 +541,18 @@ SkillRef Character::GetSkill(uint32 skillTypeID) const
     return SkillRef::StaticCast( skill );
 }
 
+uint Character::GetSkillLevel(uint32 skillTypeID, bool zeroForNotInjected) const
+{
+    SkillRef requiredSkill;
+
+    // First, check for existence of skill trained or in training:
+    requiredSkill = GetSkill( skillTypeID );
+
+    if( !requiredSkill )
+        return zeroForNotInjected ? 0 : -1;
+    return requiredSkill->GetAttribute(AttrSkillLevel).get_int() ;
+}
+
 SkillRef Character::GetSkillInTraining() const
 {
     InventoryItemRef item;
@@ -565,12 +580,13 @@ EvilNumber Character::GetSPPerMin( SkillRef skill )
 
     primarySPperMin = primarySPperMin + secondarySPperMin / 2.0f;
 
-/**      *****   SP/Min is determined by client....cannot change here.  *****
+///      *****   SP/Min is also calculated by client....if changed here, client needs many updates.  *****
     if( sConfig.rates.skillRate > 1 )    // is skillRate defined in config?
     {
       primarySPperMin = primarySPperMin * sConfig.rates.skillRate;
       sLog.Debug( "Character::GetSPPerMin()", " new SPperMin by rates.skillRate %u", primarySPperMin );
     }
+/**
     // 100% Training bonus has been removed in Incursion...i like it, so re-instated   -allan 01/11/14
     EvilNumber chkSPMax =  0;
     if( sConfig.rates.MaxSPforBonus )    // is MaxSPforBonus defined in config?
@@ -782,12 +798,16 @@ void Character::UpdateSkillQueue()
                 c->UpdateSkillTraining();
             }
 
+            // Save changes to this skill before removing it from training:
+            currentTraining->SaveItem();
             // nothing currently in training
             currentTraining = SkillRef();
+            // Re-Calculate total SP trained and store in internal variable:
+            _CalculateTotalSPTrained();
+            // Save character skill data:
+            SaveSkillQueue();
         }
     }
-
-    EvilNumber nextStartTime = EvilTimeNow();
 
     while( !m_skillQueue.empty() )
     {
@@ -811,7 +831,7 @@ void Character::UpdateSkillQueue()
             SPToNextLevel = SPToNextLevel.get_float() - CurrentSP.get_float();
               sLog.Debug( "Character::UpdateSkillQueue()", "  CurrentSP = %f : %f SPToNextLevel", CurrentSP.get_float(),  SPToNextLevel.get_float() );
 
-            EvilNumber timeTraining = nextStartTime + EvilTime_Minute * SPToNextLevel / SPPerMinute;
+            EvilNumber timeTraining = EvilTimeNow() + EvilTime_Minute * SPToNextLevel / SPPerMinute;
 
             currentTraining->MoveInto( *this, flagSkillInTraining );
             double dbl_timeTraining = timeTraining.get_float() + (double)(Win32Time_Second * 5);
@@ -830,18 +850,29 @@ void Character::UpdateSkillQueue()
                 PySafeDecRef( tmp );
                 c->UpdateSkillTraining();
             }
+            // Save changes to this skill now that it is put into training:
+            currentTraining->SaveItem();
         }
 
         if( currentTraining->GetAttribute(AttrExpiryTime) <= EvilTimeNow() )
         {
             // training has been finished
+            /**  NOTE:  This needs a periodic (persistant) check, not just for chars ingame.  API will need CURRENT skilltraining  */
             currentTraining->SetAttribute(AttrSkillLevel, currentTraining->GetAttribute(AttrSkillLevel) + 1 );
             currentTraining->SetAttribute(AttrSkillPoints, currentTraining->GetSPForLevel( currentTraining->GetAttribute(AttrSkillLevel) ), true);
 
-            nextStartTime = currentTraining->GetAttribute(AttrExpiryTime);
-            currentTraining->SetAttribute(AttrExpiryTime, 0);
+            //  save finished skill in history  -allan
+            uint32 skillID = m_skillQueue.front().typeID;
+            DBerror err;
+            if( !sDatabase.RunQuery( err,
+              "INSERT INTO chrSkillHistory (logDateTime, characterID, skillTypeID, skillLevel, absolutePoints)"
+              " VALUES (%f, %u, %u, %f, %f)", currentTraining->GetAttribute(AttrExpiryTime).get_float(), itemID(), skillID, currentTraining->GetAttribute(AttrSkillLevel).get_float(), GetTotalSP().get_float() ))
+                  _log(DATABASE__ERROR, "Failed to set chrSkillHistory for character %u: %s", itemID(), err.c_str());
+            sLog.Log("Character::SaveFinishedSkill","%s:%u saved skill %u as finished to level %f on %f DateTime", itemName().c_str(), itemID(), skillID, currentTraining->GetAttribute(AttrSkillLevel).get_float(), currentTraining->GetAttribute(AttrExpiryTime).get_float() );
 
+            currentTraining->SetAttribute(AttrExpiryTime, 0);
             currentTraining->MoveInto( *this, flagSkill, true );
+			currentTraining->SaveItem();
 
               sLog.Debug( "Character::UpdateSkillQueue()", "%s: Finishing training of skill %s.", itemName().c_str(), currentTraining->itemName().c_str());
 
@@ -861,27 +892,31 @@ void Character::UpdateSkillQueue()
 
             // nothing currently in training
             currentTraining = SkillRef();
+            // Re-Calculate total SP trained and store in internal variable:
+            _CalculateTotalSPTrained();
+            // Save character skill data:
+            SaveSkillQueue();
         }
         // else the skill is in training ...
         else
             break;
     }
-
+/**  moving this to {skill finished} and {stop training} loops for faster load times....
     // Re-Calculate total SP trained and store in internal variable:
     _CalculateTotalSPTrained();
 
     // Save character and skill data:
-    SaveCharacter();
+	//  too many DB hits...commented out
+    //SaveCharacter();
     SaveSkillQueue();
-
-    // update queue end time:
-    //UpdateSkillQueueEndTime(m_skillQueue);
+    */
 }
+
 //  this still needs work...in progress...see commented code for using flatSkillQueue
 void Character::UpdateSkillQueueEndTime(const SkillQueue &queue)
 {
     EvilNumber chrMinRemaining = 0;    // explicit init to 0
-    /**
+    /**   this code is start for looping skillqueue for multiple levels of same skill.
     std::map<uint32, QueuedSkill> flatSkillQueue;
     const QueuedSkill &qs = queue;
     //if (flatSkillQueue.find(qs.typeID) != flatSkillQueue.end()){
@@ -907,7 +942,7 @@ void Character::UpdateSkillQueueEndTime(const SkillQueue &queue)
         _log(DATABASE__ERROR, "Failed to set skillQueueEndTime for character %u: %s", itemID(), err.c_str());
         return;
     }
-    sLog.Debug("Character::UpdateSkillQueueEndTime()", " %s (%u):  Saved Queue Data to DB", itemName().c_str(), itemID());
+    sLog.Debug("Character::UpdateSkillQueueEndTime()", " %s (%u): Saved Queue Data to DB", itemName().c_str(), itemID());
 }
 
 void Character::UpdateSkillQueueEndTime()
@@ -916,13 +951,28 @@ void Character::UpdateSkillQueueEndTime()
 }
 
 void Character::RemoveSkillFromQueue(uint32 charID, uint16 skillID)
-{
+{       /**  unused?  */
     DBerror err;
     if( !sDatabase.RunQuery( err, "DELETE FROM chrSkillQueue WHERE characterID = %u AND typeID = %u ", charID, skillID ) )
     {
         _log(DATABASE__ERROR, "Failed to delete skill %u for character %u: %s", skillID, charID, err.c_str());
         return;
     }
+}
+
+double Character::GetEffectiveStandingFromNPC(uint32 itemID)
+{
+    Client *const c = m_factory.entity_list.FindCharacter( itemID );
+
+    double res = m_db.GetCharRawStandingFromNPC(this->itemID(), itemID);
+//TODO: also use skillCriminalConnections.
+// check itemID() for faction/corp standing -> char faction/corp
+
+    if(res > 0) res += (10-res) * 0.04 * c->GetChar()->GetSkillLevel(skillConnections);
+    else
+    if(res < 0) res += (10-res) * 0.04 * c->GetChar()->GetSkillLevel(skillDiplomacy);
+
+    return res;
 }
 
 PyDict *Character::CharGetInfo() {
@@ -1038,7 +1088,7 @@ void Character::SaveCharacter()
     // Calculate total Skill Points trained at this time to save to DB:
     _CalculateTotalSPTrained();
 
-    sLog.Debug( "Character::SaveCharacter()", "Saving all character info and skill attribute info to DB for character %s...", itemName().c_str() );
+    sLog.Debug( "Character::SaveCharacter()", "Saving character info to DB for character %s...", itemName().c_str() );
     // character data
     m_factory.db().SaveCharacter(
         itemID(),
@@ -1083,11 +1133,23 @@ void Character::SaveCharacter()
             rolesAtOther()
         )
     );
+}
+
+void Character::SaveFullCharacter()
+{
+    _log( ITEM__TRACE, "Saving character %u.", itemID() );
+
+    sLog.Debug( "Character::SaveFullCharacter()", "Saving FULL set of character info, skills, items, etc to DB for character %s...", itemName().c_str() );
+
+	// First save basic character info and attributes:
+	SaveCharacter();
 
     // Save this character's own attributes:
     SaveAttributes();
 
+    // BAD BAD BAD: This is taking minutes and minutes for high SP chars when all we need to do is save the current skill in training:
     // Loop through all skills and save each one:
+    /*
     std::vector<InventoryItemRef> skills;
     GetSkillsList( skills );
     std::vector<InventoryItemRef>::iterator cur, end;
@@ -1095,7 +1157,11 @@ void Character::SaveCharacter()
     end = skills.end();
     for(; cur != end; cur++)
 		cur->get()->SaveItem();
-        //cur->get()->SaveAttributes();
+    */
+
+    SkillRef currentTraining = GetSkillInTraining();
+    if( currentTraining != NULL )
+        currentTraining->SaveItem();
 
     // Loop through all items owned by this Character and save each one:
 	// TODO
@@ -1103,6 +1169,7 @@ void Character::SaveCharacter()
 	// Loop through all contracts or other non-item things owned by this Character and save each one:
 	// TODO
 
+    SaveSkillQueue();
 	SaveCertificates();
 }
 
@@ -1142,14 +1209,30 @@ void Character::_CalculateTotalSPTrained()
     end = skills.end();
     for(; cur != end; cur++)
     {
-        totalSP = totalSP + cur->get()->GetAttribute( AttrSkillPoints );    // much cleaner and more accurate    -allan
+        totalSP += cur->get()->GetAttribute( AttrSkillPoints );    // much cleaner and more accurate    -allan
     }
 
     m_totalSPtrained = totalSP;
 }
 
+EvilNumber Character::GetTotalSP()
+{
+    // Loop through all skills trained and calculate total SP this character has trained so far
+    EvilNumber totalSP = 0.0f;
+    std::vector<InventoryItemRef> skills;
+    GetSkillsList( skills );
+    std::vector<InventoryItemRef>::iterator cur, end;
+    cur = skills.begin();
+    end = skills.end();
+    for(; cur != end; cur++)
+    {
+        totalSP += cur->get()->GetAttribute( AttrSkillPoints );
+    }
 
-void Character::VisitSystem(uint32 charID, uint32 solarSystemID)
+    return(totalSP);
+}
+
+void Character::VisitSystem(uint32 solarSystemID)
 {
     uint16 visits = GetSystemVisits(solarSystemID);
     DBerror err;
@@ -1158,7 +1241,7 @@ void Character::VisitSystem(uint32 charID, uint32 solarSystemID)
       visits ++;
       if(!sDatabase.RunQuery(err,
         "UPDATE chrVisitedSystems SET visits = %u, lastDateTime = %" PRIu64 " WHERE characterID = %u AND solarSystemID = %u",
-        visits, EvilTimeNow(), charID, solarSystemID
+        visits, Win32TimeNow(), itemID(), solarSystemID
         ))
         {
             sLog.Error("Character::VisitSystem","%s: Query Failed: %s", itemName().c_str(), err.c_str() );
@@ -1167,14 +1250,14 @@ void Character::VisitSystem(uint32 charID, uint32 solarSystemID)
     }else{
       if(!sDatabase.RunQuery(err,
         "INSERT INTO chrVisitedSystems (characterID, solarSystemID, visits, lastDateTime)"
-        "VALUES (%u, %u, 1, %" PRIu64 ")", charID, solarSystemID, EvilTimeNow()
+        "VALUES (%u, %u, 1, %" PRIu64 ")", itemID(), solarSystemID, Win32TimeNow()
         ))
         {
             sLog.Error("Character::VisitSystem","%s: Query Failed: %s", itemName().c_str(), err.c_str() );
             return;
         }
     }
-    sLog.Log("Character::VisitSystem","%s: Query saved as charID=%u, solSys=%u, visits=%u, lastTime=%" PRIu64 ")", itemName().c_str(), charID, solarSystemID, visits, EvilTimeNow() );
+    sLog.Log("Character::VisitSystem","%s: Query saved as charID=%u, solSys=%u, visits=%u(0=1), lastTime=%" PRIu64 ")", itemName().c_str(), itemID(), solarSystemID, visits, Win32TimeNow() );
 }
 
 uint16 Character::GetSystemVisits(uint32 solarSystemID)
@@ -1192,3 +1275,103 @@ uint16 Character::GetSystemVisits(uint32 solarSystemID)
       return false;
 }
 
+PyObject* Character::GetSkillHistory() {
+    DBQueryResult res;
+    if(!sDatabase.RunQuery(res,
+        "SELECT logDateTime, eventID, skillTypeID, skillLevel, relativePoints, absolutePoints"
+        " FROM chrSkillHistory"
+        " WHERE characterID = %d", itemID() ))
+    {
+        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        return NULL;
+    }
+
+    return(DBResultToRowset(res));
+}
+
+
+void Character::chkDynamicSystemID(uint32 systemID) {
+  /**  this ensures mapDynamicData.solarSystemID for `systemID` is in the DB for later calls. -allan 16Mar14 */
+    DBQueryResult chk;
+    sDatabase.RunQuery(chk, "SELECT solarSystemID FROM mapDynamicData WHERE solarSystemID = %u", systemID );
+    DBResultRow row;
+    if(chk.GetRow(row)) {
+        sLog.Success("Character::chkDynamicSystemID"," System %u already in DB", systemID );
+    } else {
+        DBerror err;
+        if(!sDatabase.RunQuery(err, "INSERT INTO mapDynamicData (solarSystemID) VALUES (%u)", systemID )) {
+            sLog.Error("Character::chkDynamicSystemID","%u: Query Failed: %s", systemID, err.c_str() );
+        } else {
+          sLog.Warning("Character::chkDynamicSystemID"," System %u inserted in DB", systemID );
+        }
+    }
+}
+
+/** the following functions rely on solarSystemID being in the mapDynamicData table.
+  * the check is called before these are used, and solarSystemID is then verified for existance and added if needed.
+  *   the function is as follows and is declared above...
+  *         void SystemDB::chkDynamicSystemID(uint32 systemID)
+  *
+  *  NOTE: these will have to be reset each server start.  should prolly trunicate table on restart after everything is  working as i am using the count() in this table for active systems on website.
+  */
+
+void Character::AddJumpToDynamicData(uint32 solarSystemID) {
+    uint16 jumps = GetJumpsFromDynamicData(solarSystemID);
+    DBerror err;
+
+    jumps ++;
+    if(!sDatabase.RunQuery(err,
+        "UPDATE mapDynamicData SET jumpsHour = %u, jumpsDateTime = %" PRIu64 " WHERE solarSystemID = %u",
+        jumps, Win32TimeNow(), solarSystemID )) {
+            sLog.Error("Character::AddJumpToDynamicData","%u: Query Failed: %s", itemID(), err.c_str() );
+            return;
+        }
+    sLog.Log("Character::AddJumpToDynamicData","%s (%u): Query saved as solSys=%u, jumpsHour=%u, jumpsDateTime=%" PRIu64 ")", itemName().c_str(), itemID(), solarSystemID, jumps, Win32TimeNow() );
+}
+
+uint16 Character::GetJumpsFromDynamicData(uint32 solarSystemID) {
+    DBQueryResult res;
+    sDatabase.RunQuery(res, "SELECT jumpsHour FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
+
+    DBResultRow row;
+    if(res.GetRow(row))
+      return row.GetUInt(0);
+    else
+      return false;
+}
+
+//  this should prolly be changed to a dynamic call from memory, instead of from db....
+//   however, showing pilots in system on the webpage will need the db.  *shrugs*
+void Character::AddPilotToDynamicData(uint32 solarSystemID, bool add) {
+    uint16 pilots = GetPilotsFromDynamicData(solarSystemID);
+    DBerror err;
+    if (add) pilots ++; else pilots --;
+    if (pilots < 0) pilots = 0;
+    if(!sDatabase.RunQuery(err, "UPDATE mapDynamicData SET numpilots = %u WHERE solarSystemID = %u", pilots, solarSystemID )){
+        sLog.Error("Character::AddPilotToDynamicData","%s: Query Failed: %s", itemID(), err.c_str() );
+        return;
+    }
+    sLog.Log("Character::AddPilotToDynamicData","%s (%u): Query saved as solSys=%u, pilots=%u",itemName().c_str(), itemID(), solarSystemID, pilots );
+}
+
+uint16 Character::GetPilotsFromDynamicData(uint32 solarSystemID) {
+    DBQueryResult res;
+    sDatabase.RunQuery(res, "SELECT numpilots FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
+
+    DBResultRow row;
+    if(res.GetRow(row))
+      return row.GetUInt(0);
+    else
+      return false;
+}
+
+bool Character::isOffline(uint32 charID) {
+    DBQueryResult res;
+    sDatabase.RunQuery(res, "SELECT Online FROM character_ WHERE characterID = %u", charID );
+
+    DBResultRow row;
+    if(res.GetRow(row))
+      return false; //row.GetUInt(0);
+    else
+      return true;
+}

@@ -116,7 +116,8 @@ BlueprintData::BlueprintData(
 : copy(_copy),
   materialLevel(_materialLevel),
   productivityLevel(_productivityLevel),
-  licensedProductionRunsRemaining(_licensedProductionRunsRemaining)
+  //licensedProductionRunsRemaining(_licensedProductionRunsRemaining)
+  licensedProductionRunsRemaining(_copy ? _licensedProductionRunsRemaining : -1)
 {
 }
 
@@ -275,6 +276,8 @@ void Blueprint::AlterLicensedProductionRunsRemaining(int32 licensedProductionRun
 }
 
 PyDict *Blueprint::GetBlueprintAttributes() const {
+  //  need to find raw materials from *somewhere* and add to this list for that tab to show in bp info ingame.
+
     Rsp_GetBlueprintAttributes rsp;
 
     // fill in our attribute info

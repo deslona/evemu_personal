@@ -119,7 +119,7 @@
 // standing services
 #include "standing/FactionWarMgrService.h"
 #include "standing/SovereigntyMgrService.h"
-#include "standing/Standing2Service.h"
+#include "standing/Standing.h"
 #include "standing/WarRegistryService.h"
 // station services
 #include "station/HoloscreenMgrService.h"
@@ -130,7 +130,9 @@
 #include "system/BookmarkService.h"
 #include "system/DungeonService.h"
 #include "system/KeeperService.h"
+#include "system/Search.h"
 #include "system/ScenarioService.h"
+#include "system/WrecksAndLoot.h"
 
 static void SetupSignals();
 static void CatchSignal( int sig_num );
@@ -171,8 +173,8 @@ int main( int argc, char* argv[] )
 
     sLog.InitializeLogging(sConfig.files.logDir);
     sLog.Log("server init", "Loading server...");
-    sLog.Log("SERVER VERSION", "EVEmu 0.7.15-allan" );
-    sLog.Log("BUILD DATE", "1 February 2014");
+    sLog.Log("SERVER VERSION", "EVEmu 0.7.18-allan" );
+    sLog.Log("BUILD DATE", "16 March 2014");
     sLog.Log("SOURCE", "get at " EVEMU_REPOSITORY );
     sLog.Log("SERVER INIT", "\n"
         "\tSupported Client: %s\n"
@@ -316,12 +318,13 @@ int main( int argc, char* argv[] )
     services.RegisterService(new RamProxyService(&services));
     services.RegisterService(new RepairService(&services));
     services.RegisterService(new ReprocessingService(&services));
+    services.RegisterService(new Search(&services));
     services.RegisterService(new ScanMgrService(&services));
     services.RegisterService(new ShipService(&services));
     services.RegisterService(new SkillMgrService(&services));
     services.RegisterService(new SlashService(&services, &command_dispatcher));
     services.RegisterService(new SovereigntyMgrService(&services));
-    services.RegisterService(new Standing2Service(&services));
+    services.RegisterService(new Standing(&services));
     services.RegisterService(new StationService(&services));
     services.RegisterService(new StationSvcService(&services));
     services.RegisterService(new TutorialService(&services));
@@ -350,6 +353,8 @@ int main( int argc, char* argv[] )
 	sDGM_Effects_Table.Initialize();
 	sLog.Log("server init", "---> sDGM_Skill_Bonus_Modifiers_Table: Loading...");
 	sDGM_Skill_Bonus_Modifiers_Table.Initialize();
+    sLog.Log("server init", "---> sDGM_Types_to_Wrecks_Table: Loading...");
+    sDGM_Types_to_Wrecks_Table.Initialize();
 	//sLog.Log("server init", "---> sDGM_Ship_Bonus_Modifiers_Table: Loading...");
 	//sDGM_Ship_Bonus_Modifiers_Table.Initialize();
     //sLog.Log("server init", "---> sDGM_Implant_Bonus_Modifiers_Table: Loading...");

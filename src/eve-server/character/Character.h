@@ -378,6 +378,16 @@ public:
      */
     SkillRef GetSkill(uint32 skillTypeID) const;
     /**
+     * Gets level of skill that is trained.
+     *
+     * @param[in] skillTypeID ID of skill type to be checked
+     * @param[in] zeroForNotInjected true if method should return 0 for un injected skills,
+     *  false if it should return -1
+     * @return value 0..5 - the level of skill trained, or, if it was not injected,
+     *  0 if zeroForNotInjected.is true, -1 otherwise
+     */
+     uint GetSkillLevel(uint32 skillTypeID, bool zeroForNotInjected=true) const;
+    /**
      * Returns skill currently in training.
      *
      * @param[in] newref Whether new reference should be returned.
@@ -474,6 +484,10 @@ public:
      */
     void GetCertificates( Certificates &crt );
 
+ 	/* Returns standing an agent/corp has towards this character.
+ 	 */
+ 	double GetEffectiveStandingFromNPC(uint32 itemID);
+
     // NOTE: We do not handle Split/Merge logic since singleton-restricted construction does this for us.
 
     /**
@@ -549,11 +563,21 @@ public:
     uint32                  shipID() const { return m_shipID; }
 
     void SaveCharacter();
+	void SaveFullCharacter();
     void SaveSkillQueue() const;
     void SaveCertificates() const;
     void SetActiveShip( uint32 );
-    void VisitSystem( uint32, uint32 );
-    uint16 GetSystemVisits( uint32 );
+
+    void VisitSystem(uint32);
+    uint16 GetSystemVisits(uint32);
+    void chkDynamicSystemID(uint32);
+    void AddJumpToDynamicData(uint32);
+    uint16 GetJumpsFromDynamicData(uint32);
+    void AddPilotToDynamicData(uint32, bool);
+    uint16 GetPilotsFromDynamicData(uint32);
+    bool isOffline(uint32);
+
+    PyObject* GetSkillHistory();
 
 protected:
     Character(
@@ -621,6 +645,7 @@ protected:
     void AddItem(InventoryItemRef item);
 
     void _CalculateTotalSPTrained();
+    EvilNumber GetTotalSP();
 
     /*
      * Data members
@@ -669,6 +694,9 @@ protected:
     EvilNumber m_totalSPtrained;
 
     Certificates m_certificates;
+
+private:
+	CharacterDB m_db;
 };
 
 #endif /* !__CHARACTER__H__INCL__ */

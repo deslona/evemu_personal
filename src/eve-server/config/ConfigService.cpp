@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Zhur, Allan
 */
 
 #include "eve-server.h"
@@ -41,14 +41,16 @@ ConfigService::ConfigService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(ConfigService, GetMultiAllianceShortNamesEx)
     PyCallable_REG_CALL(ConfigService, GetMultiCorpTickerNamesEx)
     PyCallable_REG_CALL(ConfigService, GetUnits)
-    PyCallable_REG_CALL(ConfigService, GetMapObjects)
     PyCallable_REG_CALL(ConfigService, GetMap)
+    PyCallable_REG_CALL(ConfigService, GetMapOffices)
+    PyCallable_REG_CALL(ConfigService, GetMapObjects)
     PyCallable_REG_CALL(ConfigService, GetMapConnections)
     PyCallable_REG_CALL(ConfigService, GetMultiGraphicsEx)
     PyCallable_REG_CALL(ConfigService, GetMultiInvTypesEx)
     PyCallable_REG_CALL(ConfigService, GetStationSolarSystemsByOwner)
     PyCallable_REG_CALL(ConfigService, GetCelestialStatistic)
     PyCallable_REG_CALL(ConfigService, GetDynamicCelestials)
+    PyCallable_REG_CALL(ConfigService, GetMapLandmarks)
 }
 
 ConfigService::~ConfigService() {
@@ -128,7 +130,30 @@ PyResult ConfigService::Handle_GetMap(PyCallArgs &call) {
     return(m_db.GetMap(args.arg));
 }
 
+PyResult ConfigService::Handle_GetMapOffices(PyCallArgs &call) {
+  /*
+22:38:58 [SvcCall] Service config: calling GetMapOffices
+22:38:58 [SvcCall]   Call Arguments:
+22:38:58 [SvcCall]       Tuple: 1 elements
+22:38:58 [SvcCall]         [ 0] Integer field: 30002507     -solarSystemID
+22:38:58 [SvcCall]   Call Named Arguments:
+22:38:58 [SvcCall]     Argument 'machoVersion':
+22:38:58 [SvcCall]         Integer field: 1
+  call.Dump(SERVICE__CALLS);
+  */
+
+    Call_SingleIntegerArg args;
+    if(!args.Decode(&call.tuple)) {
+        codelog(SERVICE__ERROR, "Failed to decode arguments");
+        return NULL;
+    }
+
+    return(m_db.GetMapOffices(args.arg));
+}
+
 PyResult ConfigService::Handle_GetMapObjects(PyCallArgs &call) {
+    sLog.Log( "ConfigService", "Handle_GetMapObjects" );
+  call.Dump(SERVICE__CALLS);
 /*
   args (entityID,
     wantRegions (given universe),
@@ -256,34 +281,32 @@ PyResult ConfigService::Handle_GetMultiInvTypesEx(PyCallArgs &call) {
 
 
 PyResult ConfigService::Handle_GetMapConnections(PyCallArgs &call) {
-/*
-[PyRep]   Args:   [ 4]   [ 0]   [ 1]     [ 1] String: 'GetMapConnections'
-[PyRep]   Args:   [ 4]   [ 0]   [ 1]     [ 2] Tuple: 6 elements
-[PyRep]   Args:   [ 4]   [ 0]   [ 1]     [ 2]   [ 0] Integer field: 10000016 (Lonetrek (region))
-[PyRep]   Args:   [ 4]   [ 0]   [ 1]     [ 2]   [ 1] Boolean field: false
-[PyRep]   Args:   [ 4]   [ 0]   [ 1]     [ 2]   [ 2] Boolean field: true
-[PyRep]   Args:   [ 4]   [ 0]   [ 1]     [ 2]   [ 3] Boolean field: false
-[PyRep]   Args:   [ 4]   [ 0]   [ 1]     [ 2]   [ 4] Integer field: 0
-[PyRep]   Args:   [ 4]   [ 0]   [ 1]     [ 2]   [ 5] Integer field: 1
-
-CREATE TABLE GetMapConnections (
-  connectionType INT UNSIGNED NOT NULL,
-  fromRegionID INT UNSIGNED NOT NULL,
-  fromConstellationID INT UNSIGNED NULL,
-  fromSolarSystemID INT UNSIGNED NULL,
-  stargateID INT UNSIGNED NULL,
-  celestialID INT UNSIGNED NULL,
-  toSolarSystemID INT UNSIGNED NULL,
-  toConstellationID INT UNSIGNED NULL,
-  toRegionID INT UNSIGNED NOT NULL,
-  PRIMARY KEY()
-);
+/**
+18:33:25 [SvcCall]         [ 0] Integer field: 20000367     *constellation
+18:33:25 [SvcCall]         [ 1] Boolean field: false
+18:33:25 [SvcCall]         [ 2] Boolean field: false
+18:33:25 [SvcCall]         [ 3] Boolean field: true
+18:33:25 [SvcCall]         [ 4] Integer field: 0
+18:33:25 [SvcCall]         [ 5] Integer field: 1
+      <int name="queryID" />
+      <bool name="bool1" /> args.bool1
+      <bool name="bool2" />
+      <bool name="bool3" />
+      <int name="int2" />
+      <int name="int3" />
 */
-    sLog.Debug( "ConfigService", "Called GetMapConnections stub." );
+  call.Dump(SERVICE__CALLS);
+    Call_GetMapConnections args;
+    if(!args.Decode(&call.tuple)) {
+        _log(SERVICE__ERROR, "Failed to decode args.");
+        return NULL;
+    }
 
-    return NULL;
+    return(m_db.GetMapConnections(args.queryID, args.bool1, args.bool2, args.bool3, args.int2, args.int3));
 }
+
 PyResult ConfigService::Handle_GetStationSolarSystemsByOwner(PyCallArgs &call) {
+  call.Dump(SERVICE__CALLS);
     Call_SingleIntegerArg arg;
     if (!arg.Decode(&call.tuple)) {
         codelog(SERVICE__ERROR, "Bad arguments");
@@ -313,5 +336,21 @@ PyResult ConfigService::Handle_GetDynamicCelestials(PyCallArgs &call){
     }
 
     return m_db.GetDynamicCelestials(arg.arg);
+}
+
+PyResult ConfigService::Handle_GetMapLandmarks(PyCallArgs &call)
+{/*
+22:00:55 L ConfigService::Handle_GetMapLandmarks(): size= 0
+22:00:55 [SvcCall]   Call Arguments:
+22:00:55 [SvcCall]       Tuple: Empty
+22:00:55 [SvcCall]   Call Named Arguments:
+22:00:55 [SvcCall]     Argument 'machoVersion':
+22:00:55 [SvcCall]         Integer field: 1
+*/
+
+  sLog.Log( "ConfigService::Handle_GetMapLandmarks()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    return (m_db.GetMapLandmarks());
 }
 

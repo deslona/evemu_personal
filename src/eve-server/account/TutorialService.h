@@ -50,6 +50,8 @@ protected:
     PyCallable_DECL_CALL(GetContextHelp)
     PyCallable_DECL_CALL(GetCharacterTutorialState)
     PyCallable_DECL_CALL(GetTutorialsAndConnections)
+    PyCallable_DECL_CALL(GetCareerAgents)
+
 };
 
 #endif

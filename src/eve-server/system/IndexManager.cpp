@@ -44,8 +44,17 @@ IndexManager::~IndexManager() {
 }
 
 PyResult IndexManager::Handle_GetAllDevelopmentIndices( PyCallArgs& call )
-{
+{/*s
+22:49:13 L IndexManager::Handle_GetAllDevelopmentIndices(): size= 0
+22:49:13 [SvcCall]   Call Arguments:
+22:49:13 [SvcCall]       Tuple: Empty
+22:49:13 [SvcCall]   Call Named Arguments:
+22:49:13 [SvcCall]     Argument 'machoVersion':
+22:49:13 [SvcCall]         Integer field: 1
+
   sLog.Log( "IndexManager::Handle_GetAllDevelopmentIndices()", "size= %u", call.tuple->size() );
 
+  call.Dump(SERVICE__CALLS);
+  */
     return NULL;
 }

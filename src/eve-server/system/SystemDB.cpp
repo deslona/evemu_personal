@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Zhur, Allan
 */
 
 #include "eve-server.h"
@@ -64,6 +64,7 @@ bool SystemDB::LoadSystemEntities(uint32 systemID, std::vector<DBSystemEntity> &
 }
 
 //  are these player-owned?  for now, lets act like they are...pull from 'entity' table.  -allan
+/**  this will need more work later, for POS and other shit */
 bool SystemDB::LoadSystemDynamicEntities(uint32 systemID, std::vector<DBSystemDynamicEntity> &into) {
     DBQueryResult res;
 
@@ -124,6 +125,38 @@ bool SystemDB::LoadSystemDynamicEntities(uint32 systemID, std::vector<DBSystemDy
     return true;
 }
 
+uint32 SystemDB::GetObjectLocationID( uint32 itemID ) {
+
+    //TODO: test database logic and query       -allan 22Jan14
+    DBQueryResult res;
+
+    if(!sDatabase.RunQuery(res,
+        "SELECT "
+        "   locationID"
+        " FROM entity "
+        " WHERE itemID=%u",
+        itemID
+        ))
+    {
+        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        return NULL;
+    }
+
+    DBResultRow row;
+    if (res.GetRow(row)) {
+      return (row.GetUInt(0));
+    }else
+      return 0;
+
+}
+
+bool SystemDB::GetWrecksToTypes(DBQueryResult &res) {
+    if(!sDatabase.RunQuery(res, "SELECT * FROM invTypesToWrecks")) {
+       sLog.Error("SystemDB::GetWrecksToTypes()", "Error in query: %s", res.error.c_str());
+        return false;
+    }
+    return true;
+}
 
 PyObject *SystemDB::ListFactions() {
     DBQueryResult res;
@@ -156,29 +189,4 @@ PyObject *SystemDB::ListJumps(uint32 stargateID) {
     }
 
     return DBResultToRowset(res);
-}
-
-uint32 SystemDB::GetObjectLocationID( uint32 itemID ) {
-
-    //TODO: test database logic and query       -allan 22Jan14
-    DBQueryResult res;
-
-    if(!sDatabase.RunQuery(res,
-        "SELECT "
-        "   locationID"
-        " FROM entity "
-        " WHERE itemID=%u",
-        itemID
-        ))
-    {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
-        return NULL;
-    }
-
-    DBResultRow row;
-    if (res.GetRow(row)) {
-      return (row.GetUInt(0));
-    }else
-      return 0;
-
 }

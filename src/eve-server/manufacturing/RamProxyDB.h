@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Zhur, Allan
 */
 
 #ifndef __RAM_PROXY_DB__H__
@@ -73,7 +73,7 @@ struct RequiredItem {
 class RamProxyDB : public ServiceDB
 {
 public:
-    PyRep *GetJobs2(const uint32 ownerID, const bool completed, const uint64 fromDate, const uint64 toDate);
+    PyRep *GetJobs2(const uint32 ownerID, const bool completed); //, const uint64 fromDate, const uint64 toDate);
     PyRep *AssemblyLinesSelectPublic(const uint32 regionID);
     PyRep *AssemblyLinesSelectPersonal(const uint32 charID);
     PyRep *AssemblyLinesSelectCorporation(const uint32 corporationID);

@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:     Zhur
+    Author:     Zhur, Allan
 */
 
 
@@ -44,16 +44,22 @@ public:
     PyObject *GetUnits();
     PyObjectEx *GetMapObjects(uint32 entityID, bool wantRegions, bool wantConstellations, bool wantSystems, bool wantStations);
     PyObject *GetMap(uint32 solarSystemID);
+    PyObject *GetMapOffices(uint32);
+    PyObject *GetMapConnections(uint32, bool, bool, bool, uint16, uint16);
     PyObject *ListLanguages();
     PyRep *GetStationSolarSystemsByOwner(uint32 ownerID);
     PyRep *GetCelestialStatistic(uint32 celestialID);
+    PyRep *GetTextsForGroup(const std::string & langID, uint32 textgroup);
+    PyObject *GetMapLandmarks();
+
+
     /**
     * @brief Retrieves dynamic, celestial objects for a given solar system
     *
     * @param[in] solarSystemID  ID of the solar system whose objects are being retrieved
+    * @author allan
     */
     PyRep *GetDynamicCelestials(uint32 solarSystemID);
-    PyRep *GetTextsForGroup(const std::string & langID, uint32 textgroup);
 
 protected:
 };

@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:     Zhur
+    Author:     Zhur, Allan
 */
 
 #include "eve-server.h"
@@ -37,52 +37,44 @@ RamProxyService::RamProxyService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(RamProxyService, GetJobs2);
-    PyCallable_REG_CALL(RamProxyService, AssemblyLinesSelect);
     PyCallable_REG_CALL(RamProxyService, AssemblyLinesGet);
+    PyCallable_REG_CALL(RamProxyService, AssemblyLinesSelect);
+    PyCallable_REG_CALL(RamProxyService, AssemblyLinesSelectPublic);
+    PyCallable_REG_CALL(RamProxyService, GetJobs2);
     PyCallable_REG_CALL(RamProxyService, InstallJob);
     PyCallable_REG_CALL(RamProxyService, CompleteJob);
+
+    // unhandled calls
     PyCallable_REG_CALL(RamProxyService, GetRelevantCharSkills);
-    PyCallable_REG_CALL(RamProxyService, AssemblyLinesSelectPublic);
 }
 
 RamProxyService::~RamProxyService() {
     delete m_dispatch;
 }
 
-PyResult RamProxyService::Handle_AssemblyLinesSelectPublic(PyCallArgs &call) {
+PyResult RamProxyService::Handle_AssemblyLinesGet(PyCallArgs &call) {
+  /*
+23:53:50 [SvcCall] Service ramProxy: calling AssemblyLinesGet
+23:53:50 [SvcCall]   Call Arguments:
+23:53:50 [SvcCall]       Tuple: 1 elements
+23:53:50 [SvcCall]         [ 0] Integer field: 60005728
+23:53:50 [SvcCall]   Call Named Arguments:
+23:53:50 [SvcCall]     Argument 'machoVersion':
+23:53:50 [SvcCall]         Integer field: 1
+  call.Dump(SERVICE__CALLS);
+  */
+    Call_SingleIntegerArg arg;  // containerID
 
-    sLog.Debug("Server", "Called AsemblyLinesSelectPublic Stub.");
-
-    return new PyList;
-}
-
-PyResult RamProxyService::Handle_GetRelevantCharSkills(PyCallArgs &call) {
-
-    sLog.Debug("Server", "Called GetRelevantCharSkills Stub.");
-
-    return NULL;
-}
-
-PyResult RamProxyService::Handle_GetJobs2(PyCallArgs &call) {
-    Call_GetJobs2 args;
-    if(!args.Decode(&call.tuple)) {
-        _log(SERVICE__ERROR, "Failed to decode call args.");
+    if(!arg.Decode(&call.tuple)) {
+        _log(SERVICE__ERROR, "Unable to decode args.");
         return NULL;
     }
 
-    if((uint32)args.ownerID == call.client->GetCorporationID()) {
-        if((call.client->GetCorpRole() & corpRoleFactoryManager) != corpRoleFactoryManager) {
-            // I'm afraid we don't have proper error in our DB ...
-            call.client->SendInfoModalMsg("You cannot view your corporation's jobs because you do not possess the role \"Factory Manager\".");
-            return NULL;
-        }
-    }
-
-    return(m_db.GetJobs2(args.ownerID, args.completed, args.fromDate, args.toDate));
+    return(m_db.AssemblyLinesGet(arg.arg));
 }
 
 PyResult RamProxyService::Handle_AssemblyLinesSelect(PyCallArgs &call) {
+  call.Dump(SERVICE__CALLS);
     Call_AssemblyLinesSelect args;
 
     if(!args.Decode(&call.tuple)) {
@@ -107,28 +99,45 @@ PyResult RamProxyService::Handle_AssemblyLinesSelect(PyCallArgs &call) {
     }
 }
 
-PyResult RamProxyService::Handle_AssemblyLinesGet(PyCallArgs &call) {
-    Call_SingleIntegerArg arg;  // containerID
+PyResult RamProxyService::Handle_AssemblyLinesSelectPublic(PyCallArgs &call) {
+    return(m_db.AssemblyLinesSelectPublic(call.client->GetRegionID()));
+}
 
-    if(!arg.Decode(&call.tuple)) {
-        _log(SERVICE__ERROR, "Unable to decode args.");
+PyResult RamProxyService::Handle_GetJobs2(PyCallArgs &call) {
+    Call_GetJobs2 args;
+    if(!args.Decode(&call.tuple)) {
+        _log(SERVICE__ERROR, "Failed to decode call args.");
         return NULL;
     }
 
-    return(m_db.AssemblyLinesGet(arg.arg));
+    if((uint32)args.ownerID == call.client->GetCorporationID()) {
+        if((call.client->GetCorpRole() & corpRoleFactoryManager) != corpRoleFactoryManager) {
+            // I'm afraid we don't have proper error in our DB ...
+            call.client->SendInfoModalMsg("You cannot view your corporation's jobs because you do not possess the role \"Factory Manager\".");
+            return NULL;
+        }
+    }
+
+    return(m_db.GetJobs2(args.ownerID, args.completed));//, args.fromDate, args.toDate));
 }
 
 PyResult RamProxyService::Handle_InstallJob(PyCallArgs &call) {
+  //call.Dump(SERVICE__CALLS);
     Call_InstallJob args;
     if(!args.Decode(&call.tuple)) {
         _log(SERVICE__ERROR, "Failed to decode args.");
         return NULL;
     }
 
-    // load installed item
+    if (call.byname["quoteOnly"]->AsInt()->value())
+       sLog.Debug("RamProxyService::Handle_InstallJob", "InstallJob with quoteOnly");
+
+	// load installed item
     InventoryItemRef installedItem = m_manager->item_factory.GetItem( args.installedItemID );
-    if( !installedItem )
+    if( !installedItem ){
+		_log(SERVICE__ERROR, "Could not get installedItem");
         return NULL;
+	}
 
     // if output flag not set, put it where it was
     if(args.flagOutput == flagAutoFit)
@@ -141,22 +150,38 @@ PyResult RamProxyService::Handle_InstallJob(PyCallArgs &call) {
         return NULL;
     }
 
-    // verify call
+    PathElement lastContainer;
+    if ( !lastContainer.Decode ( args.bomPath->GetItem( args.bomPath->size()-1 ) ) ) {
+        _log(SERVICE__ERROR, "Failed to decode last element of BOM location.");
+        return NULL;
+    }
+    InventoryItemRef lastContItem = m_manager->item_factory.GetItem(lastContainer.locationID );
+    uint32 solarSystemID = lastContItem->locationID();
+
+	// verify call
     _VerifyInstallJob_Call( args, (InventoryItemRef)installedItem, pathBomLocation, call.client );
 
     // this calculates some useful multipliers ... Rsp_InstallJob is used as container ...
     Rsp_InstallJob rsp;
-    if(!_Calculate(args, (InventoryItemRef)installedItem, call.client, rsp))
+    if(!_Calculate(args, (InventoryItemRef)installedItem, call.client, rsp)){
+        _log(SERVICE__ERROR, "Could not _Calculate");
         return NULL;
+	}
 
     // I understand sent maxJobStartTime as a limit, so this checks whether it's in limit
-    if(rsp.maxJobStartTime > call.byname["maxJobStartTime"]->AsInt()->value())
+    // sometimes it's an integer, sometimes it's long, strange but true.
+    PyRep *callMaxJob = call.byname["maxJobStartTime"];
+    uint64 callMaxJobVal = callMaxJob->IsLong() ?
+        callMaxJob->AsLong()->value() : callMaxJob->AsInt()->value();
+    if(rsp.maxJobStartTime > callMaxJobVal)
         throw(PyException(MakeUserError("RamCannotGuaranteeStartTime")));
 
     // query required items for activity
     std::vector<RequiredItem> reqItems;
-    if(!m_db.GetRequiredItems(installedItem->typeID(), (EVERamActivity)args.activityID, reqItems))
+    if(!m_db.GetRequiredItems(installedItem->typeID(), (EVERamActivity)args.activityID, reqItems)){
+	    _log(SERVICE__ERROR, "Could not DB::GetRequiredItems");
         return NULL;
+	}
 
     // if 'quoteOnly' is 1 -> send quote, if 0 -> install job
     if(call.byname["quoteOnly"]->AsInt()->value())
@@ -164,10 +189,10 @@ PyResult RamProxyService::Handle_InstallJob(PyCallArgs &call) {
         _EncodeBillOfMaterials(reqItems, rsp.materialMultiplier, rsp.charMaterialMultiplier, args.runs, rsp.bom);
         _EncodeMissingMaterials(reqItems, pathBomLocation, call.client, rsp.materialMultiplier, rsp.charMaterialMultiplier, args.runs, rsp.missingMaterials);
 
+        // oddly enough, EVE shows this value halved.
+        rsp.charTimeMultiplier *= 2;
         return rsp.Encode();
-    }
-    else
-    {
+    } else {
         // verify install
         _VerifyInstallJob_Install(rsp, pathBomLocation, reqItems, args.runs, call.client);
 
@@ -175,7 +200,7 @@ PyResult RamProxyService::Handle_InstallJob(PyCallArgs &call) {
 
         // calculate proper start time
         uint64 beginProductionTime = Win32TimeNow();
-        if(beginProductionTime < (uint32)rsp.maxJobStartTime)
+        if(beginProductionTime < rsp.maxJobStartTime)
             beginProductionTime = rsp.maxJobStartTime;
 
         // register our job
@@ -189,9 +214,10 @@ PyResult RamProxyService::Handle_InstallJob(PyCallArgs &call) {
             args.description.c_str(),
             args.runs,
             (EVEItemFlags)args.flagOutput,
-            pathBomLocation.locationID,
+            solarSystemID,
             args.licensedProductionRuns ) )
         {
+			_log(SERVICE__ERROR, "Could not DB::InstallJob");
             return NULL;
         }
 
@@ -382,6 +408,23 @@ PyResult RamProxyService::Handle_CompleteJob(PyCallArgs &call) {
 
     return NULL;
 }
+/**  UNHANDLED CALLS  */
+
+PyResult RamProxyService::Handle_GetRelevantCharSkills(PyCallArgs &call) {
+  /*s
+23:54:18 L RamProxyService::Handle_GetRelevantCharSkills: Called GetRelevantCharSkills Stub.
+23:54:18 [SvcCall]   Call Arguments:
+23:54:18 [SvcCall]       Tuple: Empty
+23:54:18 [SvcCall]   Call Named Arguments:
+23:54:18 [SvcCall]     Argument 'machoVersion':
+23:54:18 [SvcCall]         Integer field: 1
+
+    sLog.Log("RamProxyService::Handle_GetRelevantCharSkills", "Called GetRelevantCharSkills Stub.");
+  call.Dump(SERVICE__CALLS);
+  */
+
+    return NULL;
+}
 
 /*
     UNKNOWN/NOT IMPLEMENTED EXCEPTIONS:
@@ -481,18 +524,26 @@ void RamProxyService::_VerifyInstallJob_Call(const Call_InstallJob &args, Invent
     // ***********
     if(args.activityID == ramActivityManufacturing) {
         uint32 jobCount = m_db.CountManufacturingJobs(c->GetCharacterID());
-        if(c->GetChar()->GetAttribute(AttrManufactureSlotLimit).get_int() <= jobCount) {
+        uint charMaxJobs = c->GetChar()->GetAttribute(AttrManufactureSlotLimit).get_int()
+            + c->GetChar()->GetSkillLevel(skillMassProduction)
+            + c->GetChar()->GetSkillLevel(skillAdvancedMassProduction);
+
+        if(charMaxJobs <= jobCount) {
             std::map<std::string, PyRep *> exceptArgs;
             exceptArgs["current"] = new PyInt(jobCount);
-            exceptArgs["max"] = c->GetChar()->GetAttribute(AttrManufactureSlotLimit).GetPyObject();
+            exceptArgs["max"] = new PyInt(charMaxJobs);
             throw(PyException(MakeUserError("MaxFactorySlotUsageReached", exceptArgs)));
         }
-    } else {
+    }else {
+		uint charMaxJobs = c->GetChar()->GetAttribute(AttrMaxLaborotorySlots).get_int()
+            + c->GetChar()->GetSkillLevel(skillLaboratoryOperation)
+            + c->GetChar()->GetSkillLevel(skillAdvancedLaboratoryOperation);
+
         uint32 jobCount = m_db.CountResearchJobs(c->GetCharacterID());
-        if(c->GetChar()->GetAttribute(AttrMaxLaborotorySlots).get_int() <= jobCount) {
+        if(charMaxJobs <= jobCount) {
             std::map<std::string, PyRep *> exceptArgs;
             exceptArgs["current"] = new PyInt(jobCount);
-            exceptArgs["max"] = c->GetChar()->GetAttribute(AttrMaxLaborotorySlots).GetPyObject();
+            exceptArgs["max"] = new PyInt(charMaxJobs);
             throw(PyException(MakeUserError("MaxResearchFacilitySlotUsageReached", exceptArgs)));
         }
     }
@@ -641,6 +692,7 @@ void RamProxyService::_VerifyInstallJob_Call(const Call_InstallJob &args, Invent
         // RamInstalledItemBadLocationStructure
         // RamInstalledItemInStructureNotInContainer
         // RamInstalledItemInStructureUnknownLocation
+		throw(PyException(MakeCustomError("POSes are not supported yet")));
     }
 
     // BOM LOCATION CHECK
@@ -683,10 +735,7 @@ void RamProxyService::_VerifyInstallJob_Install(const Rsp_InstallJob &rsp, const
     std::vector<InventoryItemRef> skills, items;
 
     // get skills ...
-    std::set<EVEItemFlags> flags;
-    flags.insert(flagSkill);
-    flags.insert(flagSkillInTraining);
-    c->GetChar()->FindByFlagSet(flags, skills);
+	c->GetChar()->GetSkillsList(skills);
 
     // ... and items
     _GetBOMItems( pathBomLocation, items );
@@ -697,16 +746,13 @@ void RamProxyService::_VerifyInstallJob_Install(const Rsp_InstallJob &rsp, const
     for(; cur != end; cur++) {
         // check skill (quantity is required level)
         if(cur->isSkill) {
-            /* Commented out until we get skills working some different way ...
-            if(GetSkillLevel(skills, cur->typeID) < cur->quantity) {
+            if(c->GetChar()->GetSkillLevel(cur->typeID) < cur->quantity) {
                 std::map<std::string, PyRep *> args;
-                args["item"] = new PyString(
-                    m_manager->item_factory.type(cur->typeID)->name().c_str()
-                );
+                args["item"] = new PyInt(cur->typeID);
                 args["skillLevel"] = new PyInt(cur->quantity);
 
                 throw(PyException(MakeUserError("RamNeedSkillForJob", args)));
-            }*/
+            }
         } else {
             // check materials
 
@@ -724,16 +770,16 @@ void RamProxyService::_VerifyInstallJob_Install(const Rsp_InstallJob &rsp, const
                 ) {
                     if((*curi)->quantity() < qtyNeeded)
                         qtyNeeded -= (*curi)->quantity();
-                    else
+                    else {
+                        qtyNeeded = 0;
                         break;
+					}
                 }
             }
 
             if(qtyNeeded > 0) {
                 std::map<std::string, PyRep *> args;
-                args["item"] = new PyString(
-                    m_manager->item_factory.GetType(cur->typeID)->name().c_str()
-                );
+                args["item"] = new PyInt( cur->typeID );
 
                 throw(PyException(MakeUserError("RamNeedMoreForJob", args)));
             }
@@ -772,6 +818,8 @@ bool RamProxyService::_Calculate(const Call_InstallJob &args, InventoryItemRef i
     if(!m_db.GetAssemblyLineProperties(args.installationAssemblyLineID, into.materialMultiplier, into.timeMultiplier, into.installCost, into.usageCost))
         return false;
 
+	Character *ch = c->GetChar().get();
+
     const ItemType *productType;
     // perform some activity-specific actions
     switch(args.activityID) {
@@ -788,15 +836,15 @@ bool RamProxyService::_Calculate(const Call_InstallJob &args, InventoryItemRef i
             into.materialMultiplier *= bp->materialMultiplier();
             into.timeMultiplier *= bp->timeMultiplier();
 
-            into.charMaterialMultiplier = c->GetChar()->GetAttribute(AttrManufactureCostMultiplier).get_float();
-            into.charTimeMultiplier = c->GetChar()->GetAttribute(AttrManufactureTimeMultiplier).get_float();
+            into.charMaterialMultiplier = ch->GetAttribute(AttrManufactureCostMultiplier).get_float();
+            into.charTimeMultiplier = ch->GetAttribute(AttrManufactureTimeMultiplier).get_float();
 
             switch(productType->race()) {
-                case raceCaldari:       into.charTimeMultiplier *= double(c->GetChar()->GetAttribute(AttrCaldariTechTimePercent).get_int()) / 100.0; break;
-                case raceMinmatar:      into.charTimeMultiplier *= double(c->GetChar()->GetAttribute(AttrMinmatarTechTimePercent).get_int()) / 100.0; break;
-                case raceAmarr:         into.charTimeMultiplier *= double(c->GetChar()->GetAttribute(AttrAmarrTechTimePercent).get_int()) / 100.0; break;
-                case raceGallente:      into.charTimeMultiplier *= double(c->GetChar()->GetAttribute(AttrGallenteTechTimePercent).get_int()) / 100.0; break;
-                case raceJove:          break;
+                case raceCaldari:       if(ch->HasAttribute(AttrCaldariTechTimePercent))into.charTimeMultiplier *= double(ch->GetAttribute(AttrCaldariTechTimePercent).get_int()) / 100.0; break;
+                case raceMinmatar:      if(ch->HasAttribute(AttrMinmatarTechTimePercent))into.charTimeMultiplier *= double(ch->GetAttribute(AttrMinmatarTechTimePercent).get_int()) / 100.0; break;
+                case raceAmarr:         if(ch->HasAttribute(AttrAmarrTechTimePercent))into.charTimeMultiplier *= double(ch->GetAttribute(AttrAmarrTechTimePercent).get_int()) / 100.0; break;
+                case raceGallente:      if(ch->HasAttribute(AttrGallenteTechTimePercent))into.charTimeMultiplier *= double(ch->GetAttribute(AttrGallenteTechTimePercent).get_int()) / 100.0; break;
+				case raceJove:          break;
                 case racePirate:        break;
             }
             break;
@@ -810,8 +858,8 @@ bool RamProxyService::_Calculate(const Call_InstallJob &args, InventoryItemRef i
             productType = &installedItem->type();
 
             into.productionTime = bp->type().researchProductivityTime();
-            into.charMaterialMultiplier = double(c->GetChar()->GetAttribute(AttrResearchCostPercent).get_int()) / 100.0;
-            into.charTimeMultiplier = c->GetChar()->GetAttribute(AttrManufacturingTimeResearchSpeed).get_float();
+            into.charMaterialMultiplier = double(ch->GetAttribute(AttrResearchCostPercent).get_int()) / 100.0;
+            into.charTimeMultiplier = ch->GetAttribute(AttrManufacturingTimeResearchSpeed).get_float();
             break;
         }
         /*
@@ -823,8 +871,8 @@ bool RamProxyService::_Calculate(const Call_InstallJob &args, InventoryItemRef i
             productType = &installedItem->type();
 
             into.productionTime = bp->type().researchMaterialTime();
-            into.charMaterialMultiplier = double(c->GetChar()->GetAttribute(AttrResearchCostPercent).get_int()) / 100.0;
-            into.charTimeMultiplier = c->GetChar()->GetAttribute(AttrMineralNeedResearchSpeed).get_float();
+            into.charMaterialMultiplier = double(ch->GetAttribute(AttrResearchCostPercent).get_int()) / 100.0;
+            into.charTimeMultiplier = ch->GetAttribute(AttrMineralNeedResearchSpeed).get_float();
             break;
         }
         /*
@@ -838,8 +886,8 @@ bool RamProxyService::_Calculate(const Call_InstallJob &args, InventoryItemRef i
             // no ceil() here on purpose
             into.productionTime = (bp->type().researchCopyTime() / bp->type().maxProductionLimit()) * args.licensedProductionRuns;
 
-            into.charMaterialMultiplier = double(c->GetChar()->GetAttribute(AttrResearchCostPercent).get_int()) / 100.0;
-            into.charTimeMultiplier = c->GetChar()->GetAttribute(AttrCopySpeedPercent).get_float();
+            into.charMaterialMultiplier = double(ch->GetAttribute(AttrResearchCostPercent).get_int()) / 100.0;
+            into.charTimeMultiplier = ch->GetAttribute(AttrCopySpeedPercent).get_float();
             break;
         }
         default: {
@@ -940,9 +988,9 @@ void RamProxyService::_EncodeMissingMaterials(const std::vector<RequiredItem> &r
         for(; curi != endi && qtyReq > 0; curi++) {
             if((*curi)->typeID() == cur->typeID && (*curi)->ownerID() == c->GetCharacterID()) {
                 if(cur->isSkill)
-                    qtyReq -= std::min((uint32)qtyReq, (uint32)(*curi)->GetAttribute(AttrSkillLevel).get_int());
+                    qtyReq -= std::min((uint32)qtyReq, (uint32)(*curi)->GetAttribute(AttrSkillLevel).get_int() );
                 else
-                    qtyReq -= std::min((uint32)qtyReq, (uint32)(*curi)->GetAttribute(AttrQuantity).get_int());
+                    qtyReq -= std::min((uint32)qtyReq, (uint32)(*curi)->quantity() );
             }
         }
 

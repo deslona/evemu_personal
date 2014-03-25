@@ -39,12 +39,7 @@ protected:
     Dispatcher *const m_dispatch;
 
     PyCallable_DECL_CALL(GetInitialState)
+    PyCallable_DECL_CALL(GetOnlineStatus)
 };
 
-
-
-
-
 #endif
-
-

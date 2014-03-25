@@ -70,6 +70,7 @@ PetitionerService::PetitionerService(PyServiceMgr *mgr)
     _SetCallDispatcher(m_dispatch);
 
     PyCallable_REG_CALL(PetitionerService, GetCategories)
+    PyCallable_REG_CALL(PetitionerService, GetCategoryHierarchicalInfo)
     PyCallable_REG_CALL(PetitionerService, GetUnreadMessages)
 }
 
@@ -90,9 +91,8 @@ PyBoundObject* PetitionerService::_CreateBoundObject( Client* c, const PyRep* bi
 
 PyResult PetitionerService::Handle_GetCategories( PyCallArgs& call )
 {
-    //takes no arguments
-
-    sLog.Debug( "PetitionerService", "Called GetCategories stub." );
+    uint8 size = call.tuple->size();
+    sLog.Log( "PetitionerService::Handle_GetCategories()", "size=%u ", size );
 
     PyList* result = new PyList;
     result->AddItemString( "Test Cat" );
@@ -101,13 +101,17 @@ PyResult PetitionerService::Handle_GetCategories( PyCallArgs& call )
     return result;
 }
 
+PyResult PetitionerService::Handle_GetCategoryHierarchicalInfo( PyCallArgs& call )
+{
+    uint8 size = call.tuple->size();
+    sLog.Log( "PetitionerService::Handle_GetCategoryHierarchicalInfo()", "size=%u ", size );
 
+    return new PyList;
+}
+
+//00:28:58 L PetitionerService::Handle_GetUnreadMessages(): size=0
 PyResult PetitionerService::Handle_GetUnreadMessages( PyCallArgs& call )
 {
-    //takes no arguments
-
-    sLog.Debug( "PetitionerService", "Called GetUnreadMessages stub." );
-
     //unknown...
     return new PyList;
 }

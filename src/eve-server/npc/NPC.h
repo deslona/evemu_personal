@@ -78,15 +78,17 @@ public:
     virtual uint32 GetAllianceID() const { /* hack for now */ return(m_allianceID); }
     virtual void Killed(Damage &fatal_blow);
     virtual SystemManager *System() const { return(m_system); }
-
-    void ForcedSetPosition(const GPoint &pt);
-
+	virtual NPCAIMgr * AI() const { return(m_AI); }
 
     virtual bool ApplyDamage(Damage &d);
     virtual void MakeDamageState(DoDestinyDamageState &into) const;
 
+	void ForcedSetSpawner(SpawnEntry * spawner) { m_spawner = spawner; }
+    void ForcedSetPosition(const GPoint &pt);
     void UseShieldRecharge();
     void UseArmorRepairer();
+
+	void SaveNPC();
 
     /*
 
@@ -115,7 +117,7 @@ protected:
 
     SystemManager *const m_system;    //we do not own this
     PyServiceMgr &m_services;    //we do not own this
-    SpawnEntry *const m_spawner;    //we do not own this, may be NULL
+    SpawnEntry * m_spawner;    //we do not own this, may be NULL
     uint32 m_corporationID;
     uint32 m_allianceID;
 

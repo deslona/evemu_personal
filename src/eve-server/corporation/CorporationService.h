@@ -55,7 +55,7 @@ protected:
     PyCallable_DECL_CALL(IsEnemyFaction)
     PyCallable_DECL_CALL(GetVoteCasesByCorporation)  /** wrong place...  */
     PyCallable_DECL_CALL(MoveCorpHQHere)
-    PyCallable_DECL_CALL(GetAutomaticPaySettings)
+    PyCallable_DECL_CALL(AddCorporateContact)
 };
 
 

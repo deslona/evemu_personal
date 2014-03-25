@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:     Zhur
+    Author:     Zhur, Allan
 */
 
 #include "eve-server.h"
@@ -41,13 +41,14 @@ PyRep *ConfigDB::GetMultiOwnersEx(const std::vector<int32> &entityIDs) {
     DBQueryResult res;
     DBResultRow row;
 
+    //first we check to see if there is such ids in the entity tables
     if(!sDatabase.RunQuery(res,
         "SELECT "
         " entity.itemID as ownerID,"
         " entity.itemName as ownerName,"
         " entity.typeID,"
-        " NULL as ownerNameID,"
-        " 0 as gender"
+        " 1 as gender,"
+        " NULL as ownerNameID"
         " FROM entity "
         " WHERE itemID in (%s)", ids.c_str()))
     {
@@ -55,14 +56,13 @@ PyRep *ConfigDB::GetMultiOwnersEx(const std::vector<int32> &entityIDs) {
         return NULL;
     }
 
-    //this is pretty hackish... will NOT work if they mix things...
-    //this was only put in to deal with "new" statics, like corporations.
+    //second: we check to see if the id points to a static entity (Agents, NPC Corps, etc.)
     if(!res.GetRow(row)) {
         if(!sDatabase.RunQuery(res,
             "SELECT "
             " ownerID,ownerName,typeID,"
-            " NULL as ownerNameID,"
-            " 0 as gender"
+            " 1 as gender,"
+            " NULL as ownerNameID"
             " FROM eveStaticOwners "
             " WHERE ownerID in (%s)", ids.c_str()))
         {
@@ -73,14 +73,15 @@ PyRep *ConfigDB::GetMultiOwnersEx(const std::vector<int32> &entityIDs) {
         res.Reset();
     }
 
+    //third: we check to see it the id points to a player's character
     if(!res.GetRow(row)) {
         if(!sDatabase.RunQuery(res,
             "SELECT "
             " characterID as ownerID,"
             " itemName as ownerName,"
             " typeID,"
-            " NULL as ownerNameID,"
-            " 0 as gender"
+            " 1 as gender,"
+            " NULL as ownerNameID"
             " FROM character_ "
             " LEFT JOIN entity ON characterID = itemID"
             " WHERE characterID in (%s)", ids.c_str()))
@@ -174,8 +175,10 @@ PyRep *ConfigDB::GetMultiLocationsEx(const std::vector<int32> &entityIDs) {
         }
     }
 
-    //return(DBResultToRowset(res));
-    return(DBResultToTupleSet(res));
+    return(DBResultToRowset(res));
+
+    // this one give this....TypeError: 'NoneType' object is not iterable
+    //return(DBResultToTupleSet(res));
 }
 
 
@@ -401,7 +404,7 @@ PyRep *ConfigDB::GetCelestialStatistic(uint32 celestialID) {
             break;
     case EVEDB::invGroups::Planet:
             query = " SELECT "
-                    "     temperature, "
+                    "    temperature, "
                     "    orbitRadius, "
                     "    eccentricity, "
                     "    massDust, "
@@ -453,33 +456,28 @@ PyRep *ConfigDB::GetCelestialStatistic(uint32 celestialID) {
     return DBResultToCRowset(res);
 }
 
-PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID)
-{
-    const std::string query = " SELECT "
-                              "     e.itemID AS itemID, "
-                              "     e.typeID AS typeID, "
-                              "     t.groupID AS groupID, "
-                              "     e.itemName AS itemName, "
-                              "     m.orbitID AS orbitID, "
-                              "     0, " //This field refers to the boolean value of isConnector...which i cant find
-                              "     e.x AS x, e.y AS y, e.z AS z "
+PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID) {
+    const std::string query = "SELECT"
+                              "   e.itemID AS itemID,"
+                              "   e.typeID AS typeID,"
+                              "   t.groupID AS groupID,"
+                              "   e.itemName AS itemName,"
+                              "   m.orbitID AS orbitID,"
+                              "   0 AS connector,"
+                              "   e.x AS x, e.y AS y, e.z AS z"
                               " FROM entity AS e"
                               "  LEFT JOIN invTypes AS t USING (typeID)"
                               "  LEFT JOIN mapDenormalize AS m USING (itemID)"
                               " WHERE e.locationID = %u";
-                              /*AND " // In the future, the locationID field needs to be constrained to being a solarSystemID
-                              "     `groupID` = -1"; // This is set to -1 because we do not know what the ID(s) of dynamic celestials is/are. */
 
     DBQueryResult result;
-    DBResultRow currentRow;
 
-    if (!sDatabase.RunQuery(result, query.c_str(), solarSystemID))
-    {
-        codelog(SERVICE__ERROR, "Error in query: %s", result.error.c_str());
+    if (!sDatabase.RunQuery(result, query.c_str(), solarSystemID)) {
+        codelog(SERVICE__ERROR, "GetDynamicCelestials Error in query: %s", result.error.c_str());
         return NULL;
     }
 
-    return DBResultToRowset(result);
+    return DBResultToRowset(result);   //TypeError: a float is required    ** will not draw 2d map.
 }
 
 PyRep *ConfigDB::GetTextsForGroup(const std::string & langID, uint32 textgroup) {
@@ -491,5 +489,119 @@ PyRep *ConfigDB::GetTextsForGroup(const std::string & langID, uint32 textgroup) 
     }
 
     return DBResultToRowset(res);
+}
+
+PyObject *ConfigDB::GetMapOffices(uint32 solarSystemID) {
+    DBQueryResult res;
+
+    if(!sDatabase.RunQuery(res,
+        "SELECT "
+        "  corporationID,"
+        "  description,"
+        "  iconID"
+        " FROM crpNPCCorporations"
+        " WHERE solarSystemID=%u", solarSystemID
+    ))
+    {
+        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        return NULL;
+    }
+//  AttributeError: stationID     need to find this...
+    return DBResultToRowset(res);
+}
+
+//                                      constellation     0           0           1           0?              1?
+//                                      region            0           1           0           0?              1?
+//                                      u/k   (9)         1           0           0           0?              1?
+//16:12:37 E ConfigDB::GetMapConnections: DB Error 1:1, 2:0, 3:0
+//23:54:52 W ConfigDB::GetMapConnections: DB query:20000367, B1:0, B2:0, B3:1, I2:0, I3:%U
+PyObject *ConfigDB::GetMapConnections(uint32 queryID, bool bool1, bool bool2, bool bool3, uint16 int2, uint16 int3) {
+    DBQueryResult res;
+
+    if(bool3){
+      if(!sDatabase.RunQuery(res,
+        "SELECT "
+        "  regionID,"
+        "  constellationName,"
+        "  x,y,z,"
+        "  factionID,"
+        "  radius"
+        " FROM mapConstellations"
+        " WHERE constellationID=%u", queryID )) {
+          codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+          return NULL;
+      }
+    } else if(bool2) {
+      if(!sDatabase.RunQuery(res,
+        "SELECT "
+        "  regionName,"
+        "  x,y,z,"
+        "  xMin,xMax,"
+        "  yMin,yMax,"
+        "  zMin,zMax,"
+        "  factionID,"
+        "  radius"
+        " FROM mapRegions"
+        " WHERE regionID=%u", queryID )) {
+        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        return NULL;
+      }
+    } else if(int2) {
+      if(!sDatabase.RunQuery(res,
+        "SELECT "
+        "  regionID,"
+        "  constellationID,"
+        "  solarSystemName,"
+        "  x,y,z,"
+        "  xMin,xMax,"
+        "  yMin,yMax,"
+        "  zMin,zMax,"
+        "  luminosity,"
+        "  border,"
+        "  fringe,"
+        "  corridor,"
+        "  hub,"
+        "  international,"
+        "  regional,"
+        "  constellation,"
+        "  security,"
+        "  sunTypeID,"
+        "  securityClass,"
+        "  factionID,"
+        "  radius"
+        " FROM mapSolarSystems"
+        " WHERE solarSystemID=%u", queryID )) {
+        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+
+        return NULL;
+      }
+    }
+
+    sLog.Warning ("ConfigDB::GetMapConnections", "DB query:%u, B1:%u, B2:%u, B3:%u, I2:%u, I3:%u", queryID, bool1, bool2, bool3, int2, int3);
+    return DBResultToRowset(res);
+}
+
+PyObject *ConfigDB::GetMapLandmarks() {
+  /*mapLandmarks
+landmarkID
+landmarkName
+description
+locationID
+x
+y
+z
+radius
+iconID
+importance
+
+
+        landmarks = None
+        filterNo = 1
+
+        ****  get everything and return
+*/
+
+       return NULL;
+
 }
 

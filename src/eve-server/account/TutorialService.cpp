@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Zhur, Allan
 */
 
 #include "eve-server.h"
@@ -43,6 +43,7 @@ TutorialService::TutorialService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(TutorialService, GetContextHelp)
     PyCallable_REG_CALL(TutorialService, GetCharacterTutorialState)
     PyCallable_REG_CALL(TutorialService, GetTutorialsAndConnections)
+    PyCallable_REG_CALL(TutorialService, GetCareerAgents)
 }
 
 TutorialService::~TutorialService() {
@@ -51,6 +52,7 @@ TutorialService::~TutorialService() {
 
 PyResult TutorialService::Handle_GetTutorialInfo(PyCallArgs &call) {
   sLog.Log( "TutorialService::Handle_GetTutorialInfo()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
     Call_GetTutorialInfo args;
     if(!args.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "Can't parse args.");
@@ -88,31 +90,40 @@ PyResult TutorialService::Handle_GetTutorialInfo(PyCallArgs &call) {
 
 PyResult TutorialService::Handle_GetTutorials(PyCallArgs &call) {
   sLog.Log( "TutorialService::Handle_GetTutorials()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
     return(m_db.GetAllTutorials());
 }
 
 PyResult TutorialService::Handle_GetCriterias(PyCallArgs &call) {
   sLog.Log( "TutorialService::Handle_GetCriterias()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
     return(m_db.GetAllCriterias());
 }
 
 PyResult TutorialService::Handle_GetCategories(PyCallArgs &call) {
   sLog.Log( "TutorialService::Handle_GetCategories()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
     return(m_db.GetCategories());
 }
 
 PyResult TutorialService::Handle_GetContextHelp( PyCallArgs& call )
 {
   sLog.Log( "TutorialService::Handle_GetContextHelp()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
 
     return new PyList;
 }
 
 //00:25:53 L TutorialService::Handle_GetCharacterTutorialState(): size= 0
 PyResult TutorialService::Handle_GetCharacterTutorialState( PyCallArgs& call )
-{
-  sLog.Log( "TutorialService::Handle_GetCharacterTutorialState()", "size= %u", call.tuple->size() );
-
+{/*
+05:33:49 [SvcCall] Service tutorialSvc: calling GetCharacterTutorialState
+05:33:49 [SvcCall]   Call Arguments:
+05:33:49 [SvcCall]       Tuple: Empty
+05:33:49 [SvcCall]   Call Named Arguments:
+05:33:49 [SvcCall]     Argument 'machoVersion':
+05:33:49 [SvcCall]         Integer field: 1
+*/
     util_Rowset rs;
     rs.lines = new PyList;
 
@@ -125,9 +136,25 @@ PyResult TutorialService::Handle_GetCharacterTutorialState( PyCallArgs& call )
 }
 
 //00:25:58 L TutorialService::Handle_GetTutorialsAndConnections(): size= 0
-PyResult TutorialService::Handle_GetTutorialsAndConnections( PyCallArgs& call )
-{
-  sLog.Log( "TutorialService::Handle_GetTutorialsAndConnections()", "size= %u", call.tuple->size() );
+PyResult TutorialService::Handle_GetTutorialsAndConnections( PyCallArgs& call ) {
+  /*
+05:39:02 [SvcCall]   Call Arguments:
+05:39:02 [SvcCall]       Tuple: Empty
+05:39:02 [SvcCall]   Call Named Arguments:
+05:39:02 [SvcCall]     Argument 'machoVersion':
+05:39:02 [SvcCall]         Integer field: 1
+*/
+    return new PyNone;
+}
 
+PyResult TutorialService::Handle_GetCareerAgents( PyCallArgs& call ) {
+  /*
+05:37:51 L TutorialService::Handle_GetCareerAgents(): size=0
+05:37:51 [SvcCall]   Call Arguments:
+05:37:51 [SvcCall]       Tuple: Empty
+05:37:51 [SvcCall]   Call Named Arguments:
+05:37:51 [SvcCall]     Argument 'machoVersion':
+05:37:51 [SvcCall]         Integer field: 1
+*/
     return new PyNone;
 }

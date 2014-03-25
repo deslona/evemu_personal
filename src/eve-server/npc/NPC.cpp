@@ -133,8 +133,6 @@ NPC::NPC(
     m_shieldCharge = self->GetAttribute(AttrShieldCapacity).get_float();
     m_armorDamage = 0.0;
     m_hullDamage = 0.0;
-
-	self->SaveItem();
 }
 
 NPC::~NPC() {
@@ -304,20 +302,8 @@ void NPC::UseArmorRepairer()
     // TODO: Need to send SpecialFX / amount update
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void NPC::SaveNPC()
+{
+	// Save all data for this NPC ship to the database:
+	Item()->SaveItem();
+}

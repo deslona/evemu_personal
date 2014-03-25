@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Zhur, Allan
 */
 
 #include "eve-server.h"
@@ -63,6 +63,7 @@ PyResult CorpMgrService::Handle_GetAssetInventory(PyCallArgs &call)
   uint32 int1 = call.tuple->GetItem(0)->AsInt()->value();   // corpID
   std::string string = call.tuple->GetItem(1)->AsString()->content();  // tab in corp asset window...offices, impounded, in space,
                                                                        //      deliveries, lockdown, search.  also called from map.
+                                                                       //   properties called from starmap -ColorStarsByCorpAssets
 
   sLog.Log( "CorpMgrService::Handle_GetAssetInventory()", "size= %u, 0 = int (%u), 1 = string (%s)", size, int1, string.c_str() );
 

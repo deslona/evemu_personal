@@ -111,9 +111,9 @@ PyResult ShipBound::Handle_Board(PyCallArgs &call) {
     //Call_SingleIntegerArg args;
     Call_TwoIntegerArgs args;
 
-	// args: two integers in this packet
-	//     .arg1  -  itemID of the ship to be boarded
-	//     .arg2  -  itemID of the ship this client is currently piloting
+    // args: two integers in this packet
+    //     .arg1  -  itemID of the ship to be boarded
+    //     .arg2  -  itemID of the ship this client is currently piloting
 
     // Save position for old ship
     GPoint shipPosition = call.client->GetPosition();
@@ -1137,12 +1137,20 @@ PyResult ShipBound::Handle_ActivateShip(PyCallArgs &call)
 
     newShip = args.arg1;
 
+    ShipRef oldShipRef = call.client->GetShip();
     ShipRef newShipRef = call.client->services().item_factory.GetShip(newShip);
 
-    call.client->System()->bubbles.Remove(call.client, true );
+    if(call.client->IsInSpace())
+        call.client->System()->bubbles.Remove(call.client, true );
+
     call.client->BoardShip(newShipRef);
 
-    call.client->System()->bubbles.Add(call.client, true);
+    if(call.client->IsInSpace())
+        call.client->System()->bubbles.Add(call.client, true);
+
+    // Now that we're in our new ship, if the old ship was a capsule, it's gone, so let's delete it:
+    if( oldShipRef->groupID() == EVEDB::invGroups::Capsule )
+        oldShipRef->Delete();
 
     PyTuple* rsp = new PyTuple(3);
     rsp->SetItem(0, new PyDict);
@@ -1155,6 +1163,7 @@ PyResult ShipBound::Handle_ActivateShip(PyCallArgs &call)
 PyResult ShipBound::Handle_ChangeDroneSettings(PyCallArgs &call)
 {
   sLog.Log( "ShipBound::Handle_ChangeDroneSettings()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
 
     return NULL;
 }

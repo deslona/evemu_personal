@@ -237,6 +237,11 @@ public:
 
     void UnsetUsingClient();
 
+    /*
+	 * ID Authority Functions:
+     */
+	uint32 GetNextEntityID();
+
 protected:
     InventoryDB m_db;
 
@@ -264,8 +269,11 @@ protected:
     void _DeleteItem(uint32 itemID);
 
     std::map<uint32, InventoryItemRef> m_items;
-};
 
+	// ID Authority:
+	// holds the next valid ID for in-memory only objects of EVEDB::invCategories::Entity
+	static uint32 m_nextEntityID;		
+};
 
 #endif
 

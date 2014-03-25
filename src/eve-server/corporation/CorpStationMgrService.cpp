@@ -608,7 +608,7 @@ PyResult CorpStationMgrIMBound::Handle_GetNumberOfUnrentedOffices( PyCallArgs &c
     //Extremely hackish and temporary.  Just getting some number working to pass to the client.
     //TODO: add handler that queries the data from the StationType struct.  Not exactly sure how to do this,
     //        but will involve call.client->GetStationID as the arguments to StationType.officeSlots() (hopefully)
-    const int office_hack = 1;
+    const int office_hack = 3;
 
     return new PyInt(office_hack);
 }

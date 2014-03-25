@@ -20,15 +20,16 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Zhur, Allan
 */
 
 #include "eve-server.h"
 
 #include "missions/Agent.h"
+#include "MissionDB.h"
 
 Agent::Agent(uint32 id)
-: m_agentID(id)
+: m_agentID(id), m_locationID(0)
 {
 }
 
@@ -42,7 +43,19 @@ Agent::~Agent() {
 }
 
 bool Agent::Load(MissionDB *from) {
-    return true;
+    return from->LoadAgentLocation(m_agentID, m_locationID, m_locationType, m_solarSystemID);
+    //return true;
+}
+
+
+PyRep* Agent::GetLocation() {
+    PyDict *res = new PyDict();
+
+    res->SetItem("locationID", new PyInt(m_locationID) );
+    res->SetItem("typeID", new PyInt(m_locationType) );
+    res->SetItem("solarsystemID", new PyInt(m_solarSystemID) );
+
+    return res;
 }
 
 uint32 Agent::GetLoyaltyPoints(Client *who) {
@@ -57,10 +70,7 @@ uint32 Agent::GetLoyaltyPoints(Client *who) {
  * mechanism for them to track event ordering (to make sure people do not do
  * missions out of order by only accepting the actions which were actually
  * "allocated" previously.)
- *
- *
- *
-*/
+ */
 void Agent::DoAction(
     Client *who, uint32 actionID,
     std::string &say, std::map<uint32, std::string> &choices
@@ -73,8 +83,6 @@ void Agent::DoAction(
     } else {
 
     }
-
-
 
     std::map<uint32, AgentActions *>::iterator res;
     res = m_actions.find(actionID);
@@ -90,9 +98,13 @@ void Agent::DoAction(
     loyaltyPoints = action->loyaltyPoints;
     */
 
-    say = "What do you want? Spit it out, stooge.";
-    choices[1] = "I want work, do you have anything?";
-    choices[2] = "I need to find somebody.  Can you help me?";
+    char v[256];
+    sprintf(v, "Result of DoAction(%d)", actionID);
+    say = v;  //"What do you want? Spit it out, stooge. ";
+    //request mission = 2
+    choices[2] = "I want work, do you have anything?";
+    //locate char = 15
+    choices[15] = "I need to find somebody.  Can you help me?";
 }
 
 

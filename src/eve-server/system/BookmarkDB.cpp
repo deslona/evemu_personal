@@ -83,7 +83,15 @@ uint32 BookmarkDB::FindBookmarkTypeID(uint32 itemID)
 
     // Find the correct TypeID of the item specified by itemID, searching through
     // several places: entity table, mapDenormalize table, and mapJumps table:
-
+    /**
+    rewrite this....check for these types..
+    3      region
+    4      constellation
+    5      sol system
+    14     moon
+    15     belt
+    2502   station
+*/
     // The most common bookmark made is a location in space, so let's check this first and exit
     // quickly for this high use case:
     if (!sDatabase.RunQuery(res,
@@ -98,7 +106,17 @@ uint32 BookmarkDB::FindBookmarkTypeID(uint32 itemID)
 
     if (res.GetRow(row))
     {
-        // itemID exists in 'entity' table, now let's check to see what type it is:
+        // itemID exists in 'entity' table, now let's check to see what group it is:
+        /**
+        3   Region
+        4   Constellation
+        5   Solar System
+        7   Planet
+        8   Moon
+        9   Asteroid Belt
+        10  Stargate
+        15  Station
+        24  Voucher*/
         if (!sDatabase.RunQuery(res2,
             " SELECT "
             "    groupID "
@@ -110,7 +128,7 @@ uint32 BookmarkDB::FindBookmarkTypeID(uint32 itemID)
         }
 
         if (res2.GetRow(row2))
-            if (row2.GetUInt(0) == 15)
+            if (row2.GetUInt(0) == 15)  //groupID   15=station
                 return ( row.GetUInt(0) );  // Return typeID of "Station" from 'entity'
 
         return 5;   // else Return typeID of "Solar System" from 'invTypes'

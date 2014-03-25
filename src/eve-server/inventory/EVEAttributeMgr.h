@@ -297,18 +297,17 @@ public:
 
     EvilNumber GetAttribute(const uint32 attributeId) const;
 
-    /*
+    /**
      * HasAttribute
      *
      * returns true if this item has the attribute 'attributeID', false if it does not have this attribute
-     *
      * @note this function should be used very infrequently and only for specific reasons
      */
     bool HasAttribute(uint32 attributeID);
 
     bool HasAttribute(const uint32 attributeID) const;
 
-    /* ATM we don't load or save as we assume that all attribute modifiers are calculated on the fly
+    /** ATM we don't load or save as we assume that all attribute modifiers are calculated on the fly
      * except charge attributes but we won't handle them for now
      */
     bool Save();
@@ -319,7 +318,6 @@ public:
     bool Delete();
 
     // load the default attributes that come with the itemID
-
 
     typedef std::map<uint32, EvilNumber>    AttrMap;
     typedef AttrMap::iterator               AttrMapItr;
@@ -337,7 +335,7 @@ public:
     bool SaveIntAttribute(uint32 attributeID, int64 value);
     bool SaveFloatAttribute(uint32 attributeID, double value);
 
-    /*
+    /**
      * ResetAttribute
      *
      *@note this function will force reload the default value for the specified attribute
@@ -349,8 +347,6 @@ public:
     /**
      * @brief return the begin iterator of the AttributeMap
      *
-     *
-     *
      * @return the begin iterator of the AttributeMap
      * @note this way to solve the attribute system problems are quite hacky... but atm its needed
      */
@@ -358,8 +354,6 @@ public:
 
     /**
      * @brief return the end iterator of the AttributeMap
-     *
-     *
      *
      * @return the end iterator of the AttributeMap
      * @note this way to solve the attribute system problems are quite hacky... but atm its needed

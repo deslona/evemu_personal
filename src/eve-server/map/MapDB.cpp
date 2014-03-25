@@ -20,19 +20,17 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Zhur, Allan
 */
 
 #include "eve-server.h"
 
 #include "map/MapDB.h"
 
-PyObject *MapDB::GetPseudoSecurities()
-{
+PyObject *MapDB::GetPseudoSecurities() {
     DBQueryResult res;
 
-    if(!sDatabase.RunQuery(res, "SELECT solarSystemID, security FROM mapSolarSystems"))
-    {
+    if(!sDatabase.RunQuery(res, "SELECT solarSystemID, security FROM mapSolarSystems")) {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
@@ -40,16 +38,10 @@ PyObject *MapDB::GetPseudoSecurities()
     return DBResultToRowset(res);
 }
 
-PyObject *MapDB::GetStationExtraInfo()
-{
+PyObject *MapDB::GetStationExtraInfo() {
     DBQueryResult res;
 
-    if(!sDatabase.RunQuery(res,
-        "SELECT "
-        "    stationID,solarSystemID,operationID,stationTypeID,corporationID AS ownerID"
-        " FROM staStations"
-    ))
-    {
+    if(!sDatabase.RunQuery(res, "SELECT stationID, solarSystemID, operationID, stationTypeID, corporationID AS ownerID FROM staStations" )) {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
@@ -57,16 +49,11 @@ PyObject *MapDB::GetStationExtraInfo()
     return DBResultToRowset(res);
 }
 
-PyObject *MapDB::GetStationOpServices()
-{
+PyObject *MapDB::GetStationOpServices() {
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
-        "SELECT "
-        "    operationID, serviceID"
-        " FROM staOperationServices"
-    ))
-    {
+        "SELECT operationID, serviceID FROM staOperationServices" )) {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
@@ -74,16 +61,10 @@ PyObject *MapDB::GetStationOpServices()
     return DBResultToRowset(res);
 }
 
-PyObject *MapDB::GetStationServiceInfo()
-{
+PyObject *MapDB::GetStationServiceInfo() {
     DBQueryResult res;
 
-    if(!sDatabase.RunQuery(res,
-        "SELECT "
-        "    serviceID,serviceName"
-        " FROM staServices"
-    ))
-    {
+    if(!sDatabase.RunQuery(res, "SELECT serviceID, serviceName FROM staServices" )) {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
@@ -91,22 +72,15 @@ PyObject *MapDB::GetStationServiceInfo()
     return DBResultToRowset(res);
 }
 
-PyObject *MapDB::GetStationCount()
-{
+PyObject *MapDB::GetStationCount() {
     DBQueryResult res;
-
-    if(!sDatabase.RunQuery(res,
-        " SELECT "
-        "    stationID "
-        " FROM staStations "
-        " WHERE solarSystemID "
-        ))
-    {
+/**     stations are listed as unique StationID's.  will have to get, combine, then count for each system....*sigh*
+    if(!sDatabase.RunQuery(res, "SELECT solarSystemID, COUNT(stationID) FROM staStations" )) {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
-
-    return DBResultToRowset(res);
+    */
+    return NULL;
 }
 
 PyObject *MapDB::GetSolSystemVisits(uint32 charID)
@@ -115,12 +89,11 @@ PyObject *MapDB::GetSolSystemVisits(uint32 charID)
 
     if(!sDatabase.RunQuery(res,
         " SELECT "
-        "   solSystemID, "
-        "   visits"
+        "   solarSystemID, "
+        "   visits, "
+        "   lastDateTime"
         " FROM chrVisitedSystems "
-        " WHERE characterID = %u ",
-        charID
-        ))
+        " WHERE characterID = %u ", charID ))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
@@ -129,50 +102,54 @@ PyObject *MapDB::GetSolSystemVisits(uint32 charID)
     return DBResultToRowset(res);
 }
 
-//  called from MapService by multiple functions based on passed values
-PyObject *GetDynamicData(uint8 int1, uint8 int2)
-{
+//  called from MapService by multiple functions based on passed values..will need to split up when i get it working right.
+///  NOTE: Right now, there are no functions for inserting data into this table....
+///  added jumpsHour and numPilots data inserts.  16Mar14
+///  NOTE: DB has fields for timing the *Hour and *24Hour parts. need to write checks for that when everything else starts working.
+PyObject *MapDB::GetDynamicData(uint32 int1, uint32 int2) {
+  /*    0 = # returns?    1 = type of return?
+//02:52:11 L MapService::Handle_GetHistory(): size= 2, 0 = Integer (3), 1 = Integer (24)  -ColorStarsByFactionKills - ColorStarsByKills - GetKillLast24H
+    ColorStarsByFactionKills  -AttributeError: 'int' object has no attribute 'value2'
+    ColorStarsByKills  -AttributeError: 'int' object has no attribute 'value1'
+    GetKillsLast24H  -AttributeError: 'int' object has no attribute 'solarSystemID'
+
+//02:52:13 L MapService::Handle_GetHistory(): size= 2, 0 = Integer (1), 1 = Integer (1)     -ColorStarsByJumps1Hour
+    ColorStarsByJumps1Hour  -AttributeError: 'int' object has no attribute 'value1'
+
+//02:52:14 L MapService::Handle_GetHistory(): size= 2, 0 = Integer (3), 1 = Integer (1)     -ColorStarsByKills
+//21:20:25 L MapService::Handle_GetHistory(): size= 2, 0 = Interger (5), 1 = Interger (24)  -ColorStarsByKills (factionKills?)
+22:30:32 L MapService::Handle_GetHistory(): size= 2, 0 = Interger (5), 1 = Interger (1)
+
+solarSystemID
+beaconCount
+cynoFields
+jumpsHour
+killsHour
+kills24Hours
+numPilots
+podKillsHour
+podKills24Hour
+factionKills
+    */
     DBQueryResult res;
-
-    if(!sDatabase.RunQuery(res,
-        "SELECT "
-        "  solSystemID, "
-        "  beaconCount,"
-        "  cynoFields,"
-        "  jumpsHour,"
-        "  killsHour,"
-        "  kills24Hours,"
-        "  numPilots,"
-        "  podKillsHour,"
-        "  podKills24Hour,"
-        " FROM mapDynamicData "
-        ))
-    {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
-        return NULL;
+    if( (int1 == 1) && (int2 == 1) ) {
+      sDatabase.RunQuery(res, "SELECT solarSystemID, jumpsHour AS value1 FROM mapDynamicData" );
+      return DBResultToRowset(res);
+    } else if (int1 == 3) {
+      if (int2 == 1) {
+        sDatabase.RunQuery(res, "SELECT solarSystemID, KillsHour AS value1, factionKills AS value2, podKillsHour AS value3 FROM mapDynamicData" );
+        return DBResultToRowset(res);
+      } else if (int2 == 24) {
+          sDatabase.RunQuery(res, "SELECT solarSystemID, killsHour AS value1, factionKills AS value2, kills24Hours AS value3,  beaconCount, cynoFields FROM mapDynamicData" );
+          return DBResultToRowset(res);
+      }
+    } else if (int1 == 5) {
+          sDatabase.RunQuery(res, "SELECT solarSystemID, factionKills AS value2 FROM mapDynamicData" );
+          return DBResultToRowset(res);
+    } else if (int1 == 10) {
+          sDatabase.RunQuery(res, "SELECT solarSystemID, beaconCount FROM mapDynamicData" );
+          return DBResultToRowset(res);
+    } else {
+       return NULL;
     }
-
-    return DBResultToRowset(res);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

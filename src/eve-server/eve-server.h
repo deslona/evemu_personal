@@ -100,10 +100,11 @@
 #include "packets/ObjectCaching.h"
 #include "packets/Market.h"
 #include "packets/Sovereignty.h"
-#include "packets/Standing2.h"
+#include "packets/Standing.h"
 #include "packets/Trade.h"
 #include "packets/Tutorial.h"
 #include "packets/Mail.h"
+#include "packets/Map.h"
 // python
 #include "python/PyVisitor.h"
 #include "python/PyRep.h"

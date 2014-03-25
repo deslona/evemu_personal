@@ -83,16 +83,20 @@ PyResult FactionWarMgrService::Handle_GetFWSystems( PyCallArgs& call )
 
 PyResult FactionWarMgrService::Handle_GetMyCharacterRankOverview( PyCallArgs& call )
 {
+  /**
+00:16:11 [PacketError] Decode Call_SingleIntegerArg failed: tuple0 is the wrong size: expected 1, but got 0
+00:16:11 [SvcError] Failed to decode args.
+
     Call_SingleIntegerArg arg;
     if( !arg.Decode( &call.tuple ) )
     {
         _log( SERVICE__ERROR, "Failed to decode args." );
         return NULL;
     }
+*/
 
-    sLog.Debug( "FactionWarMgrService", "Called GetMyCharacterRankOverview stub." );
-
-    util_Rowset rs;
+// will need data from DB...
+  util_Rowset rs;
 
     rs.header.push_back( "currentRank" );
     rs.header.push_back( "highestRank" );
@@ -113,24 +117,32 @@ PyResult FactionWarMgrService::Handle_GetFactionMilitiaCorporation(PyCallArgs &c
 
 PyResult FactionWarMgrService::Handle_GetCharacterRankInfo(PyCallArgs &call) {
   sLog.Log( "FactionWarMgrService::Handle_GetCharacterRankInfo()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
 
   return NULL;
 }
 
-PyResult FactionWarMgrService::Handle_GetFactionalWarStatus(PyCallArgs &call) {
-  sLog.Log( "FactionWarMgrService::Handle_GetFactionalWarStatus()", "size= %u", call.tuple->size() );
-
+//22:48:28 L FactionWarMgrService::Handle_GetFactionalWarStatus(): size= 0
+PyResult FactionWarMgrService::Handle_GetFactionalWarStatus(PyCallArgs &call)
+{
   return NULL;
 }
 
-PyResult FactionWarMgrService::Handle_IsEnemyFaction(PyCallArgs &call) {
-  sLog.Log( "FactionWarMgrService::Handle_IsEnemyFaction()", "size= %u", call.tuple->size() );
+//22:48:28 L FactionWarMgrService::Handle_IsEnemyFaction(): size= 2
+PyResult FactionWarMgrService::Handle_IsEnemyFaction(PyCallArgs &call)
+{
+  uint8 size = call.tuple->size();
+  uint32 int0 = call.tuple->GetItem(0)->AsInt()->value();
+  uint32 int1 = call.tuple->GetItem(1)->AsInt()->value();
+  sLog.Log( "FactionWarMgrService::Handle_IsEnemyFaction()", "size=%u, 0=%s(%u), 1=%s(%u) ", size, call.tuple->GetItem( 0 )->TypeString(), int0, call.tuple->GetItem( 1 )->TypeString(), int1   );
+  call.Dump(SERVICE__CALLS);
 
   return NULL;
 }
 
 PyResult FactionWarMgrService::Handle_JoinFactionAsCharacter(PyCallArgs &call) {
-  sLog.Log( "FactionWarMgrService::Handle_JoinFactionAsCharacter()", "size= %u", call.tuple->size() );
+  sLog.Log( "MarketProxyService::Handle_StartupCheck()", "size=%u ", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
 
   return NULL;
 }

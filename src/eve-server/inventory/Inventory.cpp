@@ -92,7 +92,7 @@ Inventory *Inventory::Cast(InventoryItemRef item)
             //return SkillRef::StaticCast( item ).get();
             break;
         case EVEDB::invCategories::Celestial:
-            sLog.Debug("Inventoy", "Celestial item categoryID used on cast");
+            sLog.Debug("Inventory", "Celestial item categoryID used on cast");
             //don't know how to do this but it's missing in a lot of places in the log
             //it says that the return is not of Inventory type
             //return CelestialObjectRef::StaticCast( item ).get();
@@ -133,41 +133,20 @@ Inventory *Inventory::Cast(InventoryItemRef item)
     return NULL;
 }
 
-bool Inventory::LoadContents(ItemFactory &factory)
-{
+bool Inventory::LoadContents(ItemFactory &factory) {
     // check if the contents has already been loaded...
-    if( ContentsLoaded() )
-    {
-        return true;
-    }
-
-    sLog.Log("Inventory", "Recursively loading contents of inventory %u", inventoryID() );
+    if( ContentsLoaded() ) return true;
+    sLog.Log("Inventory", "Loading contents of inventory %u", inventoryID() );
 
     //load the list of items we need
-    //  PUT SOME FUCKING CHECKS FOR SYSTEM ENTITIES IN HERE!!!!
-    /**
-05:39:20 L Inventory: Recursively loading contents of inventory 60009112
-05:39:20 E Inventory::LoadContents(): Failed to resolve pointer to Client object currently using the ItemFactory.
-05:39:20 E Inventory::LoadContents(): WARNING! Loading Contents while ItemFactory::GetUsingClient() returned NULL!
-05:39:20 [DBError] No data found for character 3008958.
-05:39:20 E Inventory::LoadContents(): Failed to load item 3008958 contained in 60009112. Skipping.
-05:39:20 E Inventory::LoadContents(): Failed to resolve pointer to Client object currently using the ItemFactory.
-05:39:20 E Inventory::LoadContents(): WARNING! Loading Contents while ItemFactory::GetUsingClient() returned NULL!
-05:39:20 [DBError] No data found for character 3015108.
-05:39:20 E Inventory::LoadContents(): Failed to load item 3015108 contained in 60009112. Skipping.
-05:39:20 E Inventory::LoadContents(): Failed to resolve pointer to Client object currently using the ItemFactory.
-05:39:20 E Inventory::LoadContents(): WARNING! Loading Contents while ItemFactory::GetUsingClient() returned NULL!
-05:39:20 [DBError] No data found for character 3015117.
-05:39:20 E Inventory::LoadContents(): Failed to load item 3015117 contained in 60009112. Skipping.
-*/
+    //  this loads EVERYTHING in a system....dynamic, npc, celestials, etc...
     std::vector<uint32> items;
-    if( !GetItems( factory, items ) )
-    {
-        sLog.Error("Inventory", "Failed  to get items of %u", inventoryID() );
+    if( !GetItems( factory, items ) ) {
+        sLog.Error("Inventory", "Failed to get items of %u", inventoryID() );
         return false;
     }
 
-    //Now get each one from the factory (possibly recursing)
+    //Now get each one from the factory (possibly recursing)  ....very recursing -allan
     ItemData into;
     uint32 characterID = 0;
     uint32 corporationID = 0;
@@ -175,22 +154,22 @@ bool Inventory::LoadContents(ItemFactory &factory)
     std::vector<uint32>::iterator cur, end;
     cur = items.begin();
     end = items.end();
-    for(; cur != end; cur++)
-    {
+    for(; cur != end; cur++) {
+        // check current item to see if it is an agent or npc in the system...continue if true  -allan
+        if(IsAgent(*cur)) continue;
+        // check current item to see if it is an offline char in the system...continue if true  -allan
+        //if(IsClient(*cur)) { if (isOffline(*cur)) { continue; } }
         // Each "cur" item should be checked to see if they are "owned" by the character connected to this client,
         // and if not, then do not "get" the entire contents of this for() loop for that item, except in the case that
         // this item is located in space or belongs to this character's corporation:
         factory.db().GetItem( *cur, into );
-        if( factory.GetUsingClient() != NULL )
-        {
+        if( factory.GetUsingClient() != NULL ) {
             characterID = factory.GetUsingClient()->GetCharacterID();
             corporationID = factory.GetUsingClient()->GetCorporationID();
             locationID = factory.GetUsingClient()->GetLocationID();
-        }
-        else
+        } else
             sLog.Error( "Inventory::LoadContents()", "Failed to resolve pointer to Client object currently using the ItemFactory." );
-        if( (into.ownerID == characterID) || (characterID == 0) || (into.ownerID == corporationID) || (into.locationID == locationID) )         //    || (factory.GetUsingClient() == NULL) )
-        {
+        if( (into.ownerID == characterID) || (characterID == 0) || (into.ownerID == corporationID) || (into.locationID == locationID) || (factory.GetUsingClient() == NULL) ) {
             // Continue to GetItem() if the client calling this is owned by the character that owns this item
             // --OR--
             // The characterID == 0, which means this is attempting to load the character of this client for the first time.
@@ -200,12 +179,12 @@ bool Inventory::LoadContents(ItemFactory &factory)
                 sLog.Error( "Inventory::LoadContents()", "WARNING! Loading Contents while ItemFactory::GetUsingClient() returned NULL!" );
 
             InventoryItemRef i = factory.GetItem( *cur );
-            if( !i )
-            {
+            if( !i ) {
                 sLog.Error("Inventory::LoadContents()", "Failed to load item %u contained in %u. Skipping.", *cur, inventoryID() );
                 continue;
             }
 
+            //sLog.Success("Inventory::LoadContents()", "Item %u Loaded", *cur);
             AddItem( i );
         }
     }
@@ -436,7 +415,6 @@ void Inventory::RemoveItem(InventoryItemRef item)
     if( res != mContents.end() )
     {
         mContents.erase( res );
-
         sLog.Debug("Inventory", "Updated location %u to no longer contain item %u.", inventoryID(), item->itemID() );
     }
 	else
@@ -495,9 +473,9 @@ double Inventory::GetStoredVolume(EVEItemFlags locationFlag) const
  * InventoryEx
  */
 void InventoryEx::ValidateAddItem(EVEItemFlags flag, InventoryItemRef item) const
-{
+{       // this should be bool  -allan
     //double volume = item->quantity() * item->volume();
-    EvilNumber volume = item->GetAttribute(AttrQuantity) * item->GetAttribute(AttrVolume);
+    EvilNumber volume = EvilNumber(item->quantity()) * item->GetAttribute(AttrVolume);
     double capacity = GetRemainingCapacity( flag );
     if( volume > capacity )
     {

@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Zhur, Allan
 */
 
 #include "eve-server.h"
@@ -30,12 +30,7 @@
 PyObject *StandingDB::GetNPCStandings() {
     DBQueryResult res;
 
-    if(!sDatabase.RunQuery(res,
-        "SELECT "
-        " fromID,toID,standing"
-        " FROM npcStandings"
-    ))
-    {
+    if(!sDatabase.RunQuery(res, "SELECT fromID,toID,standing FROM npcStandings"  )) {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
@@ -64,7 +59,6 @@ PyObjectEx *StandingDB::GetCharStandings(uint32 characterID) {
 PyObjectEx *StandingDB::GetCorpStandings(uint32 corporationID) {
     DBQueryResult res;
 
-    //Hack: Have hardcoded the rename of toId to fromID until i know if its going to affect anything else.
     if(!sDatabase.RunQuery(res,
         "SELECT "
         " fromID, standing"
@@ -105,13 +99,7 @@ PyObject *StandingDB::GetCharPrimeStandings(uint32 characterID) {
 PyObject *StandingDB::GetCharNPCStandings(uint32 characterID) {
     DBQueryResult res;
 
-    if(!sDatabase.RunQuery(res,
-        "SELECT "
-        " fromID, standing"
-        " FROM chrNPCStandings"
-        " WHERE characterID=%u", characterID
-    ))
-    {
+    if(!sDatabase.RunQuery(res, "SELECT fromID, standing FROM chrNPCStandings WHERE characterID=%u", characterID )) {
         _log(SERVICE__ERROR, "Error in GetCharNPCStandings query: %s", res.error.c_str());
         return NULL;
     }
@@ -119,9 +107,8 @@ PyObject *StandingDB::GetCharNPCStandings(uint32 characterID) {
     return DBResultToRowset(res);
 }
 
-PyObject *StandingDB::GetStandingTransactions( uint32 characterID )
-{
-    /*DBQueryResult res;
+PyObject *StandingDB::GetStandingTransactions( uint32 characterID ) {
+    DBQueryResult res;
 
     if (!sDatabase.RunQuery(res,
         " SELECT * FROM chrStandingChanges "
@@ -132,11 +119,8 @@ PyObject *StandingDB::GetStandingTransactions( uint32 characterID )
         return NULL;
     }
 
-    return (DBResultToRowset(res));*/
-
-    //since we dont support standing changes in any way yet, its useless to have such stuff in db
-    sLog.Debug( "StandingDB", "Called GetStandingTransactions stub." );
-
+    return (DBResultToRowset(res));
+/*
     util_Rowset res;
 
     res.header.push_back( "eventID" );
@@ -153,25 +137,5 @@ PyObject *StandingDB::GetStandingTransactions( uint32 characterID )
     res.header.push_back( "msg" );
 
     return res.Encode();
+    */
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

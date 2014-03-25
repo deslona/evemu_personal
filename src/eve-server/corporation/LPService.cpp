@@ -47,17 +47,31 @@ LPService::~LPService()
     delete m_dispatch;
 }
 
+//17:09:54 L LPService::Handle_GetLPExchangeRates(): size= 0
 PyResult LPService::Handle_GetLPExchangeRates( PyCallArgs& call )
-{
-  sLog.Log( "LPService::Handle_GetLPExchangeRates()", "size= %u", call.tuple->size() );
-
+{/*
+05:42:04 [SvcCall] Service LPSvc: calling GetLPExchangeRates
+05:42:04 [SvcCall]   Call Arguments:
+05:42:04 [SvcCall]       Tuple: Empty
+05:42:04 [SvcCall]   Call Named Arguments:
+05:42:04 [SvcCall]     Argument 'machoVersion':
+05:42:04 [SvcCall]         Integer field: 1
+*/
     return new PyList;
 }
 
+//18:46:38 L CharMgrService::Handle_GetLPForCharacterCorp(): size= 1, 0=Integer(1000049)
 PyResult LPService::Handle_GetLPForCharacterCorp( PyCallArgs& call )
-{
-  sLog.Log( "LPService::Handle_GetLPForCharacterCorp()", "size= %u", call.tuple->size() );
-
+{/**
+04:39:44 [SvcCall] Service LPSvc: calling GetLPForCharacterCorp
+04:39:44 L CharMgrService::Handle_GetLPForCharacterCorp(): size= 1, 0=Integer(1000049)
+04:39:44 [SvcCall]   Call Arguments:
+04:39:44 [SvcCall]       Tuple: 1 elements
+04:39:44 [SvcCall]         [ 0] Integer field: 1000049
+04:39:44 [SvcCall]   Call Named Arguments:
+04:39:44 [SvcCall]     Argument 'machoVersion':
+04:39:44 [SvcCall]         Integer field: 1
+*/
     return new PyInt( 0 );
 }
 
@@ -66,12 +80,22 @@ PyResult LPService::Handle_GetLPsForCharacter( PyCallArgs& call )
     //no args
   sLog.Log( "LPService::Handle_GetLPsForCharacter()", "size= %u", call.tuple->size() );
 
+  call.Dump(SERVICE__CALLS);
     return new PyList;
 }
 
+//18:55:57 L CharMgrService::Handle_GetAvailableOffersFromCorp(): size=2, 0=Integer(), 1=Boolean()
 PyResult LPService::Handle_GetAvailableOffersFromCorp( PyCallArgs& call )
-{
-  sLog.Log( "LPService::Handle_GetAvailableOffersFromCorp()", "size= %u", call.tuple->size() );
+{/*
+05:42:04 [SvcCall] Service LPSvc: calling GetAvailableOffersFromCorp
+05:42:04 [SvcCall]   Call Arguments:
+05:42:04 [SvcCall]       Tuple: 2 elements
+05:42:04 [SvcCall]         [ 0] Integer field: 1000049
+05:42:04 [SvcCall]         [ 1] Boolean field: true
+05:42:04 [SvcCall]   Call Named Arguments:
+05:42:04 [SvcCall]     Argument 'machoVersion':
+05:42:04 [SvcCall]         Integer field: 1
+*/
 
     return new PyList;
 }

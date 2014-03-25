@@ -70,6 +70,7 @@ public:
     CharacterRef GetChar() const;
     DestinyManager * GetDestiny();
     uint32 GetLocationID() const;
+    SystemEntity * GetSystemEntity();
     void MoveItem(uint32 itemID, uint32 location, EVEItemFlags flag);
 
     // NPC Object calls:

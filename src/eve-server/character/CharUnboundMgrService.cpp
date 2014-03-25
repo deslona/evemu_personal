@@ -168,8 +168,7 @@ PyResult CharUnboundMgrService::Handle_GetCharNewExtraCreationInfo(PyCallArgs &c
 PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call) {
     CallCreateCharacterWithDoll arg;
 
-    if (!arg.Decode(call.tuple))
-    {
+    if (!arg.Decode(call.tuple)) {
         codelog(CLIENT__ERROR, "Failed to decode args for CreateCharacterWithDoll call");
         return NULL;
     }
@@ -224,7 +223,7 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
     uint8 memory = char_type->memory();
     uint8 willpower = char_type->willpower();
 
-    // Setting character's starting position, and getting it's location...
+    // Setting character's starting position, and getting the location...
     // Also query attribute bonuses from ancestry
     if(    !m_db.GetLocationCorporationByCareer(cdata)
         || !m_db.GetAttributesFromAncestry(cdata.ancestryID, intelligence, charisma, perception, memory, willpower)
@@ -243,16 +242,11 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
         } else {
             codelog(SERVICE__WARNING, "Could not find default Corporation ID %u. Using Career Defaults instead.", sConfig.character.startCorporation);
         }
-    }
-    else
-    {
+    } else {
         uint32 corporationID;
-        if(m_db.GetCorporationBySchool(cdata.schoolID, corporationID))
-        {
+        if(m_db.GetCorporationBySchool(cdata.schoolID, corporationID)) {
             cdata.corporationID = corporationID;
-        }
-        else
-        {
+        } else {
             codelog(SERVICE__ERROR, "Could not place character in default corporation for school.");
         }
     }
@@ -262,17 +256,12 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
         if( !m_db.GetLocationByStation(sConfig.character.startStation, cdata) ) {
             codelog(SERVICE__WARNING, "Could not find default station ID %u. Using Career Defaults instead.", sConfig.character.startStation);
         }
-    }
-    else
-    {
+    } else {
         uint32 stationID;
-        if (m_db.GetCareerStationByCorporation(cdata.corporationID, stationID))
-        {
+        if (m_db.GetCareerStationByCorporation(cdata.corporationID, stationID)) {
             if(!m_db.GetLocationByStation(stationID, cdata))
                 codelog(SERVICE__WARNING, "Could not find default station ID %u.", stationID);
-        }
-        else
-        {
+        } else {
             codelog(SERVICE__ERROR, "Could not place character in default station for school.");
         }
     }
@@ -293,8 +282,7 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
 
     //load skills
     CharSkillMap startingSkills;
-    if( !m_db.GetSkillsByRace(char_type->race(), startingSkills) )
-    {
+    if( !m_db.GetSkillsByRace(char_type->race(), startingSkills) ) {
         codelog(CLIENT__ERROR, "Failed to load char create skills. Bloodline %u, Ancestry %u.",
             char_type->bloodlineID(), cdata.ancestryID);
         return NULL;
@@ -328,8 +316,7 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
     CharSkillMapItr cur, end;
     cur = startingSkills.begin();
     end = startingSkills.end();
-    for(; cur != end; cur++)
-    {
+    for(; cur != end; cur++) {
         ItemData skillItem( cur->first, char_item->itemID(), char_item->itemID(), flagSkill );
         SkillRef i = m_manager->item_factory.SpawnSkill( skillItem );
         if( !i ) {
@@ -374,18 +361,16 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
     ShipRef ship_item = m_manager->item_factory.SpawnShip( shipItem );
 
     // Set shipID
-    //DBQueryResult res;
-    //sDatabase.RunQuery(res, "UPDATE character_ SET shipID = %u WHERE characterID = %u", ship_item->itemID(), char_item->itemID());
     char_item->SetActiveShip( ship_item->itemID() );
-    char_item->SaveCharacter();
+     char_item->SaveFullCharacter();
 	ship_item->SaveItem();
 
     if( !ship_item ) {
         codelog(CLIENT__ERROR, "%s: Failed to spawn a starting item", char_item->itemName().c_str());
-    }
-    else
+    } else {
         //welcome on board your starting ship
         //char_item->MoveInto( *ship_item, flagPilot, false );
+    }
 
     _log( CLIENT__MESSAGE, "Sending char create ID %u as reply", char_item->itemID() );
 

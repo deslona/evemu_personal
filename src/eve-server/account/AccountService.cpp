@@ -44,28 +44,27 @@ AccountService::AccountService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(AccountService, GiveCash)
     PyCallable_REG_CALL(AccountService, GiveCashFromCorpAccount)
     PyCallable_REG_CALL(AccountService, GetJournal)
+    PyCallable_REG_CALL(AccountService, GetWalletDivisionsInfo)
 }
 
 AccountService::~AccountService() {
     delete m_dispatch;
 }
 
+//16:37:51 L AccountService::Handle_GetCashBalance(): size= 1, 0=Integer - for corp wallet
+//02:40:18 L AccountService::Handle_GetCashBalance(): size= 1, 0=Boolean  - for char wallet
 PyResult AccountService::Handle_GetCashBalance(PyCallArgs &call) {
+  call.Dump(SERVICE__CALLS);
     const int32 ACCOUNT_KEY_AURUM = 1200;
 
     bool hasAccountKey = false;
     int32 accountKey = 0;
-    if (call.byname.find("accountKey") != call.byname.end())
-    {
+    if (call.byname.find("accountKey") != call.byname.end()) {
         hasAccountKey = true;
         accountKey = call.byname.find("accountKey")->second->AsInt()->value();
     }
 
-    if (call.tuple->size() == 1)
-    {
-//16:37:51 L AccountService::Handle_GetCashBalance(): size= 1, 0=Integer - for corp wallet
-//02:40:18 L AccountService::Handle_GetCashBalance(): size= 1, 0=Boolean  - for char wallet
-  sLog.Log( "AccountService::Handle_GetCashBalance()", "size= %u, 0=%s", call.tuple->size(), call.tuple->GetItem( 0 )->TypeString() );
+    if (call.tuple->size() == 1) {
         Call_SingleArg args;
         if(!args.Decode(&call.tuple)) {
             args.arg = new PyInt(0);
@@ -78,8 +77,7 @@ PyResult AccountService::Handle_GetCashBalance(PyCallArgs &call) {
             corporate_wallet = ( args.arg->AsInt()->value() != 0 );
         else if( args.arg->IsBool() )
             corporate_wallet = args.arg->AsBool()->value();
-        else
-        {
+        else {
             codelog(CLIENT__ERROR, "Invalid arguments");
             return NULL;
         }
@@ -90,13 +88,9 @@ PyResult AccountService::Handle_GetCashBalance(PyCallArgs &call) {
         else
             //personal wallet
             return new PyFloat( call.client->GetBalance() );
-    }
-    else if (call.tuple->size() > 1)
-    {
-  sLog.Log( "AccountService::Handle_GetCashBalance()", "size= %u, 0=%s, 1=%s", call.tuple->size(), call.tuple->GetItem( 0 )->TypeString(), call.tuple->GetItem( 1 )->TypeString() );
-    }
-    else if (hasAccountKey && accountKey == ACCOUNT_KEY_AURUM)
-    {
+    } else if (call.tuple->size() > 1) {
+         sLog.Log( "AccountService::Handle_GetCashBalance() size > 1", "size= %u", call.tuple->size() );
+    } else if (hasAccountKey && accountKey == ACCOUNT_KEY_AURUM) {
         return new PyFloat(call.client->GetAurBalance());
     }
 
@@ -357,6 +351,7 @@ PyTuple * AccountService::GiveCashToChar(Client * const client, Client * const o
 //02:46:06 L AccountService::Handle_GetJournal(): size= 6, 0=Integer, 1=Long, 2=None, 3=Boolean, 4=None, 5=Integer
 PyResult AccountService::Handle_GetJournal(PyCallArgs &call) {
   sLog.Log( "AccountService::Handle_GetJournal()", "size= %u, 0=%s, 1=%s, 2=%s, 3=%s, 4=%s, 5=%s", call.tuple->size(), call.tuple->GetItem( 0 )->TypeString(), call.tuple->GetItem( 1 )->TypeString(), call.tuple->GetItem( 2 )->TypeString(), call.tuple->GetItem( 3 )->TypeString(), call.tuple->GetItem( 4 )->TypeString(), call.tuple->GetItem( 5 )->TypeString() );
+  call.Dump(SERVICE__CALLS);
     Call_GetJournal args;
     if(!args.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "Invalid arguments");
@@ -509,4 +504,12 @@ PyTuple * AccountService::WithdrawCashToChar(Client * const client, Client * con
     ans->items[1]=new PyFloat(ncb);
 
     return ans;
+}
+
+PyResult AccountService::Handle_GetWalletDivisionsInfo(PyCallArgs &call) {
+  sLog.Log( "AccountService::Handle_GetWalletDivisionsInfo()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
+    PyRep *result = NULL;
+
+    return result;
 }

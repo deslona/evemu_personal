@@ -92,6 +92,7 @@ PyResult SkillMgrBound::Handle_GetCharacterAttributeModifiers(PyCallArgs &call) 
 }
 
 PyResult SkillMgrBound::Handle_CharStopTrainingSkill(PyCallArgs &call) {
+//  look into this again, redesign so these calls arent needed.....
     CharacterRef ch = call.client->GetChar();
 
     // clear & update
@@ -110,15 +111,43 @@ PyResult SkillMgrBound::Handle_GetEndOfTraining(PyCallArgs &call) {
 
 PyResult SkillMgrBound::Handle_GetSkillHistory( PyCallArgs& call )
 {
-    sLog.Debug( "SkillMgrBound", "Called GetSkillHistory stub." );
-  //  need info from DB
     util_Rowset rowset;
 
-    rowset.header.push_back( "logDateTime" );
-    rowset.header.push_back( "eventID" );
+    rowset.header.push_back( "logDate" );
+    rowset.header.push_back( "eventTypeID" );
     rowset.header.push_back( "skillTypeID" );
     rowset.header.push_back( "relativePoints" );
     rowset.header.push_back( "absolutePoints" );
+
+    // eventTypeIDs:
+    // 34 - SkillClonePenalty
+    // 36 - SkillTrainingStarted
+    // 37 - SkillTrainingComplete
+    // 38 - SkillTrainingCanceled
+    // 39 - GMGiveSkill
+    // 53 - SkillTrainingComplete
+    // 307 - SkillPointsApplied
+
+    // NOTE:  Screenshots from DaVinci show that this call sends back only 20 most recent entries in this history
+
+    // TODO: get most recent 20 entries for skill history from DB table via character object
+    CharacterRef ch = call.client->GetChar();
+    //ch->GetSkillHistory();
+
+    rowset.lines = new PyList;
+
+    uint32 i = 0;
+    PyList* fieldData = new PyList;
+    //for( i = 0; i < ?; i++ )
+    //{
+        fieldData->AddItemLong( 130386773819853860 );
+        fieldData->AddItemInt( 37 );
+        fieldData->AddItemInt( 28667 );
+        fieldData->AddItemInt( 6532 );
+        fieldData->AddItemInt( 12000 );
+        rowset.lines->AddItem( fieldData );
+        fieldData = new PyList;
+    //}
 
     return rowset.Encode();
 }
@@ -160,7 +189,7 @@ PyResult SkillMgrBound::Handle_GetSkillQueueAndFreePoints(PyCallArgs &call) {
     return ch->GetSkillQueue();
 }
 
- PyResult SkillMgrBound::Handle_SaveSkillQueue(PyCallArgs &call) {
+PyResult SkillMgrBound::Handle_SaveSkillQueue(PyCallArgs &call) {
     Call_SaveSkillQueue args;
     if(!args.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "%s: failed to decode arguments", call.client->GetName());
@@ -261,9 +290,10 @@ PyResult SkillMgrBound::Handle_CharStartTrainingSkillByTypeID( PyCallArgs& call 
     CharacterRef ch = call.client->GetChar();
 
     ch->LoadPausedSkillQueue();
-    //ch->UpdateSkillQueue();
+    ch->UpdateSkillQueue();
+    //ch->GetSkillQueue();
 
-    return ch->GetSkillQueue();
+    return NULL;
 }
 
 PyResult SkillMgrBound::Handle_InjectSkillIntoBrain(PyCallArgs &call)

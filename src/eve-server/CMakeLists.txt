@@ -360,6 +360,7 @@ SET( ship_INCLUDE
      "${TARGET_INCLUDE_DIR}/ship/dgmtypeattributeinfo.h"
      "${TARGET_INCLUDE_DIR}/ship/Drone.h"
      "${TARGET_INCLUDE_DIR}/ship/FleetProxy.h"
+     #"${TARGET_INCLUDE_DIR}/ship/InsuranceDB.h"
      "${TARGET_INCLUDE_DIR}/ship/InsuranceService.h"
      "${TARGET_INCLUDE_DIR}/ship/ModuleManager.h"
      "${TARGET_INCLUDE_DIR}/ship/RepairService.h"
@@ -374,6 +375,7 @@ SET( ship_SOURCE
      "${TARGET_SOURCE_DIR}/ship/dgmtypeattributeinfo.cpp"
      "${TARGET_SOURCE_DIR}/ship/Drone.cpp"
      "${TARGET_SOURCE_DIR}/ship/FleetProxy.cpp"
+     #"${TARGET_SOURCE_DIR}/ship/InsuranceDB.cpp"
      "${TARGET_SOURCE_DIR}/ship/InsuranceService.cpp"
      "${TARGET_SOURCE_DIR}/ship/ModuleManager.cpp"
      "${TARGET_SOURCE_DIR}/ship/RepairService.cpp"
@@ -420,14 +422,14 @@ SET( standing_INCLUDE
      "${TARGET_INCLUDE_DIR}/standing/FactionWarMgrDB.h"
      "${TARGET_INCLUDE_DIR}/standing/FactionWarMgrService.h"
      "${TARGET_INCLUDE_DIR}/standing/SovereigntyMgrService.h"
-     "${TARGET_INCLUDE_DIR}/standing/Standing2Service.h"
+     "${TARGET_INCLUDE_DIR}/standing/Standing.h"
      "${TARGET_INCLUDE_DIR}/standing/StandingDB.h"
      "${TARGET_INCLUDE_DIR}/standing/WarRegistryService.h" )
 SET( standing_SOURCE
      "${TARGET_SOURCE_DIR}/standing/FactionWarMgrDB.cpp"
      "${TARGET_SOURCE_DIR}/standing/FactionWarMgrService.cpp"
      "${TARGET_SOURCE_DIR}/standing/SovereigntyMgrService.cpp"
-     "${TARGET_SOURCE_DIR}/standing/Standing2Service.cpp"
+     "${TARGET_SOURCE_DIR}/standing/Standing.cpp"
      "${TARGET_SOURCE_DIR}/standing/StandingDB.cpp"
      "${TARGET_SOURCE_DIR}/standing/WarRegistryService.cpp" )
 
@@ -459,13 +461,15 @@ SET( system_INCLUDE
      "${TARGET_INCLUDE_DIR}/system/DungeonService.h"
      "${TARGET_INCLUDE_DIR}/system/IndexManager.h"
      "${TARGET_INCLUDE_DIR}/system/KeeperService.h"
+     "${TARGET_INCLUDE_DIR}/system/Search.h"
      "${TARGET_INCLUDE_DIR}/system/ScenarioService.h"
      "${TARGET_INCLUDE_DIR}/system/SolarSystem.h"
      "${TARGET_INCLUDE_DIR}/system/SystemBubble.h"
      "${TARGET_INCLUDE_DIR}/system/SystemDB.h"
      "${TARGET_INCLUDE_DIR}/system/SystemEntities.h"
      "${TARGET_INCLUDE_DIR}/system/SystemEntity.h"
-     "${TARGET_INCLUDE_DIR}/system/SystemManager.h" )
+     "${TARGET_INCLUDE_DIR}/system/SystemManager.h"
+     "${TARGET_INCLUDE_DIR}/system/WrecksAndLoot.h" )
 SET( system_SOURCE
      "${TARGET_SOURCE_DIR}/system/BookmarkDB.cpp"
      "${TARGET_SOURCE_DIR}/system/BookmarkService.cpp"
@@ -479,13 +483,15 @@ SET( system_SOURCE
      "${TARGET_SOURCE_DIR}/system/DungeonService.cpp"
      "${TARGET_SOURCE_DIR}/system/IndexManager.cpp"
      "${TARGET_SOURCE_DIR}/system/KeeperService.cpp"
+     "${TARGET_SOURCE_DIR}/system/Search.cpp"
      "${TARGET_SOURCE_DIR}/system/ScenarioService.cpp"
      "${TARGET_SOURCE_DIR}/system/SolarSystem.cpp"
      "${TARGET_SOURCE_DIR}/system/SystemBubble.cpp"
      "${TARGET_SOURCE_DIR}/system/SystemDB.cpp"
      "${TARGET_SOURCE_DIR}/system/SystemEntities.cpp"
      "${TARGET_SOURCE_DIR}/system/SystemEntity.cpp"
-     "${TARGET_SOURCE_DIR}/system/SystemManager.cpp" )
+     "${TARGET_SOURCE_DIR}/system/SystemManager.cpp"
+     "${TARGET_INCLUDE_DIR}/system/WrecksAndLoot.cpp" )
 
 ########################
 # Setup the executable #

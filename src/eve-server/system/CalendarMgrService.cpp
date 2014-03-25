@@ -46,7 +46,13 @@ CalendarMgrService::~CalendarMgrService() {
 //02:17:55 L CalendarMgrService::Handle_GetResponsesForCharacter(): size= 0
 PyResult CalendarMgrService::Handle_GetResponsesForCharacter( PyCallArgs& call )
 {
-  sLog.Log( "CalendarMgrService::Handle_GetResponsesForCharacter()", "size= %u", call.tuple->size() );
-
+/**
+03:31:08 [SvcCall] Service calendarMgr: calling GetResponsesForCharacter
+03:31:08 [SvcCall]   Call Arguments:
+03:31:08 [SvcCall]       Tuple: Empty
+03:31:08 [SvcCall]   Call Named Arguments:
+03:31:08 [SvcCall]     Argument 'machoVersion':
+03:31:08 [SvcCall]         Integer field: 1
+*/
     return NULL;
 }

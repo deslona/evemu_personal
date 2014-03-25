@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Zhur, Allan
 */
 
 
@@ -54,6 +54,13 @@ protected:
     PyCallable_DECL_CALL(GetCharacterDescription)
     PyCallable_DECL_CALL(SetCharacterDescription)
     PyCallable_DECL_CALL(GetNote)
+    PyCallable_DECL_CALL(SetNote)
+    PyCallable_DECL_CALL(AddContact)
+    PyCallable_DECL_CALL(GetLabels)
+    PyCallable_DECL_CALL(CreateLabel)
+
+	//overloaded in order to support bound objects:
+    virtual PyBoundObject *_CreateBoundObject(Client *c, const PyRep *bind_args);
 };
 
 #endif

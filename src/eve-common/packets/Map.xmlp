@@ -1,0 +1,42 @@
+
+<elements>
+<!--
+18:33:22 [SvcCall] Service config: calling GetMapConnections
+18:33:22 [SvcCall]   Call Arguments:
+18:33:22 [SvcCall]       Tuple: 6 elements
+18:33:22 [SvcCall]         [ 0] Integer field: 10000030     *region
+18:33:22 [SvcCall]         [ 1] Boolean field: false
+18:33:22 [SvcCall]         [ 2] Boolean field: true
+18:33:22 [SvcCall]         [ 3] Boolean field: false
+18:33:22 [SvcCall]         [ 4] Integer field: 0
+18:33:22 [SvcCall]         [ 5] Integer field: 1
+18:33:22 [SvcCall]   Call Named Arguments:
+18:33:22 [SvcCall]     Argument 'machoVersion':
+18:33:22 [SvcCall]         Integer field: 1
+
+18:33:25 [SvcCall] Service config: calling GetMapConnections
+18:33:25 [SvcCall]   Call Arguments:
+18:33:25 [SvcCall]       Tuple: 6 elements
+18:33:25 [SvcCall]         [ 0] Integer field: 20000367     *constellation
+18:33:25 [SvcCall]         [ 1] Boolean field: false
+18:33:25 [SvcCall]         [ 2] Boolean field: false
+18:33:25 [SvcCall]         [ 3] Boolean field: true
+18:33:25 [SvcCall]         [ 4] Integer field: 0
+18:33:25 [SvcCall]         [ 5] Integer field: 1
+18:33:25 [SvcCall]   Call Named Arguments:
+18:33:25 [SvcCall]     Argument 'machoVersion':
+18:33:25 [SvcCall]         Integer field: 1
+-->
+
+  <elementDef name="Call_GetMapConnections">
+    <tupleInline>
+      <int name="queryID" />
+      <bool name="bool1" />
+      <bool name="bool2" />
+      <bool name="bool3" />
+      <int name="int2" />
+      <int name="int3" />
+    </tupleInline>
+  </elementDef>
+
+</elements>

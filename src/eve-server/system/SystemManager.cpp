@@ -69,7 +69,11 @@ SystemManager::~SystemManager() {
         SystemEntity *se = cur->second;
         cur++;
 
-        if(!se->IsClient())
+		// If entity is an NPC, save its data to DB for persietence across server restarts:
+		if(se->IsNPC())
+			se->CastToNPC()->SaveNPC();
+
+		if(!se->IsClient())
             delete se;
     }
 
@@ -612,13 +616,6 @@ bool SystemManager::BootSystem() {
     if(!_LoadSystemDynamics())
         return false;
 
-	// Allegedly, the following was reason to comment out the m_spawnManager->Load()
-	// and m_spawnManager->DoInitialSpawn() functions, however, for now, we're leaving them active
-	//    -- Aknor Jaden
-
-	// temporarily commented out until we find out why they
-    // make client angry ...
-
 	//the statics have been loaded, now load up the spawns...
     if(!m_spawnManager->Load()) {
         _log(SERVICE__ERROR, "Unable to load spawns during boot of system %u.", m_systemID);
@@ -629,7 +626,6 @@ bool SystemManager::BootSystem() {
         _log(SERVICE__ERROR, "Unable to do initial spawns during boot of system %u.", m_systemID);
         return false;
     }
-
 
     return true;
 }
@@ -671,7 +667,14 @@ void SystemManager::ProcessDestiny() {
     cur = m_entities.begin();
     end = m_entities.end();
     while(cur != end) {
-        cur->second->ProcessDestiny();
+		// Crash protection since we've seen intermittent crashes as described by error message in the 'else':
+		if(cur->second != NULL)
+			cur->second->ProcessDestiny();
+		else
+		{
+			sLog.Error("SystemManager::Process()", "ERROR! Somehow the SystemEntity * for entityID '%u' was deleted without being removed from the SystemManager's m_entities map!", cur->first);
+			m_entities.erase(cur->first);
+		}
 
         if(m_entityChanged) {
             //somebody changed the entity list, need to start over or bail...
@@ -755,12 +758,17 @@ void SystemManager::RemoveEntity(SystemEntity *who) {
         m_entities.erase(itr);
         m_entityChanged = true;
     } else
-        _log(SERVICE__ERROR, "Entity %u not found is system %u to be deleted.", who->GetID(), GetID());
+        _log(SERVICE__ERROR, "Entity %u not found in system %u to be deleted.", who->GetID(), GetID());
 
     bubbles.Remove(who, false);
 
     // Remove Entity's Item Ref from Solar System Dynamic Inventory:
     RemoveItemFromInventory( this->itemFactory().GetItem( who->GetID() ) );
+}
+
+void SystemManager::DoSpawnForBubble(SystemBubble &thisBubble)
+{
+	m_spawnManager->DoSpawnForBubble(thisBubble);
 }
 
 SystemEntity *SystemManager::get(uint32 entityID) const {
@@ -865,6 +873,9 @@ void SystemManager::MakeSetState(const SystemBubble *bubble, DoDestiny_SetState 
 
     //ss.effectStates
     ss.effectStates = new PyList;
+
+ 	//Destiny::MassSector massSector;
+    //massSector.
 
     //ss.allianceBridges
     ss.allianceBridges = new PyList;

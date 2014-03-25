@@ -41,13 +41,17 @@ public:
     void BubblecastDestiny(std::vector<PyTuple *> &updates, std::vector<PyTuple *> &events, const char *desc) const;
     void BubblecastDestinyUpdate(PyTuple **payload, const char *desc) const;
     void BubblecastDestinyEvent(PyTuple **payload, const char *desc) const;
+    void BubblecastDestinyUpdateExclusive(PyTuple **payload, const char *desc, SystemEntity *ent) const;
 
     bool ProcessWander(std::vector<SystemEntity *> &wanderers);
 
     void Add(SystemEntity *ent, bool notify=true);
     void Remove(SystemEntity *ent, bool notify=true);
+    void AddExclusive(SystemEntity *ent, bool notify=true);
+    void RemoveExclusive(SystemEntity *ent, bool notify=true);
     void clear();
     bool IsEmpty() const { return(m_entities.empty()); }
+    SystemEntity * const GetEntity(uint32 entityID) const;
     void GetEntities(std::set<SystemEntity *> &into) const;
     uint32 GetBubbleID() { return m_bubbleID; };
 
@@ -59,7 +63,9 @@ protected:
     void _SendAddBalls(SystemEntity *to_who);
     void _SendRemoveBalls(SystemEntity *to_who);
     void _BubblecastAddBall(SystemEntity *about_who);
+    void _BubblecastAddBallExclusive(SystemEntity *about_who);
     void _BubblecastRemoveBall(SystemEntity *about_who);
+    void _BubblecastRemoveBallExclusive(SystemEntity *about_who);
 
     const double m_radius2;    //radius squared.
     const double m_position_check_radius_sqrd;  // (radius + BUBBLE_HYSTERESIS_METERS) squared
@@ -69,9 +75,4 @@ protected:
     std::set<SystemEntity *> m_dynamicEntities;    //entities which may move. we do not own these.
 };
 
-
-
-
 #endif
-
-

@@ -257,7 +257,7 @@ bool TCPConnection::Process()
             // Connect
             if( !Connect( GetrIP(), GetrPort(), errbuf ) )
             {
-                sLog.Error( "TCPConnection", "%s: %s.", GetAddress().c_str(), errbuf );
+                sLog.Error( "TCPConnection1", "%s: %s.", GetAddress().c_str(), errbuf );
 
                 DoDisconnect();
                 return false;
@@ -272,7 +272,7 @@ bool TCPConnection::Process()
             // Receive data
             if( !RecvData( errbuf ) )
             {
-                sLog.Error( "TCPConnection", "%s: %s.", GetAddress().c_str(), errbuf );
+                //sLog.Error( "TCPConnection2", "%s: %s.", GetAddress().c_str(), errbuf );
 
                 DoDisconnect();
                 return false;
@@ -281,7 +281,7 @@ bool TCPConnection::Process()
             // Send data
             if( !SendData( errbuf ) )
             {
-                sLog.Error( "TCPConnection", "%s: %s.", GetAddress().c_str(), errbuf );
+                sLog.Error( "TCPConnection3", "%s: %s.", GetAddress().c_str(), errbuf );
 
                 DoDisconnect();
                 return false;
@@ -296,7 +296,7 @@ bool TCPConnection::Process()
             // Send anything that may be pending
             if( !SendData( errbuf ) )
             {
-                sLog.Error( "TCPConnection", "%s: %s.", GetAddress().c_str(), errbuf );
+                sLog.Error( "TCPConnection4", "%s: %s.", GetAddress().c_str(), errbuf );
 
                 DoDisconnect();
                 return false;

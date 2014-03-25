@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:     Zhur, Captnoord
+    Author:     Zhur, Captnoord, Allan
 */
 
 #include "eve-server.h"
@@ -52,6 +52,7 @@ InventoryBound::InventoryBound( PyServiceMgr *mgr, Inventory &inventory, EVEItem
     PyCallable_REG_CALL(InventoryBound, DestroyFitting)
     PyCallable_REG_CALL(InventoryBound, SetPassword)
     PyCallable_REG_CALL(InventoryBound, CreateBookmarkVouchers)
+    PyCallable_REG_CALL(InventoryBound, Voucher)
 }
 
 InventoryBound::~InventoryBound()
@@ -156,7 +157,10 @@ PyResult InventoryBound::Handle_Add(PyCallArgs &call) {
         if( call.byname.find("flag") == call.byname.end() )
         {
             sLog.Debug( "InventoryBound::Handle_Add()", "Cannot find key 'flag' from call.byname dictionary." );
-            flag = flagCargoHold;    // hard-code this since ship cargo to cargo container move flag since key 'flag' in client.byname does not exist
+            if( IsStation(call.client->GetLocationID()) )
+               flag = flagHangar;
+           else
+               flag = flagCargoHold;    // hard-code this since ship cargo to cargo container move flag since key 'flag' in client.byname does not exist
         }
         else
             flag = call.byname.find("flag")->second->AsInt()->value();
@@ -382,9 +386,38 @@ PyResult InventoryBound::Handle_SetPassword(PyCallArgs &call) {
 //01:10:27 L InventoryBound::Handle_CreateBookmarkVouchers(): size= 3, 0 = List, 1 = Integer, 2 = Boolean
 PyResult InventoryBound::Handle_CreateBookmarkVouchers(PyCallArgs &call)        // size, bmID, flag, ismove
 {
+  /**
+00:39:12 [SvcCall]   Call Arguments:
+00:39:12 [SvcCall]       Tuple: 3 elements
+00:39:12 [SvcCall]         [ 0] List: 1 elements
+00:39:12 [SvcCall]         [ 0]   [ 0] Integer field: 10    -this is bookmarkID(s)
+00:39:12 [SvcCall]         [ 1] Integer field: 4            -flag  (?)
+00:39:12 [SvcCall]         [ 2] Boolean field: true         -IsMove
+00:39:12 [SvcCall]   Call Named Arguments:
+00:39:12 [SvcCall]     Argument 'machoVersion':
+00:39:12 [SvcCall]         Integer field: 1
+00:39:13 L InventoryBound::Handle_CreateBookmarkVouchers(): 1 Vouchers created
+
+00:43:37 [SvcCall]   Call Arguments:
+00:43:37 [SvcCall]       Tuple: 3 elements
+00:43:37 [SvcCall]         [ 0] List: 5 elements
+00:43:37 [SvcCall]         [ 0]   [ 0] Integer field: 4
+00:43:37 [SvcCall]         [ 0]   [ 1] Integer field: 6
+00:43:37 [SvcCall]         [ 0]   [ 2] Integer field: 7
+00:43:37 [SvcCall]         [ 0]   [ 3] Integer field: 11
+00:43:37 [SvcCall]         [ 0]   [ 4] Integer field: 2
+00:43:37 [SvcCall]         [ 1] Integer field: 4
+00:43:37 [SvcCall]         [ 2] Boolean field: true
+00:43:37 [SvcCall]   Call Named Arguments:
+00:43:37 [SvcCall]     Argument 'machoVersion':
+00:43:37 [SvcCall]         Integer field: 1
+00:43:37 L InventoryBound::Handle_CreateBookmarkVouchers(): 5 Vouchers created
+
+*/
       PyList *list = call.tuple->GetItem( 0 )->AsList();
       uint8 i;
       uint32 bookmarkID;
+  call.Dump(SERVICE__CALLS);
 
       if( list->size() > 0 )
       {
@@ -395,6 +428,8 @@ PyResult InventoryBound::Handle_CreateBookmarkVouchers(PyCallArgs &call)        
               ItemData itemBookmarkVoucher( 51, call.client->GetCharacterID(), call.client->GetLocationID(), flagHangar, 1 );
               InventoryItemRef i = m_manager->item_factory.SpawnItem( itemBookmarkVoucher );
               //i.name = "Bookmark";
+              //Inventory::AddItem( item );  **check this?
+              //use column `customInfo` to store original bookmarkID for later use.
           }
           sLog.Log( "InventoryBound::Handle_CreateBookmarkVouchers()", "%u Vouchers created", list->size() );
           //  when bm is copied to another players places tab, copy data from db using bookmarkID
@@ -403,6 +438,11 @@ PyResult InventoryBound::Handle_CreateBookmarkVouchers(PyCallArgs &call)        
           return NULL;
       }
 
+    return NULL;
+}
+PyResult InventoryBound::Handle_Voucher(PyCallArgs &call){
+
+  call.Dump(SERVICE__CALLS);
     return NULL;
 }
 
@@ -441,7 +481,7 @@ PyRep *InventoryBound::_ExecAdd(Client *c, const std::vector<int32> &items, uint
                 // window and NOT onto a specific slot.  'flagAutoFit' means "put this module into which ever slot makes sense")
                 if( (flag == flagAutoFit) )
                 {
-					sLog.Error( "InventoryBound::_ExecAdd()", "ERROR: handling adding modules where flag = flagAutoFit not yet supported!!!" );
+					//sLog.Error( "InventoryBound::_ExecAdd()", "ERROR: handling adding modules where flag = flagAutoFit not yet supported!!!" );
 					EVEItemFlags newFlag = (EVEItemFlags)(c->GetShip()->FindAvailableModuleSlot( newItem ));
 					if( newFlag == flagIllegal )
 					{
@@ -458,22 +498,41 @@ PyRep *InventoryBound::_ExecAdd(Client *c, const std::vector<int32> &items, uint
                 {
                     c->GetShip()->AddItem( flag, newItem );
                 }
-                else
+                else if( flag == flagCargoHold || flag == flagDroneBay )
                 {
-                    mInventory.ValidateAddItem( flag, newItem );
+                    c->GetShip()->ValidateAddItem( flag, newItem );
                 }
+                else if( flag == flagCargoHold
+                        || flag == flagDroneBay
+                        || flag == flagSpecializedFuelBay
+                        || flag == flagSpecializedOreHold
+                        || flag == flagSpecializedGasHold
+                        || flag == flagSpecializedMineralHold
+                        || flag == flagSpecializedSalvageHold
+                        || flag == flagSpecializedShipHold
+                        || flag == flagSpecializedSmallShipHold
+                        || flag == flagSpecializedLargeShipHold
+                        || flag == flagSpecializedIndustrialShipHold
+                        || flag == flagSpecializedAmmoHold )
+               {
+                   c->GetShip()->ValidateAddItem( flag, sourceItem );
+               }
+               else
+               {
+                   mInventory.ValidateAddItem( flag, newItem );
+               }
 
-                if(old_flag >= flagLowSlot0 && old_flag <= flagHiSlot7)
-                {
+               if(old_flag >= flagLowSlot0 && old_flag <= flagHiSlot7)
+               {
 
-                    c->GetShip()->RemoveItem( newItem, mInventory.inventoryID(), flag );
+                   c->GetShip()->RemoveItem( newItem, mInventory.inventoryID(), flag );
 
-                    //Create new item id return result
-                    Call_SingleIntegerArg result;
-                    result.arg = newItem->itemID();
+                   //Create new item id return result
+                   Call_SingleIntegerArg result;
+                   result.arg = newItem->itemID();
 
-                    //Return new item result
-                    return result.Encode();
+                   //Return new item result
+                   return result.Encode();
 
                 } else if(old_flag >= flagRigSlot0 && old_flag <= flagRigSlot7) {
 
@@ -501,7 +560,7 @@ PyRep *InventoryBound::_ExecAdd(Client *c, const std::vector<int32> &items, uint
             // window and NOT onto a specific slot.  'flagAutoFit' means "put this module into which ever slot makes sense")
             if( (flag == flagAutoFit) )
             {
-                sLog.Error( "InventoryBound::_ExecAdd()", "ERROR: handling adding modules where flag = flagAutoFit not yet supported!!!" );
+                //sLog.Error( "InventoryBound::_ExecAdd()", "ERROR: handling adding modules where flag = flagAutoFit not yet supported!!!" );
                 EVEItemFlags newFlag = (EVEItemFlags)(c->GetShip()->FindAvailableModuleSlot( sourceItem ));
                 if( newFlag == flagIllegal )
 				{

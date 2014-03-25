@@ -42,6 +42,7 @@ protected:
 
     StationDB m_db;
 
+    PyCallable_DECL_CALL(GetPriceForClone)
 //    PyCallable_DECL_CALL()
 
     //overloaded in order to support bound objects:

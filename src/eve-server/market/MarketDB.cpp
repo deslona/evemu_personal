@@ -335,7 +335,7 @@ bool MarketDB::BuildOldPriceHistory() {
         codelog(MARKET__ERROR, "Error in query: %s", err.c_str());
         return false;
     }
-
+/*
     //now remove the transactions which have been aged out?
     if(!sDatabase.RunQuery(err,
         "DELETE FROM"
@@ -348,7 +348,7 @@ bool MarketDB::BuildOldPriceHistory() {
         codelog(MARKET__ERROR, "Error in query: %s", err.c_str());
         return false;
     }
-
+*/
     return true;
 }
 PyObject *MarketDB::GetCorporationBills(uint32 corpID, bool payable)
@@ -435,7 +435,7 @@ static void _PropigateItems(std::map< int, std::set<uint32> > &types, std::map<i
 
 //this is a crap load of work... there HAS to be a better way to do this..
 PyRep *MarketDB::GetMarketGroups() {
-    
+
     DBQueryResult res;
     DBResultRow row;
 
@@ -448,14 +448,18 @@ PyRep *MarketDB::GetMarketGroups() {
     }
 
 	DBRowDescriptor *header = new DBRowDescriptor(res);
-    
+
+	for( int i=0; i<header->ColumnCount(); i++) {
+        sLog.Debug("MarketDB::GetMarketGroups", "  column %s type %d",
+                header->GetColumnName(i), header->GetColumnType(i));
+    }
+
     CFilterRowSet *filterRowset = new CFilterRowSet(&header);
-    
+
     PyDict *keywords = filterRowset->GetKeywords();
-	keywords->SetItemString("giveMeSets", new PyBool(false)); //+
-	keywords->SetItemString("allowDuplicateCompoundKeys", new PyBool(false)); //+
-	keywords->SetItemString("indexName", new PyNone); //+
-	keywords->SetItemString("columnName", new PyString("parentGroupID")); //+
+	keywords->SetItemString("allowDuplicateCompoundKeys", new PyBool(false));
+	keywords->SetItemString("indexName", new PyNone);
+	keywords->SetItemString("columnName", new PyString("parentGroupID"));
     std::map< int, PyRep* > tt;
 
     while( res.GetRow(row) )
@@ -471,18 +475,18 @@ PyRep *MarketDB::GetMarketGroups() {
             pid = tt[parentGroupID];
             rowset = filterRowset->GetRowset(pid);
         }
-        
+
         PyPackedRow* pyrow = rowset->NewRow();
 
         pyrow->SetField((uint32)0, pid); //prentGroupID
         pyrow->SetField(1, new PyInt(row.GetUInt( 1 ) ) ); //marketGroupID
         pyrow->SetField(2, new PyString(row.GetText( 2 ) ) ); //marketGroupName
         pyrow->SetField(3, new PyString(row.GetText( 3 ) ) ); //description
-        pyrow->SetField(4, row.IsNull( 4 ) ? 
+        pyrow->SetField(4, row.IsNull( 4 ) ?
             (PyRep*)(new PyNone()) : new PyInt(row.GetUInt( 4 ))  ); //graphicID
         pyrow->SetField(5, new PyBool(row.GetBool( 5 ) ) ); //hasTypes
-        pyrow->SetField(6, row.IsNull( 6 ) ? 
-            (PyRep*)(new PyNone()) : new PyInt(row.GetUInt( 6 ))  ); // iconID 
+        pyrow->SetField(6, row.IsNull( 6 ) ?
+            (PyRep*)(new PyNone()) : new PyInt(row.GetUInt( 6 ))  ); // iconID
         pyrow->SetField(7, new PyInt( row.GetUInt(7) )  ); //dataID
         pyrow->SetField(8, new PyInt( row.GetUInt(8) )  ); //marketGroupNameID
         pyrow->SetField(9, new PyInt( row.GetUInt(9) )  ); //descriptionID

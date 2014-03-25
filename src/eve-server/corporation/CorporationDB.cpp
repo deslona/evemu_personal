@@ -281,7 +281,7 @@ PyObject *CorporationDB::ListNPCDivisions() {
         return NULL;
     }
 
-    return DBResultToRowset(res);
+    return (DBResultToRowset(res));
 }
 
 PyObject *CorporationDB::GetEmploymentRecord(uint32 charID) {

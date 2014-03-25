@@ -81,10 +81,14 @@ Client::~Client() {
 
         // Save character info including attributes, save current ship's attributes, current ship's fitted mModulesMgr,
         // and save all skill attributes to the Database:
-        GetShip()->SaveShip();                              // Save Ship's and Modules' attributes and info to DB
-        GetChar()->SaveCharacter();                         // Save Character info to DB
-        GetChar()->SaveSkillQueue();                        // Save Skill Queue to DB
-        GetChar()->UpdateSkillQueueEndTime();               // Save Queue End Time to DB
+        if( GetShip() != NULL )
+            GetShip()->SaveShip();                              // Save Ship's and Modules' attributes and info to DB
+        if( GetChar() != NULL )
+        {
+            GetChar()->SaveFullCharacter();                     // Save Character info to DB
+            GetChar()->SaveSkillQueue();                        // Save Skill Queue to DB
+            GetChar()->UpdateSkillQueueEndTime();               // Save Queue End Time to DB
+        }
 
         // remove ourselves from system
         if(m_system != NULL)
@@ -163,8 +167,9 @@ void Client::Process() {
     // Check Character Save Timer Expiry:
     if( GetChar()->CheckSaveTimer() )
     {
+     // Should this perhaps be invoking GetChar()->SaveFullCharacter() or is saving basic character info enough here?
         GetChar()->SaveCharacter();
-        GetShip()->SaveShip();
+		GetShip()->SaveShip();
     }
 
     // Check Module Manager Save Timer Expiry:
@@ -359,6 +364,8 @@ bool Client::EnterSystem(bool login) {
 
     if(m_system != NULL && m_system->GetID() != GetSystemID()) {
         //we have different m_system
+        GetChar()->chkDynamicSystemID(m_system->GetID());
+        GetChar()->AddPilotToDynamicData(m_system->GetID(), false);
         m_system->RemoveClient(this);
         m_system = NULL;
 
@@ -378,6 +385,8 @@ bool Client::EnterSystem(bool login) {
         m_system->AddClient(this);
     }
 
+    GetChar()->chkDynamicSystemID(GetSystemID());
+    GetChar()->AddPilotToDynamicData(GetSystemID(), true);
     return true;
 }
 
@@ -388,7 +397,9 @@ bool Client::UpdateLocation() {
         m_destiny = NULL;
 
         //remove ourselves from any bubble
-        m_system->bubbles.Remove(this, false);
+        //m_system->bubbles.Remove(this, false);
+        m_system->RemoveClient(this);
+        m_system = NULL;
 
         OnCharNowInStation();
     } else if(IsSolarSystem(GetLocationID())) {
@@ -519,7 +530,7 @@ void Client::BoardShip(ShipRef new_ship) {
         return;
     }
 
-    if(m_system != NULL)
+    if((m_system != NULL) && (IsInSpace()))
         m_system->RemoveClient(this);
 
     _SetSelf( new_ship );
@@ -534,7 +545,7 @@ void Client::BoardShip(ShipRef new_ship) {
 
     GetShip()->UpdateModules();
 
-    if(m_system != NULL)
+    if((m_system != NULL) && (IsInSpace()))
         m_system->AddClient(this);
 
     if(m_destiny != NULL)
@@ -648,8 +659,9 @@ void Client::_UpdateSession2( uint32 characterID )
 
         mSession.SetInt( "stationid", stationID );
         mSession.SetInt( "stationid2", stationID );
-        mSession.SetInt( "locationid", locationID );
+        mSession.SetInt( "locationid", stationID );        // used to be locationID, I don't know if this change will screw up using medical clones and such -- Aknor Jaden
     }
+    mSession.SetInt( "cloneLocationID", locationID );   // This is a CUSTOM key-value-pair that is NOT defined by CCP, so the question is, will this mess up the client?
     mSession.SetInt( "solarsystemid2", solarSystemID );
     mSession.SetInt( "constellationid", constellationID );
     mSession.SetInt( "regionid", regionID );
@@ -1008,7 +1020,7 @@ void Client::WarpTo(const GPoint &to, double distance) {
     }
 
     m_destiny->WarpTo(to, distance);
-    //TODO: OnModuleAttributeChange with attribute 18 for capacitory charge
+    //TODO: OnModuleAttributeChange with attribute 18 for capacitor decharge
 }
 
 void Client::StargateJump(uint32 fromGate, uint32 toGate) {
@@ -1042,8 +1054,27 @@ void Client::StargateJump(uint32 fromGate, uint32 toGate) {
     //delay the move so they can see the JumpOut animation
     _postMove(msJump, 5000);
 
-    // used for showing Visited Systems in Map(F10)  -allan 30Jan14
-    GetChar()->VisitSystem(GetCharacterID(), solarSystemID);
+    // add jump and pilot to mapDynamicData for showing in StarMap (F10)    -allan 06Mar14
+    // this is the code for removing pilot from previous system
+    uint32 fromSystem;
+    if(!m_services.serviceDB().GetStaticItemInfo(
+        fromGate,
+        &fromSystem, NULL, NULL, NULL  )) {
+        sLog.Error("Client","%s: Failed to query information for stargate %u", GetName(), fromGate);
+        return;
+    }
+    GetChar()->chkDynamicSystemID(fromSystem);
+    GetChar()->AddJumpToDynamicData(fromSystem);
+    GetChar()->AddPilotToDynamicData(fromSystem, false);
+
+    // these are the toSystem...need to get fromSystem and update it also.
+    GetChar()->chkDynamicSystemID(solarSystemID);
+    GetChar()->AddJumpToDynamicData(solarSystemID);
+    GetChar()->AddPilotToDynamicData(solarSystemID, true);
+
+    // used for showing Visited Systems in StarMap(F10)  -allan 30Jan14
+    GetChar()->VisitSystem(solarSystemID);
+
 }
 
 void Client::SetDockingPoint(GPoint &dockPoint)

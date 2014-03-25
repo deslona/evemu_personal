@@ -1,6 +1,6 @@
 # Introduction
 EVEmu modified to support the latest Crucible client v360229
-***   tested under SLES11.3  ***
+***   tested under SLES11.3  GCC4.7 GLIBC2.12***
 ***  no support for winblows ***
 
 # Disclaimer
@@ -15,15 +15,21 @@ do with the source code downloaded from this project.
 # Status
 - Character selection and creation is working
 - Character avatar creation is working
-- Walking in station is now possible
+- Walking in station is now possible, yet male characters use female animation skeletons.
 - Items and Ships display in station
 - Undocking and Docking is working
-- Skill Training is working
+- Skill Training is working (including pause/resume)
 - Injecting Skills is working
 - BookMarks are mostly working
-- Targetting is working
 - Celestial Information from OverView is working
-- Planets and Services Info from Map(F10) is working
+- Planets and Services Info from StarMap(F10) is working
+- Some dynamic map data working from StarMap(F10) [visited systems, pilots docked, pilots in space]
+- Insurance mostly working
+- Refining/Reprocessing partially works
+- Standings used for refining/reprocessing
+- Skills are taken into account for refining/reprocessing
+- Some Manufacturing working
+
 
 
 # Legal

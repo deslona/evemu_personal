@@ -51,6 +51,7 @@ MarketProxyService::MarketProxyService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(MarketProxyService, CancelCharOrder)
     PyCallable_REG_CALL(MarketProxyService, CharGetNewTransactions)
     PyCallable_REG_CALL(MarketProxyService, StartupCheck)
+    PyCallable_REG_CALL(MarketProxyService, GetCorporationOrders)
 }
 
 MarketProxyService::~MarketProxyService() {
@@ -188,7 +189,7 @@ PyResult MarketProxyService::Handle_GetOrders(PyCallArgs &call) {
 
 #    pragma message("TODO: need to check if cache is refreshed when marker orders change.")
 //    m_manager->cache_service->InvalidateCache(method_id);
-    
+
     //check to see if this method is in the cache already.
     if(!m_manager->cache_service->IsCacheLoaded(method_id))
     {
@@ -223,6 +224,7 @@ PyResult MarketProxyService::Handle_GetOrders(PyCallArgs &call) {
 }
 
 PyResult MarketProxyService::Handle_GetCharOrders(PyCallArgs &call) {
+    //m_db.BuildOldPriceHistory();        // function already coded, not called.   added to few places   -allan
     //no arguments
     PyRep *result = NULL;
 
@@ -236,6 +238,7 @@ PyResult MarketProxyService::Handle_GetCharOrders(PyCallArgs &call) {
 }
 
 PyResult MarketProxyService::Handle_GetOldPriceHistory(PyCallArgs &call) {
+    m_db.BuildOldPriceHistory();        // function already coded, not called.   added to few places   -allan
     Call_SingleIntegerArg args; //itemID
     if(!args.Decode(&call.tuple)) {
         codelog(MARKET__ERROR, "Invalid arguments");
@@ -266,6 +269,7 @@ PyResult MarketProxyService::Handle_GetOldPriceHistory(PyCallArgs &call) {
 }
 
 PyResult MarketProxyService::Handle_GetNewPriceHistory(PyCallArgs &call) {
+    m_db.BuildOldPriceHistory();        // function already coded, not called.   added to few places   -allan
     Call_SingleIntegerArg args; //itemID
     if(!args.Decode(&call.tuple)) {
         codelog(MARKET__ERROR, "Invalid arguments");
@@ -296,6 +300,7 @@ PyResult MarketProxyService::Handle_GetNewPriceHistory(PyCallArgs &call) {
 }
 
 PyResult MarketProxyService::Handle_PlaceCharOrder(PyCallArgs &call) {
+    //m_db.BuildOldPriceHistory();        // function already coded, not called.   added to few places   -allan
     Call_PlaceCharOrder args;
     if(!args.Decode(&call.tuple)) {
         codelog(MARKET__ERROR, "Invalid arguments");
@@ -428,7 +433,7 @@ PyResult MarketProxyService::Handle_PlaceCharOrder(PyCallArgs &call) {
         _log(MARKET__TRACE, "%s: Unable to find an immediate order to satisfy (type %u, station %u, price %f, qty %u, range %u)", call.client->GetName(), args.stationID, args.typeID, args.price, args.quantity, args.orderRange);
 
         if(args.duration == 0) {
-            _log(MARKET__ERROR, "%s: Failed to satisfy order for %d of %d at %f ISK.", call.client->GetName(), args.typeID, args.quantity, args.price);
+            _log(MARKET__ERROR, "%s: Failed to satisfy order for %d of %d at %f ISK.", call.client->GetName(), args.quantity, args.typeID,  args.price);
             return NULL;
         }
 
@@ -473,6 +478,7 @@ PyResult MarketProxyService::Handle_PlaceCharOrder(PyCallArgs &call) {
 }
 
 PyResult MarketProxyService::Handle_ModifyCharOrder(PyCallArgs &call) {
+    //m_db.BuildOldPriceHistory();        // function already coded, not called.   added to few places   -allan
     Call_ModifyCharOrder args;
     if(!args.Decode(&call.tuple))
     {
@@ -601,8 +607,23 @@ PyResult MarketProxyService::Handle_CharGetNewTransactions(PyCallArgs &call)
 
 PyResult MarketProxyService::Handle_StartupCheck(PyCallArgs &call)
 {
-    //Don't have a clue what this is supposed to do.  If you figure it out, feel free to fill it in :)
+  sLog.Log( "MarketProxyService::Handle_StartupCheck()", "size=%u ", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
 
+    return NULL;
+}
+
+
+PyResult MarketProxyService::Handle_GetCorporationOrders(PyCallArgs &call)
+{
+  /**
+00:11:38 L MarketProxyService::Handle_GetCorporationOrders(): size=0
+00:11:38 [SvcCall]   Call Arguments:
+00:11:38 [SvcCall]       Tuple: Empty
+00:11:38 [SvcCall]   Call Named Arguments:
+00:11:38 [SvcCall]     Argument 'machoVersion':
+00:11:38 [SvcCall]         Integer field: 1
+  */
     return NULL;
 }
 

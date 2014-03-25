@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Zhur, Allan
 */
 
 #include "eve-server.h"
@@ -39,6 +39,7 @@ NetService::NetService(PyServiceMgr *mgr)
 
     PyCallable_REG_CALL(NetService, GetInitVals)
     PyCallable_REG_CALL(NetService, GetTime)
+    PyCallable_REG_CALL(NetService, GetClusterSessionStatistics)
 }
 
 NetService::~NetService() {
@@ -153,7 +154,7 @@ PyResult NetService::Handle_GetInitVals(PyCallArgs &call) {
         dict->SetItemString("warRegistry", new PyNone());
         dict->SetItemString("watchdog", new PyNone());
         dict->SetItemString("zsystem", new PyNone());
-        
+
         //register it
         m_manager->cache_service->GiveCache(str, (PyRep **)&dict);
     }
@@ -171,4 +172,16 @@ PyResult NetService::Handle_GetInitVals(PyCallArgs &call) {
 
 PyResult NetService::Handle_GetTime(PyCallArgs &call) {
     return(new PyLong(Win32TimeNow()));
+}
+
+//21:26:54 L NetService::Handle_GetClusterSessionStatistics(): size= 0
+PyResult NetService::Handle_GetClusterSessionStatistics(PyCallArgs &call) {
+     /**
+     ColorStarsByNumPilots       --TypeError: 'NoneType' object is not iterable
+
+     this really should be a dynamic system call to systementity service or whatever it is to get systems with clients
+     */
+    DBQueryResult res;
+      sDatabase.RunQuery(res, "SELECT solarSystemID, numPilots AS value1 FROM mapDynamicData" );
+      return DBResultToRowset(res);
 }

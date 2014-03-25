@@ -40,6 +40,8 @@ protected:
 
     PyCallable_DECL_CALL(GetInitVals)
     PyCallable_DECL_CALL(GetTime)
+    PyCallable_DECL_CALL(GetClusterSessionStatistics)
+
 };
 
 

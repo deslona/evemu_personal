@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Zhur, Allan
 */
 
 #include "eve-server.h"
@@ -197,22 +197,22 @@ PyRep *CharacterDB::GetCharSelectInfo(uint32 characterID) {
         "SELECT " // fixed DB query -allan 01/09/14
         "  entity.itemName AS shortName, "
         "  bloodlineTypes.bloodlineID, "
-        "  character_.gender, "
-        "  character_.bounty, "
-        "  character_.corporationID, "
+        "  ch.gender, "
+        "  ch.bounty, "
+        "  ch.corporationID, "
         "  corporation.allianceID, "
-        "  character_.title, "
-        "  character_.startDateTime, "
-        "  character_.createDateTime, "
-        "  character_.securityRating, "
-        "  character_.balance, "
-        "  character_.aurBalance, "
-        "  character_.stationID, "
-        "  character_.solarSystemID, "
-        "  character_.constellationID, "
-        "  character_.regionID, "
-        "  character_.petitionMessage, "
-        "  character_.logonMinutes, "
+        "  ch.title, "
+        "  ch.startDateTime, "
+        "  ch.createDateTime, "
+        "  ch.securityRating, "
+        "  ch.balance, "
+        "  ch.aurBalance, "
+        "  ch.stationID, "
+        "  ch.solarSystemID, "
+        "  ch.constellationID, "
+        "  ch.regionID, "
+        "  ch.petitionMessage, "
+        "  ch.logonMinutes, "
         "  corporation.tickerName, "
         "  %u AS worldSpaceID, "
         "  '%s' AS shipName, "
@@ -225,13 +225,13 @@ PyRep *CharacterDB::GetCharSelectInfo(uint32 characterID) {
         "  0 AS paperDollState, "
         "  0 AS newPaperdollState,"
         "  0 AS oldPaperdollState, "
-        "  character_.skillPoints, "
-        "  character_.skillQueueEndTime, "
+        "  ch.skillPoints, "
+        "  ch.skillQueueEndTime, "
         "  %" PRIu64 " AS allianceMemberStartDate, "
         "  %" PRIu64 " AS startDate, "
         "  0 AS locationSecurity "
-        " FROM character_ "
-        "    LEFT JOIN entity ON entity.itemID = character_.characterID "
+        " FROM character_ AS ch"
+        "    LEFT JOIN entity ON entity.itemID = ch.characterID "
         "    LEFT JOIN corporation USING (corporationID) "
         "    LEFT JOIN bloodlineTypes USING (typeID) "
         " WHERE characterID=%u", worldSpaceID, shipName.c_str(), shipTypeID, unreadMailCount, upcomingEventCount, unprocessedNotifications, daysLeft, userType, allianceMemberStartDate, startDate, characterID))
@@ -249,21 +249,21 @@ PyObject *CharacterDB::GetCharPublicInfo(uint32 characterID) {
         "SELECT "       // fixed DB Query   -allan 01/11/14
         "  entity.typeID,"
         "  entity.itemName AS characterName,"
-        "  character_.corporationID,"
+        "  ch.corporationID,"
         "  chrBloodlines.raceID,"
         "  bloodlineTypes.bloodlineID,"
-        "  character_.ancestryID,"
-        "  character_.careerID,"
-        "  character_.schoolID,"
-        "  character_.careerSpecialityID,"
-        "  character_.age,"
-        "  character_.createDateTime,"
-        "  character_.gender,"
-        "  character_.characterID,"
-        "  character_.description,"
-        "  character_.corporationDateTime"
-        " FROM character_ "
-        "    LEFT JOIN entity ON entity.itemID = character_.characterID "
+        "  ch.ancestryID,"
+        "  ch.careerID,"
+        "  ch.schoolID,"
+        "  ch.careerSpecialityID,"
+        "  ch.age,"
+        "  ch.createDateTime,"
+        "  ch.gender,"
+        "  ch.characterID,"
+        "  ch.description,"
+        "  ch.corporationDateTime"
+        " FROM character_ AS ch"
+        "    LEFT JOIN entity ON entity.itemID = ch.characterID "
         "    LEFT JOIN bloodlineTypes USING (typeID)"
         "    LEFT JOIN chrBloodlines USING (bloodlineID)"
         " WHERE characterID=%u", characterID))
@@ -289,22 +289,22 @@ void CharacterDB::GetCharacterData(uint32 characterID, std::map<std::string, uin
 
     if(!sDatabase.RunQuery(res,
         "SELECT "       // fixed DB Query   -allan 01/11/14
-        "  character_.corporationID, "
-        "  character_.stationID, "
-        "  character_.solarSystemID, "
-        "  character_.constellationID, "
-        "  character_.regionID, "
+        "  ch.corporationID, "
+        "  ch.stationID, "
+        "  ch.solarSystemID, "
+        "  ch.constellationID, "
+        "  ch.regionID, "
         "  corporation.stationID, "
-        "  character_.corpRole, "
-        "  character_.rolesAtAll, "
-        "  character_.rolesAtBase, "
-        "  character_.rolesAtHQ, "
-        "  character_.rolesAtOther, "
-        "  character_.shipID, "
+        "  ch.corpRole, "
+        "  ch.rolesAtAll, "
+        "  ch.rolesAtBase, "
+        "  ch.rolesAtHQ, "
+        "  ch.rolesAtOther, "
+        "  ch.shipID, "
         "  entity.locationID "
-        " FROM character_ "
+        " FROM character_ AS ch"
         "    LEFT JOIN corporation USING (corporationID) "
-        "    LEFT JOIN entity ON entity.itemID = character_.characterID "
+        "    LEFT JOIN entity ON entity.itemID = ch.characterID "
         " WHERE characterID = %u",
         characterID))
     {
@@ -341,12 +341,12 @@ PyObject *CharacterDB::GetCharPublicInfo3(uint32 characterID) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT "
-        "  character_.bounty,"
-        "  character_.title,"
-        "  character_.startDateTime,"
-        "  character_.description,"
-        "  character_.corporationID"
-        " FROM character_"
+        "  ch.bounty,"
+        "  ch.title,"
+        "  ch.startDateTime,"
+        "  ch.description,"
+        "  ch.corporationID"
+        " FROM character_ AS ch"
         " WHERE characterID=%u", characterID))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
@@ -703,7 +703,7 @@ void CharacterDB::SetAvatarModifiers(uint32 charID, PyRep* modifierLocationID,  
 		charID,
 		modifierLocationID->AsInt()->value(),
 		paperdollResourceID->AsInt()->value(),
-		paperdollResourceVariation->IsInt() ? paperdollResourceVariation->AsInt()->value() : NULL ))
+		paperdollResourceVariation->IsInt() ? paperdollResourceVariation->AsInt()->value() : 0 ))
 	{
 		codelog(SERVICE__ERROR, "Error in query: %s", err.c_str());
 	}
@@ -718,9 +718,9 @@ void CharacterDB::SetAvatarSculpts(uint32 charID, PyRep* sculptLocationID, PyRep
 		" VALUES (%u, %u, %f, %f, %f)",
 		charID,
 		sculptLocationID->AsInt()->value(),
-		weightUpDown->IsFloat() ? weightUpDown->AsFloat()->value() : NULL,
-		weightLeftRight->IsFloat() ? weightLeftRight->AsFloat()->value() : NULL,
-		weightForwardBack->IsFloat() ? weightForwardBack->AsFloat()->value() : NULL))
+		weightUpDown->IsFloat() ? weightUpDown->AsFloat()->value() : 0.0,
+		weightLeftRight->IsFloat() ? weightLeftRight->AsFloat()->value() : 0.0,
+		weightForwardBack->IsFloat() ? weightForwardBack->AsFloat()->value() : 0.0))
 	{
 		codelog(SERVICE__ERROR, "Error in query: %s", err.c_str());
 	}
@@ -833,7 +833,7 @@ bool CharacterDB::SetNote(uint32 ownerID, uint32 itemID, const char *str) {
         if (!sDatabase.RunQuery(err,
             "DELETE FROM `chrNotes` "
             " WHERE itemID = %u AND ownerID = %u LIMIT 1",
-            ownerID, itemID)
+             itemID, ownerID)
             )
         {
             codelog(CLIENT__ERROR, "Error on query: %s", err.c_str());
@@ -845,7 +845,7 @@ bool CharacterDB::SetNote(uint32 ownerID, uint32 itemID, const char *str) {
         sDatabase.DoEscapeString(escaped, str);
 
         if (!sDatabase.RunQuery(err,
-            "REPLACE INTO `chrNotes` (itemID, ownerID, note)"
+            "REPLACE INTO `chrNotes` ( ownerID, itemID, note)"
             " VALUES (%u, %u, '%s')",
             ownerID, itemID, escaped.c_str())
             )
@@ -1009,4 +1009,21 @@ bool CharacterDB::del_name_validation_set( uint32 characterID )
         printf("CharacterDB::del_name_validation_set: unable to remove: %s as its not in the set", name);
         return false;
     }
+}
+
+double CharacterDB::GetCharRawStandingFromNPC(uint32 characterID, uint32 itemID)
+{
+    DBQueryResult res;
+
+    if(!sDatabase.RunQuery(res, "SELECT standing FROM chrNPCStandings WHERE characterID=%u AND fromID=%u", characterID, itemID ) )
+    {
+        _log(SERVICE__ERROR, "Error in GetCharNPCStandings query: %s", res.error.c_str());
+        return 0;
+    }
+
+    if(res.GetRowCount() == 0)
+        return 0;
+    DBResultRow row;
+    res.GetRow(row);
+    return row.GetDouble(0);
 }

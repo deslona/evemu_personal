@@ -52,7 +52,9 @@ public:
     PyObject *GetOwnerNoteLabels(uint32 charID);
     PyObject *GetOwnerNote(uint32 charID, uint32 noteID);
 
-    bool GetCharClones(uint32 characterID, std::vector<uint32> &into);
+	double GetCharRawStandingFromNPC(uint32 characterID, uint32 itemID);
+
+	bool GetCharClones(uint32 characterID, std::vector<uint32> &into);
     bool GetActiveClone(uint32 characterID, uint32 &itemID);
     bool GetActiveCloneType(uint32 characterID, uint32 &typeID);
     void GetCharacterData(uint32 characterID, std::map<std::string, uint32> &characterDataMap);
@@ -165,7 +167,7 @@ private:
     typedef CharValidationSet::iterator    CharValidationSetItr;
     CharValidationSet mNameValidation;
 
-    /* helper object for deleting ( waisting mem here ) */
+    /* helper object for deleting ( wasting mem here ) */
     typedef std::map<uint32, std::string>    CharIdNameMap;
     typedef CharIdNameMap::iterator            CharIdNameMapItr;
     CharIdNameMap mIdNameContainer;

@@ -120,20 +120,20 @@ ShipRef Ship::Spawn(ItemFactory &factory, ItemData &data) {
     ShipRef sShipRef = Ship::Load( factory, shipID );
 
     // Create default dynamic attributes in the AttributeMap:
-    sShipRef->SetAttribute(AttrIsOnline,            1, true);												// Is Online
-    sShipRef->SetAttribute(AttrShieldCharge,        sShipRef->GetAttribute(AttrShieldCapacity), true);		// Shield Charge
-    sShipRef->SetAttribute(AttrArmorDamage,         0.0, true);												// Armor Damage
-    sShipRef->SetAttribute(AttrMass,                sShipRef->type().attributes.mass(), true);				// Mass
-    sShipRef->SetAttribute(AttrRadius,              sShipRef->type().attributes.radius(), true);			// Radius
-    sShipRef->SetAttribute(AttrVolume,              sShipRef->type().attributes.volume(), true);			// Volume
-    sShipRef->SetAttribute(AttrCapacity,            sShipRef->type().attributes.capacity(), true);			// Capacity
-    sShipRef->SetAttribute(AttrInertia,             1, true);												// Inertia
-    sShipRef->SetAttribute(AttrCharge,              sShipRef->GetAttribute(AttrCapacitorCapacity), true);	// Set Capacitor Charge to the Capacitor Capacity
+    sShipRef->SetAttribute(AttrIsOnline,            1, true);                                               // Is Online
+    sShipRef->SetAttribute(AttrShieldCharge,        sShipRef->GetAttribute(AttrShieldCapacity), true);      // Shield Charge
+    sShipRef->SetAttribute(AttrArmorDamage,         0.0, true);                                             // Armor Damage
+    sShipRef->SetAttribute(AttrMass,                sShipRef->type().attributes.mass(), true);              // Mass
+    sShipRef->SetAttribute(AttrRadius,              sShipRef->type().attributes.radius(), true);            // Radius
+    sShipRef->SetAttribute(AttrVolume,              sShipRef->type().attributes.volume(), true);            // Volume
+    sShipRef->SetAttribute(AttrCapacity,            sShipRef->type().attributes.capacity(), true);          // Capacity
+    sShipRef->SetAttribute(AttrInertia,             1, true);                                               // Inertia
+    sShipRef->SetAttribute(AttrCharge,              sShipRef->GetAttribute(AttrCapacitorCapacity), true);   // Set Capacitor Charge to the Capacitor Capacity
 
     // Check for existence of some attributes that may or may not have already been loaded and set them
     // to default values:
-	// Hull Damage
-	if( !(sShipRef->HasAttribute(AttrDamage)) )
+    // Hull Damage
+    if( !(sShipRef->HasAttribute(AttrDamage)) )
         sShipRef->SetAttribute(AttrDamage, 0, true );
     // Theoretical Maximum Targeting Range
     if( !(sShipRef->HasAttribute(AttrMaximumRangeCap)) )
@@ -153,58 +153,58 @@ ShipRef Ship::Spawn(ItemFactory &factory, ItemData &data) {
     // Power Load of the ship (new ships have zero load with no modules fitted, of course):
     if( !(sShipRef.get()->HasAttribute(AttrPowerLoad)) )
         sShipRef.get()->SetAttribute(AttrPowerLoad, 0, true);
-	// Warp Scramble Status of the ship (most ships have zero warp scramble status, but some already have it defined):
-	if( !(sShipRef.get()->HasAttribute(AttrWarpScrambleStatus)) )
-		sShipRef.get()->SetAttribute(AttrWarpScrambleStatus, 0.0, true);
+    // Warp Scramble Status of the ship (most ships have zero warp scramble status, but some already have it defined):
+    if( !(sShipRef.get()->HasAttribute(AttrWarpScrambleStatus)) )
+        sShipRef.get()->SetAttribute(AttrWarpScrambleStatus, 0.0, true);
 
-	// Shield Resonance
-	// AttrShieldEmDamageResonance
-	if( !(sShipRef.get()->HasAttribute(AttrShieldEmDamageResonance)) )
-		sShipRef.get()->SetAttribute(AttrShieldEmDamageResonance, 1.0, true);
-	// AttrShieldExplosiveDamageResonance
-	if( !(sShipRef.get()->HasAttribute(AttrShieldExplosiveDamageResonance)) )
-		sShipRef.get()->SetAttribute(AttrShieldExplosiveDamageResonance, 1.0, true);
-	// AttrShieldKineticDamageResonance
-	if( !(sShipRef.get()->HasAttribute(AttrShieldKineticDamageResonance)) )
-		sShipRef.get()->SetAttribute(AttrShieldKineticDamageResonance, 1.0, true);
-	// AttrShieldThermalDamageResonance
-	if( !(sShipRef.get()->HasAttribute(AttrShieldThermalDamageResonance)) )
-		sShipRef.get()->SetAttribute(AttrShieldThermalDamageResonance, 1.0, true);
+    // Shield Resonance
+    // AttrShieldEmDamageResonance
+    if( !(sShipRef.get()->HasAttribute(AttrShieldEmDamageResonance)) )
+        sShipRef.get()->SetAttribute(AttrShieldEmDamageResonance, 1.0, true);
+    // AttrShieldExplosiveDamageResonance
+    if( !(sShipRef.get()->HasAttribute(AttrShieldExplosiveDamageResonance)) )
+        sShipRef.get()->SetAttribute(AttrShieldExplosiveDamageResonance, 1.0, true);
+    // AttrShieldKineticDamageResonance
+    if( !(sShipRef.get()->HasAttribute(AttrShieldKineticDamageResonance)) )
+        sShipRef.get()->SetAttribute(AttrShieldKineticDamageResonance, 1.0, true);
+    // AttrShieldThermalDamageResonance
+    if( !(sShipRef.get()->HasAttribute(AttrShieldThermalDamageResonance)) )
+        sShipRef.get()->SetAttribute(AttrShieldThermalDamageResonance, 1.0, true);
 
-	// Armor Resonance
-	// AttrArmorEmDamageResonance
-	if( !(sShipRef.get()->HasAttribute(AttrArmorEmDamageResonance)) )
-		sShipRef.get()->SetAttribute(AttrArmorEmDamageResonance, 1.0, true);
-	// AttrArmorExplosiveDamageResonance
-	if( !(sShipRef.get()->HasAttribute(AttrArmorExplosiveDamageResonance)) )
-		sShipRef.get()->SetAttribute(AttrArmorExplosiveDamageResonance, 1.0, true);
-	// AttrArmorKineticDamageResonance
-	if( !(sShipRef.get()->HasAttribute(AttrArmorKineticDamageResonance)) )
-		sShipRef.get()->SetAttribute(AttrArmorKineticDamageResonance, 1.0, true);
-	// AttrArmorThermalDamageResonance
-	if( !(sShipRef.get()->HasAttribute(AttrArmorThermalDamageResonance)) )
-		sShipRef.get()->SetAttribute(AttrArmorThermalDamageResonance, 1.0, true);
+    // Armor Resonance
+    // AttrArmorEmDamageResonance
+    if( !(sShipRef.get()->HasAttribute(AttrArmorEmDamageResonance)) )
+        sShipRef.get()->SetAttribute(AttrArmorEmDamageResonance, 1.0, true);
+    // AttrArmorExplosiveDamageResonance
+    if( !(sShipRef.get()->HasAttribute(AttrArmorExplosiveDamageResonance)) )
+        sShipRef.get()->SetAttribute(AttrArmorExplosiveDamageResonance, 1.0, true);
+    // AttrArmorKineticDamageResonance
+    if( !(sShipRef.get()->HasAttribute(AttrArmorKineticDamageResonance)) )
+        sShipRef.get()->SetAttribute(AttrArmorKineticDamageResonance, 1.0, true);
+    // AttrArmorThermalDamageResonance
+    if( !(sShipRef.get()->HasAttribute(AttrArmorThermalDamageResonance)) )
+        sShipRef.get()->SetAttribute(AttrArmorThermalDamageResonance, 1.0, true);
 
-	// Hull Resonance
-	// AttrHullEmDamageResonance
-	if( !(sShipRef.get()->HasAttribute(AttrHullEmDamageResonance)) )
-		sShipRef.get()->SetAttribute(AttrHullEmDamageResonance, 1.0, true);
-	// AttrHullExplosiveDamageResonance
-	if( !(sShipRef.get()->HasAttribute(AttrHullExplosiveDamageResonance)) )
-		sShipRef.get()->SetAttribute(AttrHullExplosiveDamageResonance, 1.0, true);
-	// AttrHullKineticDamageResonance
-	if( !(sShipRef.get()->HasAttribute(AttrHullKineticDamageResonance)) )
-		sShipRef.get()->SetAttribute(AttrHullKineticDamageResonance, 1.0, true);
-	// AttrHullThermalDamageResonance
-	if( !(sShipRef.get()->HasAttribute(AttrHullThermalDamageResonance)) )
-		sShipRef.get()->SetAttribute(AttrHullThermalDamageResonance, 1.0, true);
+    // Hull Resonance
+    // AttrHullEmDamageResonance
+    if( !(sShipRef.get()->HasAttribute(AttrHullEmDamageResonance)) )
+        sShipRef.get()->SetAttribute(AttrHullEmDamageResonance, 1.0, true);
+    // AttrHullExplosiveDamageResonance
+    if( !(sShipRef.get()->HasAttribute(AttrHullExplosiveDamageResonance)) )
+        sShipRef.get()->SetAttribute(AttrHullExplosiveDamageResonance, 1.0, true);
+    // AttrHullKineticDamageResonance
+    if( !(sShipRef.get()->HasAttribute(AttrHullKineticDamageResonance)) )
+        sShipRef.get()->SetAttribute(AttrHullKineticDamageResonance, 1.0, true);
+    // AttrHullThermalDamageResonance
+    if( !(sShipRef.get()->HasAttribute(AttrHullThermalDamageResonance)) )
+        sShipRef.get()->SetAttribute(AttrHullThermalDamageResonance, 1.0, true);
 
-	// AttrTurretSlotsLeft
-	if( !(sShipRef.get()->HasAttribute(AttrTurretSlotsLeft)) )
-		sShipRef.get()->SetAttribute(AttrTurretSlotsLeft, 0, true);
-	// AttrLauncherSlotsLeft
-	if( !(sShipRef.get()->HasAttribute(AttrLauncherSlotsLeft)) )
-		sShipRef.get()->SetAttribute(AttrLauncherSlotsLeft, 0, true);
+    // AttrTurretSlotsLeft
+    if( !(sShipRef.get()->HasAttribute(AttrTurretSlotsLeft)) )
+        sShipRef.get()->SetAttribute(AttrTurretSlotsLeft, 0, true);
+    // AttrLauncherSlotsLeft
+    if( !(sShipRef.get()->HasAttribute(AttrLauncherSlotsLeft)) )
+        sShipRef.get()->SetAttribute(AttrLauncherSlotsLeft, 0, true);
 
     return sShipRef;
 }
@@ -294,13 +294,13 @@ void Ship::ValidateAddItem(EVEItemFlags flag, InventoryItemRef item)
     else if( flag == flagCargoHold )
     {
         //get all items in cargohold
-        EvilNumber capacityUsed(0);
+        EvilNumber capacityUsed(0.0);
         std::vector<InventoryItemRef> items;
         m_pOperator->GetShip()->FindByFlag(flag, items);        // Operator assumed to be Client *
         for(uint32 i = 0; i < items.size(); i++){
-            capacityUsed += items[i]->GetAttribute(AttrVolume);
+            capacityUsed += (items[i]->GetAttribute(AttrVolume) * items[i]->quantity());
         }
-        if( capacityUsed + item->GetAttribute(AttrVolume) > m_pOperator->GetShip()->GetAttribute(AttrCapacity) )    // Operator assumed to be Client *
+        if( capacityUsed + (item->GetAttribute(AttrVolume) * item->quantity()) > m_pOperator->GetShip()->GetAttribute(AttrCapacity) )    // Operator assumed to be Client *
             throw PyException( MakeCustomError( "Not enough cargo space!") );
     }
     else if( (flag >= flagLowSlot0)  &&  (flag <= flagHiSlot7) )
@@ -310,15 +310,26 @@ void Ship::ValidateAddItem(EVEItemFlags flag, InventoryItemRef item)
                 throw PyException( MakeCustomError( "You do not have the required skills to fit this \n%s", item->itemName().c_str() ) );
         if(!ValidateItemSpecifics(item))
             throw PyException( MakeCustomError( "Your ship cannot equip this module" ) );
-        if( m_ModuleManager->IsSlotOccupied(flag) )
-            throw PyException( MakeUserError( "SlotAlreadyOccupied" ) );
-        if(item->categoryID() == EVEDB::invCategories::Charge) {
-            InventoryItemRef module;
-            m_pOperator->GetShip()->FindSingleByFlag(flag, module);     // Operator assumed to be Client *
-            if(module->GetAttribute(AttrChargeSize) != item->GetAttribute(AttrChargeSize) )
-                throw PyException( MakeCustomError( "The charge is not the correct size for this module." ) );
-            if(module->GetAttribute(AttrChargeGroup1) != item->groupID())
-                throw PyException( MakeCustomError( "Incorrect charge type for this module.") );
+        if(item->categoryID() == EVEDB::invCategories::Charge)
+        {
+            if( m_ModuleManager->GetModule(flag) != NULL )
+            {
+                InventoryItemRef module;
+                module = m_ModuleManager->GetModule(flag)->getItem();
+                if(module->GetAttribute(AttrChargeSize) != item->GetAttribute(AttrChargeSize) )
+                    throw PyException( MakeCustomError( "The charge is not the correct size for this module." ) );
+                if(module->GetAttribute(AttrChargeGroup1) != item->groupID())
+                    throw PyException( MakeCustomError( "Incorrect charge type for this module.") );
+
+                // NOTE: Module Manager will check for actual room to load charges and make stack splits, or reject loading altogether
+            }
+            else
+                throw PyException( MakeCustomError( "Module at flag '%u' does not exist!", flag ) );
+        }
+        else
+        {
+            if( m_ModuleManager->IsSlotOccupied(flag) )
+                throw PyException( MakeUserError( "SlotAlreadyOccupied" ) );
         }
     }
     else if( (flag >= flagRigSlot0)  &&  (flag <= flagRigSlot7) )
@@ -390,20 +401,20 @@ PyDict *Ship::ShipGetState()
         return NULL;
     }
 
-	// Create new dictionary for "shipState":
+    // Create new dictionary for "shipState":
     PyDict *result = new PyDict;
 
-	// Create entry in "shipState" dictionary for Ship itself:
+    // Create entry in "shipState" dictionary for Ship itself:
     result->SetItem(new PyInt(itemID()), GetItemStatusRow());
 
-	// Create entries in "shipState" dictionary for ALL modules, rigs, and subsystems present on ship:
-	std::vector<InventoryItemRef> moduleList;
-	m_ModuleManager->GetModuleListOfRefs( &moduleList );
+    // Create entries in "shipState" dictionary for ALL modules, rigs, and subsystems present on ship:
+    std::vector<InventoryItemRef> moduleList;
+    m_ModuleManager->GetModuleListOfRefs( &moduleList );
 
-	for(int i=0; i<moduleList.size(); i++)
-		result->SetItem(new PyInt(moduleList.at(i)->itemID()), moduleList.at(i)->GetItemStatusRow());
+    for(int i=0; i<moduleList.size(); i++)
+        result->SetItem(new PyInt(moduleList.at(i)->itemID()), moduleList.at(i)->GetItemStatusRow());
 
-	return result;
+    return result;
 }
 
 void Ship::AddItem(InventoryItemRef item)
@@ -543,10 +554,10 @@ bool Ship::ValidateItemSpecifics(InventoryItemRef equip) {
     EvilNumber canFitShipType3 = equip->GetAttribute(AttrCanFitShipType3);
     EvilNumber canFitShipType4 = equip->GetAttribute(AttrCanFitShipType4);
 
-	if( canFitShipGroup1 != 0 || canFitShipGroup2 != 0 || canFitShipGroup3 != 0 || canFitShipGroup4 != 0 )
-		if( canFitShipGroup1 != groupID && canFitShipGroup2 != groupID && canFitShipGroup3 != groupID && canFitShipGroup4 != groupID )
-			return false;
-	/*
+    if( canFitShipGroup1 != 0 || canFitShipGroup2 != 0 || canFitShipGroup3 != 0 || canFitShipGroup4 != 0 )
+        if( canFitShipGroup1 != groupID && canFitShipGroup2 != groupID && canFitShipGroup3 != groupID && canFitShipGroup4 != groupID )
+            return false;
+    /*
     if( canFitShipGroup1 != 0 )
         if( canFitShipGroup1 != groupID )
             return false;
@@ -562,12 +573,12 @@ bool Ship::ValidateItemSpecifics(InventoryItemRef equip) {
     if( canFitShipGroup4 != 0 )
         if( canFitShipGroup4 != groupID )
             return false;
-	*/
+    */
 
     if( canFitShipType1 != 0 || canFitShipType2 != 0 || canFitShipType3 != 0 || canFitShipType4 != 0 )
         if( canFitShipType1 != typeID && canFitShipType2 != typeID && canFitShipType3 != typeID && canFitShipType4 != typeID )
             return false;
-	/*
+    /*
     if( canFitShipType1 != 0 )
         if( canFitShipType1 != typeID )
             return false;
@@ -583,15 +594,31 @@ bool Ship::ValidateItemSpecifics(InventoryItemRef equip) {
     if( canFitShipType4 != 0 )
         if( canFitShipType4 != typeID )
             return false;
-	*/
+    */
     return true;
 
 }
 
 /* Begin new Module Manager Interface */
+InventoryItemRef Ship::GetModule(EVEItemFlags flag)
+{
+    if( m_ModuleManager->GetModule(flag) != NULL )
+        return (m_ModuleManager->GetModule(flag))->getItem();
+    else
+        return InventoryItemRef();
+}
+
+InventoryItemRef Ship::GetModule(uint32 itemID)
+{
+    if( m_ModuleManager->GetModule(itemID) != NULL )
+        return (m_ModuleManager->GetModule(itemID))->getItem();
+    else
+        return InventoryItemRef();
+}
+
 uint32 Ship::FindAvailableModuleSlot( InventoryItemRef item )
 {
-	uint32 slotFound = flagIllegal;
+    uint32 slotFound = flagIllegal;
 
     // 1) get slot bank (low, med, high, rig, subsystem) from dgmTypeEffects using item->itemID()
     // 2) query this ship's ModuleManager to determine if there are any free slots in that bank,
@@ -599,57 +626,84 @@ uint32 Ship::FindAvailableModuleSlot( InventoryItemRef item )
     //    for that bank
     // 3) return that slot flag number
 
-	if( item->type().HasEffect(Effect_loPower) )
-	{
-		slotFound = m_ModuleManager->GetAvailableSlotInBank(Effect_loPower);
-	}
-	else if( item->type().HasEffect(Effect_medPower) )
-	{
-		slotFound = m_ModuleManager->GetAvailableSlotInBank(Effect_medPower);
-	}
-	else if( item->type().HasEffect(Effect_hiPower) )
-	{
-		slotFound = m_ModuleManager->GetAvailableSlotInBank(Effect_hiPower);
-	}
-	else if( item->type().HasEffect(Effect_subSystem) )
-	{
-		slotFound = m_ModuleManager->GetAvailableSlotInBank(Effect_subSystem);
-	}
-	else if( item->type().HasEffect(Effect_rigSlot) )
-	{
-		slotFound = m_ModuleManager->GetAvailableSlotInBank(Effect_rigSlot);
-	}
-	else
-	{
-		// ERROR: This is not a module that fits in any of the slot banks
-	}
+    if( item->type().HasEffect(Effect_loPower) )
+    {
+        slotFound = m_ModuleManager->GetAvailableSlotInBank(Effect_loPower);
+    }
+    else if( item->type().HasEffect(Effect_medPower) )
+    {
+        slotFound = m_ModuleManager->GetAvailableSlotInBank(Effect_medPower);
+    }
+    else if( item->type().HasEffect(Effect_hiPower) )
+    {
+        slotFound = m_ModuleManager->GetAvailableSlotInBank(Effect_hiPower);
+    }
+    else if( item->type().HasEffect(Effect_subSystem) )
+    {
+        slotFound = m_ModuleManager->GetAvailableSlotInBank(Effect_subSystem);
+    }
+    else if( item->type().HasEffect(Effect_rigSlot) )
+    {
+        slotFound = m_ModuleManager->GetAvailableSlotInBank(Effect_rigSlot);
+    }
+    else
+    {
+        // ERROR: This is not a module that fits in any of the slot banks
+    }
 
     return slotFound;
 }
 
-void Ship::AddItem(EVEItemFlags flag, InventoryItemRef item)
+uint32 Ship::AddItem(EVEItemFlags flag, InventoryItemRef item)
 {
-
     ValidateAddItem( flag, item );
 
     //it's a new module, make sure it's state starts at offline so that it is added correctly
     if( item->categoryID() != EVEDB::invCategories::Charge )
         item->PutOffline();
 
-    // TODO: Somehow, if this returns FALSE, the item->Move() above has to be "undone"... can we do the move AFTER attempting to fit?
-    // what if we pass the flag into FitModule().... then if it returns true, the item->Move() can be called
-    if( m_ModuleManager->FitModule(item, flag) )
-        item->Move(m_pOperator->GetLocationID(), flag);  //TODO - check this
+    switch( item->categoryID() )
+    {
+        case EVEDB::invCategories::Charge:
+            {
+                m_ModuleManager->LoadCharge(item, flag);
+                InventoryItemRef loadedChargeOnModule = m_ModuleManager->GetLoadedChargeOnModule(flag);
+                if( loadedChargeOnModule != NULL )
+                {
+                    return loadedChargeOnModule->itemID();
+                }
+                else
+                    return 0;
+            }
+            break;
+
+        case EVEDB::invCategories::Module:
+            if( m_ModuleManager->FitModule(item, flag) )
+                item->Move(itemID(), flag);
+            break;
+
+        default:
+            sLog.Error( "Ship::AddItem(flag,item)", "ERROR! Function called with item '%s' (id: %u) of category neither Charge nor Module!", item->itemName().c_str(), item->itemID() );
+    }
+
+    return 0;
 }
 
 void Ship::RemoveItem(InventoryItemRef item, uint32 inventoryID, EVEItemFlags flag)
 {
     //coming from ship, we need to deactivate it and remove mass if it isn't a charge
-    if( item->categoryID() != EVEDB::invCategories::Charge ) {
+    if( item->categoryID() != EVEDB::invCategories::Charge )
+    {
         m_pOperator->GetShip()->Deactivate( item->itemID(), "online" );
         // m_pOperator->GetShip()->Set_mass( m_pOperator->GetShip()->mass() - item->massAddition() );
         //m_pOperator->GetShip()->SetAttribute(AttrMass,  m_pOperator->GetShip()->GetAttribute(AttrMass) - item->GetAttribute(AttrMassAddition) );
         m_pOperator->GetShip()->UnloadModule( item->itemID() );
+    }
+
+    // if item being removed IS a charge, it needs to be removed via Module Manager so modules know charge is removed
+    if( item->categoryID() == EVEDB::invCategories::Charge )
+    {
+        m_ModuleManager->UnloadCharge(item->flag());
     }
 
     //Move New item to its new location
@@ -658,7 +712,13 @@ void Ship::RemoveItem(InventoryItemRef item, uint32 inventoryID, EVEItemFlags fl
 
 void Ship::UpdateModules()
 {
+    // List of callees to put this function into context as to what it should be doing:
+    // Client::BoardShip()              - put modules online that are recorded with attributeID 2 as being online / skill check all modules and if any fail, keep those OFFLINE
+    // InventoryBound::_ExecAdd()       - things have been added or removed, recheck all modules for... some reason
+    // Client::MoveItem()               - something has been moved into or out of the ship, recheck all modules for... some reason
 
+    sLog.Error( "Ship::UpdateModules()", "We are currently not checking for modules that need to go online, or skill checking character for any modules of a newly boarded ship, or updating module states based on things being moved into or off the ship!" );
+    sLog.Error( "Ship::UpdateModules()", "This should really be a simple call to a function ModuleManager::UpdateModules() and the code put inside there." );
 }
 
 void Ship::UnloadModule(uint32 itemID)
@@ -678,12 +738,12 @@ void Ship::RepairModules()
 
 void Ship::Online (uint32 moduleID)
 {
-	m_ModuleManager->Online(moduleID);
+    m_ModuleManager->Online(moduleID);
 }
 
 void Ship::Offline (uint32 moduleID)
 {
-	m_ModuleManager->Offline(moduleID);
+    m_ModuleManager->Offline(moduleID);
 }
 
 int32 Ship::Activate(int32 itemID, std::string effectName, int32 targetID, int32 repeat)
@@ -704,7 +764,7 @@ void Ship::Overload()
 void Ship::CancelOverloading()
 {
 
-	}
+    }
 
 void Ship::RemoveRig( InventoryItemRef item, uint32 inventoryID )
 {
@@ -866,4 +926,3 @@ void ShipEntity::MakeDamageState(DoDestinyDamageState &into) const
     into.armor = 1.0 - (m_self->GetAttribute(AttrArmorDamage).get_float() / m_self->GetAttribute(AttrArmorHP).get_float());
     into.structure = 1.0 - (m_self->GetAttribute(AttrDamage).get_float() / m_self->GetAttribute(AttrHp).get_float());
 }
-

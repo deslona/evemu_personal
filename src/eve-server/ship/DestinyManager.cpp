@@ -75,6 +75,8 @@ DestinyManager::DestinyManager(SystemEntity *self, SystemManager *system)
     m_targetEntity.first = 0;
     m_targetEntity.second = NULL;
 
+    m_cloaked = false;
+
     m_warpDecelerateFactor = 0.75;
 }
 
@@ -493,11 +495,10 @@ void DestinyManager::_InitWarp() {
         warp_speed = m_system->GetWarpSpeed();
     }
 
-	m_warpNumerator = 2.0f;
-	m_warpDenomenator = 3.0f;
-	m_warpExpFactor = 1.0f;
-	m_warpVelocityMagnitudeFactorDivisor = 3.0f;
-	m_warpDecelerateFactor = 0.60;	// this value is getting the warps in Amsen from gate to station about 10AU pretty dang close
+    m_warpNumerator = 2.0f;
+    m_warpDenomenator = 3.0f;
+    m_warpExpFactor = 1.0f;
+    m_warpVelocityMagnitudeFactorDivisor = 3.0f;
 
     if(1.5*warp_distance < warp_speed) {//not positive on this conditional
         warp_speed = 1.5*warp_distance;
@@ -611,7 +612,7 @@ void DestinyManager::_Warp() {
             velocity_magnitude, dist_remaining);
 
         // Put ourself back into a bubble once we reach the outer edge of the bubble's radius:
-        if( dist_remaining <= (0.9 * BUBBLE_RADIUS_METERS) )
+        if( dist_remaining <= (0.8 * BUBBLE_RADIUS_METERS) )
         {
             // This MUST be called BEFORE SetPosition() since SetPosition does not
             // currently support passing in the isPostWarp boolean nor the isWarping boolean
@@ -652,6 +653,10 @@ void DestinyManager::_Warp() {
         //put ourself back into a bubble.
         //m_system->bubbles.UpdateBubble(m_self);
         Stop(false);    //no updates, client is doing this too.
+        // Set our position one final time - BAND-AID for WARP-IN bug!  Remove once that is fixed!  This will make it VERY apparent a desync happened!
+        SetPosition( GetPosition(), true );
+        // Update bubble one final time:
+        m_system->bubbles.UpdateBubble(m_self, true, false, true);
     }
 }
 
@@ -826,8 +831,8 @@ void DestinyManager::EntityRemoved(SystemEntity *who) {
 //Global Actions:
 void DestinyManager::Stop(bool update) {
     //Clear any pending docking operation since the user stopped ship movement:
-	if( m_self->IsClient() )
-		m_self->CastToClient()->SetPendingDockOperation( false );
+    if( m_self->IsClient() )
+        m_self->CastToClient()->SetPendingDockOperation( false );
 
     // THIS IS A HACK AS WE DONT KNOW WHY THE CLIENT CALLS STOP AT UNDOCK
     if( m_self->IsClient() && m_self->CastToClient()->GetJustUndocking() )
@@ -884,8 +889,8 @@ void DestinyManager::Halt(bool update) {
     _UpdateDerrived();
 
     //Clear any pending docking operation since the user halted ship movement:
-	if( m_self->IsClient() )
-		m_self->CastToClient()->SetPendingDockOperation( false );
+    if( m_self->IsClient() )
+        m_self->CastToClient()->SetPendingDockOperation( false );
 
     State = DSTBALL_STOP;
 
@@ -933,8 +938,8 @@ void DestinyManager::Follow(SystemEntity *who, double distance, bool update) {
     }
 
     //Clear any pending docking operation since the user set a new course:
-	if( m_self->IsClient() )
-		m_self->CastToClient()->SetPendingDockOperation( false );
+    if( m_self->IsClient() )
+        m_self->CastToClient()->SetPendingDockOperation( false );
 
     if(update) {
         DoDestiny_CmdFollowBall du;
@@ -985,11 +990,11 @@ void DestinyManager::OrbitingCruise(SystemEntity *who, double distance, bool upd
     if(State == DSTBALL_ORBIT && m_targetEntity.second == who && m_targetDistance == distance)
         return;
 
-	if( cruiseSpeed > 0 )
-	{
-		m_maxShipVelocity = cruiseSpeed;
-		_UpdateDerrived();
-	}
+    if( cruiseSpeed > 0 )
+    {
+        m_maxShipVelocity = cruiseSpeed;
+        _UpdateDerrived();
+    }
 
     State = DSTBALL_ORBIT;
     m_stateStamp = GetStamp()+1;
@@ -1105,8 +1110,8 @@ void DestinyManager::AlignTo(const GPoint &direction, bool update) {
     }
 
     //Clear any pending docking operation since the user set a new course:
-	if( m_self->IsClient() )
-		m_self->CastToClient()->SetPendingDockOperation( false );
+    if( m_self->IsClient() )
+        m_self->CastToClient()->SetPendingDockOperation( false );
 
     if(update) {
         DoDestiny_GotoPoint du;
@@ -1137,8 +1142,8 @@ void DestinyManager::GotoDirection(const GPoint &direction, bool update) {
     }
 
     //Clear any pending docking operation since the user set a new course:
-	if( m_self->IsClient() )
-		m_self->CastToClient()->SetPendingDockOperation( false );
+    if( m_self->IsClient() )
+        m_self->CastToClient()->SetPendingDockOperation( false );
 
     sLog.Debug( "DestinyManager::GotoDirection()", "SystemEntity '%s' vectoring to (%f,%f,%f) at velocity %f",
                 m_self->GetName(), direction.x, direction.y, direction.z, m_maxVelocity );
@@ -1233,7 +1238,7 @@ PyResult DestinyManager::AttemptDockOperation()
     Stop(false);
 
     // When docking, Set X,Y,Z to origin so that when changing ships in stations, they don't appear outside:
-    who->MoveToLocation( stationID, GPoint(0, 0, 0) );
+    who->MoveToLocation( stationID, stationDockPoint );     // if stationDockPoint does not help, try m_position
 
     who->SetPendingDockOperation( false );
 
@@ -1282,6 +1287,9 @@ PyResult DestinyManager::AttemptDockOperation()
     if( who->IsClient() )
         who->CastToClient()->SaveAllToDatabase();
 
+    // Finally, remove ship from current bubble and system manager:
+    //who->System()->RemoveClient(who);
+
     // Docking was accepted, so send the OnDockingAccepted packet:
     // Packet::Notification
     /* -- In the marshalstream:
@@ -1303,6 +1311,23 @@ PyResult DestinyManager::AttemptDockOperation()
     return NULL;
 }
 
+void DestinyManager::Cloak()
+{
+    sLog.Warning("DestinyManager::Cloak()", "TODO - check for warp-safe-ness, and turn on any cloaking device module fitted");
+    m_cloaked = true;
+    SendCloakShip(true);
+    m_self->Bubble()->RemoveExclusive(m_self,true);
+}
+
+void DestinyManager::UnCloak()
+{
+    sLog.Warning("DestinyManager::UnCloak()", "TODO - check for warp-safe-ness, and turn off any cloaking device module fitted");
+    m_cloaked = false;
+    SendUncloakShip();
+    m_self->Bubble()->AddExclusive(m_self,true);
+}
+
+
 void DestinyManager::WarpTo(const GPoint &where, double distance, bool update) {
     SetSpeedFraction(1.0, update);
 
@@ -1312,8 +1337,8 @@ void DestinyManager::WarpTo(const GPoint &where, double distance, bool update) {
     }
 
     //Clear any pending docking operation since the user initiated warp:
-	if( m_self->IsClient() )
-		m_self->CastToClient()->SetPendingDockOperation( false );
+    if( m_self->IsClient() )
+        m_self->CastToClient()->SetPendingDockOperation( false );
 
     State = DSTBALL_WARP;
     m_targetEntity.first = 0;
@@ -1387,11 +1412,11 @@ void DestinyManager::SendJumpOut(uint32 stargateID) const {
 
     //Clear any pending docking operation since the user set a new course:
     m_self->CastToClient()->SetPendingDockOperation( false );
-    
+
     DoDestiny_CmdStop du;
     du.entityID = m_self->GetID();
     updates.push_back(du.Encode());
-    
+
     //send a warping special effects update...
     DoDestiny_OnSpecialFX10 effect;
     effect.entityID = m_self->GetID();
@@ -1401,26 +1426,6 @@ void DestinyManager::SendJumpOut(uint32 stargateID) const {
     effect.start = 1;
     effect.active = 0;
     updates.push_back(effect.Encode());
-
-    SendDestinyUpdate(updates, false);
-}
-
-
-void DestinyManager::SendTerminalExplosion() const {
-    std::vector<PyTuple *> updates;
-
-    //Clear any pending docking operation since the user's ship exploded:
-    if( m_self->CastToClient() != NULL )
-        m_self->CastToClient()->SetPendingDockOperation( false );
-
-    {
-        //send a warping special effects update...
-        DoDestiny_TerminalExplosion du;
-        du.entityID = m_self->GetID();
-        du.unknownInt = 1206;    // this seems to be different every so often in the logs, no idea what it means
-        du.unknownBool = false; // this always seems to be false, no idea what it means
-        updates.push_back(du.Encode());
-    }
 
     SendDestinyUpdate(updates, false);
 }
@@ -1453,6 +1458,80 @@ void DestinyManager::SendJumpIn() const {
     sbv.y = 0.0;
     sbv.z = 0.0;
     updates.push_back(sbv.Encode());
+
+    SendDestinyUpdate(updates, false);
+}
+
+void DestinyManager::SendJumpOutEffect(std::string JumpEffect, uint32 locationID) const {
+    std::vector<PyTuple *> updates;
+
+    //Clear any pending docking operation since the user set a new course:
+    m_self->CastToClient()->SetPendingDockOperation( false );
+
+    DoDestiny_CmdStop du;
+    du.entityID = m_self->GetID();
+    updates.push_back(du.Encode());
+
+    //send a warping special effects update...
+    DoDestiny_OnSpecialFX10 effect;
+    effect.entityID = m_self->GetID();
+    effect.targetID = locationID;
+    effect.effect_type = "effects.JumpDriveOut";
+    effect.isOffensive = 0;
+    effect.start = 1;
+    effect.active = 0;
+    updates.push_back(effect.Encode());
+
+    SendDestinyUpdate(updates, false);
+}
+
+void DestinyManager::SendJumpInEffect(std::string JumpEffect) const {
+    //hacked for simplicity... I dont like jumping in until we have
+    //jumping in general much better quantified.
+
+    //Clear any pending docking operation since the user set a new course:
+    m_self->CastToClient()->SetPendingDockOperation( false );
+
+    std::vector<PyTuple *> updates;
+
+    DoDestiny_OnSpecialFX10 effect;
+    effect.effect_type = "effects.JumpDriveIn";
+    effect.entityID = m_self->GetID();
+    effect.isOffensive = 0;
+    effect.start = 1;
+    effect.active = 0;
+    updates.push_back(effect.Encode());
+
+    DoDestiny_CmdSetSpeedFraction ssf;
+    ssf.entityID = m_self->GetID();
+    ssf.fraction = 0.0;
+    updates.push_back(ssf.Encode());
+
+    DoDestiny_SetBallVelocity sbv;
+    sbv.entityID = m_self->GetID();
+    sbv.x = 0.0;
+    sbv.y = 0.0;
+    sbv.z = 0.0;
+    updates.push_back(sbv.Encode());
+
+    SendDestinyUpdate(updates, false);
+}
+
+void DestinyManager::SendTerminalExplosion() const {
+    std::vector<PyTuple *> updates;
+
+    //Clear any pending docking operation since the user's ship exploded:
+    if( m_self->CastToClient() != NULL )
+        m_self->CastToClient()->SetPendingDockOperation( false );
+
+    {
+        //send a warping special effects update...
+        DoDestiny_TerminalExplosion du;
+        du.entityID = m_self->GetID();
+        du.unknownInt = 1206;    // this seems to be different every so often in the logs, no idea what it means
+        du.unknownBool = false; // this always seems to be false, no idea what it means
+        updates.push_back(du.Encode());
+    }
 
     SendDestinyUpdate(updates, false);
 }
@@ -1625,12 +1704,12 @@ void DestinyManager::SendAnchorLift(const InventoryItemRef itemRef) const {
     SendDestinyUpdate(updates, false);
 }
 
-void DestinyManager::SendCloakShip(const ShipRef shipRef, const bool IsWarpSafe) const {
+void DestinyManager::SendCloakShip(const bool IsWarpSafe) const {
     std::vector<PyTuple *> updates;
 
       DoDestiny_OnSpecialFX10 effect;
     effect.effect_type = "effects.Cloak";
-    effect.entityID = shipRef->itemID();
+    effect.entityID = m_self->GetID();
     effect.isOffensive = 0;
     effect.start = 1;
     effect.active = 0;
@@ -1639,12 +1718,12 @@ void DestinyManager::SendCloakShip(const ShipRef shipRef, const bool IsWarpSafe)
     SendDestinyUpdate(updates, false);
 }
 
-void DestinyManager::SendUncloakShip(const ShipRef shipRef) const {
+void DestinyManager::SendUncloakShip() const {
     std::vector<PyTuple *> updates;
 
     DoDestiny_OnSpecialFX10 effect;
     effect.effect_type = "effects.Uncloak";
-    effect.entityID = shipRef->itemID();
+    effect.entityID = m_self->GetID();
     effect.isOffensive = 0;
     effect.start = 1;
     effect.active = 0;
@@ -1653,10 +1732,11 @@ void DestinyManager::SendUncloakShip(const ShipRef shipRef) const {
     SendDestinyUpdate(updates, false);
 }
 
-void DestinyManager::SendSpecialEffect(const ShipRef shipRef, std::string effectString, uint32 moduleID, uint32 moduleTypeID,
-    uint32 targetID, uint32 chargeID, bool isOffensive, bool isActive, double duration) const
+void DestinyManager::SendSpecialEffect(const ShipRef shipRef, uint32 moduleID, uint32 moduleTypeID,
+    uint32 targetID, uint32 chargeID, std::string effectString, bool isOffensive, bool isActive, double duration, uint32 repeat) const
 {
     std::vector<PyTuple *> updates;
+    std::vector<int32, std::allocator<int32> > area;
 
     DoDestiny_OnSpecialFX13 effect;
     effect.entityID = shipRef->itemID();
@@ -1664,14 +1744,14 @@ void DestinyManager::SendSpecialEffect(const ShipRef shipRef, std::string effect
     effect.moduleTypeID = moduleTypeID;
     effect.targetID = targetID;
     effect.otherTypeID = chargeID;
-    //effect.area = ;
+    effect.area = area;
     effect.effect_type = effectString;
     effect.isOffensive = (isOffensive) ? 1 : 0;
     effect.start = 1;
     effect.active = (isActive) ? 1 : 0;
     effect.duration_ms = duration;
-    effect.repeat = Win32TimeNow() + ((duration * Win32Time_Second) / 1000);
-    effect.startTime = 0;
+    effect.repeat = (repeat ? 50000 : 0);
+    effect.startTime = Win32TimeNow() + ((duration * Win32Time_Second) / 1000);
     updates.push_back(effect.Encode());
 
     SendDestinyUpdate(updates, false);

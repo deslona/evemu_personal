@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:     Zhur
+    Author:     Zhur, Allan
 */
 
 #include "eve-server.h"
@@ -198,7 +198,8 @@ bool InventoryDB::GetBlueprintType(uint32 blueprintTypeID, BlueprintTypeData &in
         "  materialModifier,"
         "  wasteFactor / 100,"   // we have it in db as percentage ...
         "  maxProductionLimit "
-        " FROM invBlueprintTypes "
+        //" FROM invBlueprintTypes "
+		" FROM bpTypes"
         " WHERE blueprintTypeID=%u",
         blueprintTypeID))
     {
@@ -935,7 +936,40 @@ bool InventoryDB::DeleteBlueprint(uint32 blueprintID) {
 bool InventoryDB::GetCharacter(uint32 characterID, CharacterData &into) {
     DBQueryResult res;
 
-    if(!sDatabase.RunQuery(res,
+    if (characterID < 140000000) {
+      if(!sDatabase.RunQuery(res,
+        "SELECT"
+        "   chr.accountID,"
+        "   chr.title,"
+        "   chr.description,"
+        "   chr.gender,"
+        "   chr.bounty,"
+        "   chr.balance,"
+        "   chr.aurBalance,"
+        "   chr.securityRating,"
+        "   chr.logonMinutes,"
+        "   chr.corporationID,"
+        "   crp.allianceID,"
+        "   chr.stationID,"
+        "   chr.solarSystemID,"
+        "   chr.constellationID,"
+        "   chr.regionID,"
+        "   chr.ancestryID,"
+        "   chr.careerID,"
+        "   chr.schoolID,"
+        "   chr.careerSpecialityID,"
+        "   chr.startDateTime,"
+        "   chr.createDateTime,"
+        "   chr.corporationDateTime,"
+        "   chr.shipID"
+        " FROM characterStatic AS chr"
+        "  LEFT JOIN corporation AS crp USING (corporationID)"
+        " WHERE characterID = %u", characterID)) {
+        codelog(SERVICE__ERROR, "InventoryDB::GetCharacter Error in query: %s", res.error.c_str());
+        return NULL;
+      }
+    } else {
+      if(!sDatabase.RunQuery(res,
         "SELECT"
         "   chr.accountID,"
         "   chr.title,"
@@ -962,11 +996,10 @@ bool InventoryDB::GetCharacter(uint32 characterID, CharacterData &into) {
         "   chr.shipID"
         " FROM character_ AS chr"
         "  LEFT JOIN corporation AS crp USING (corporationID)"
-        " WHERE characterID = %u",
-        characterID))
-    {
-        _log(DATABASE__ERROR, "Failed to query character %u: %s.", characterID, res.error.c_str());
-        return false;
+        " WHERE characterID = %u", characterID)) {
+        codelog(SERVICE__ERROR, "InventoryDB::GetCharacter Error in query: %s", res.error.c_str());
+        return NULL;
+      }
     }
 
     DBResultRow row;
@@ -1323,7 +1356,7 @@ bool InventoryDB::DeleteCharacter(uint32 characterID) {
         // ignore the error
         _log(DATABASE__MESSAGE, "Ignoring error.");
     }
-
+/// ADD ALL DB STANDINGS TABLES HERE  -ALLAN
     // chrStandings
     if(!sDatabase.RunQuery(err,
         "DELETE FROM chrStandings"
@@ -1576,6 +1609,17 @@ bool InventoryDB::LoadPausedSkillQueue(uint32 characterID, SkillQueue &into) {
         qs.level = row.GetUInt( 1 );
 
         into.push_back( qs );
+    }
+
+    // now, delete paused queue because subsquent pressess of 'apply' button will add paused queue again, and again, etc...
+    DBerror err;
+    if( !sDatabase.RunQuery( err,
+        "DELETE FROM chrPausedSkillQueue"
+        " WHERE characterID = %u",
+        characterID ) )
+    {
+        _log(DATABASE__ERROR, "Failed to delete skill queue of character %u: %s.", characterID, err.c_str());
+        return false;
     }
 
     return true;

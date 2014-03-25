@@ -98,7 +98,6 @@ class Strings
 {
 public:
     /* trim
-     *
      * Remove leading and trailing spaces from a string.
      *
      * @param str[in] - The string to trim.
@@ -106,20 +105,18 @@ public:
      * @param right[in] - Remove it on the right side.
      * \return void (changed string)
      */
-    static std::string                trim(const std::string& str, bool left, bool right);
+    static std::string trim(const std::string& str, bool left, bool right);
 
     /* trim
-     *
      * Remove leading and trailing spaces from a string.
      *
      * @param str[in][out] - The string to trim.
      * @param left[in] - Remove it on the left side.
      * @param right[in] - Remove it on the right side.
      */
-    static void                        trim(std::string& str, bool left, bool right);
+    static void trim(std::string& str, bool left, bool right);
 
     /* trim
-     *
      * Remove leading and trailing spaces from a string.
      *
      * @param str[in] - The string to trim.
@@ -127,85 +124,76 @@ public:
      * @param right[in] - Remove it on the right side.
      * \return void (changed string)
      */
-    static std::wstring                trim(const std::wstring& str, bool left, bool right);
+    static std::wstring trim(const std::wstring& str, bool left, bool right);
 
     /* trim
-     *
      * Remove leading and trailing spaces from a string.
      *
      * @param str[in][out] - The string to trim.
      * @param left[in] - Remove it on the left side.
      * @param right[in] - Remove it on the right side.
      */
-    static void                        trim(std::wstring& str, bool left, bool right);
+    static void trim(std::wstring& str, bool left, bool right);
 
     /* toUpperCase
-     *
      * Transforms a string into upper case characters.
      *
      * @param TString[in] - The string to convert.
      * \return the string containing upper case characters.
      */
-    static std::string                toUpperCase(const std::string& TString);
+    static std::string toUpperCase(const std::string& TString);
 
     /* toUpperCase
-     *
      * Transforms a string into upper case characters.
      *
      * @param[in][out] TString - The string to convert.
      */
-    static void                        toUpperCase(std::string& TString);
+    static void toUpperCase(std::string& TString);
 
     /* toUpperCase
-     *
      * Transforms a string into upper case characters.
      *
      * @param TString[in] - The string to convert.
      * \return the string containing upper case characters.
      */
-    static std::wstring                toUpperCase(const std::wstring& TString);
+    static std::wstring toUpperCase(const std::wstring& TString);
 
     /* toUpperCase
-     *
      * Transforms a string into upper case characters.
      *
      * @param[in][out] TString - The string to convert.
      */
-    static void                        toUpperCase(std::wstring& TString);
+    static void toUpperCase(std::wstring& TString);
 
     /* toLowerCase
-     *
      * Transforms a string into lower case characters.
      *
      * @param[in] TString - The string to convert.
      * \return the string containing lower case characters.
      */
-    static std::string                toLowerCase(const std::string& TString);
+    static std::string toLowerCase(const std::string& TString);
 
     /* toLowerCase
-     *
      * Transforms a string into lower case characters.
      *
      * @param TString[in][out] - The string to convert.
      */
-    static void                        toLowerCase(std::string& TString);
+    static void toLowerCase(std::string& TString);
 
     /* toLowerCase
-     *
      * Transforms a string into lower case characters.
      *
      * @param[in] TString - The string to convert.
      * \return the string containing lower case characters.
      */
-    static std::wstring                toLowerCase(const std::wstring& TString);
+    static std::wstring toLowerCase(const std::wstring& TString);
 
     /* toLowerCase
-     *
      * Transforms a string into lower case characters.
      *
      * @param[in][out] TString - The string to convert.
      */
-    static void                        toLowerCase(std::wstring& TString);
+    static void toLowerCase(std::wstring& TString);
 
     /************************************************************************/
     /* end of the OpenFrag project header                                   */
@@ -213,25 +201,19 @@ public:
 
     /**
      * CaseFold
-     *
      * Folds a a strings case.
-     *
      */
     static std::string CaseFold(std::string & str);
 
     /**
      * CaseFold
-     *
      * Folds a a strings case.
-     *
      */
     static std::wstring CaseFold(std::wstring & str);
 
     /**
      * StringToWString
-     *
      * Converts a std::string to std::wstring
-     *
      */
     static std::wstring StringToWString(std::string & wstr);
 };
@@ -241,8 +223,6 @@ public:
  *
  * @brief a class to keep track of all the utility hash functions
  *
- *
- *
  * @author Captnoord.
  * @date January 2009
  */
@@ -251,8 +231,6 @@ class Hash
 public:
     /**
      * @brief djb2 algorithm taken from http://www.cse.yorku.ca/~oz/hash.html slightly modified
-     *
-     *
      *
      * @param[in] oStr string that needs to be hashed.
      * @return djb2 hash of the string.
@@ -271,8 +249,6 @@ public:
     /**
     * @brief djb2 algorithm taken from http://www.cse.yorku.ca/~oz/hash.html slightly modified
     *
-    *
-    *
     * @param[in] oStr string that needs to be hashed.
     * @return djb2 hash of the string.
     */
@@ -289,8 +265,6 @@ public:
 
     /**
      * @brief djb2 algorithm taken from http://www.cse.yorku.ca/~oz/hash.html slightly modified
-     *
-     *
      *
      * @param[in] oStr string that needs to be hashed.
      * @return djb2 hash of the string.
@@ -311,8 +285,6 @@ public:
     /**
     * @brief djb2 algorithm taken from http://www.cse.yorku.ca/~oz/hash.html slightly modified
     *
-    *
-    *
     * @param[in] oStr string that needs to be hashed.
     * @return djb2 hash of the string.
     */
@@ -331,8 +303,6 @@ public:
 
     /**
      * @brief djb2 algorithm taken from http://www.cse.yorku.ca/~oz/hash.html slightly modified
-     *
-     *
      *
      * @param[in] str string that needs to be hashed.
      * @param[in] len the size of the string.
@@ -355,8 +325,6 @@ public:
     /**
      * @brief sdbm algorithm taken from http://www.cse.yorku.ca/~oz/hash.html slightly modified
      *
-     *
-     *
      * @param[in] oStr string that needs to be hashed.
      * @return sdbm hash of the string.
      */
@@ -375,8 +343,6 @@ public:
     /**
      * @brief sdbm algorithm taken from http://www.cse.yorku.ca/~oz/hash.html slightly modified
      *
-     *
-     *
      * @param[in] oStr string that needs to be hashed.
      * @return sdbm hash of the string.
      */
@@ -394,8 +360,6 @@ public:
     /**
     * @brief sdbm algorithm taken from http://www.cse.yorku.ca/~oz/hash.html slightly modified
     *
-    *
-    *
     * @param[in] oStr string that needs to be hashed.
     * @return sdbm hash of the string.
     */
@@ -412,8 +376,6 @@ public:
 
     /**
     * @brief sdbm algorithm taken from http://www.cse.yorku.ca/~oz/hash.html slightly modified
-    *
-    *
     *
     * @param[in] oStr string that needs to be hashed.
     * @param[in] len length of the string that needs to be hashed.
@@ -434,5 +396,15 @@ public:
     }
 };
 }// namespace Utils
+
+/**  Nerey's Utils */
+#ifndef __nerey__H_utils
+#define __nerey__H_utils
+
+bool IsLeapYear(int year);
+int GetDaysInMonth(int year, int month);
+time_t addDays(int days);
+time_t addDays(const time_t &to, int days);
+#endif
 
 #endif//_UTIL_H

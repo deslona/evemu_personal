@@ -69,6 +69,7 @@ JumpCloneService::JumpCloneService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
+    PyCallable_REG_CALL(JumpCloneService, GetPriceForClone)
 //    PyCallable_REG_CALL(JumpCloneService, )
 }
 
@@ -106,6 +107,15 @@ PyResult JumpCloneBound::Handle_GetCloneState(PyCallArgs &call) {
     d->SetItemString( "timeLastJump", new PyNone );
 
     return new PyObject( "util.KeyVal", d );
+}
+
+//00:16:31 E Server: Unknown call to 'GetPriceForClone' by 'Allan Domani'
+//  guess this is in wrong place....
+PyResult JumpCloneService::Handle_GetPriceForClone(PyCallArgs &call) {
+  call.Dump(SERVICE__CALLS);
+    PyRep *result = NULL;
+
+    return result;
 }
 
 /*
