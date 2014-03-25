@@ -1,36 +1,4 @@
-# Introduction
-EVEmu modified to support the latest Crucible client v360229
-***   tested under SLES11.3  GCC4.7 GLIBC2.12***
-***  no support for winblows ***
-
-# Disclaimer
-
-***EVEmu is an educational project.***
- This means, our primary interest is to learn and teach us
-and our users more about C++ project development in a large
-scale. Our software is not intended for running public servers,
-and we do not support that. We are not responsible for what others
-do with the source code downloaded from this project.
-
-# Status
-- Character selection and creation is working
-- Character avatar creation is working
-- Walking in station is now possible, yet male characters use female animation skeletons.
-- Items and Ships display in station
-- Undocking and Docking is working
-- Skill Training is working (including pause/resume)
-- Injecting Skills is working
-- BookMarks are mostly working
-- Celestial Information from OverView is working
-- Planets and Services Info from StarMap(F10) is working
-- Station Info from StarMap working
-- Some dynamic map data working from StarMap(F10) [visited systems, pilots in system, jumps/hour, kills, ]
-- Refining/Reprocessing works, using Standings (kinda), and Skills
-- Market History Data working
-
-
-
-# Legal
+/*
     ------------------------------------------------------------------------------------
     LICENSE:
     ------------------------------------------------------------------------------------
@@ -52,4 +20,35 @@ do with the source code downloaded from this project.
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
+    Author:        Zhur, Allan
+*/
 
+
+#ifndef __STANDING2_SERVICE_H_INCL__
+#define __STANDING2_SERVICE_H_INCL__
+
+#include "standing/StandingDB.h"
+#include "PyService.h"
+
+class Standing : public PyService
+{
+public:
+    Standing(PyServiceMgr *mgr);
+    virtual ~Standing();
+
+protected:
+    class Dispatcher;
+    Dispatcher *const m_dispatch;
+
+    StandingDB m_db;
+
+    PyCallable_DECL_CALL(GetMyKillRights)
+    PyCallable_DECL_CALL(GetNPCNPCStandings)
+    PyCallable_DECL_CALL(GetSecurityRating)
+    PyCallable_DECL_CALL(GetMyStandings)
+    PyCallable_DECL_CALL(GetStandingTransactions)
+    PyCallable_DECL_CALL(GetCharStandings)
+    PyCallable_DECL_CALL(GetCorpStandings)
+};
+
+#endif

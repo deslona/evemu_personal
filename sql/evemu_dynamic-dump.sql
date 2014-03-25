@@ -307,7 +307,8 @@ DROP TABLE IF EXISTS `chrNotes`;
 CREATE TABLE `chrNotes` (
   `itemID` int(10) unsigned NOT NULL default '0',
   `ownerID` int(10) unsigned default NULL,
-  `note` text
+  `note` text,
+  PRIMARY KEY (`itemID`,`ownerID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Data for the table `chrNotes` */
@@ -931,16 +932,24 @@ INSERT INTO `mapOreBySystemSecurityClass` (`systemSecurityClass`, `Veldspar`, `S
 /* Table structure for table `mapDynamicData`  */
 
 CREATE TABLE IF NOT EXISTS `mapDynamicData` (
-  `solSystemID` int(10) NOT NULL,
-  `cynoFields` int(10) DEFAULT '0',
-  `jumpsHour` int(10) DEFAULT '0',
-  `killsHour` int(10) DEFAULT '0',
-  `kills24Hours` int(10) DEFAULT '0',
-  `numPilots` int(10) DEFAULT '0',
-  `podKillsHour` int(10) DEFAULT '0',
-  `podKills24Hour` int(10) DEFAULT '0',
-  KEY `solSystemID` (`solSystemID`)
+  `solarSystemID` int(10) NOT NULL,
+  `beaconCount` int(10) NOT NULL DEFAULT '0',
+  `cynoFields` int(11) NOT NULL DEFAULT '0',
+  `jumpsHour` int(10) NOT NULL DEFAULT '0',
+  `killsHour` int(10) NOT NULL DEFAULT '0',
+  `kills24Hours` int(10) NOT NULL DEFAULT '0',
+  `numPilots` int(10) NOT NULL DEFAULT '0',
+  `podKillsHour` int(10) NOT NULL DEFAULT '0',
+  `podKills24Hour` int(10) NOT NULL DEFAULT '0',
+  `factionKills` int(11) NOT NULL DEFAULT '0',
+  `jumpsDateTime` bigint(20) DEFAULT NULL,
+  `killsDateTime` bigint(20) DEFAULT NULL,
+  `kills24DateTime` bigint(20) DEFAULT NULL,
+  `podDateTime` bigint(20) DEFAULT NULL,
+  `pod24DateTime` bigint(20) DEFAULT NULL,
+  UNIQUE KEY `solarSystemID` (`solarSystemID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 
 /*  Table structure for table `chrVisitedSystems` */
 
@@ -951,4 +960,44 @@ CREATE TABLE IF NOT EXISTS `chrVisitedSystems` (
   PRIMARY KEY (`characterID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+/*  Table structure for table `chrSkillHistory`  */
+
+CREATE TABLE IF NOT EXISTS `chrSkillHistory` (
+  `eventID` smallint(6) NOT NULL,
+  `characterID` int(11) NOT NULL,
+  `logDateTime` bigint(20) NOT NULL,
+  `skillTypeID` int(8) NOT NULL,
+  `skillLevel` tinyint(4) NOT NULL,
+  `relativePoints` bigint(20) NOT NULL,
+  `absolutePoints` bigint(20) NOT NULL,
+  `AI` int(11) NOT NULL AUTO_INCREMENT,
+  UNIQUE KEY `AI` (`AI`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='Char Skill History' AUTO_INCREMENT=25 ;
+
+/* Table structure for table `chrPausedSkillQueue`  */
+
+CREATE TABLE IF NOT EXISTS `chrPausedSkillQueue` (
+  `characterID` int(10) unsigned NOT NULL,
+  `orderIndex` int(10) unsigned NOT NULL,
+  `typeID` int(10) unsigned NOT NULL,
+  `level` int(10) unsigned NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
+
+
+/* Table structure for table `invWrecksToSalvage`  */
+
+CREATE TABLE IF NOT EXISTS `invWrecksToSalvage` (
+  `wreckTypeID` int(10) unsigned NOT NULL,
+  `salvageItemID` int(10) unsigned NOT NULL,
+  `group` tinyint(3) unsigned NOT NULL,
+  `dropChance` decimal(6,4) unsigned NOT NULL DEFAULT '0.0000',
+  `minDrop` tinyint(4) NOT NULL DEFAULT '0',
+  `maxDrop` tinyint(4) NOT NULL DEFAULT '0',
+  `WreckName` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+  `SalvageName` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
+  KEY `wreckTypeID` (`wreckTypeID`,`salvageItemID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+
+
