@@ -236,12 +236,12 @@ public:
     const BlueprintType &   type() const { return(static_cast<const BlueprintType &>(InventoryItem::type())); }
     const BlueprintType *   parentBlueprintType() const { return(type().parentBlueprintType()); }
     uint32                  parentBlueprintTypeID() const { return(type().parentBlueprintTypeID()); }
-    const ItemType &            productType() const { return(type().productType()); }
+    const ItemType &        productType() const { return(type().productType()); }
     uint32                  productTypeID() const { return(type().productTypeID()); }
-    bool                    copy() const { return(m_copy); }
-    uint32                  materialLevel() const { return(m_materialLevel); }
-    uint32                  productivityLevel() const { return(m_productivityLevel); }
-    int32                   licensedProductionRunsRemaining() const { return(m_licensedProductionRunsRemaining); }
+    bool                    copy() { return(m_copy); }
+    uint32                  materialLevel() { return(m_materialLevel); }
+    uint32                  productivityLevel() { return(m_productivityLevel); }
+    int32                   licensedProductionRunsRemaining() { return(m_licensedProductionRunsRemaining); }
 
     /*
      * Primary public interface:
@@ -274,17 +274,17 @@ public:
     bool Merge(InventoryItemRef to_merge, int32 qty=0, bool notify=true);    //consumes ref!
 
     // some blueprint-related stuff
-    bool infinite() const                   { return(licensedProductionRunsRemaining() < 0); }
-    double wasteFactor() const              { return(type().wasteFactor() / (1 + materialLevel())); }
+    bool infinite()                   { return(licensedProductionRunsRemaining() < 0); }
+    double wasteFactor()              { return(type().wasteFactor() / (1 + materialLevel())); }
 
-    double materialMultiplier() const       { return(1.0 + wasteFactor()); }
-    double timeMultiplier() const           { return(1.0 - (timeSaved() / type().productionTime())); }
-    double timeSaved() const                { return((1.0 - (1.0 / (1 + productivityLevel()))) * type().productivityModifier()); }
+    double materialMultiplier()        { return(1.0 + wasteFactor()); }
+    double timeMultiplier()            { return(1.0 - (timeSaved() / type().productionTime())); }
+    double timeSaved()                { return((1.0 - (1.0 / (1 + productivityLevel()))) * type().productivityModifier()); }
 
     /*
      * Primary public packet builders:
      */
-    PyDict *GetBlueprintAttributes() const;
+    PyDict *GetBlueprintAttributes();
 
 protected:
     Blueprint(
@@ -294,7 +294,7 @@ protected:
         const BlueprintType &_bpType,
         const ItemData &_data,
         // Blueprint stuff:
-        const BlueprintData &_bpData
+        BlueprintData &_bpData
     );
 
     /*
@@ -331,7 +331,7 @@ protected:
         // InventoryItem stuff:
         const BlueprintType &bpType, const ItemData &data,
         // Blueprint stuff:
-        const BlueprintData &bpData
+        BlueprintData &bpData
     );
 
     static uint32 _Spawn(ItemFactory &factory,
@@ -341,7 +341,7 @@ protected:
         BlueprintData &bpData
     );
 
-    void SaveBlueprint() const;
+    void SaveBlueprint();
 
     /*
      * Member variables

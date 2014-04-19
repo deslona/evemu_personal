@@ -740,23 +740,23 @@ PyResult Command_setbpattr( Client* who, CommandDB* db, PyServiceMgr* services, 
 
     if( !args.isNumber( 1 ) )
         throw PyException( MakeCustomError( "Argument 1 must be blueprint ID. (got %s)", args.arg( 1 ).c_str() ) );
-    const uint32 blueprintID = atoi( args.arg( 1 ).c_str() );
+    uint32 blueprintID = atoi( args.arg( 1 ).c_str() );
 
     if( "0" != args.arg( 2 ) && "1" != args.arg( 2 ) )
         throw PyException( MakeCustomError( "Argument 2 must be 0 (not copy) or 1 (copy). (got %s)", args.arg( 2 ).c_str() ) );
-    const bool copy = ( atoi( args.arg( 2 ).c_str() ) ? true : false );
+    bool copy = ( atoi( args.arg( 2 ).c_str() ) ? true : false );
 
     if( !args.isNumber( 3 ) )
         throw PyException( MakeCustomError( "Argument 3 must be material level. (got %s)", args.arg( 3 ).c_str() ) );
-    const uint32 materialLevel = atoi( args.arg( 3 ).c_str() );
+    uint32 materialLevel = atoi( args.arg( 3 ).c_str() );
 
     if( !args.isNumber( 4 ) )
         throw PyException( MakeCustomError( "Argument 4 must be productivity level. (got %s)", args.arg( 4 ).c_str() ) );
-    const uint32 productivityLevel = atoi( args.arg( 4 ).c_str() );
+    uint32 productivityLevel = atoi( args.arg( 4 ).c_str() );
 
     if( !args.isNumber( 5 ) )
         throw PyException( MakeCustomError( "Argument 5 must be remaining licensed production runs. (got %s)", args.arg( 5 ).c_str() ) );
-    const uint32 licensedProductionRunsRemaining = atoi( args.arg( 5 ).c_str() );
+    uint32 licensedProductionRunsRemaining = atoi( args.arg( 5 ).c_str() );
 
     BlueprintRef bp = services->item_factory.GetBlueprint( blueprintID );
     if( !bp )
@@ -1026,11 +1026,9 @@ PyResult Command_giveskills( Client* who, CommandDB* db, PyServiceMgr* services,
 
 }
 
-PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args )
-{
-
+PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args ) {
     uint32 typeID;
-    uint8 level;
+    int level;
     CharacterRef character;
     EVEItemFlags flag;
     uint32 gty = 1;
@@ -1038,20 +1036,14 @@ PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, 
     EvilNumber oldSkillLevel(0);
     uint32 ownerID = 0;
 
-    if( args.argCount() == 4 )
-    {
-        if( args.isNumber( 1 ) )
-        {
+    if( args.argCount() == 4 ) {
+        if( args.isNumber( 1 ) ) {
             ownerID = atoi( args.arg( 1 ).c_str() );
             character = services->entity_list.FindCharacter( ownerID )->GetChar();
-        }
-        else if( args.arg( 1 ) == "me" )
-        {
+        } else if( args.arg( 1 ) == "me" ) {
             ownerID = who->GetCharacterID();
             character = who->GetChar();
-        }
-        else if( !args.isNumber( 1 ) )
-        {
+        } else if( !args.isNumber( 1 ) ) {
             throw PyException( MakeCustomError( "The use of string based Character names for this command is not yet supported!  Use 'me' instead or the entityID of the character to which you wish to give skills." ) );
             /*
             const char *name = args.arg( 1 ).c_str();
@@ -1061,10 +1053,8 @@ PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, 
             ownerID = target->GetCharacterID();
             character = target->GetChar();
             */
-        }
-        else
+        } else
             throw PyException( MakeCustomError( "Argument 1 must be Character ID or Character Name ") );
-
 
         if( !args.isNumber( 2 ) )
             throw PyException( MakeCustomError( "Argument 2 must be type ID." ) );
@@ -1083,10 +1073,8 @@ PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, 
     SkillRef skill;
 
     // Make sure Character reference is not NULL before trying to use it:
-    if(character.get() != NULL)
-    {
-        if(character->HasSkill( typeID ) )
-        {
+    if(character.get() != NULL) {
+        if(character->HasSkill( typeID ) ) {
             // Character already has this skill, so let's get the current level and check to see
             // if we need to update its level to what's required:
             SkillRef oldSkill = character->GetSkill( typeID );
@@ -1094,14 +1082,10 @@ PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, 
 
             // Now check the current level to the required level and update it
             if( oldSkillLevel < level )
-            {
                 character->InjectSkillIntoBrain( oldSkill, level);
-                return new PyString ( "Gifting skills complete" );
-            }
+
             skill = oldSkill;
-        }
-        else
-        {
+        } else {
             // Character DOES NOT have this skill, so spawn a new one and then add this
             // to the character with required level and skill points:
             ItemData idata(
@@ -1119,12 +1103,13 @@ PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, 
                 throw PyException( MakeCustomError( "Unable to create item of type %s.", item->typeID() ) );
 
             character->InjectSkillIntoBrain( skill, level);
-            return new PyString ( "Gifting skills complete" );
+
         }
+        EvilNumber tmp = EVIL_SKILL_BASE_POINTS * skill->GetAttribute(AttrSkillTimeConstant) * EvilNumber::pow(2,( 2.5 * (level - 1)));
+        skill->SetAttribute(AttrSkillPoints, tmp);
 
         // Either way, this character now has this skill trained to the specified level, so inform client:
-        if( who != NULL )
-        {
+        if( who != NULL ) {
             OnSkillTrained ost;
             ost.itemID = skill->itemID();
 
@@ -1134,6 +1119,12 @@ PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, 
 
             who->UpdateSkillTraining();
         }
+
+        //  save gm skill gift in history  -allan
+        // 39 - GMGiveSkill
+        character->SaveSkillHistory(39, EvilTimeNow().get_float(), ownerID, typeID, level, skill->GetAttribute(AttrSkillPoints).get_float(), character->GetTotalSP().get_float());
+
+        return new PyString ( "Gifting skills complete" );
     }
 
     return new PyString ("Skill Gifting Failure");

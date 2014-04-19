@@ -249,7 +249,7 @@ PyResult Standing::Handle_GetCharStandings(PyCallArgs &call) {
   sLog.Log( "Standing::Handle_GetCharStandings()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
 */
-
+/*
     ObjectCachedSessionMethodID method_id(GetName(), "GetCharStandings", call.client->GetCharacterID());
 
     if(!m_manager->cache_service->IsCacheLoaded(method_id)) {
@@ -259,6 +259,8 @@ PyResult Standing::Handle_GetCharStandings(PyCallArgs &call) {
     }
 
     return(m_manager->cache_service->MakeObjectCachedSessionMethodCallResult(method_id, "charID"));
+    */
+    return(m_db.GetCharStandings(call.client->GetCharacterID()));
 }
 PyResult Standing::Handle_GetCorpStandings(PyCallArgs &call) {
   sLog.Log( "Standing::Handle_GetCorpStandings()", "size= %u", call.tuple->size() );

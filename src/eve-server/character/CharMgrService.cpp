@@ -132,6 +132,8 @@ CharMgrService::CharMgrService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(CharMgrService, GetNote)
     PyCallable_REG_CALL(CharMgrService, SetNote)
     PyCallable_REG_CALL(CharMgrService, AddContact)
+    PyCallable_REG_CALL(CharMgrService, EditContact)
+    PyCallable_REG_CALL(CharMgrService, GetRecentShipKillsAndLosses)
 
     //these 2 are for labels in PnP window
     PyCallable_REG_CALL(CharMgrService, GetLabels)
@@ -305,11 +307,19 @@ PyResult CharMgrService::Handle_SetActivityStatus( PyCallArgs& call )
     return new PyInt( 0 );
 }
 
-//02:17:22 L CharMgrService::Handle_GetSettingsInfo(): size= 0
-PyResult CharMgrService::Handle_GetSettingsInfo( PyCallArgs& call )
-{
+PyResult CharMgrService::Handle_GetSettingsInfo( PyCallArgs& call ) {
+  /*
+22:07:36 L CharMgrService::Handle_GetSettingsInfo(): size= 0
+22:07:36 [SvcCall]   Call Arguments:
+22:07:36 [SvcCall]       Tuple: Empty
+22:07:36 [SvcCall]   Call Named Arguments:
+22:07:36 [SvcCall]     Argument 'machoVersion':
+22:07:36 [SvcCall]         Integer field: 1
+  sLog.Log( "CharMgrService::Handle_GetSettingsInfo()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
-    return new PyInt( 0 );
+    */
+    //return new PyInt( 0 );
+    return NULL;
 }
 
 PyResult CharMgrService::Handle_GetCharacterDescription(PyCallArgs &call)
@@ -409,6 +419,24 @@ PyResult CharMgrService::Handle_AddContact( PyCallArgs& call )
   call.Dump(SERVICE__CALLS);
 
   // make db call to save contact.  will have to find the call to get contact list....
+  return NULL;
+}
+
+PyResult CharMgrService::Handle_EditContact( PyCallArgs& call )
+{
+  uint8 size = call.tuple->size();
+  sLog.Log( "CharMgrService::Handle_EditContact()", "size=%u ", size );
+  call.Dump(SERVICE__CALLS);
+
+  return NULL;
+}
+
+PyResult CharMgrService::Handle_GetRecentShipKillsAndLosses( PyCallArgs& call )
+{
+  uint8 size = call.tuple->size();
+  sLog.Log( "CharMgrService::Handle_GetRecentShipKillsAndLosses()", "size=%u ", size );
+  call.Dump(SERVICE__CALLS);
+
   return NULL;
 }
 

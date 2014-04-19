@@ -51,15 +51,15 @@ ItemFactory::~ItemFactory() {
             // save attributes of item
 			if( IsNonStaticItem(cur->second->itemID()) )
 				cur->second->SaveItem();
-			
+
 			items_saved++;
 			if( ((float)items_saved / (float)total_item_count) > (current_percent_items_saved + 0.05) )
 			{
 				current_percent_items_saved = (float)items_saved / (float)total_item_count;
-				sLog.Log( "Saving Items", " %3.2f%%", (current_percent_items_saved * 100.0) );
+				sLog.Warning( "Saving Items", " %3.2f%%", (current_percent_items_saved * 100.0) );
 			}
         }
-		sLog.Log( "Saving Items", " COMPLETE!" );
+		sLog.Success( "Saving Items", " COMPLETE!" );
     }
     // types
     {

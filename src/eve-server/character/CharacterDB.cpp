@@ -162,23 +162,20 @@ bool CharacterDB::ValidateCharName(const char *name)
 }
 
 PyRep *CharacterDB::GetCharSelectInfo(uint32 characterID) {
+  /**  this shows char on select screen....make call to "SkillQueueEndTime" from here for 'current' data, if applicable...  -allan 31Mar14*/
     DBQueryResult res;
 
     uint32 worldSpaceID = 0;
 
     std::string shipName = "My Ship";
-    uint32 shipTypeID = 606;
+    uint32 shipTypeID = 606;  /// why is this hardcoded to the velator???
 
     DBQueryResult res2;
-    if(!sDatabase.RunQuery(res2, "SELECT itemName, typeID FROM entity WHERE itemID = (SELECT shipID FROM character_ WHERE characterID = %u)", characterID))
-    {
+    if(!sDatabase.RunQuery(res2, "SELECT itemName, typeID FROM entity WHERE itemID = (SELECT shipID FROM character_ WHERE characterID = %u)", characterID)) {
         codelog(SERVICE__WARNING, "Unable to get current ship: %s", res.error.c_str());
-    }
-    else
-    {
+    } else {
         DBResultRow row;
-        while(res2.GetRow(row))
-        {
+        while(res2.GetRow(row)) {
             sDatabase.DoEscapeString(shipName, row.GetText(0));
             shipTypeID = row.GetUInt(1);
         }

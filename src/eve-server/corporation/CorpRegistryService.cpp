@@ -602,6 +602,7 @@ typedef enum {  //from eveConstants
 } CorpApplicationStatus;
 
 PyResult CorpRegistryBound::Handle_UpdateApplicationOffer(PyCallArgs &call) {
+  sLog.Log( "CorpRegistryBound::Handle_UpdateApplicationOffer()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
     /** Incoming:
      *  Tuple
@@ -1020,6 +1021,12 @@ PyResult CorpRegistryBound::Handle_GetSharesByShareholder(PyCallArgs &call) {
 
 //00:33:29 L CorpRegistryBound::Handle_SetAccountKey(): size= 1
 PyResult CorpRegistryBound::Handle_SetAccountKey(PyCallArgs &call) {
+  /*
+22:46:58 L CorpRegistryBound::Handle_SetAccountKey(): size= 1, 0=Integer
+22:46:58 [SvcCall]   Call Arguments:
+22:46:58 [SvcCall]       Tuple: 1 elements
+22:46:58 [SvcCall]         [ 0] Integer field: 1000
+*/
   sLog.Log( "CorpRegistryBound::Handle_SetAccountKey()", "size= %u, 0=%s", call.tuple->size(), call.tuple->GetItem( 0 )->TypeString() );
     call.Dump(SERVICE__CALLS);
 
@@ -1036,6 +1043,14 @@ PyResult CorpRegistryBound::Handle_PayoutDividend(PyCallArgs &call) {
 //21:59:17 L CorpRegistryBound::Handle_GetVoteCasesByCorporation(): size= 3
 //21:59:20 L CorpRegistryBound::Handle_GetVoteCasesByCorporation(): size= 1
 PyResult CorpRegistryBound::Handle_GetVoteCasesByCorporation(PyCallArgs &call) {
+  /*
+22:47:43 L CorpRegistryBound::Handle_GetVoteCasesByCorporation(): size= 3
+22:47:43 [SvcCall]   Call Arguments:
+22:47:43 [SvcCall]       Tuple: 3 elements
+22:47:43 [SvcCall]         [ 0] Integer field: 1001002
+22:47:43 [SvcCall]         [ 1] Integer field: 2
+22:47:43 [SvcCall]         [ 2] Integer field: 0
+*/
   sLog.Log( "CorpRegistryBound::Handle_GetVoteCasesByCorporation()", "size= %u", call.tuple->size() );
 
     call.Dump(SERVICE__CALLS);

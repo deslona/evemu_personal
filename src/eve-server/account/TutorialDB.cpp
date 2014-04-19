@@ -100,7 +100,7 @@ PyRep *TutorialDB::GetAllTutorials() {
         return NULL;
     }
 
-    return(DBResultToCRowset(res));
+    return(DBResultToRowset(res));
 }
 
 PyRep *TutorialDB::GetAllCriterias() {

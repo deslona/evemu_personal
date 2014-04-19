@@ -34,20 +34,17 @@ public:
     EnergyTurret( InventoryItemRef item, ShipRef ship );
     ~EnergyTurret();
 
-    void Process();
+	void Process();
 
     // Module Action Methods:
-    void Load(InventoryItemRef charge);
+    void Load();
     void Unload();
     void Repair();
     void Overload();
     void DeOverload();
     void DestroyRig();
-    void Activate(SystemEntity * targetEntity);
-    void Deactivate();
-
-    // Calls Reserved for components usage only!
-    void DoCycle();
+	void Activate(uint32 targetID);
+	void Deactivate();
 };
 
 #endif

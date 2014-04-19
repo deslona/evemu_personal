@@ -50,6 +50,7 @@ CorporationService::CorporationService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(CorporationService, GetVoteCasesByCorporation)
     PyCallable_REG_CALL(CorporationService, MoveCorpHQHere)
     PyCallable_REG_CALL(CorporationService, AddCorporateContact)
+    PyCallable_REG_CALL(CorporationService, GetRecentKillsAndLosses)
 }
 
 CorporationService::~CorporationService() {
@@ -275,11 +276,20 @@ PyResult CorporationService::Handle_GetRecruitmentAdsByCriteria( PyCallArgs& cal
 }
 
 /** not handled */
-PyResult CorporationService::Handle_GetRecruitmentAdRegistryData(PyCallArgs &call)
-{
+PyResult CorporationService::Handle_GetRecruitmentAdRegistryData(PyCallArgs &call) {
+  /*
+22:47:33 L CorporationService::Handle_GetRecruitmentAdRegistryData(): size= 0
+22:47:33 [SvcCall]   Call Arguments:
+22:47:33 [SvcCall]       Tuple: Empty
+22:47:33 [SvcCall]   Call Named Arguments:
+22:47:33 [SvcCall]     Argument 'machoVersion':
+22:47:33 [SvcCall]         Integer field: 1
+AttributeError: 'NoneType' object has no attribute 'types'
+
       sLog.Log( "CorporationService::Handle_GetRecruitmentAdRegistryData()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
-    return NULL;
+*/
+  return NULL;
 }
 
 PyResult CorporationService::Handle_SetAccountKey(PyCallArgs &call)
@@ -297,8 +307,18 @@ PyResult CorporationService::Handle_IsEnemyFaction(PyCallArgs &call)
     return NULL;
 }
 
-PyResult CorporationService::Handle_GetVoteCasesByCorporation(PyCallArgs &call)
-{
+PyResult CorporationService::Handle_GetVoteCasesByCorporation(PyCallArgs &call) {
+  /*
+22:47:43 L CorpRegistryBound::Handle_GetVoteCasesByCorporation(): size= 3
+22:47:43 [SvcCall]   Call Arguments:
+22:47:43 [SvcCall]       Tuple: 3 elements
+22:47:43 [SvcCall]         [ 0] Integer field: 1001002
+22:47:43 [SvcCall]         [ 1] Integer field: 2
+22:47:43 [SvcCall]         [ 2] Integer field: 0
+22:47:43 [SvcCall]   Call Named Arguments:
+22:47:43 [SvcCall]     Argument 'machoVersion':
+22:47:43 [SvcCall]         Integer field: 1
+*/
       sLog.Log( "CorporationService::Handle_GetVoteCasesByCorporation()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
 
@@ -317,6 +337,14 @@ PyResult CorporationService::Handle_MoveCorpHQHere(PyCallArgs &call)
 PyResult CorporationService::Handle_AddCorporateContact(PyCallArgs &call)
 {
       sLog.Log( "CorporationService::Handle_AddCorporateContact()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
+
+    return NULL;
+}
+
+PyResult CorporationService::Handle_GetRecentKillsAndLosses(PyCallArgs &call)
+{
+      sLog.Log( "CorporationService::Handle_GetRecentKillsAndLosses()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
 
     return NULL;

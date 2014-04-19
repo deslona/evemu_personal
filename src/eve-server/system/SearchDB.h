@@ -20,32 +20,30 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Reve
+    Author:        Allan
 */
 
-#include "eve-server.h"
 
-#include "PyServiceCD.h"
-#include "ship/RepairService.h"
+#ifndef __SEARCHDB_H_INCL__
+#define __SEARCHDB_H_INCL__
 
-PyCallable_Make_InnerDispatcher(RepairService)
+#include "ServiceDB.h"
+#include "system/Search.h"
+// I'm anticipating a large method for searching entitys and items, so this is where I'm putting it.
 
-RepairService::RepairService(PyServiceMgr *mgr)
-: PyService(mgr, "repairSvc"),
-  m_dispatch(new Dispatcher(this))
+class SearchDB : public ServiceDB
 {
-    _SetCallDispatcher(m_dispatch);
+  public:
+    SearchDB();
 
-    PyCallable_REG_CALL(RepairService, UnasembleItems);
-}
+    PyObject *Query(std::string string, int32 int1, uint32 charID);
+    PyObject *QueryAll(std::string string, uint32 charID);
+    PyObject *QuickQuery(std::string string, int32 int1, int32 int2, int32 int3, uint32 charID);
+    //PyObject *QuickQuery(std::string string, int32 int1, int32 int2, int32 int3, int32 hideNPC, int32 onlyAltName, uint32 charID);
 
-RepairService::~RepairService() {
-    delete m_dispatch;
-}
+  private:
 
-PyResult RepairService::Handle_UnasembleItems(PyCallArgs &call) {
-    sLog.Log("RepairService::Handle_UnasembleItems", "Called UnasembleItems stub.");
-  call.Dump(SERVICE__CALLS);
+};
 
-    return NULL;
-}
+
+#endif

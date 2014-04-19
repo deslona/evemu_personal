@@ -29,9 +29,6 @@
 
 PyRep *ConfigDB::GetMultiOwnersEx(const std::vector<int32> &entityIDs) {
 #   pragma message( "we need to deal with corporations!" )
-
-    //im not sure how this query is supposed to work, as far as what table
-    //we use to get the fields from.
     //we only get called for items which are not already sent in the
     // eveStaticOwners cachable object.
 
@@ -44,11 +41,11 @@ PyRep *ConfigDB::GetMultiOwnersEx(const std::vector<int32> &entityIDs) {
     //first we check to see if there is such ids in the entity tables
     if(!sDatabase.RunQuery(res,
         "SELECT "
-        " entity.itemID as ownerID,"
-        " entity.itemName as ownerName,"
-        " entity.typeID,"
-        " 1 as gender,"
-        " NULL as ownerNameID"
+        " itemID as ownerID,"
+        " itemName as ownerName,"
+        " typeID,"
+        " NULL as ownerNameID,"
+        " 0 as gender"
         " FROM entity "
         " WHERE itemID in (%s)", ids.c_str()))
     {
@@ -56,13 +53,13 @@ PyRep *ConfigDB::GetMultiOwnersEx(const std::vector<int32> &entityIDs) {
         return NULL;
     }
 
-    //second: we check to see if the id points to a static entity (Agents, NPC Corps, etc.)
+    //second: we check to see if the id points to a static entity (Agents, NPC Corps, factions)
     if(!res.GetRow(row)) {
         if(!sDatabase.RunQuery(res,
             "SELECT "
             " ownerID,ownerName,typeID,"
-            " 1 as gender,"
-            " NULL as ownerNameID"
+            " NULL as ownerNameID,"
+            " 0 as gender"
             " FROM eveStaticOwners "
             " WHERE ownerID in (%s)", ids.c_str()))
         {
@@ -80,8 +77,8 @@ PyRep *ConfigDB::GetMultiOwnersEx(const std::vector<int32> &entityIDs) {
             " characterID as ownerID,"
             " itemName as ownerName,"
             " typeID,"
-            " 1 as gender,"
-            " NULL as ownerNameID"
+            " NULL as ownerNameID,"
+            " 0 as gender"
             " FROM character_ "
             " LEFT JOIN entity ON characterID = itemID"
             " WHERE characterID in (%s)", ids.c_str()))
@@ -97,10 +94,6 @@ PyRep *ConfigDB::GetMultiOwnersEx(const std::vector<int32> &entityIDs) {
 }
 
 PyRep *ConfigDB::GetMultiAllianceShortNamesEx(const std::vector<int32> &entityIDs) {
-
-    //im not sure how this query is supposed to work, as far as what table
-    //we use to get the fields from.
-
     std::string ids;
     ListToINString(entityIDs, ids, "-1");
 
@@ -108,8 +101,8 @@ PyRep *ConfigDB::GetMultiAllianceShortNamesEx(const std::vector<int32> &entityID
 
     if(!sDatabase.RunQuery(res,
         "SELECT "
-        " entity.itemID as allianceID,"
-        " entity.itemName as shortName" //we likely need to use customInfo or something for this.
+        " itemID as allianceID,"
+        " itemName as shortName" //we likely need to use customInfo or something for this.
         " FROM entity "
         " WHERE entity.typeID = %d"
         "   AND itemID in (%s)",
@@ -126,17 +119,21 @@ PyRep *ConfigDB::GetMultiAllianceShortNamesEx(const std::vector<int32> &entityID
 
 
 PyRep *ConfigDB::GetMultiLocationsEx(const std::vector<int32> &entityIDs) {
-
-    //im not sure how this query is supposed to work, as far as what table
-    //we use to get the fields from.
+  /*
+16:01:32 L ConfigService: Handle_GetMultiLocationsEx
+16:01:32 [SvcCall]   Call Arguments:
+16:01:32 [SvcCall]       Tuple: 1 elements
+16:01:32 [SvcCall]         [ 0] List: 1 elements
+16:01:32 [SvcCall]         [ 0]   [ 0] Integer field: 9
+16:01:32 [SvcCall]   Call Named Arguments:
+16:01:32 [SvcCall]     Argument 'machoVersion':
+16:01:32 [SvcCall]         Integer field: 1
+16:01:32 E ConfigDB::GetMultiLocationsEx: res = NULL
+16:01:32 L ConfigDB::GetMultiLocationsEx: Query use_map 0, ids:9       <-- WTF is this???
+*/
 
     bool use_map = false;
-    if(!entityIDs.empty()) {
-        //this is a big of a hack at this point... basically
-        //we are assuming that they only query locations for map items
-        // and non-map items disjointly....
-        use_map = IsStaticMapItem(entityIDs[0]);
-    }
+    if(!entityIDs.empty()) use_map = IsStaticMapItem(entityIDs[0]);
 
     std::string ids;
     ListToINString(entityIDs, ids, "-1");
@@ -146,11 +143,9 @@ PyRep *ConfigDB::GetMultiLocationsEx(const std::vector<int32> &entityIDs) {
     if(use_map) {
         if(!sDatabase.RunQuery(res,
             "SELECT "
-            " mapDenormalize.itemID AS locationID,"
-            " mapDenormalize.itemName AS locationName,"
-            " mapDenormalize.x AS x,"
-            " mapDenormalize.y AS y,"
-            " mapDenormalize.z AS z,"
+            " itemID AS locationID,"
+            " itemName AS locationName,"
+            " x, y, z,"
             " NULL AS locationNameID"
             " FROM mapDenormalize "
             " WHERE itemID in (%s)", ids.c_str()))
@@ -161,12 +156,10 @@ PyRep *ConfigDB::GetMultiLocationsEx(const std::vector<int32> &entityIDs) {
     } else {
         if(!sDatabase.RunQuery(res,
             "SELECT "
-            " entity.itemID AS locationID,"
-            " entity.itemName AS locationName,"
-            " entity.x AS x,"
-            " entity.y AS y,"
-            " entity.z AS z,"
-            " NULL AS locationNameID"
+            " typeID AS locationID,"
+            " itemName AS locationName,"
+            " x, y, z,"
+            " locationID AS locationNameID"
             " FROM entity "
             " WHERE itemID in (%s)", ids.c_str()))
         {
@@ -175,12 +168,19 @@ PyRep *ConfigDB::GetMultiLocationsEx(const std::vector<int32> &entityIDs) {
         }
     }
 
-    return(DBResultToRowset(res));
+    DBResultRow row;
+    if(res.GetRow(row)) return(DBResultToTupleSet(res)); else sLog.Error("ConfigDB::GetMultiLocationsEx", "res = NULL");
 
-    // this one give this....TypeError: 'NoneType' object is not iterable
+    sLog.Log( "ConfigDB::GetMultiLocationsEx", "Query use_map %u, ids:%s", use_map, ids.c_str() );
+    return NULL;
+
+    //  this one gives this....RuntimeError: ('_Prime called with unsupported data type', <class util.Rowset at 0x04B7F458>)
+    //      and things dont work right....cargohold, fitting window, assets window...
+    //return(DBResultToRowset(res));
+
+    // this one gives this....TypeError: 'NoneType' object is not iterable, but things work....
     //return(DBResultToTupleSet(res));
 }
-
 
 PyRep *ConfigDB::GetMultiCorpTickerNamesEx(const std::vector<int32> &entityIDs) {
 
@@ -457,7 +457,7 @@ PyRep *ConfigDB::GetCelestialStatistic(uint32 celestialID) {
 }
 
 PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID) {
-    const std::string query = "SELECT"
+    std::string query = "SELECT"
                               "   e.itemID AS itemID,"
                               "   e.typeID AS typeID,"
                               "   t.groupID AS groupID,"
@@ -506,7 +506,7 @@ PyObject *ConfigDB::GetMapOffices(uint32 solarSystemID) {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
-//  AttributeError: stationID     need to find this...
+//  AttributeError: stationID     need to find this in db.....????
     return DBResultToRowset(res);
 }
 
@@ -536,9 +536,6 @@ PyObject *ConfigDB::GetMapConnections(uint32 queryID, bool bool1, bool bool2, bo
         "SELECT "
         "  regionName,"
         "  x,y,z,"
-        "  xMin,xMax,"
-        "  yMin,yMax,"
-        "  zMin,zMax,"
         "  factionID,"
         "  radius"
         " FROM mapRegions"
@@ -594,14 +591,28 @@ radius
 iconID
 importance
 
-
         landmarks = None
         filterNo = 1
 
         ****  get everything and return
 */
+    DBQueryResult res;
 
-       return NULL;
-
+      if(!sDatabase.RunQuery(res,
+          "SELECT"
+          "   landmarkID AS landmarkNameID,"
+          "   landmarkName,"
+          "   description,"
+          "   locationID,"
+          "   x, y, z,"
+          "   radius,"
+          "   iconID,"
+          "   importance"
+          " FROM mapLandmarks" ))
+      {
+          codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+          return NULL;
+      }
+    return DBResultToRowset(res);
 }
 

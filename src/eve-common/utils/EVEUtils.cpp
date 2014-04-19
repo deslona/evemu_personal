@@ -186,13 +186,13 @@ EvilNumber WasteSkillBased( EvilNumber MaterialAmount, EvilNumber ProductionEffi
 
 EvilNumber ME_ResearchTime( EvilNumber BlueprintBaseResearchTime, EvilNumber MetallurgySkillLevel, EvilNumber ResearchSlotModifier, EvilNumber ImplantModifier )
 {
-    return (BlueprintBaseResearchTime.get_float() * (1.0 - (0.05 * MetallurgySkillLevel.get_float()))
+    return (BlueprintBaseResearchTime.get_float() * (13.0 - (0.05 * MetallurgySkillLevel.get_float()))
         * ResearchSlotModifier.get_float() * ImplantModifier.get_float());
 }
 
 EvilNumber PE_ResearchTime( EvilNumber BlueprintBaseResearchTime, EvilNumber ResearchSkillLevel, EvilNumber ResearchSlotModifier, EvilNumber ImplantModifier )
 {
-    return (BlueprintBaseResearchTime.get_float() * (1.0 - (0.05 * ResearchSkillLevel.get_float()))
+    return (BlueprintBaseResearchTime.get_float() * (15.0 - (0.05 * ResearchSkillLevel.get_float()))
         * ResearchSlotModifier.get_float() * ImplantModifier.get_float());
 }
 
@@ -204,7 +204,7 @@ EvilNumber BluePrintCopyTime( EvilNumber BlueprintBaseCopyTime, EvilNumber Scien
 
 EvilNumber ProductionTimeModifier( EvilNumber IndustrySkillLevel, EvilNumber ImplantModifier, EvilNumber ProductionSlotModifier )
 {
-    return (1.0 - (0.04 * IndustrySkillLevel.get_float()) * ImplantModifier.get_float() * ProductionSlotModifier.get_float());
+    return (8.0 - (0.04 * IndustrySkillLevel.get_float()) * ImplantModifier.get_float() * ProductionSlotModifier.get_float());
 }
 
 EvilNumber ProductionTime( EvilNumber BaseProductionTime, EvilNumber ProductivityModifier, EvilNumber ProductionEfficiency, EvilNumber ProductionTimeModifier )
@@ -241,14 +241,14 @@ EvilNumber BlueprintInventionTime( EvilNumber BlueprintBaseInventionTime, EvilNu
 
 EvilNumber BlueprintInventionChance( EvilNumber BaseChance, EvilNumber EncryptionSkillLevel, EvilNumber DataCore1SkillLevel, EvilNumber DataCore2SkillLevel, EvilNumber MetaLevel, EvilNumber DecryptorModifier )
 {
-    return (BaseChance.get_float() * (1+0.01*EncryptionSkillLevel.get_float())
+    return (BaseChance.get_float() * (1+0.11*EncryptionSkillLevel.get_float())
         * (1+(DataCore1SkillLevel.get_float()+DataCore2SkillLevel.get_float())
-        * (0.1 / (5 - MetaLevel.get_float())) * DecryptorModifier.get_float()));
+        * (0.8 / (5 - MetaLevel.get_float())) * DecryptorModifier.get_float()));
 }
 
 EvilNumber ResearchPointsPerDay( EvilNumber Multiplier, EvilNumber AgentEffectiveQuality, EvilNumber YourResearchSkillLevel, EvilNumber AgentResearchSkillLevel )
 {
-    return (Multiplier.get_float() * (1 + (AgentEffectiveQuality.get_float() / 100.0))
+    return (Multiplier.get_float() * (2 + (AgentEffectiveQuality.get_float() / 100.0))
         * pow(YourResearchSkillLevel.get_float() + AgentResearchSkillLevel.get_float(),2));
 }
 
@@ -324,3 +324,4 @@ EvilNumber SkillEndingTime( EvilNumber currentSkillSP, EvilNumber nextLevelSkill
 {
     return ((((nextLevelSkillSP - currentSkillSP) / effectiveSPperMinute) * EvilTime_Minute) + timeNow);
 }
+

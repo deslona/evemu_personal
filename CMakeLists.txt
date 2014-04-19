@@ -96,7 +96,7 @@ IF( SCM_VERSION AND SCM_REPOSITORY )
   # Check that SCM_VERSION starts with PROJECT_VERSION
   STRING( FIND "${SCM_VERSION}" "${PROJECT_VERSION}" VERSION_INDEX )
   IF( NOT VERSION_INDEX EQUAL 0 )
-    MESSAGE( AUTHOR_WARNING "Version mismatch, please update PROJECT_VERSION in CMakeLists.txt" )
+   # MESSAGE( AUTHOR_WARNING "Version mismatch, please update PROJECT_VERSION in CMakeLists.txt" )
   ENDIF( NOT VERSION_INDEX EQUAL 0 )
 
   # Set project version and repository

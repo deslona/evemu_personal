@@ -83,8 +83,7 @@ BlueprintType::BlueprintType(
   m_wasteFactor(_bpData.wasteFactor),
   m_chanceOfReverseEngineering(_bpData.chanceOfReverseEngineering),
   m_maxProductionLimit(_bpData.maxProductionLimit)
-{
-    // asserts for data consistency
+{   // asserts for data consistency
     assert(_bpData.productTypeID == _productType.id());
     if(_parentBlueprintType != NULL)
         assert(_bpData.parentBlueprintTypeID == _parentBlueprintType->id());
@@ -131,7 +130,7 @@ Blueprint::Blueprint(
     const BlueprintType &_bpType,
     const ItemData &_data,
     // Blueprint stuff:
-    const BlueprintData &_bpData)
+    BlueprintData &_bpData)
 : InventoryItem(_factory, _blueprintID, _bpType, _data),
   m_copy(_bpData.copy),
   m_materialLevel(_bpData.materialLevel),
@@ -152,7 +151,7 @@ RefPtr<_Ty> Blueprint::_LoadBlueprint(ItemFactory &factory, uint32 blueprintID,
     // InventoryItem stuff:
     const BlueprintType &bpType, const ItemData &data,
     // Blueprint stuff:
-    const BlueprintData &bpData)
+    BlueprintData &bpData)
 {
     // we have enough data, construct the item
     return BlueprintRef( new Blueprint( factory, blueprintID, bpType, data, bpData ) );
@@ -224,20 +223,30 @@ bool Blueprint::Merge(InventoryItemRef to_merge, int32 qty, bool notify) {
 void Blueprint::SetCopy(bool copy) {
     m_copy = copy;
 
-    SaveBlueprint();
+    //SaveBlueprint();
+    DBerror err;
+
+    if(!sDatabase.RunQuery(err, "UPDATE invBlueprints SET copy = %u WHERE blueprintID = %u", copy, m_itemID )) {
+        _log(DATABASE__ERROR, "Error in query: %s.", err.c_str());
+    }
 }
 
 void Blueprint::SetMaterialLevel(uint32 materialLevel) {
     m_materialLevel = materialLevel;
+    //SaveBlueprint();
+    DBerror err;
 
-    SaveBlueprint();
+    if(!sDatabase.RunQuery(err,
+        "UPDATE invBlueprints SET materialLevel = %u WHERE blueprintID = %u", materialLevel, m_itemID )) {
+        _log(DATABASE__ERROR, "Error in query: %s.", err.c_str());
+    }
 }
 
 bool Blueprint::AlterMaterialLevel(int32 materialLevelChange) {
     int32 new_material_level = m_materialLevel + materialLevelChange;
-
+    sLog.Log("Blueprint::AlterMaterialLevel", "ML Change of %u points for BP: %s(%u), from %u to %u", materialLevelChange, m_itemName.c_str(), m_itemID, m_materialLevel, new_material_level );
     if(new_material_level < 0) {
-        _log(ITEM__ERROR, "%s (%u): Tried to remove %u material levels while having %u levels.", m_itemName.c_str(), m_itemID, -materialLevelChange, m_materialLevel);
+        _log(ITEM__ERROR, "%s (%u): Tried to remove %u material levels while having %u levels.", m_itemName.c_str(), m_itemID, materialLevelChange, m_materialLevel);
         return false;
     }
 
@@ -247,12 +256,18 @@ bool Blueprint::AlterMaterialLevel(int32 materialLevelChange) {
 
 void Blueprint::SetProductivityLevel(uint32 productivityLevel) {
     m_productivityLevel = productivityLevel;
+    //SaveBlueprint();
+    DBerror err;
 
-    SaveBlueprint();
+    if(!sDatabase.RunQuery(err,
+        "UPDATE invBlueprints SET productivityLevel = %u WHERE blueprintID = %u", productivityLevel, m_itemID )) {
+        _log(DATABASE__ERROR, "Error in query: %s.", err.c_str());
+    }
 }
 
 bool Blueprint::AlterProductivityLevel(int32 producitvityLevelChange) {
     int32 new_productivity_level = m_productivityLevel + producitvityLevelChange;
+    sLog.Log("Blueprint::AlterProductivityLevel", "PL Change of %u points for BP: %s(%u), from %u to %u", producitvityLevelChange, m_itemName.c_str(), m_itemID, m_productivityLevel, new_productivity_level );
 
     if(new_productivity_level < 0) {
         _log(ITEM__ERROR, "%s (%u): Tried to remove %u productivity levels while having %u levels.", m_itemName.c_str(), m_itemID, -producitvityLevelChange, m_productivityLevel);
@@ -266,7 +281,13 @@ bool Blueprint::AlterProductivityLevel(int32 producitvityLevelChange) {
 void Blueprint::SetLicensedProductionRunsRemaining(int32 licensedProductionRunsRemaining) {
     m_licensedProductionRunsRemaining = licensedProductionRunsRemaining;
 
-    SaveBlueprint();
+    //SaveBlueprint();
+    DBerror err;
+
+    if(!sDatabase.RunQuery(err,
+        "UPDATE invBlueprints SET licensedProductionRunsRemaining = %d WHERE blueprintID = %u",licensedProductionRunsRemaining, m_itemID )) {
+        _log(DATABASE__ERROR, "Error in query: %s.", err.c_str());
+    }
 }
 
 void Blueprint::AlterLicensedProductionRunsRemaining(int32 licensedProductionRunsRemainingChange) {
@@ -275,8 +296,10 @@ void Blueprint::AlterLicensedProductionRunsRemaining(int32 licensedProductionRun
     SetLicensedProductionRunsRemaining(new_licensed_production_runs_remaining);
 }
 
-PyDict *Blueprint::GetBlueprintAttributes() const {
+PyDict *Blueprint::GetBlueprintAttributes() {
   //  need to find raw materials from *somewhere* and add to this list for that tab to show in bp info ingame.
+  ///   found!!   see Desktop::bp_db_info for where and whatnot
+  ///       now.....how the hell to get it in here and send to client???
 
     Rsp_GetBlueprintAttributes rsp;
 
@@ -296,12 +319,32 @@ PyDict *Blueprint::GetBlueprintAttributes() const {
     rsp.researchProductivityTime = type().researchProductivityTime();
     rsp.researchCopyTime = type().researchCopyTime();
 
+  /**   sql for bp raw materials
+    DBQueryResult res;
+
+    if(!sDatabase.RunQuery(res,
+                "SELECT materialTypeID, quantity"
+                " FROM invTypeMaterials"
+                " WHERE typeID = %u",
+                productTypeID())) {
+        _log(DATABASE__ERROR, "Could not retrieve bp raw materials for type %u : %s", blueprintTypeID, res.error.c_str());
+        return NULL;
+    }
+    //return DBResultToRowset(res);
+
+    DBResultRow row;
+    while(res.GetRow(row)) {
+        rsp.materialTypeID = row.GetUInt(0);
+        rsp.quantity = row.GetUInt(1);
+
+    }
+*/
     return(rsp.Encode());
 }
 
-void Blueprint::SaveBlueprint() const
-{
+void Blueprint::SaveBlueprint() {
     _log( ITEM__TRACE, "Saving blueprint %u.", itemID() );
+    sLog.Warning("Blueprint::SaveBlueprint", "Saving Blueprint %u", itemID() );
 
     m_factory.db().SaveBlueprint(
         itemID(),

@@ -145,7 +145,7 @@ bool InventoryDB::GetType(uint32 typeID, TypeData &into) {
     into.capacity = row.GetDouble(6);
     into.portionSize = row.GetUInt(7);
     into.race = EVERace(row.IsNull(8) ? 0 : row.GetUInt(8));
-	into.basePrice = row.GetUInt64(9)/10000.0; //ofic_updates/600004-cacheInvTypes.sql containts it BIGINT multiplied by 10000
+	into.basePrice = row.GetUInt64(9);  // /100.0;   this gives low prices after gettin prices from eveonline using python db check.
     into.published = row.GetInt(10) ? true : false;
     into.marketGroupID = row.IsNull(11) ? 0 : row.GetUInt(11);
     into.chanceOfDuplicating = row.GetDouble(12);
@@ -878,7 +878,7 @@ bool InventoryDB::GetBlueprint(uint32 blueprintID, BlueprintData &into) {
     return true;
 }
 
-bool InventoryDB::NewBlueprint(uint32 blueprintID, const BlueprintData &data) {
+bool InventoryDB::NewBlueprint(uint32 blueprintID, BlueprintData &data) {
     DBerror err;
 
     if(!sDatabase.RunQuery(err,
@@ -896,7 +896,7 @@ bool InventoryDB::NewBlueprint(uint32 blueprintID, const BlueprintData &data) {
     return true;
 }
 
-bool InventoryDB::SaveBlueprint(uint32 blueprintID, const BlueprintData &data) {
+bool InventoryDB::SaveBlueprint(uint32 blueprintID, BlueprintData data) {
     DBerror err;
 
     if(!sDatabase.RunQuery(err,

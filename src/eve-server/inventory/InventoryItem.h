@@ -283,7 +283,7 @@ protected:
     virtual bool _Load();
 
 	static InventoryItemRef LoadEntity(ItemFactory &factory, uint32 itemID, const ItemData &data);
-    
+
 	static uint32 _Spawn(ItemFactory &factory,
         // InventoryItem stuff:
         ItemData &data

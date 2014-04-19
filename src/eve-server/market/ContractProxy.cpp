@@ -49,6 +49,7 @@ ContractProxyService::~ContractProxyService()
 PyResult ContractProxyService::Handle_GetMyExpiredContractList(PyCallArgs &call) {
     sLog.Debug("Server", "Called GetMyExpiredContractList Stub.");
 
+//AttributeError: 'NoneType' object has no attribute 'contracts'
     return NULL;
 }
 

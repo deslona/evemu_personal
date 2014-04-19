@@ -46,6 +46,7 @@ public:
 
         PyCallable_REG_CALL(JumpCloneBound, GetCloneState)
         PyCallable_REG_CALL(JumpCloneBound, InstallCloneInStation)
+        PyCallable_REG_CALL(JumpCloneBound, GetPriceForClone)
     }
     virtual ~JumpCloneBound() { delete m_dispatch; }
     virtual void Release() {
@@ -55,6 +56,7 @@ public:
 
     PyCallable_DECL_CALL(GetCloneState)
     PyCallable_DECL_CALL(InstallCloneInStation)
+    PyCallable_DECL_CALL(GetPriceForClone)
 
 protected:
     StationDB *const m_db;        //we do not own this
@@ -69,8 +71,7 @@ JumpCloneService::JumpCloneService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(JumpCloneService, GetPriceForClone)
-//    PyCallable_REG_CALL(JumpCloneService, )
+    PyCallable_REG_CALL(JumpCloneService, GetShipCloneState)
 }
 
 JumpCloneService::~JumpCloneService() {
@@ -85,21 +86,20 @@ PyBoundObject* JumpCloneService::_CreateBoundObject( Client* c, const PyRep* bin
     return new JumpCloneBound( m_manager, &m_db );
 }
 
-PyResult JumpCloneBound::Handle_InstallCloneInStation( PyCallArgs& call )
-{
-    //takes no arguments, returns no arguments
+PyResult JumpCloneBound::Handle_InstallCloneInStation( PyCallArgs &call ) {
+  sLog.Log( "JumpCloneBound::Handle_InstallCloneInStation()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
+    PyRep *result = NULL;
 
-    sLog.Debug( "JumpCloneBound", "Called InstallCloneInStation stub." );
-
-    return new PyNone;
+    return result;
 }
 
 PyResult JumpCloneBound::Handle_GetCloneState(PyCallArgs &call) {
+  sLog.Log( "JumpCloneBound::Handle_GetCloneState()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
 
     //returns (clones, implants, timeLastJump)
     //where jumpClones is a rowset? with at least columns: jumpCloneID, locationID
-
-    sLog.Debug( "JumpCloneBound", "Called GetCloneState stub." );
 
     PyDict* d = new PyDict;
     d->SetItemString( "clones", new PyNone );
@@ -109,42 +109,18 @@ PyResult JumpCloneBound::Handle_GetCloneState(PyCallArgs &call) {
     return new PyObject( "util.KeyVal", d );
 }
 
-//00:16:31 E Server: Unknown call to 'GetPriceForClone' by 'Allan Domani'
-//  guess this is in wrong place....
-PyResult JumpCloneService::Handle_GetPriceForClone(PyCallArgs &call) {
+PyResult JumpCloneBound::Handle_GetPriceForClone(PyCallArgs &call) {
+  sLog.Log( "JumpCloneBound::Handle_GetPriceForClone()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
     PyRep *result = NULL;
 
     return result;
 }
 
-/*
-PyResult JumpCloneService::Handle_(PyCallArgs &call) {
+PyResult JumpCloneService::Handle_GetShipCloneState(PyCallArgs &call) {
+  sLog.Log( "JumpCloneService::Handle_GetShipCloneState()", "size=%u", call.tuple->size());
+    call.Dump(SERVICE__CALLS);
+
     PyRep *result = NULL;
-
     return result;
-}*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}

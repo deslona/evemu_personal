@@ -38,7 +38,8 @@ CorpBookmarkMgrService::CorpBookmarkMgrService(PyServiceMgr* mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(CorpBookmarkMgrService, GetBookmarks);
+    PyCallable_REG_CALL(CorpBookmarkMgrService, GetBookmarks)
+    PyCallable_REG_CALL(CorpBookmarkMgrService, UpdatePlayerBookmark)
 }
 
 CorpBookmarkMgrService::~CorpBookmarkMgrService()
@@ -65,4 +66,12 @@ PyResult CorpBookmarkMgrService::Handle_GetBookmarks(PyCallArgs& call)
     }
 
     return(m_manager->cache_service->MakeObjectCachedMethodCallResult(method_id));
+}
+
+PyResult CorpBookmarkMgrService::Handle_UpdatePlayerBookmark(PyCallArgs& call) {
+  uint8 size = call.tuple->size();
+  sLog.Log( "CorpBookmarkMgrService::Handle_UpdatePlayerBookmark()", "size=%u ", size );
+  call.Dump(SERVICE__CALLS);
+
+    return NULL;
 }

@@ -20,32 +20,29 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Reve
+    Author:        Allan
 */
 
-#include "eve-server.h"
 
-#include "PyServiceCD.h"
-#include "ship/RepairService.h"
+#ifndef __VOUCHER_SERVICE_H_INCL__
+#define __VOUCHER_SERVICE_H_INCL__
 
-PyCallable_Make_InnerDispatcher(RepairService)
+#include "inventory/Voucher.h"
+#include "PyService.h"
 
-RepairService::RepairService(PyServiceMgr *mgr)
-: PyService(mgr, "repairSvc"),
-  m_dispatch(new Dispatcher(this))
-{
-    _SetCallDispatcher(m_dispatch);
+class VoucherService : public PyService {
+public:
+    VoucherService(PyServiceMgr *mgr);
+    virtual ~VoucherService();
 
-    PyCallable_REG_CALL(RepairService, UnasembleItems);
-}
+protected:
+    class Dispatcher;
+    Dispatcher *const m_dispatch;
 
-RepairService::~RepairService() {
-    delete m_dispatch;
-}
+    //VoucherDB m_db;
 
-PyResult RepairService::Handle_UnasembleItems(PyCallArgs &call) {
-    sLog.Log("RepairService::Handle_UnasembleItems", "Called UnasembleItems stub.");
-  call.Dump(SERVICE__CALLS);
+    PyCallable_DECL_CALL(GetObject)
 
-    return NULL;
-}
+};
+
+#endif

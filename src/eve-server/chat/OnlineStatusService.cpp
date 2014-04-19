@@ -45,9 +45,16 @@ OnlineStatusService::~OnlineStatusService() {
 }
 
 PyResult OnlineStatusService::Handle_GetInitialState(PyCallArgs &call) {
-
+/*
+21:35:16 L OnlineStatusService::Handle_GetInitialState(): size= 0
+21:35:16 [SvcCall]   Call Arguments:
+21:35:16 [SvcCall]       Tuple: Empty
+21:35:16 [SvcCall]   Call Named Arguments:
+21:35:16 [SvcCall]     Argument 'machoVersion':
+21:35:16 [SvcCall]         Integer field: 1
   sLog.Log( "OnlineStatusService::Handle_GetInitialState()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
+  */
     // this is used to query the initial online state of all contacts.
 
     DBRowDescriptor *header = new DBRowDescriptor();

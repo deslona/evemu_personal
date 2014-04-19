@@ -143,8 +143,18 @@ PyBoundObject *AgentMgrService::_CreateBoundObject(Client *c, const PyRep *bind_
 
 //20:49:34 L AgentMgrService::Handle_GetAgents(): size= 0
 PyResult AgentMgrService::Handle_GetAgents(PyCallArgs &call) {
+  /*
+22:07:37 L AgentMgrService::Handle_GetAgents(): size= 0
+22:07:37 [SvcCall]   Call Arguments:
+22:07:37 [SvcCall]       Tuple: Empty
+22:07:37 [SvcCall]   Call Named Arguments:
+22:07:37 [SvcCall]     Argument 'machoVersion':
+22:07:37 [SvcCall]         List: 2 elements
+22:07:37 [SvcCall]           [ 0] Integer field: 130409676630000000
+22:07:37 [SvcCall]           [ 1] Integer field: -164492702
   sLog.Log( "AgentMgrService::Handle_GetAgents()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
+    */
 
     PyRep *result = NULL;
 
@@ -227,8 +237,8 @@ PyResult AgentMgrBound::Handle_GetAgentLocationWrap(PyCallArgs &call)
 }
 
 //21:13:12 L AgentMgrBound::Handle_GetMissionBriefingInfo(): size= 0
-PyResult AgentMgrBound::Handle_GetMissionBriefingInfo(PyCallArgs &call)
-{
+PyResult AgentMgrBound::Handle_GetMissionBriefingInfo(PyCallArgs &call) {
+  sLog.Log( "AgentMgrBound::Handle_GetMissionBriefingInfo()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
     PyDict *res = new PyDict();
 
@@ -236,8 +246,8 @@ PyResult AgentMgrBound::Handle_GetMissionBriefingInfo(PyCallArgs &call)
     res->SetItem("Mission Keywords", new PyString("Mission Keywords"));
     res->SetItem("Mission Title ID", new PyString("Mission Title ID") );
     res->SetItem("Mission Briefing ID", new PyString("Mission Briefing ID") );
-    res->SetItem("Decline Time", new PyInt( Win32TimeNow() + Win32Time_Hour ) );
-    res->SetItem("Expiration Time", new PyInt( Win32TimeNow()+Win32Time_Day ) );
+    res->SetItem("Decline Time", new PyFloat( Win32TimeNow() + Win32Time_Hour ) );
+    res->SetItem("Expiration Time", new PyFloat( Win32TimeNow()+Win32Time_Day ) );
     res->SetItem("Mission Image", new PyString("MissionImage") );
 
     return res;
@@ -283,6 +293,7 @@ PyResult AgentMgrService::Handle_GetMyEpicJournalDetails( PyCallArgs& call )
     return new PyList;
 }
 
+///  this really needs to be a cached object....
 PyResult AgentMgrService::Handle_GetSolarSystemOfAgent(PyCallArgs &call)
 {/*
   uint8 size = call.tuple->size();
@@ -299,25 +310,31 @@ PyResult AgentMgrService::Handle_GetSolarSystemOfAgent(PyCallArgs &call)
     */
 
     DBQueryResult res;
-    DBResultRow row;
 
     uint32 AgentID = call.tuple->GetItem(0)->AsInt()->value();
 
     if(!sDatabase.RunQuery(res,
-        " SELECT "
-        "  locationID "
-        " FROM agtAgents "
-        " WHERE agentID = %u ",AgentID))
+        " SELECT"
+        "  a.locationID,"
+        "  s.solarSystemID"
+        " FROM agtAgents AS a"
+        "  LEFT JOIN staStations AS s ON s.stationID = a.locationID"
+        " WHERE a.agentID = %u",AgentID))
     {
         _log(DATABASE__ERROR, "Failed to query for Agent = %u", AgentID);
     }
-
+    //return (DBResultToRowset(res));
+    DBResultRow row;
     if(!res.GetRow(row)) {
         _log(DATABASE__ERROR, "SystemID of Agent %u not found.", AgentID);
         return NULL;
     }
 
-    return new PyInt( row.GetUInt(0) );
+    PyTuple *t = new PyTuple(1);
+    t->items[0] = new PyInt( row.GetUInt(1) );
+
+    return t;
+
 }
 
 PyResult AgentMgrService::Handle_GetCareerAgents(PyCallArgs &call)
@@ -328,8 +345,8 @@ PyResult AgentMgrService::Handle_GetCareerAgents(PyCallArgs &call)
 }
 
 //17:09:07 L AgentMgrBound::Handle_GetInfoServiceDetails(): size= 0
-PyResult AgentMgrBound::Handle_GetInfoServiceDetails( PyCallArgs& call )
-{
+PyResult AgentMgrBound::Handle_GetInfoServiceDetails( PyCallArgs& call ) {
+  sLog.Log( "AgentMgrBound::Handle_GetInfoServiceDetails()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
     //takes no arguments
     return new PyNone;

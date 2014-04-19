@@ -100,7 +100,7 @@ public:
     }
 
     ~Modifier();
-
+    
     double GetModifierValue() { return m_ModifierValue; }
     void SetModifierValue(double newModifierValue) { m_ModifierValue = newModifierValue; }
     uint32 GetOriginatorID() { return m_OriginatorID; }
@@ -152,7 +152,7 @@ public:
     GenericModule * GetModule(EVEItemFlags flag);
     GenericModule * GetModule(uint32 itemID);
 
-    uint32 GetAvailableSlotInBank(EveEffectEnum slotBank);
+	uint32 GetAvailableSlotInBank(EveEffectEnum slotBank);
 
     int NumberOfSameType(uint32 typeID);
 
@@ -174,7 +174,7 @@ public:
     uint32 GetFittedLauncherCount() { return m_TotalLaunchersFitted; }
     uint32 GetFittedModuleCountByGroup(uint32 groupID);
 
-    void GetModuleListOfRefs(std::vector<InventoryItemRef> * pModuleList);
+	void GetModuleListOfRefs(std::vector<InventoryItemRef> * pModuleList);
     void SaveModules();
 
 private:
@@ -342,7 +342,7 @@ public:
     ~ModuleManager();
 
     bool IsSlotOccupied(uint32 flag);
-    uint32 GetAvailableSlotInBank(EveEffectEnum slotBank);
+	uint32 GetAvailableSlotInBank(EveEffectEnum slotBank);
 
     bool InstallRig(InventoryItemRef item, EVEItemFlags flag);
     void UninstallRig(uint32 itemID);
@@ -361,8 +361,7 @@ public:
     void DeOverload(uint32 itemID);
     void DamageModule(uint32 itemID, EvilNumber val);
     void RepairModule(uint32 itemID);
-    void LoadCharge(InventoryItemRef chargeRef, EVEItemFlags flag);
-    void UnloadCharge(EVEItemFlags flag);
+    void ReplaceCharges();
     void UnloadAllModules();
     void CharacterLeavingShip();
     void CharacterBoardingShip();
@@ -375,9 +374,7 @@ public:
     GenericModule * GetModule(EVEItemFlags flag)    { return m_Modules->GetModule(flag); }
     GenericModule * GetModule(uint32 itemID)        { return m_Modules->GetModule(itemID); }
 
-    InventoryItemRef GetLoadedChargeOnModule(EVEItemFlags flag);
-
-    void GetModuleListOfRefs(std::vector<InventoryItemRef> * pModuleList);
+	void GetModuleListOfRefs(std::vector<InventoryItemRef> * pModuleList);
     void SaveModules();
 
     // External Methods For use by hostile entities directing effects to this entity:
@@ -396,7 +393,7 @@ public:
     int32 ApplyImplantEffect(uint32 attributeID, uint32 originatorID, ModifierRef modifierRef);
     int32 RemoveImplantEffect(uint32 attributeID, uint32 originatorID, ModifierRef modifierRef);
 
-    Basic_Log * GetLogger() { return m_pLog; }
+	Basic_Log * GetLogger() { return m_pLog; }
 
 private:
     bool _fitModule(InventoryItemRef item, EVEItemFlags flag);
@@ -408,8 +405,11 @@ private:
     void _SendInfoMessage(const char* fmt, ...);
     void _SendErrorMessage(const char* fmt, ...);
 
-    //access to the ship its system entity that owns us.  We do not own these
+    //access to the ship that owns us.  We do not own this
     Ship * m_Ship;
+
+    //access to destiny.  We do not own this
+    DestinyManager * m_Destiny;
 
     //modules storage, we own this
     ModuleContainer * m_Modules;                    // Holds Module class objects in container arrays, one for each slot bank, rig, subsystem
@@ -421,10 +421,12 @@ private:
     ModifierMaps * m_LocalImplantModifierMaps;      // Holds std::map<> maps of Modifiers for attributes applied by IMPLANTS
     ModifierMaps * m_RemoteModifierMaps;            // Holds std::map<> maps of Modifiers for attributes applied by EXTERNAL ENTITY MODULES
 
-    Basic_Log * m_pLog;
+	Basic_Log * m_pLog;
 };
 
 #pragma endregion
 /////////////////////////// END MODULE MANAGER //////////////////////////////////
 
 #endif  /* MODULE_MANAGER_H */
+
+

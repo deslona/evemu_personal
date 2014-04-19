@@ -320,7 +320,16 @@ PyRep *StationDB::DoGetStation(uint32 sid)
     " staStationTypes.dockingBayGraphicID,"
     " staStations.officeRentalCost,"
     " staStations.stationName,"
-    " staOperations.description AS descriptionID,"
+    /*
+/../carbon/common/script/localization/localization.py(332) GetByMessageID
+        messageID = u'Produces personnel and sells skill packages.'
+        languageID = 'en-us'
+        self = <localization.Localization object at 0x089AD930>
+        kwargs = {'player': 140000507}
+TypeError: must be integer<K>, not unicode
+*/
+    // this should be an integer..client kinda freaks out cause mysql sends unicode  ...changed description to descriptionID
+    " staOperations.descriptionID,"
     " staStations.constellationID,"
     " staStations.operationID,"
     " staStations.solarSystemID,"

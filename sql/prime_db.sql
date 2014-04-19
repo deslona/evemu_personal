@@ -50,7 +50,7 @@ TRUNCATE TABLE srvStatus;
  * Insert static characters (agents)
  * TODO: Develop a query which will populate character_ using agtAgents and
  * random value generation)
- */
+
 INSERT INTO character_
  SELECT
   characterID, accountID, title, description, bounty, 0 AS balance, 0 AS aurBalance, securityRating, 0 AS  petitionMessage, 0 AS logonMinutes, 0 AS skillPoints, 0 AS skillQueueEndTime,
@@ -60,7 +60,7 @@ INSERT INTO character_
   stationID, solarSystemID, constellationID, regionID,
   0 AS online, 0 AS freeRespecs, 0 AS lastRespecDateTime, 0 AS nextRespecDateTime, 0 AS deletePrepareDateTime, shipID, 0 AS age
  FROM characterStatic;
-
+*/
 
 /*
  * Copy over the static entities:
@@ -131,3 +131,6 @@ INSERT INTO eveStaticOwners (ownerID, ownerName, typeID)
  SELECT corporationID, corporationName, 2 AS typeID
  FROM corporationStatic;
 
+UPDATE `dgmTypeAttributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `attributeID`=280 AND `valueFloat`=0;
+UPDATE `entity_attributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `attributeID`=280 AND `valueFloat`=0;
+UPDATE `entity_default_attributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `attributeID`=280 AND `valueFloat`=0;

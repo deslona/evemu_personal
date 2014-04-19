@@ -81,12 +81,9 @@ public:
     CacheOK() : PyObjectEx_Type1( new PyToken("objectCaching.CacheOK"), new_tuple("CacheOK") ) {}
 };
 
-
-
 //02:40:18 L BrowserLockdownService::Handle_GetFlaggedSitesHash(): size= 0
 PyResult BrowserLockdownService::Handle_GetFlaggedSitesHash(PyCallArgs &call)
 {
-  sLog.Log( "BrowserLockdownService::Handle_GetFlaggedSitesHash()", "size= %u", call.tuple->size() );
     /* if cache hash is correct send CacheOK */
 
     /**
@@ -103,9 +100,8 @@ PyResult BrowserLockdownService::Handle_GetFlaggedSitesHash(PyCallArgs &call)
 }
 
 //02:40:18 L BrowserLockdownService::Handle_GetFlaggedSitesList(): size= 0
-PyResult BrowserLockdownService::Handle_GetFlaggedSitesList(PyCallArgs &call) {
-  sLog.Log( "BrowserLockdownService::Handle_GetFlaggedSitesList()", "size= %u", call.tuple->size() );
-
+PyResult BrowserLockdownService::Handle_GetFlaggedSitesList(PyCallArgs &call)
+{
     //PyDict* args = new PyDict;
 
     //return new PyObject( "objectCaching.CachedMethodCallResult", args );
@@ -156,5 +152,5 @@ PyResult BrowserLockdownService::Handle_GetDefaultHomePage(PyCallArgs &call) {
 //00:37:03 L BrowserLockdownService::Handle_IsBrowserInLockdown(): size= 0
 PyResult BrowserLockdownService::Handle_IsBrowserInLockdown(PyCallArgs &call) {
   // make config var to enable/diasble?
-    return 0;
+    return new PyNone;
 }

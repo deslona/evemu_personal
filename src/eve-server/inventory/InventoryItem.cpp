@@ -1000,7 +1000,7 @@ void InventoryItem::ChangeOwner(uint32 new_owner, bool notify) {
 
 void InventoryItem::SaveItem()
 {
-    //_log( ITEM__TRACE, "Saving item %u.", itemID() );
+    _log( ITEM__TRACE, "Saving item %u.", itemID() );
 
     SaveAttributes();
 

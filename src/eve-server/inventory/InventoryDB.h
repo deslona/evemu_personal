@@ -189,8 +189,8 @@ public:
      */
     bool GetBlueprint(uint32 blueprintID, BlueprintData &into);
 
-    bool NewBlueprint(uint32 blueprintID, const BlueprintData &data);
-    bool SaveBlueprint(uint32 blueprintID, const BlueprintData &data);
+    bool NewBlueprint(uint32 blueprintID, BlueprintData &data);
+    bool SaveBlueprint(uint32 blueprintID, BlueprintData data);
     bool DeleteBlueprint(uint32 blueprintID);
 
     /*

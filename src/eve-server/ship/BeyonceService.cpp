@@ -595,7 +595,7 @@ PyResult BeyonceBound::Handle_CmdWarpToStuffAutopilot(PyCallArgs &call) {
         return NULL;
     }
     //Change this to change the default autopilot distance (Faster Autopilot FTW)
-    double distance = 5000.0;
+    double distance = 2500.0;
 
     //Don't update destiny until done with warp
     SystemManager *sm = call.client->System();

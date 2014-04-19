@@ -311,7 +311,7 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
     m_db.add_name_validation_set(char_item->itemName().c_str(), char_item->itemID());
 
     //spawn all the skills
-    uint32 skillLevel;
+    int skillLevel;
     EvilNumber skillPoints;
     CharSkillMapItr cur, end;
     cur = startingSkills.begin();
@@ -330,6 +330,10 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
         i->SetAttribute(AttrSkillPoints, skillPoints.get_float() );
         i->SaveAttributes();
         _log(CLIENT__MESSAGE, "Training skill %u to level %d (%d points)", i->typeID(), skillLevel, skillPoints.get_float());
+
+        //  save initial skill levels in history  -allan
+        // eventID:307 - SkillPointsApplied
+        char_item->SaveSkillHistory(307, EvilTimeNow().get_float(), char_item->itemID(), i->typeID(), skillLevel, skillPoints.get_float(), char_item->GetTotalSP().get_float());
     }
 
     //now set up some initial inventory:

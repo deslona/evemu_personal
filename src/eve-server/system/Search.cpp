@@ -44,29 +44,65 @@ Search::~Search() {
     delete m_dispatch;
 }
 
-PyResult Search::Handle_Query( PyCallArgs& call )   //called from people/places window
+PyResult Search::Handle_Query( PyCallArgs& call )   //called from people/places window and some other things...
 {/*
-06:01:35 L search::Handle_Query(): size=2, 0=WString(rens), 1=List()
+06:01:35 L Search: Handle_Query
 06:01:35 [SvcCall]   Call Arguments:
 06:01:35 [SvcCall]       Tuple: 2 elements
 06:01:35 [SvcCall]         [ 0] WString: 'rens'            // search string
-06:01:35 [SvcCall]         [ 1] List: 1 elements           // unknown yet
+06:01:35 [SvcCall]         [ 1] List: 1 elements           // unknown yet...possible invGroup?   groupID 5=solarSystem
 06:01:35 [SvcCall]         [ 1]   [ 0] Integer field: 5
-06:01:35 [SvcCall]   Call Named Arguments:
-06:01:35 [SvcCall]     Argument 'machoVersion':
-06:01:35 [SvcCall]         Integer field: 1
-*/
 
-    return NULL;
+23:48:01 L Search: Handle_Query
+23:48:01 [SvcCall]   Call Arguments:
+23:48:01 [SvcCall]       Tuple: 2 elements
+23:48:01 [SvcCall]         [ 0] WString: 'allan* domani*'
+23:48:01 [SvcCall]         [ 1] List: 1 elements            //     groupID 2=Corporation
+23:48:01 [SvcCall]         [ 1]   [ 0] Integer field: 2     --corp
+
+23:56:55 L Search: Handle_Query
+23:56:55 [SvcCall]   Call Arguments:
+23:56:55 [SvcCall]       Tuple: 2 elements
+23:56:55 [SvcCall]         [ 0] WString: 'rens*'
+23:56:55 [SvcCall]         [ 1] List: 9 elements            //   yep, this is groupID.   this query was run with "any" as search type.
+23:56:55 [SvcCall]         [ 1]   [ 0] Integer field: 1
+23:56:55 [SvcCall]         [ 1]   [ 1] Integer field: 2
+23:56:55 [SvcCall]         [ 1]   [ 2] Integer field: 3
+23:56:55 [SvcCall]         [ 1]   [ 3] Integer field: 4
+23:56:55 [SvcCall]         [ 1]   [ 4] Integer field: 5
+23:56:55 [SvcCall]         [ 1]   [ 5] Integer field: 9
+23:56:55 [SvcCall]         [ 1]   [ 6] Integer field: 7
+23:56:55 [SvcCall]         [ 1]   [ 7] Integer field: 6
+23:56:55 [SvcCall]         [ 1]   [ 8] Integer field: 8
+23:56:55 [PacketError] Decode Call_SearchQuery failed: list1 is the wrong size: expected 1, but got 9
+23:56:55 [ClientError] Failed to decode args.
+
+*/
+    sLog.Log( "Search", "Handle_Query" );
+  call.Dump(SERVICE__CALLS);
+
+    //  if search type 'all' is selected, use this query to search everything....
+    if ( call.tuple->GetItem( 1 )->AsList()->size() > 1 )
+        return(m_db.QueryAll( call.tuple->GetItem( 0 )->AsWString()->content(), call.client->GetCharacterID() ));
+
+    //  else specific search type is selected....
+    Call_SearchQuery args;
+    if(!args.Decode(&call.tuple)) {
+        _log(CLIENT__ERROR, "Failed to decode args.");
+        call.client->SendErrorMsg("Search Failed.  Try using a different search string.");
+        return NULL;
+    }
+
+    return(m_db.Query( args.string, args.int1, call.client->GetCharacterID() ));
 }
 
-PyResult Search::Handle_QuickQuery( PyCallArgs& call )  //called from starmap
+PyResult Search::Handle_QuickQuery( PyCallArgs& call )  //called from starmap  and contracts
 {/*
 05:56:52 L search::Handle_QuickQuery(): size=2, 0=WString(rens*), 1=List()
 05:56:52 [SvcCall]   Call Arguments:
 05:56:52 [SvcCall]       Tuple: 2 elements
 05:56:52 [SvcCall]         [ 0] WString: 'rens*'            // search string
-05:56:52 [SvcCall]         [ 1] List: 3 elements            // unknown yet
+05:56:52 [SvcCall]         [ 1] List: 3 elements            // unknown yet...possible invGroup?   groupID 6=sun, 7=planet, 8=moon
 05:56:52 [SvcCall]         [ 1]   [ 0] Integer field: 6
 05:56:52 [SvcCall]         [ 1]   [ 1] Integer field: 7
 05:56:52 [SvcCall]         [ 1]   [ 2] Integer field: 8
@@ -78,5 +114,18 @@ PyResult Search::Handle_QuickQuery( PyCallArgs& call )  //called from starmap
 05:56:52 [SvcCall]     Argument 'onlyAltName':
 05:56:52 [SvcCall]         Integer field: 0
 */
-    return NULL;
+    sLog.Log( "Search", "Handle_QuickQuery" );
+  call.Dump(SERVICE__CALLS);
+
+    Call_SearchQuickQuery args;
+    if(!args.Decode(&call.tuple)) {
+        _log(CLIENT__ERROR, "Failed to decode args.");
+        call.client->SendErrorMsg("Search Failed.  Try using a different search string.");
+        return NULL;
+    }
+
+    //return(m_db.QuickQuery( args.string, args.int1, args.int2, args.int3, call.byname.find("hideNPC"), call.byname.find("onlyAltName"), call.client->GetCharacterID() ));
+    return(m_db.QuickQuery( args.string, args.int1, args.int2, args.int3, call.client->GetCharacterID() ));
 }
+
+

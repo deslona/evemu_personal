@@ -73,13 +73,14 @@ PyObject *MapDB::GetStationServiceInfo() {
 }
 
 PyObject *MapDB::GetStationCount() {
-    DBQueryResult res;
+    //DBQueryResult res;
 /**     stations are listed as unique StationID's.  will have to get, combine, then count for each system....*sigh*
     if(!sDatabase.RunQuery(res, "SELECT solarSystemID, COUNT(stationID) FROM staStations" )) {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
     */
+
     return NULL;
 }
 
@@ -99,24 +100,25 @@ PyObject *MapDB::GetSolSystemVisits(uint32 charID)
         return NULL;
     }
 
-    return DBResultToRowset(res);
+    return DBResultToRowset(res);  //DBRowToKeyVal
 }
 
 //  called from MapService by multiple functions based on passed values..will need to split up when i get it working right.
 ///  NOTE: Right now, there are no functions for inserting data into this table....
 ///  added jumpsHour and numPilots data inserts.  16Mar14
+///  added killsHour, factionKills, podKillsHour  24Mar14
 ///  NOTE: DB has fields for timing the *Hour and *24Hour parts. need to write checks for that when everything else starts working.
 PyObject *MapDB::GetDynamicData(uint32 int1, uint32 int2) {
-  /*    0 = # returns?    1 = type of return?
-//02:52:11 L MapService::Handle_GetHistory(): size= 2, 0 = Integer (3), 1 = Integer (24)  -ColorStarsByFactionKills - ColorStarsByKills - GetKillLast24H
-    ColorStarsByFactionKills  -AttributeError: 'int' object has no attribute 'value2'
-    ColorStarsByKills  -AttributeError: 'int' object has no attribute 'value1'
-    GetKillsLast24H  -AttributeError: 'int' object has no attribute 'solarSystemID'
-
+  /*   object#  0 = # returns expected    1 = type of info requested
 //02:52:13 L MapService::Handle_GetHistory(): size= 2, 0 = Integer (1), 1 = Integer (1)     -ColorStarsByJumps1Hour
     ColorStarsByJumps1Hour  -AttributeError: 'int' object has no attribute 'value1'
 
 //02:52:14 L MapService::Handle_GetHistory(): size= 2, 0 = Integer (3), 1 = Integer (1)     -ColorStarsByKills
+//02:52:11 L MapService::Handle_GetHistory(): size= 2, 0 = Integer (3), 1 = Integer (24)
+//  -ColorStarsByFactionKills - ColorStarsByKills - GetKillLast24H
+    GetKillsLast24H  -AttributeError: 'int' object has no attribute 'solarSystemID'
+    ColorStarsByKills  -AttributeError: 'int' object has no attribute 'value1'
+    ColorStarsByFactionKills  -AttributeError: 'int' object has no attribute 'value2'
 //21:20:25 L MapService::Handle_GetHistory(): size= 2, 0 = Interger (5), 1 = Interger (24)  -ColorStarsByKills (factionKills?)
 22:30:32 L MapService::Handle_GetHistory(): size= 2, 0 = Interger (5), 1 = Interger (1)
 
@@ -134,22 +136,19 @@ factionKills
     DBQueryResult res;
     if( (int1 == 1) && (int2 == 1) ) {
       sDatabase.RunQuery(res, "SELECT solarSystemID, jumpsHour AS value1 FROM mapDynamicData" );
-      return DBResultToRowset(res);
     } else if (int1 == 3) {
       if (int2 == 1) {
         sDatabase.RunQuery(res, "SELECT solarSystemID, KillsHour AS value1, factionKills AS value2, podKillsHour AS value3 FROM mapDynamicData" );
-        return DBResultToRowset(res);
       } else if (int2 == 24) {
-          sDatabase.RunQuery(res, "SELECT solarSystemID, killsHour AS value1, factionKills AS value2, kills24Hours AS value3,  beaconCount, cynoFields FROM mapDynamicData" );
-          return DBResultToRowset(res);
+          sDatabase.RunQuery(res, "SELECT solarSystemID, kills24Hours AS value1, factionKills AS value2, kills24Hours AS value3 FROM mapDynamicData" );
       }
     } else if (int1 == 5) {
-          sDatabase.RunQuery(res, "SELECT solarSystemID, factionKills AS value2 FROM mapDynamicData" );
-          return DBResultToRowset(res);
+          sDatabase.RunQuery(res, "SELECT solarSystemID, killsHour AS value1, factionKills AS value2, kills24Hours AS value3, podKillsHour AS value4, podKills24Hour AS value5 FROM mapDynamicData" );
     } else if (int1 == 10) {
-          sDatabase.RunQuery(res, "SELECT solarSystemID, beaconCount FROM mapDynamicData" );
-          return DBResultToRowset(res);
+          sDatabase.RunQuery(res, "SELECT solarSystemID, beaconCount FROM mapDynamicData" );//AttributeError: Rowset instance has no attribute 'iteritems'
     } else {
        return NULL;
     }
+
+    return DBResultToRowset(res);
 }

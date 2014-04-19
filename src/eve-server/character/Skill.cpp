@@ -132,7 +132,6 @@ bool Skill::SkillPrereqsComplete(Character &ch)
 
 bool Skill::FitModuleSkillCheck(InventoryItemRef item, CharacterRef character)
 {
-    //TODO: move to skills
     SkillRef requiredSkill;
 
     //Primary Skill

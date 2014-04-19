@@ -144,7 +144,17 @@ PyResult TutorialService::Handle_GetTutorialsAndConnections( PyCallArgs& call ) 
 05:39:02 [SvcCall]     Argument 'machoVersion':
 05:39:02 [SvcCall]         Integer field: 1
 */
-    return new PyNone;
+
+  // i dunno...just threw something in here.....
+    util_Rowset rs;
+    rs.lines = new PyList;
+
+    rs.header.push_back( "characterID" );
+    rs.header.push_back( "tutorialID" );
+    rs.header.push_back( "pageID" );
+    rs.header.push_back( "eventTypeID" );
+
+    return rs.Encode();
 }
 
 PyResult TutorialService::Handle_GetCareerAgents( PyCallArgs& call ) {

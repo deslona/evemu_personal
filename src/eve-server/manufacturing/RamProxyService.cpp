@@ -37,15 +37,16 @@ RamProxyService::RamProxyService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(RamProxyService, AssemblyLinesGet);
-    PyCallable_REG_CALL(RamProxyService, AssemblyLinesSelect);
-    PyCallable_REG_CALL(RamProxyService, AssemblyLinesSelectPublic);
-    PyCallable_REG_CALL(RamProxyService, GetJobs2);
-    PyCallable_REG_CALL(RamProxyService, InstallJob);
-    PyCallable_REG_CALL(RamProxyService, CompleteJob);
+    PyCallable_REG_CALL(RamProxyService, AssemblyLinesGet)
+    PyCallable_REG_CALL(RamProxyService, AssemblyLinesSelect)
+    PyCallable_REG_CALL(RamProxyService, AssemblyLinesSelectPublic)
+    PyCallable_REG_CALL(RamProxyService, AssemblyLinesSelectPrivate)
+    PyCallable_REG_CALL(RamProxyService, GetJobs2)
+    PyCallable_REG_CALL(RamProxyService, InstallJob)
+    PyCallable_REG_CALL(RamProxyService, CompleteJob)
 
     // unhandled calls
-    PyCallable_REG_CALL(RamProxyService, GetRelevantCharSkills);
+    PyCallable_REG_CALL(RamProxyService, GetRelevantCharSkills)
 }
 
 RamProxyService::~RamProxyService() {
@@ -74,6 +75,7 @@ PyResult RamProxyService::Handle_AssemblyLinesGet(PyCallArgs &call) {
 }
 
 PyResult RamProxyService::Handle_AssemblyLinesSelect(PyCallArgs &call) {
+  sLog.Log( "RamProxyService::Handle_AssemblyLinesSelect()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
     Call_AssemblyLinesSelect args;
 
@@ -101,6 +103,10 @@ PyResult RamProxyService::Handle_AssemblyLinesSelect(PyCallArgs &call) {
 
 PyResult RamProxyService::Handle_AssemblyLinesSelectPublic(PyCallArgs &call) {
     return(m_db.AssemblyLinesSelectPublic(call.client->GetRegionID()));
+}
+
+PyResult RamProxyService::Handle_AssemblyLinesSelectPrivate(PyCallArgs &call) {
+    return(m_db.AssemblyLinesSelectPrivate(call.client->GetCharacterID()));
 }
 
 PyResult RamProxyService::Handle_GetJobs2(PyCallArgs &call) {
@@ -362,7 +368,7 @@ PyResult RamProxyService::Handle_CompleteJob(PyCallArgs &call) {
             case ramActivityResearchingMaterialProductivity: {
                 BlueprintRef bp = BlueprintRef::StaticCast( installedItem );
 
-                bp->AlterMaterialLevel( runs) ;
+                bp->AlterMaterialLevel( runs );
             } break;
             /*
              * Copying
@@ -858,8 +864,8 @@ bool RamProxyService::_Calculate(const Call_InstallJob &args, InventoryItemRef i
             productType = &installedItem->type();
 
             into.productionTime = bp->type().researchProductivityTime();
-            into.charMaterialMultiplier = double(ch->GetAttribute(AttrResearchCostPercent).get_int()) / 100.0;
-            into.charTimeMultiplier = ch->GetAttribute(AttrManufacturingTimeResearchSpeed).get_float();
+            into.charMaterialMultiplier = 1.0; //double(ch->GetAttribute(AttrResearchCostPercent).get_int()) / 100.0;
+            into.charTimeMultiplier = ch->GetAttribute(AttrManufacturingTimeResearchSpeed).get_float()/10;  //implement PE_ResearchTime here
             break;
         }
         /*
@@ -871,8 +877,8 @@ bool RamProxyService::_Calculate(const Call_InstallJob &args, InventoryItemRef i
             productType = &installedItem->type();
 
             into.productionTime = bp->type().researchMaterialTime();
-            into.charMaterialMultiplier = double(ch->GetAttribute(AttrResearchCostPercent).get_int()) / 100.0;
-            into.charTimeMultiplier = ch->GetAttribute(AttrMineralNeedResearchSpeed).get_float();
+            into.charMaterialMultiplier = 1.0; //double(ch->GetAttribute(AttrResearchCostPercent).get_int()) / 100.0;
+            into.charTimeMultiplier = ch->GetAttribute(AttrMineralNeedResearchSpeed).get_float()/10;      //implement ME_ResearchTime here
             break;
         }
         /*
@@ -886,7 +892,7 @@ bool RamProxyService::_Calculate(const Call_InstallJob &args, InventoryItemRef i
             // no ceil() here on purpose
             into.productionTime = (bp->type().researchCopyTime() / bp->type().maxProductionLimit()) * args.licensedProductionRuns;
 
-            into.charMaterialMultiplier = double(ch->GetAttribute(AttrResearchCostPercent).get_int()) / 100.0;
+            into.charMaterialMultiplier = 1.0;  //double(ch->GetAttribute(AttrResearchCostPercent).get_int()) / 100.0;
             into.charTimeMultiplier = ch->GetAttribute(AttrCopySpeedPercent).get_float();
             break;
         }

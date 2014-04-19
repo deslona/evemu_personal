@@ -76,6 +76,7 @@ public:
     PyRep *GetJobs2(const uint32 ownerID, const bool completed); //, const uint64 fromDate, const uint64 toDate);
     PyRep *AssemblyLinesSelectPublic(const uint32 regionID);
     PyRep *AssemblyLinesSelectPersonal(const uint32 charID);
+    PyRep *AssemblyLinesSelectPrivate(const uint32 charID);
     PyRep *AssemblyLinesSelectCorporation(const uint32 corporationID);
     PyRep *AssemblyLinesSelectAlliance(const uint32 allianceID);
     PyRep *AssemblyLinesGet(const uint32 containerID);

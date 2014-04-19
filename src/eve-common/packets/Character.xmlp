@@ -1,26 +1,13 @@
 
-
 <elements>
 
 <!--
-   unimplemented calls
-GetInsurancePrice....wrong place..currently in InsuranceService
-LoadAmmoToBank
-GetNote --??
-IsBrowserInLockdown
--->
-
-<!--
   empty calls:
-  CallGetCharactersToSelect
-  CallGetCharCreationInfo
   CallGetAttributeTypes
   CallShipGetInfo
   CallCharGetInfo
-  CallGetMyKillRights
   CallGetBookmarks
   CallGetChannels
-  CallGetInitialState
   CallGetMyMessages
 -->
 

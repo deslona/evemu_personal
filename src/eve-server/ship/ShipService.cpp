@@ -59,7 +59,7 @@ public:
         PyCallable_REG_CALL(ShipBound, Eject)
         PyCallable_REG_CALL(ShipBound, LeaveShip)
         PyCallable_REG_CALL(ShipBound, ActivateShip)
-        PyCallable_REG_CALL(ShipBound, ChangeDroneSettings)
+        PyCallable_REG_CALL(ShipBound, GetShipConfiguration)
     }
 
     virtual ~ShipBound() {delete m_dispatch;}
@@ -78,7 +78,7 @@ public:
     PyCallable_DECL_CALL(Eject)
     PyCallable_DECL_CALL(LeaveShip)
     PyCallable_DECL_CALL(ActivateShip)
-    PyCallable_DECL_CALL(ChangeDroneSettings)
+    PyCallable_DECL_CALL(GetShipConfiguration)
 
 protected:
     ShipDB& m_db;
@@ -93,7 +93,7 @@ ShipService::ShipService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-//  PyCallable_REG_CALL(ShipService, )
+    //PyCallable_REG_CALL(ShipService, )
 }
 
 ShipService::~ShipService() {
@@ -111,9 +111,9 @@ PyResult ShipBound::Handle_Board(PyCallArgs &call) {
     //Call_SingleIntegerArg args;
     Call_TwoIntegerArgs args;
 
-    // args: two integers in this packet
-    //     .arg1  -  itemID of the ship to be boarded
-    //     .arg2  -  itemID of the ship this client is currently piloting
+	// args: two integers in this packet
+	//     .arg1  -  itemID of the ship to be boarded
+	//     .arg2  -  itemID of the ship this client is currently piloting
 
     // Save position for old ship
     GPoint shipPosition = call.client->GetPosition();
@@ -1124,8 +1124,7 @@ public:
     BuiltinSet() : PyObjectEx_Type1( new PyToken("collections.defaultdict"), new_tuple(new PyToken("__builtin__.set")) ) {}
 };
 
-PyResult ShipBound::Handle_ActivateShip(PyCallArgs &call)
-{
+PyResult ShipBound::Handle_ActivateShip(PyCallArgs &call) {
     //uint32 oldShip;
     uint32 newShip;
     Call_TwoIntegerArgs args;
@@ -1135,22 +1134,16 @@ PyResult ShipBound::Handle_ActivateShip(PyCallArgs &call)
         return NULL;
     }
 
-    newShip = args.arg1;
-
-    ShipRef oldShipRef = call.client->GetShip();
-    ShipRef newShipRef = call.client->services().item_factory.GetShip(newShip);
-
     if(call.client->IsInSpace())
         call.client->System()->bubbles.Remove(call.client, true );
+
+    newShip = args.arg1;
+    ShipRef newShipRef = call.client->services().item_factory.GetShip(newShip);
 
     call.client->BoardShip(newShipRef);
 
     if(call.client->IsInSpace())
         call.client->System()->bubbles.Add(call.client, true);
-
-    // Now that we're in our new ship, if the old ship was a capsule, it's gone, so let's delete it:
-    if( oldShipRef->groupID() == EVEDB::invGroups::Capsule )
-        oldShipRef->Delete();
 
     PyTuple* rsp = new PyTuple(3);
     rsp->SetItem(0, new PyDict);
@@ -1160,10 +1153,15 @@ PyResult ShipBound::Handle_ActivateShip(PyCallArgs &call)
     return rsp;
 }
 
-PyResult ShipBound::Handle_ChangeDroneSettings(PyCallArgs &call)
-{
-  sLog.Log( "ShipBound::Handle_ChangeDroneSettings()", "size= %u", call.tuple->size() );
-  call.Dump(SERVICE__CALLS);
+PyResult ShipBound::Handle_GetShipConfiguration(PyCallArgs &call) {
+  /*
+13:15:58 L ShipBound::Handle_GetShipConfiguration(): size=0
+13:15:58 [SvcCall]   Call Arguments:
+13:15:58 [SvcCall]       Tuple: Empty
 
-    return NULL;
+  sLog.Log( "ShipBound::Handle_GetShipConfiguration()", "size=%u", call.tuple->size());
+    call.Dump(SERVICE__CALLS);
+*/
+    PyRep *result = NULL;
+    return result;
 }

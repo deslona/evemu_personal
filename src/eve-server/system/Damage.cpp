@@ -439,13 +439,9 @@ bool ItemSystemEntity::ApplyDamage(Damage &d) {
     }
 
     if(killed == true)
-    {
         Killed(d);
-    }
     else
-    {
         _SendDamageStateChanged();
-    }
 
     return(killed);
 }
@@ -704,13 +700,9 @@ bool NPC::ApplyDamage(Damage &d) {
     }
 
     if(killed == true)
-    {
         Killed(d);
-    }
     else
-    {
         _SendDamageStateChanged();
-    }
 
     return(killed);
 
@@ -759,23 +751,26 @@ void Client::Killed(Damage &fatal_blow) {
 
     SystemEntity *killer = fatal_blow.source;
     Client* client = m_services.entity_list.FindByShip( killer->Item()->ownerID() );
-    if( !killer->IsClient() )
-    {
-        if( client != NULL )
-        {
+    if( !killer->IsClient() ) {
+        if( client != NULL ) {
             killer = static_cast<SystemEntity*>(client);
             client = NULL;
         }
-    }
-    else
-    {
+    } else {
         client = killer->CastToClient();
     }
 
-    if(GetShip()->typeID() == itemTypeCapsule)
-    {
-        //sLog.Error( "Client::Killed()", "WARNING!  This is likely to crash the server, DO NOT ATTEMPT To POD KILL until this function properly returns client to the station of your last clone update!" );
+    //  log kill in dynamic data   -allan
+    if( client != NULL ) {
+        client->GetChar()->chkDynamicSystemID(GetLocationID());
+        client->GetChar()->AddKillToDynamicData(GetLocationID());
+    }
+
+    if(GetShip()->typeID() == itemTypeCapsule) {
         //we have been pod killed... off we go.
+
+        //  log podkill in dynamic data   -allan
+        client->GetChar()->AddPodKillToDynamicData(GetLocationID());
 
         //TODO: explode the capsule and make a new one in the last medical clone's station:
         GPoint deadPodPosition = GetPosition();
@@ -801,8 +796,7 @@ void Client::Killed(Damage &fatal_blow) {
         );
 
         ShipRef capsuleRef = m_services.item_factory.SpawnShip( capsuleItemData );
-        if( !capsuleRef )
-        {
+        if( !capsuleRef ) {
             sLog.Error("Client::Killed()", "Failed to create capsule for character '%s'", GetName());
             //what to do?
             throw PyException( MakeCustomError ( "Unable to generate escape pod" ) );
@@ -852,8 +846,7 @@ void Client::Killed(Damage &fatal_blow) {
         corpseEntity.z = deadPodPosition.z;
 
         // Actually do the spawn using SystemManager's BuildEntity:
-        if( !(System()->BuildDynamicEntity( this, corpseEntity )) )
-        {
+        if( !(System()->BuildDynamicEntity( this, corpseEntity )) ) {
             sLog.Error("Client::Killed()", "Spawning Wreck Failed: typeID or typeName not supported: '%u'", corpseTypeID);
             throw PyException( MakeCustomError ( "Spawning Wreck Failed: typeID or typeName not supported." ) );
             return;
@@ -867,9 +860,7 @@ void Client::Killed(Damage &fatal_blow) {
 
         //TODO: send them back to their clone.
         m_system->RemoveClient(this);
-    }
-    else
-    {
+    } else {
         //our ship has been destroyed. Off to our capsule.
         //We are currently not keeping our real capsule around in the DB, so we need to make a new one.
         GPoint deadShipPosition = GetPosition();
@@ -901,15 +892,14 @@ void Client::Killed(Damage &fatal_blow) {
         );
 
         ShipRef capsuleRef = m_services.item_factory.SpawnShip( capsuleItemData );
-        if( !capsuleRef )
-        {
+        if( !capsuleRef ) {
             sLog.Error("Client::Killed()", "Failed to create capsule for character '%s'", GetName());
             //what to do?
             throw PyException( MakeCustomError ( "Unable to generate escape pod" ) );
             return;
         }
 
-        //ok, nothing can fail now, we need have our capsule, make the transition.
+        //ok, nothing can fail now, we have our capsule, make the transition.
 
         //put the capsule where the ship was
         capsuleRef->Move(GetLocationID(), (EVEItemFlags)flagCapsule, true);
@@ -979,8 +969,7 @@ void Client::Killed(Damage &fatal_blow) {
         wreckEntity.z = deadShipPosition.z;
 
         // Actually do the spawn using SystemManager's BuildEntity:
-        if( !(System()->BuildDynamicEntity( this, wreckEntity )) )
-        {
+        if( !(System()->BuildDynamicEntity( this, wreckEntity )) ) {
             sLog.Error("Client::Killed()", "Spawning Wreck Failed: typeID or typeName not supported: '%u'", wreckTypeID);
             throw PyException( MakeCustomError ( "Spawning Wreck Failed: typeID or typeName not supported." ) );
             return;
@@ -1003,17 +992,18 @@ void NPC::Killed(Damage &fatal_blow)
 
     SystemEntity *killer = fatal_blow.source;
     Client* client = m_services.entity_list.FindByShip( killer->Item()->ownerID() );
-    if( !killer->IsClient() )
-    {
-        if( client != NULL )
-        {
+    if( !killer->IsClient() ) {
+        if( client != NULL ) {
             killer = static_cast<SystemEntity*>(client);
             client = NULL;
         }
-    }
-    else
-    {
+    } else {
         client = killer->CastToClient();
+    }
+    //  log faction kill in dynamic data   -allan
+    if( client != NULL ) {
+        client->GetChar()->chkDynamicSystemID(GetLocationID());
+        client->GetChar()->AddFactionKillToDynamicData(GetLocationID());
     }
 
     GPoint deadNPCPosition = this->Destiny()->GetPosition();
@@ -1053,8 +1043,7 @@ void NPC::Killed(Damage &fatal_blow)
     wreckEntity.z = deadNPCPosition.z;
 
     // Actually do the spawn using SystemManager's BuildEntity:
-    if( !(System()->BuildDynamicEntity( NULL, wreckEntity )) )
-    {
+    if( !(System()->BuildDynamicEntity( NULL, wreckEntity )) ) {
         sLog.Error("NPC::Killed()", "Spawning Wreck Failed: typeID or typeName not supported: '%u'", wreckTypeID);
         throw PyException( MakeCustomError ( "Spawning Wreck Failed: typeID or typeName not supported." ) );
         return;
@@ -1073,9 +1062,7 @@ void NPC::Killed(Damage &fatal_blow)
         client->GetChar()->addSecurityRating( m_self->GetAttribute(AttrEntitySecurityStatusKillBonus).get_float() );
 
     //notify our spawner that we are gone.
-    if(m_spawner != NULL) {
-      m_spawner->SpawnDepoped(m_self->itemID());
-    }
+    if(m_spawner != NULL) { m_spawner->SpawnDepoped(m_self->itemID()); }
 
     m_system->RemoveNPC(this);
 }

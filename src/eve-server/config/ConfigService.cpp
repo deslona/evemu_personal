@@ -81,6 +81,15 @@ PyResult ConfigService::Handle_GetMultiAllianceShortNamesEx(PyCallArgs &call) {
 
 
 PyResult ConfigService::Handle_GetMultiLocationsEx(PyCallArgs &call) {
+  /**
+00:49:01 L ConfigService: Handle_GetMultiLocationsEx
+00:49:01 [SvcCall]   Call Arguments:
+00:49:01 [SvcCall]       Tuple: 1 elements
+00:49:01 [SvcCall]         [ 0] List: 1 elements
+00:49:01 [SvcCall]         [ 0]   [ 0] Integer field: 140000522
+*/
+    sLog.Log( "ConfigService", "Handle_GetMultiLocationsEx" );
+  call.Dump(SERVICE__CALLS);
     //parse the PyRep to get the list of IDs to query.
     Call_SingleIntList arg;
     if(!arg.Decode(&call.tuple)) {
@@ -295,6 +304,7 @@ PyResult ConfigService::Handle_GetMapConnections(PyCallArgs &call) {
       <int name="int2" />
       <int name="int3" />
 */
+  sLog.Log( "ConfigService::Handle_GetMapConnections()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
     Call_GetMapConnections args;
     if(!args.Decode(&call.tuple)) {
@@ -306,6 +316,7 @@ PyResult ConfigService::Handle_GetMapConnections(PyCallArgs &call) {
 }
 
 PyResult ConfigService::Handle_GetStationSolarSystemsByOwner(PyCallArgs &call) {
+  sLog.Log( "ConfigService::Handle_GetStationSolarSystemsByOwner()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
     Call_SingleIntegerArg arg;
     if (!arg.Decode(&call.tuple)) {
@@ -328,7 +339,7 @@ PyResult ConfigService::Handle_GetCelestialStatistic(PyCallArgs &call) {
     return m_db.GetCelestialStatistic(arg.arg);
 }
 
-PyResult ConfigService::Handle_GetDynamicCelestials(PyCallArgs &call){
+PyResult ConfigService::Handle_GetDynamicCelestials(PyCallArgs &call) {
     Call_SingleIntegerArg arg;
     if (!arg.Decode(&call.tuple)) {
         codelog(SERVICE__ERROR, "Bad arguments");
@@ -338,19 +349,18 @@ PyResult ConfigService::Handle_GetDynamicCelestials(PyCallArgs &call){
     return m_db.GetDynamicCelestials(arg.arg);
 }
 
-PyResult ConfigService::Handle_GetMapLandmarks(PyCallArgs &call)
-{/*
+PyResult ConfigService::Handle_GetMapLandmarks(PyCallArgs &call) {
+  /*
 22:00:55 L ConfigService::Handle_GetMapLandmarks(): size= 0
 22:00:55 [SvcCall]   Call Arguments:
 22:00:55 [SvcCall]       Tuple: Empty
 22:00:55 [SvcCall]   Call Named Arguments:
 22:00:55 [SvcCall]     Argument 'machoVersion':
 22:00:55 [SvcCall]         Integer field: 1
-*/
 
   sLog.Log( "ConfigService::Handle_GetMapLandmarks()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
-
+*/
     return (m_db.GetMapLandmarks());
 }
 

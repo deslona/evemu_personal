@@ -88,12 +88,6 @@ void EntityList::Process()
     SystemManager *active_system = NULL;
     bool destiny = DestinyManager::IsTicActive();
 
-    /* capt: I wonder what this stuff should do... its spamming the console... */
-    //if( destiny == true )
-    //{
-        //sLog.Log("Entity List | Destiny Trace", "Triggering destiny tick for stamp %u", DestinyManager::GetStamp());
-    //}
-
     //first process any systems, watching for deletion.
     system_list::iterator cur, end, tmp;
     cur = m_systems.begin();

@@ -42,17 +42,10 @@ protected:
 
     StationDB m_db;
 
-    PyCallable_DECL_CALL(GetPriceForClone)
-//    PyCallable_DECL_CALL()
+    PyCallable_DECL_CALL(GetShipCloneState)
 
     //overloaded in order to support bound objects:
     virtual PyBoundObject *_CreateBoundObject(Client *c, const PyRep *bind_args);
 };
 
-
-
-
-
 #endif
-
-

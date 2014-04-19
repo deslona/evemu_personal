@@ -137,6 +137,12 @@ bool Inventory::LoadContents(ItemFactory &factory) {
     // check if the contents has already been loaded...
     if( ContentsLoaded() ) return true;
     sLog.Log("Inventory", "Loading contents of inventory %u", inventoryID() );
+    /**
+      * need to put check here for offline chars.....no need to load them at this point.  -allan 31Mar14
+      * use this.....
+      * flagConnected                    = 9,    //Character in station connected
+      * flagDisconnected                = 10,    //Character in station offline
+      */
 
     //load the list of items we need
     //  this loads EVERYTHING in a system....dynamic, npc, celestials, etc...
@@ -157,8 +163,13 @@ bool Inventory::LoadContents(ItemFactory &factory) {
     for(; cur != end; cur++) {
         // check current item to see if it is an agent or npc in the system...continue if true  -allan
         if(IsAgent(*cur)) continue;
-        // check current item to see if it is an offline char in the system...continue if true  -allan
-        //if(IsClient(*cur)) { if (isOffline(*cur)) { continue; } }
+    /**   this loops thru items in systems....chars are items.  -allan 31Mar14
+      * use this.....
+      * flagConnected                    = 9,    //Character in station connected
+      * flagDisconnected                = 10,    //Character in station offline
+      * check current item to see if it is an offline char in the system...continue if true  -allan
+        //if( !cur->IsClient() ) continue;
+      */
         // Each "cur" item should be checked to see if they are "owned" by the character connected to this client,
         // and if not, then do not "get" the entire contents of this for() loop for that item, except in the case that
         // this item is located in space or belongs to this character's corporation:

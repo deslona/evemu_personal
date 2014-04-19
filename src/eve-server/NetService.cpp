@@ -177,11 +177,21 @@ PyResult NetService::Handle_GetTime(PyCallArgs &call) {
 //21:26:54 L NetService::Handle_GetClusterSessionStatistics(): size= 0
 PyResult NetService::Handle_GetClusterSessionStatistics(PyCallArgs &call) {
      /**
-     ColorStarsByNumPilots       --TypeError: 'NoneType' object is not iterable
+     ColorStarsByNumPilots       --ValueError: too many values to unpack
+        -- should use a solarSystemDict py dictonary return here
 
      this really should be a dynamic system call to systementity service or whatever it is to get systems with clients
      */
     DBQueryResult res;
-      sDatabase.RunQuery(res, "SELECT solarSystemID, numPilots AS value1 FROM mapDynamicData" );
-      return DBResultToRowset(res);
+    sDatabase.RunQuery(res, "SELECT solarSystemID, numPilots AS value1 FROM mapDynamicData" );
+
+    DBResultRow row;
+    res.GetRow(row);
+    /*
+    PyTuple* result = new PyTuple( 2 );
+    result->SetItem( 0, row.GetUInt(0));
+    result->SetItem( 1, row.GetUInt(1));
+    return result;
+    */
+    return DBResultToRowset(res);
 }

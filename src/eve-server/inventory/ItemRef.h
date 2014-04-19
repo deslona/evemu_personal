@@ -49,7 +49,7 @@ typedef RefPtr<InventoryItem>            InventoryItemRef;
 typedef RefPtr<const InventoryItem>      InventoryItemConstRef;
 
 typedef RefPtr<Blueprint>                BlueprintRef;
-typedef RefPtr<const Blueprint>          BlueprintConstRef;
+//typedef RefPtr<const Blueprint>          BlueprintConstRef;
 typedef RefPtr<Ship>                     ShipRef;
 typedef RefPtr<const Ship>               ShipConstRef;
 typedef RefPtr<CelestialObject>          CelestialObjectRef;

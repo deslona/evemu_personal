@@ -556,4 +556,41 @@
     </tupleInline>
   </elementDef>
 
+  <elementDef name="Rsp_GetInsuranceContracts">
+      <dictInline>
+          <dictInlineEntry key="shipID">
+              <int name="shipID" />
+          </dictInlineEntry>
+          <dictInlineEntry key="startDate">
+              <int name="startDate" />
+          </dictInlineEntry>
+          <dictInlineEntry key="endDate">
+              <bool name="endDate" />
+          </dictInlineEntry>
+          <dictInlineEntry key="fraction">
+              <int name="fraction" />
+          </dictInlineEntry>
+      </dictInline>
+  </elementDef>
+
+  <elementDef name="Call_SearchQuery">
+    <tupleInline>
+      <wstring name="string" />
+      <listInline>
+        <int name="int1" />
+      </listInline>
+    </tupleInline>
+  </elementDef>
+
+  <elementDef name="Call_SearchQuickQuery">
+    <tupleInline>
+      <wstring name="string" />
+      <listInline>
+        <int name="int1" />
+        <int name="int2" />
+        <int name="int3" />
+      </listInline>
+    </tupleInline>
+  </elementDef>
+
  </elements>

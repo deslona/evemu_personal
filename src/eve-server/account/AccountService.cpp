@@ -54,6 +54,14 @@ AccountService::~AccountService() {
 //16:37:51 L AccountService::Handle_GetCashBalance(): size= 1, 0=Integer - for corp wallet
 //02:40:18 L AccountService::Handle_GetCashBalance(): size= 1, 0=Boolean  - for char wallet
 PyResult AccountService::Handle_GetCashBalance(PyCallArgs &call) {
+  /*
+22:47:15 L AccountService::Handle_GetCashBalance(): size= 2
+22:47:15 [SvcCall]   Call Arguments:
+22:47:15 [SvcCall]       Tuple: 2 elements
+22:47:15 [SvcCall]         [ 0] Integer field: 1
+22:47:15 [SvcCall]         [ 1] Integer field: 1000
+*/
+  sLog.Log( "AccountService::Handle_GetCashBalance()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
     const int32 ACCOUNT_KEY_AURUM = 1200;
 

@@ -384,8 +384,8 @@ PyResult InventoryBound::Handle_SetPassword(PyCallArgs &call) {
 }
 
 //01:10:27 L InventoryBound::Handle_CreateBookmarkVouchers(): size= 3, 0 = List, 1 = Integer, 2 = Boolean
-PyResult InventoryBound::Handle_CreateBookmarkVouchers(PyCallArgs &call)        // size, bmID, flag, ismove
-{
+                                                            // size,       bmID,     flag,        ismove
+PyResult InventoryBound::Handle_CreateBookmarkVouchers(PyCallArgs &call) {
   /**
 00:39:12 [SvcCall]   Call Arguments:
 00:39:12 [SvcCall]       Tuple: 3 elements
@@ -413,34 +413,37 @@ PyResult InventoryBound::Handle_CreateBookmarkVouchers(PyCallArgs &call)        
 00:43:37 [SvcCall]         Integer field: 1
 00:43:37 L InventoryBound::Handle_CreateBookmarkVouchers(): 5 Vouchers created
 
+  sLog.Log( "InventoryBound::Handle_CreateBookmarkVouchers()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
 */
       PyList *list = call.tuple->GetItem( 0 )->AsList();
       uint8 i;
       uint32 bookmarkID;
-  call.Dump(SERVICE__CALLS);
 
-      if( list->size() > 0 )
-      {
-          for(i=0; i<(list->size()); i++)
-          {
+      if( list->size() > 0 ) {
+          for(i=0; i<(list->size()); i++) {
               bookmarkID = call.tuple->GetItem( 0 )->AsList()->GetItem(i)->AsInt()->value();
                               //ItemData ( typeID, ownerID, locationID, flag, quantity, customInfo, contraband)
               ItemData itemBookmarkVoucher( 51, call.client->GetCharacterID(), call.client->GetLocationID(), flagHangar, 1 );
               InventoryItemRef i = m_manager->item_factory.SpawnItem( itemBookmarkVoucher );
-              //i.name = "Bookmark";
-              //Inventory::AddItem( item );  **check this?
-              //use column `customInfo` to store original bookmarkID for later use.
+              //InventoryItem::SetCustomInfo(const char *ci)  <- use this to set bookmarkID to DB.entity.customInfo
+              if( !i )
+                  codelog(CLIENT__ERROR, "%s: Failed to spawn bookmark voucher for %u", call.client->GetName(), bookmarkID);
           }
           sLog.Log( "InventoryBound::Handle_CreateBookmarkVouchers()", "%u Vouchers created", list->size() );
-          //  when bm is copied to another players places tab, copy data from db using bookmarkID
-      }else{
+          //  when bm is copied to another players places tab, copy data from db using bookmarkID stored in ItemData.customInfo
+      } else {
           sLog.Error( "InventoryBound::Handle_CreateBookmarkVouchers()", "%s: call.tuple->GetItem( 0 )->AsList()->size() == 0.  Expected size > 0.", call.client->GetName() );
           return NULL;
       }
 
+      //  need to put check in here for isMove bool.  true=remove from PnP->bookmarks tab....false = leave
+
     return NULL;
 }
+
 PyResult InventoryBound::Handle_Voucher(PyCallArgs &call){
+  sLog.Log( "InventoryBound::Handle_Voucher()", "size= %u", call.tuple->size() );
 
   call.Dump(SERVICE__CALLS);
     return NULL;

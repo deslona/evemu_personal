@@ -27,7 +27,6 @@
 
 #include "PyServiceCD.h"
 #include "cache/ObjCacheService.h"
-#include "EVEServerConfig.h"
 
 const char *const ObjCacheService::LoginCachableObjects[] = {
     "config.BulkData.paperdollResources",
@@ -140,16 +139,6 @@ ObjCacheService::ObjCacheService(PyServiceMgr *mgr, const char *cacheDir)
   m_dispatch(new Dispatcher(this)),
   m_cacheDir(cacheDir)
 {
-	/*
-	*	Create server_cache directory to store the cached objects 
-	*/
-	std::string _basePath = sConfig.files.cacheDir;
-
-	if (_basePath[_basePath.size() - 1] != '/')
-        _basePath += "/";
-
-	CreateDirectory(_basePath.c_str(), NULL);
-
     _SetCallDispatcher(m_dispatch);
 
     PyCallable_REG_CALL(ObjCacheService, GetCachableObject)
@@ -253,6 +242,24 @@ ObjCacheService::~ObjCacheService() {
 }
 
 PyResult ObjCacheService::Handle_GetCachableObject(PyCallArgs &call) {
+  /*
+20:27:48 L ObjCacheService: Handle_GetCachableObject
+20:27:48 [SvcCall]   Call Arguments:
+20:27:48 [SvcCall]       Tuple: 4 elements
+20:27:48 [SvcCall]         [ 0] Boolean field: false
+20:27:48 [SvcCall]         [ 1] Tuple: 3 elements
+20:27:48 [SvcCall]         [ 1]   [ 0] String: 'Method Call'
+20:27:48 [SvcCall]         [ 1]   [ 1] String: 'server'
+20:27:48 [SvcCall]         [ 1]   [ 2] Tuple: 2 elements
+20:27:48 [SvcCall]         [ 1]   [ 2]   [ 0] String: 'marketProxy'
+20:27:48 [SvcCall]         [ 1]   [ 2]   [ 1] String: 'GetMarketGroups'
+20:27:48 [SvcCall]         [ 2] Tuple: 2 elements
+20:27:48 [SvcCall]         [ 2]   [ 0] Integer field: 130418403480000000
+20:27:48 [SvcCall]         [ 2]   [ 1] Integer field: 933884788
+20:27:48 [SvcCall]         [ 3] Integer field: 333444
+    sLog.Log( "ObjCacheService", "Handle_GetCachableObject" );
+  call.Dump(SERVICE__CALLS);
+  */
     CallGetCachableObject args;
     if(!args.Decode(&call.tuple))
     {

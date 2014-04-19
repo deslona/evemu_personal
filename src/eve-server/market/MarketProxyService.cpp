@@ -224,7 +224,6 @@ PyResult MarketProxyService::Handle_GetOrders(PyCallArgs &call) {
 }
 
 PyResult MarketProxyService::Handle_GetCharOrders(PyCallArgs &call) {
-    //m_db.BuildOldPriceHistory();        // function already coded, not called.   added to few places   -allan
     //no arguments
     PyRep *result = NULL;
 
@@ -238,7 +237,6 @@ PyResult MarketProxyService::Handle_GetCharOrders(PyCallArgs &call) {
 }
 
 PyResult MarketProxyService::Handle_GetOldPriceHistory(PyCallArgs &call) {
-    m_db.BuildOldPriceHistory();        // function already coded, not called.   added to few places   -allan
     Call_SingleIntegerArg args; //itemID
     if(!args.Decode(&call.tuple)) {
         codelog(MARKET__ERROR, "Invalid arguments");
@@ -269,7 +267,6 @@ PyResult MarketProxyService::Handle_GetOldPriceHistory(PyCallArgs &call) {
 }
 
 PyResult MarketProxyService::Handle_GetNewPriceHistory(PyCallArgs &call) {
-    m_db.BuildOldPriceHistory();        // function already coded, not called.   added to few places   -allan
     Call_SingleIntegerArg args; //itemID
     if(!args.Decode(&call.tuple)) {
         codelog(MARKET__ERROR, "Invalid arguments");
@@ -300,8 +297,26 @@ PyResult MarketProxyService::Handle_GetNewPriceHistory(PyCallArgs &call) {
 }
 
 PyResult MarketProxyService::Handle_PlaceCharOrder(PyCallArgs &call) {
-    //m_db.BuildOldPriceHistory();        // function already coded, not called.   added to few places   -allan
-    Call_PlaceCharOrder args;
+  /**
+17:15:42 L MarketProxyService::Handle_PlaceCharOrder: call.Dump to follow...
+17:15:42 [SvcCall]   Call Arguments:
+17:15:42 [SvcCall]       Tuple: 11 elements
+17:15:42 [SvcCall]         [ 0] Integer field: 60004594
+17:15:42 [SvcCall]         [ 1] Integer field: 28409
+17:15:42 [SvcCall]         [ 2] Real field: 2400.000000
+17:15:42 [SvcCall]         [ 3] Integer field: 1000000
+17:15:42 [SvcCall]         [ 4] Integer field: 1
+17:15:42 [SvcCall]         [ 5] Integer field: -1
+17:15:42 [SvcCall]         [ 6] (None)
+17:15:42 [SvcCall]         [ 7] Integer field: 1
+17:15:42 [SvcCall]         [ 8] Integer field: 1
+17:15:42 [SvcCall]         [ 9] Boolean field: false
+17:15:42 [SvcCall]         [10] (None)
+
+  sLog.Log("MarketProxyService::Handle_PlaceCharOrder", "call.Dump to follow...");
+  call.Dump(SERVICE__CALLS);
+*/
+  Call_PlaceCharOrder args;
     if(!args.Decode(&call.tuple)) {
         codelog(MARKET__ERROR, "Invalid arguments");
         return NULL;
@@ -319,16 +334,20 @@ PyResult MarketProxyService::Handle_PlaceCharOrder(PyCallArgs &call) {
             args.price,
             args.quantity,
             args.orderRange);
+
+        sLog.Log("MarketProxyService::Handle_PlaceCharOrder", "%s: Trying buy order %u to satisfy (type %u, station %u, price %.2f, qty %u, range %u)", call.client->GetName(), order_id, args.typeID, args.stationID, args.price, args.quantity, args.orderRange);
+
         if(order_id != 0) {
-            _log(MARKET__TRACE, "%s: Found sell order %u to satisfy (type %u, station %u, price %f, qty %u, range %u)", call.client->GetName(), order_id, args.stationID, args.typeID, args.price, args.quantity, args.orderRange);
+            _log(MARKET__TRACE, "%s: Found sell order %u to satisfy (type %u, station %u, price %.2f, qty %u, range %u)", call.client->GetName(), order_id, args.typeID, args.stationID, args.price, args.quantity, args.orderRange);
 
             _ExecuteSellOrder(order_id, args.stationID, args.quantity, call.client, args.useCorp);
             return NULL;
         }
 
         //unable to satisfy immediately...
+        //20:24:17 [Error] Lee Domani: Failed to satisfy order for 879 of 1 at 2.660000 ISK.
         if(args.duration == 0) {
-            _log(MARKET__ERROR, "%s: Failed to satisfy order for %d of %d at %f ISK.", call.client->GetName(), args.typeID, args.quantity, args.price);
+            _log(MARKET__ERROR, "%s: Failed to satisfy buy order for %d of type %d at %.2f ISK.", call.client->GetName(), args.quantity, args.typeID, args.price);
             call.client->SendErrorMsg("No such order found.");
             return NULL;
         }
@@ -341,7 +360,7 @@ PyResult MarketProxyService::Handle_PlaceCharOrder(PyCallArgs &call) {
         double money = args.price * args.quantity;
         //TODO: add broker fees...
         if(!call.client->AddBalance(-money)) {
-            _log(MARKET__ERROR, "%s: Client requested buy order exceeding their balance (%f ISK total).", call.client->GetName(), money);
+            _log(MARKET__ERROR, "%s: Client requested buy order exceeding their balance (%.2f ISK total).", call.client->GetName(), money);
             call.client->SendErrorMsg("No such order found.");
             return NULL;
         }
@@ -423,17 +442,17 @@ PyResult MarketProxyService::Handle_PlaceCharOrder(PyCallArgs &call) {
             args.quantity,
             args.orderRange);
         if(order_id != 0) {
-            _log(MARKET__TRACE, "%s: Found order %u to satisfy (type %u, station %u, price %f, qty %u, range %u)", call.client->GetName(), order_id, args.stationID, args.typeID, args.price, args.quantity, args.orderRange);
+            _log(MARKET__TRACE, "%s: Found buy order %u to satisfy (type %u, station %u, price %.2f, qty %u, range %u)", call.client->GetName(), order_id, args.typeID, args.stationID, args.price, args.quantity, args.orderRange);
 
             _ExecuteBuyOrder(order_id, args.stationID, args.quantity, call.client, (InventoryItemRef)item, args.useCorp);
             return NULL;
         }
 
         //else, unable to satisfy immediately...
-        _log(MARKET__TRACE, "%s: Unable to find an immediate order to satisfy (type %u, station %u, price %f, qty %u, range %u)", call.client->GetName(), args.stationID, args.typeID, args.price, args.quantity, args.orderRange);
+        _log(MARKET__TRACE, "%s: Unable to find an immediate order to satisfy (type %u, station %u, price %.2f, qty %u, range %u)", call.client->GetName(), args.stationID, args.typeID, args.price, args.quantity, args.orderRange);
 
         if(args.duration == 0) {
-            _log(MARKET__ERROR, "%s: Failed to satisfy order for %d of %d at %f ISK.", call.client->GetName(), args.quantity, args.typeID,  args.price);
+            _log(MARKET__ERROR, "%s: Failed to satisfy sell order for %d of type %d at %.2f ISK.", call.client->GetName(), args.quantity, args.typeID,  args.price);
             return NULL;
         }
 
@@ -478,7 +497,6 @@ PyResult MarketProxyService::Handle_PlaceCharOrder(PyCallArgs &call) {
 }
 
 PyResult MarketProxyService::Handle_ModifyCharOrder(PyCallArgs &call) {
-    //m_db.BuildOldPriceHistory();        // function already coded, not called.   added to few places   -allan
     Call_ModifyCharOrder args;
     if(!args.Decode(&call.tuple))
     {
@@ -605,11 +623,8 @@ PyResult MarketProxyService::Handle_CharGetNewTransactions(PyCallArgs &call)
     return result;
 }
 
-PyResult MarketProxyService::Handle_StartupCheck(PyCallArgs &call)
-{
-  sLog.Log( "MarketProxyService::Handle_StartupCheck()", "size=%u ", call.tuple->size() );
-  call.Dump(SERVICE__CALLS);
-
+PyResult MarketProxyService::Handle_StartupCheck(PyCallArgs &call) {
+    m_db.BuildOldPriceHistory();        // function already coded, not called.   added to implement market price history...working   -allan
     return NULL;
 }
 

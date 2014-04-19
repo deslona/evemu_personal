@@ -43,7 +43,7 @@ public:
     void Overload();
     void DeOverload();
     void DestroyRig();
-    void Activate(SystemEntity * targetEntity);
+	void Activate(uint32 targetID);
 	void Deactivate();
 };
 

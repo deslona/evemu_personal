@@ -236,7 +236,8 @@ SET( inventory_INCLUDE
      "${TARGET_INCLUDE_DIR}/inventory/ItemFactory.h"
      "${TARGET_INCLUDE_DIR}/inventory/ItemRef.h"
      "${TARGET_INCLUDE_DIR}/inventory/ItemType.h"
-     "${TARGET_INCLUDE_DIR}/inventory/Owner.h" )
+     "${TARGET_INCLUDE_DIR}/inventory/Owner.h"
+     "${TARGET_INCLUDE_DIR}/inventory/Voucher.h" )
 SET( inventory_SOURCE
      "${TARGET_SOURCE_DIR}/inventory/EVEAttributeMgr.cpp"
      "${TARGET_SOURCE_DIR}/inventory/InvBrokerService.cpp"
@@ -247,7 +248,8 @@ SET( inventory_SOURCE
      "${TARGET_SOURCE_DIR}/inventory/ItemDB.cpp"
      "${TARGET_SOURCE_DIR}/inventory/ItemFactory.cpp"
      "${TARGET_SOURCE_DIR}/inventory/ItemType.cpp"
-     "${TARGET_SOURCE_DIR}/inventory/Owner.cpp" )
+     "${TARGET_SOURCE_DIR}/inventory/Owner.cpp"
+     "${TARGET_SOURCE_DIR}/inventory/Voucher.cpp" )
 
 SET( mail_INCLUDE
      "${TARGET_INCLUDE_DIR}/mail/MailDB.h"
@@ -462,6 +464,7 @@ SET( system_INCLUDE
      "${TARGET_INCLUDE_DIR}/system/IndexManager.h"
      "${TARGET_INCLUDE_DIR}/system/KeeperService.h"
      "${TARGET_INCLUDE_DIR}/system/Search.h"
+     "${TARGET_INCLUDE_DIR}/system/SearchDB.h"
      "${TARGET_INCLUDE_DIR}/system/ScenarioService.h"
      "${TARGET_INCLUDE_DIR}/system/SolarSystem.h"
      "${TARGET_INCLUDE_DIR}/system/SystemBubble.h"
@@ -484,6 +487,7 @@ SET( system_SOURCE
      "${TARGET_SOURCE_DIR}/system/IndexManager.cpp"
      "${TARGET_SOURCE_DIR}/system/KeeperService.cpp"
      "${TARGET_SOURCE_DIR}/system/Search.cpp"
+     "${TARGET_SOURCE_DIR}/system/SearchDB.cpp"
      "${TARGET_SOURCE_DIR}/system/ScenarioService.cpp"
      "${TARGET_SOURCE_DIR}/system/SolarSystem.cpp"
      "${TARGET_SOURCE_DIR}/system/SystemBubble.cpp"

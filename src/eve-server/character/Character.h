@@ -436,29 +436,13 @@ public:
      * @author xanarox
      */
     void AddToSkillQueue(uint32 typeID, uint8 level);
-    /**
-     * Clears skill queue.
-     */
     void ClearSkillQueue();
-    /**
-     * Pauses skill queue.
-     */
     void PauseSkillQueue();
-    /**
-     * Loads Paused skill queue.
-     */
     void LoadPausedSkillQueue();
-    /**
-     * Updates skill queue.
-     */
     void UpdateSkillQueue();
-    /**
-     * Update skill training end time on char select screen.
-     * @author allan
-     */
-    void UpdateSkillQueueEndTime();
     void UpdateSkillQueueEndTime( const SkillQueue &queue );
     void RemoveSkillFromQueue(uint32, uint16);
+
     /** GrantCertificate( uint32 certificateID )
      *
      * This will add a certificate into the character
@@ -484,8 +468,7 @@ public:
      */
     void GetCertificates( Certificates &crt );
 
- 	/* Returns standing an agent/corp has towards this character.
- 	 */
+ 	/* Returns standing an agent/corp has towards this character. 	 */
  	double GetEffectiveStandingFromNPC(uint32 itemID);
 
     // NOTE: We do not handle Split/Merge logic since singleton-restricted construction does this for us.
@@ -569,15 +552,18 @@ public:
     void SetActiveShip( uint32 );
 
     void VisitSystem(uint32);
-    uint16 GetSystemVisits(uint32);
+    void SaveSkillHistory(int, double, uint32, uint32, int, double, double);
+    bool isOffline(uint32);
     void chkDynamicSystemID(uint32);
     void AddJumpToDynamicData(uint32);
-    uint16 GetJumpsFromDynamicData(uint32);
     void AddPilotToDynamicData(uint32, bool);
-    uint16 GetPilotsFromDynamicData(uint32);
-    bool isOffline(uint32);
+    void AddKillToDynamicData(uint32 solarSystemID);
+    void AddPodKillToDynamicData(uint32 solarSystemID);
+    void AddFactionKillToDynamicData(uint32 solarSystemID);
 
     PyObject* GetSkillHistory();
+
+    EvilNumber GetTotalSP();
 
 protected:
     Character(
@@ -645,7 +631,6 @@ protected:
     void AddItem(InventoryItemRef item);
 
     void _CalculateTotalSPTrained();
-    EvilNumber GetTotalSP();
 
     /*
      * Data members

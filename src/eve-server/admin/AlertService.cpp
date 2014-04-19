@@ -74,7 +74,7 @@ PyResult AlertService::Handle_BeanCount(PyCallArgs &call) {
 }
 
 /** The client "stacks" up the python "stack" traces and sends them every 15 minutes.
-  * @Note: this process is only usefully when we supply the client with a valid mErrorID.
+  * @Note: this process is only useful when we supply the client with a valid mErrorID.
   *      meaning that we should code a mErrorID tracker for it. To handle these.
   */
 PyResult AlertService::Handle_BeanDelivery( PyCallArgs& call )

@@ -70,25 +70,11 @@ Client::Client(PyServiceMgr &services, EVETCPConnection** con)
 }
 
 Client::~Client() {
-    if( GetChar() ) {
-        // we have valid character
-
+    if( GetChar() ) {   // we have valid character
         // LSC logout
         m_services.lsc_service->CharacterLogout(GetCharacterID(), LSCChannel::_MakeSenderInfo(this));
 
-        //before we remove ourself from the system, store our last location.
-        SavePosition();
-
-        // Save character info including attributes, save current ship's attributes, current ship's fitted mModulesMgr,
-        // and save all skill attributes to the Database:
-        if( GetShip() != NULL )
-            GetShip()->SaveShip();                              // Save Ship's and Modules' attributes and info to DB
-        if( GetChar() != NULL )
-        {
-            GetChar()->SaveFullCharacter();                     // Save Character info to DB
-            GetChar()->SaveSkillQueue();                        // Save Skill Queue to DB
-            GetChar()->UpdateSkillQueueEndTime();               // Save Queue End Time to DB
-        }
+        SaveAllToDatabase();
 
         // remove ourselves from system
         if(m_system != NULL)
@@ -97,6 +83,21 @@ Client::~Client() {
         //johnsus - characterOnline mod
         // switch character online flag to 0
         m_services.serviceDB().SetCharacterOnlineStatus(GetCharacterID(), false);
+
+        //  get login time and set character_.logonMinutes in DB        -allan
+        DBQueryResult res;
+        sDatabase.RunQuery(res, "SELECT logonDateTime, logonMinutes FROM character_ WHERE characterID = %u", GetCharacterID() );
+        DBResultRow row;
+        res.GetRow(row);
+        uint64 logonDateTime = row.GetUInt(0);
+        uint32 logonMinutes = row.GetUInt(1);
+        EvilNumber loginTime = 0;
+        if (logonDateTime > 0 ) loginTime = Win32TimeNow() - logonDateTime;  //  logged in as Win32TimeNow();
+        logonMinutes = logonMinutes + loginTime.get_int();      //logonMinutes will have to be /10m to be used....
+        DBerror err;
+        if ( !sDatabase.RunQuery(err, "UPDATE character_ SET logonMinutes = %d WHERE characterID = %u ", logonMinutes, GetCharacterID() )) {
+            codelog(SERVICE__ERROR, "Client::~Client - Error in query: %s", err.c_str());
+        }
     }
 
     if(GetAccountID() != 0) { // this is not very good ....
@@ -165,9 +166,8 @@ void Client::Process() {
     }
 
     // Check Character Save Timer Expiry:
-    if( GetChar()->CheckSaveTimer() )
-    {
-     // Should this perhaps be invoking GetChar()->SaveFullCharacter() or is saving basic character info enough here?
+    if( GetChar()->CheckSaveTimer() ) {
+     // GetChar()->SaveFullCharacter();
         GetChar()->SaveCharacter();
 		GetShip()->SaveShip();
     }
@@ -176,8 +176,7 @@ void Client::Process() {
     //if( mModulesMgr.CheckSaveTimer() )
     //    mModulesMgr.SaveModules();
 
-    if( m_timeEndTrain != 0 )
-    {
+    if( m_timeEndTrain != 0 ) {
         if( m_timeEndTrain <= EvilTimeNow() )    //Win32TimeNow()
             GetChar()->UpdateSkillQueue();
     }
@@ -772,12 +771,9 @@ void Client::_SendSessionChange()
     //p->named_payload = new PyDict();
     //p->named_payload->SetItemString( "channel", new PyString( "sessionchange" ) );
 
-
     //_log(CLIENT__IN_ALL, "Sending Session packet:");
     //PyLogDumpVisitor dumper(CLIENT__OUT_ALL, CLIENT__OUT_ALL);
     //p->Dump(CLIENT__OUT_ALL, dumper);
-
-
 
     FastQueuePacket( &p );
 }
@@ -1067,7 +1063,7 @@ void Client::StargateJump(uint32 fromGate, uint32 toGate) {
     GetChar()->AddJumpToDynamicData(fromSystem);
     GetChar()->AddPilotToDynamicData(fromSystem, false);
 
-    // these are the toSystem...need to get fromSystem and update it also.
+    // these are the toSystem.
     GetChar()->chkDynamicSystemID(solarSystemID);
     GetChar()->AddJumpToDynamicData(solarSystemID);
     GetChar()->AddPilotToDynamicData(solarSystemID, true);
@@ -1138,8 +1134,6 @@ bool Client::AddBalance(double amount) {
     return true;
 }
 
-
-
 bool Client::SelectCharacter( uint32 char_id )
 {
     m_services.item_factory.SetUsingClient( this );
@@ -1179,7 +1173,11 @@ bool Client::SelectCharacter( uint32 char_id )
     UpdateLocation();
 
     // update skill queue
-    GetChar()->UpdateSkillQueue();
+    GetChar()->UpdateSkillQueue();   //this is somewhat expensive for clients logging into server....put it on hold for now.
+    //  this will set training end time, then we wait for the process tick which will check this then update skillqueue
+    //UpdateSkillTraining();
+    //GetChar()->PauseSkillQueue();
+    //GetChar()->LoadPausedSkillQueue();
 
     //johnsus - characterOnline mod
     m_services.serviceDB().SetCharacterOnlineStatus( GetCharacterID(), true );
@@ -1191,8 +1189,7 @@ bool Client::SelectCharacter( uint32 char_id )
     return true;
 }
 
-void Client::UpdateSkillTraining()
-{
+void Client::UpdateSkillTraining() {
     if( GetChar() )
         m_timeEndTrain = GetChar()->GetEndOfTraining();
     else
@@ -1321,12 +1318,10 @@ void Client::SavePosition() {
     GetShip()->Relocate( m_destiny->GetPosition() );
 }
 
-void Client::SaveAllToDatabase()
-{
+void Client::SaveAllToDatabase() {
     SavePosition();
-    GetChar()->SaveSkillQueue();
-    GetShip()->SaveShip();
-    GetChar()->SaveCharacter();
+    GetShip()->SaveShip();       // Save Ship's and Modules' attributes and info to DB
+    GetChar()->SaveFullCharacter();                     // Save Character info to DB
 }
 
 bool Client::LaunchDrone(InventoryItemRef drone) {
@@ -1790,7 +1785,7 @@ bool Client::Handle_CallReq( PyPacket* packet, PyCallStream& req )
 
     //Debug code
     if( req.method == "BeanCount" )
-        sLog.Error("Client","BeanCount");
+        sLog.Warning("Client::BeanCount","BeanCount error reporting and handling is not implemented yet.");
     else
         //  changed log back to debug   -allan 01/11/14
         sLog.Debug("Server", "%s call made to %s",req.method.c_str(),packet->dest.service.c_str());

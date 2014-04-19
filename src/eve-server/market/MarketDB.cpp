@@ -34,9 +34,8 @@ PyRep *MarketDB::GetStationAsks(uint32 stationID) {
         "SELECT"
         "    typeID, MAX(price) AS price, volRemaining, stationID "
         " FROM market_orders "
-        //" WHERE stationID=%u AND bid=%d"
         " WHERE stationID=%u"
-        " GROUP BY typeID", stationID/*, TransactionTypeSell*/))
+        " GROUP BY typeID", stationID))
     {
         codelog(MARKET__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
@@ -56,7 +55,6 @@ PyRep *MarketDB::GetSystemAsks(uint32 solarSystemID) {
         "SELECT"
         "    typeID, MAX(price) AS price, volRemaining, stationID "
         " FROM market_orders "
-        //" WHERE solarSystemID=%u AND bid=0"
         " WHERE solarSystemID=%u"
         " GROUP BY typeID", solarSystemID))
     {
@@ -79,7 +77,6 @@ PyRep *MarketDB::GetRegionBest(uint32 regionID) {
         "    typeID, MIN(price) AS price, volRemaining, stationID "
         " FROM market_orders "
         " WHERE regionID=%u AND bid=%d"
-        //" WHERE regionID=%u"
         " GROUP BY typeID", regionID, TransactionTypeSell))
     {
         codelog(MARKET__ERROR, "Error in query: %s", res.error.c_str());
@@ -139,7 +136,7 @@ PyRep *MarketDB::GetOrders( uint32 regionID, uint32 typeID )
     //TODO: consider the `jumps` field... is it actually used? might be a pain in the ass if we need to actually populate it based on each queryier's location
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        "    price, volRemaining, typeID, `range`, orderID,"
+        "    price, volRemaining, typeID, orderRange, orderID,"
         "   volEntered, minVolume, bid, issued as issueDate, duration,"
         "   stationID, regionID, solarSystemID, jumps"
         " FROM market_orders "
@@ -158,7 +155,7 @@ PyRep *MarketDB::GetOrders( uint32 regionID, uint32 typeID )
     //query buy orders
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        "    price, volRemaining, typeID, `range`, orderID,"
+        "    price, volRemaining, typeID, orderRange, orderID,"
         "   volEntered, minVolume, bid, issued as issueDate, duration,"
         "   stationID, regionID, solarSystemID, jumps"
         " FROM market_orders "
@@ -183,7 +180,7 @@ PyRep *MarketDB::GetCharOrders(uint32 characterID) {
     if(!sDatabase.RunQuery(res,
         "SELECT"
         "   orderID, typeID, charID, regionID, stationID,"
-        "   `range`, bid, price, volEntered, volRemaining,"
+        "   orderRange, bid, price, volEntered, volRemaining,"
         "   issued as issueDate, orderState, minVolume, contraband,"
         "   accountID, duration, isCorp, solarSystemID,"
         "   escrow"
@@ -202,7 +199,7 @@ PyRep *MarketDB::GetOrderRow(uint32 orderID) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        "    price, volRemaining, typeID, `range`, orderID,"
+        "    price, volRemaining, typeID, orderRange, orderID,"
         "   volEntered, minVolume, bid, issued as issueDate, duration,"
         "   stationID, regionID, solarSystemID, jumps"
         " FROM market_orders"
@@ -533,6 +530,7 @@ uint32 MarketDB::FindBuyOrder(
     uint32 quantity,
     uint32 orderRange
 ) {
+    price = price + 0.01;
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
@@ -542,7 +540,7 @@ uint32 MarketDB::FindBuyOrder(
         "        AND typeID=%u"
         "        AND stationID=%u"
         "        AND volRemaining >= %u"
-        "        AND price <= %f"
+        "        AND price <= %.2f"
         "    ORDER BY price DESC"
         "    LIMIT 1",    //right now, we just care about the first order which can satisfy our needs.
         typeID,
@@ -568,6 +566,7 @@ uint32 MarketDB::FindSellOrder(
     uint32 quantity,
     uint32 orderRange
 ) {
+    price = price + 0.01;
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
@@ -577,8 +576,7 @@ uint32 MarketDB::FindSellOrder(
         "        AND typeID=%u"
         "        AND stationID=%u"
         "        AND volRemaining >= %u"
-        "        AND price <= %f"
-        "    ORDER BY price ASC"
+        "        AND price <= %.2f"
         "    LIMIT 1",    //right now, we just care about the first order which can satisfy our needs.
         typeID,
         stationID,
@@ -664,7 +662,7 @@ bool MarketDB::AlterOrderPrice(uint32 orderID, double new_price) {
     if(!sDatabase.RunQuery(err,
         "UPDATE"
         " market_orders"
-        " SET price = %f"
+        " SET price = %.2f"
         " WHERE orderID = %u",
         new_price, orderID))
     {
@@ -696,7 +694,7 @@ bool MarketDB::AddCharacterBalance(uint32 char_id, double delta)
     DBerror err;
 
     if(!sDatabase.RunQuery(err,
-        "UPDATE character_ SET balance=balance+%.2f WHERE characterID=%u",delta,char_id))
+        "UPDATE character_ SET balance=balance+%f WHERE characterID=%u",delta,char_id))
     {
         _log(SERVICE__ERROR, "Error in query : %s", err.c_str());
         return false;
@@ -724,7 +722,7 @@ bool MarketDB::RecordTransaction(
         "    corpTransaction"
         " ) VALUES ("
         "    NULL, %" PRIu64 ", %u, %u,"
-        "    %f, %d, %u, %u, %u, 0"
+        "    %.2f, %d, %u, %u, %u, 0"
         " )",
             Win32TimeNow(), typeID, quantity,
             price, transactionType, charID, regionID, stationID
@@ -765,12 +763,12 @@ uint32 MarketDB::_StoreOrder(
     if(!sDatabase.RunQueryLID(err, orderID,
         "INSERT INTO market_orders ("
         "    typeID, charID, regionID, stationID,"
-        "    `range`, bid, price, volEntered, volRemaining, issued,"
+        "    orderRange, bid, price, volEntered, volRemaining, issued,"
         "    orderState, minVolume, contraband, accountID, duration,"
         "    isCorp, solarSystemID, escrow, jumps "
         " ) VALUES ("
         "    %u, %u, %u, %u, "
-        "    %u, %u, %f, %u, %u, %" PRIu64 ", "
+        "    %u, %u, %.2f, %u, %u, %" PRIu64 ", "
         "    1, %u, 0, %u, %u, "
         "    %u, %u, 0, 1"
         " )",
@@ -794,11 +792,11 @@ PyRep *MarketDB::GetTransactions(uint32 characterID, uint32 typeID, uint32 quant
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        " transactionID,transactionDateTime,typeID,quantity,price,transactionType,"
+        " transactionID,transactionDateTime AS transactionDate,typeID,quantity,price,transactionType,"
         " 0 AS corpTransaction,clientID,stationID"
         " FROM market_transactions "
         " WHERE clientID=%u AND (typeID=%u OR 0=%u) AND"
-        " quantity>=%u AND price>=%f AND (price<=%f OR 0=%f) AND"
+        " quantity>=%u AND price>=%.2f AND (price<=%.2f OR 0=%.2f) AND"
         " transactionDateTime>=%" PRIu64 " AND (transactionType=%d OR -1=%d)",
         characterID, typeID, typeID, quantity, minPrice, maxPrice, maxPrice, fromDate, buySell, buySell))
     {

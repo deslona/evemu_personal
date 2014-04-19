@@ -20,71 +20,42 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur, Allan
+    Author:        Allan
 */
 
 #include "eve-server.h"
 
 #include "PyServiceCD.h"
-#include "corporation/CorpMgrService.h"
+#include "inventory/Voucher.h"
 
-PyCallable_Make_InnerDispatcher(CorpMgrService)
+PyCallable_Make_InnerDispatcher(VoucherService)
 
-CorpMgrService::CorpMgrService(PyServiceMgr *mgr)
-: PyService(mgr, "corpmgr"),
+VoucherService::VoucherService(PyServiceMgr *mgr)
+: PyService(mgr, "voucher"),
   m_dispatch(new Dispatcher(this))
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(CorpMgrService, GetPublicInfo)
-    PyCallable_REG_CALL(CorpMgrService, GetAssetInventory)
+    PyCallable_REG_CALL(VoucherService, GetObject)
+
 }
 
-CorpMgrService::~CorpMgrService() {
+VoucherService::~VoucherService() {
     delete m_dispatch;
 }
 
+PyResult VoucherService::Handle_GetObject( PyCallArgs& call ) {
+  /*t
+23:33:00 L VoucherService::Handle_GetObject(): size= 1
+23:33:00 [SvcCall]   Call Arguments:
+23:33:00 [SvcCall]       Tuple: 1 elements
+23:33:00 [SvcCall]         [ 0] Integer field: 140000575
 
-PyResult CorpMgrService::Handle_GetPublicInfo(PyCallArgs &call) {
-    Call_SingleIntegerArg corpID;
-    if (!corpID.Decode(&call.tuple)) {
-        codelog(SERVICE__ERROR, "Bad param");
-        return NULL;
-    }
-
-    return m_db.GetCorporation(corpID.arg);
-}
-
-
-//22:33:36 L CorpMgrService::Handle_GetAssetInventory(): size= 2, 0 = int (1001000), 1 = string (varies)
-PyResult CorpMgrService::Handle_GetAssetInventory(PyCallArgs &call) {
-  uint32 size = call.tuple->size();
-  //uint32 int1 = call.tuple->GetItem(0)->AsInt()->value();   // corpID
-  //std::string string = call.tuple->GetItem(1)->AsString()->content();  // tab in corp asset window...offices, impounded, in space,
-                                                                       //      deliveries, lockdown, search.  also called from map.
-                                                                       //   properties called from starmap -ColorStarsByCorpAssets
-
-  sLog.Log( "CorpMgrService::Handle_GetAssetInventory()", "size= %u", size );
+NOTE:  this function sends  bookmark voucher itemID.  will need to figure out how to save BM with copied original bmID, then get info from original via this voucher using db calls..
+//not sure what the return is yet.
+  sLog.Log( "VoucherService::Handle_GetObject()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
+  */
 
     return NULL;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

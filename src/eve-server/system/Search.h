@@ -28,13 +28,14 @@
 #define __SEARCH_SERVICE_H_INCL__
 
 #include "PyService.h"
+#include "system/SearchDB.h"
 
 class Search : public PyService {
 public:
     Search(PyServiceMgr *mgr);
     virtual ~Search();
 
-    //SearchDB m_db;
+    SearchDB m_db;
 
 protected:
     class Dispatcher;

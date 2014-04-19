@@ -125,6 +125,29 @@ PyRep *RamProxyDB::AssemblyLinesSelectPersonal(const uint32 charID) {
 
     return DBResultToRowset(res);
 }
+PyRep *RamProxyDB::AssemblyLinesSelectPrivate(const uint32 charID) {
+    DBQueryResult res;
+
+    if(!sDatabase.RunQuery(res,
+        "SELECT"
+        " station.stationID AS containerID,"
+        " station.stationTypeID AS containerTypeID,"
+        " station.solarSystemID AS containerLocationID,"
+        " station.assemblyLineTypeID,"
+        " station.quantity,"
+        " station.ownerID"
+        " FROM ramAssemblyLineStations AS station"
+        " LEFT JOIN ramAssemblyLines AS line ON station.stationID = line.containerID AND station.assemblyLineTypeID = line.assemblyLineTypeID AND station.ownerID = line.ownerID"
+        " WHERE station.ownerID = %u"
+        " AND (line.restrictionMask & 12) = 0", // (restrictionMask & (ramRestrictByCorp | ramRestrictByAlliance)) = 0
+        charID))
+    {
+        _log(DATABASE__ERROR, "Failed to query personal assembly lines for char %u: %s.", charID, res.error.c_str());
+        return NULL;
+    }
+
+    return DBResultToRowset(res);
+}
 PyRep *RamProxyDB::AssemblyLinesSelectCorporation(const uint32 corporationID) {
     DBQueryResult res;
 

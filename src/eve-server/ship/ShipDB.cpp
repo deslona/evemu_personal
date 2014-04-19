@@ -83,7 +83,11 @@ PyTuple* ShipDB::GetFormations()
 PyResult ShipDB::GetInsuranceInfoByShipID(uint32 shipID) {
     DBQueryResult res;
 
-    if(!sDatabase.RunQuery(res, "SELECT e.ownerID, i.fraction, i.startDate, i.endDate FROM chrInsurance i LEFT JOIN entity e ON i.shipID=e.itemID WHERE shipID=%d", shipID))
+    if(!sDatabase.RunQuery(res,
+        "SELECT e.ownerID, i.fraction, i.startDate, i.endDate"
+        " FROM chrInsurance AS i"
+        "  LEFT JOIN entity e ON i.shipID=e.itemID"
+        " WHERE shipID=%d", shipID ))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
@@ -102,8 +106,7 @@ PyResult ShipDB::GetInsuranceInfoByShipID(uint32 shipID) {
     return(DBResultToRowset(res));
 }
 
-PyResult ShipDB::GetInsuranceContractsByOwnerID(uint32 ownerID)
-{
+PyResult ShipDB::GetInsuranceContractsByOwnerID(uint32 ownerID) {
     DBQueryResult res;
     if(!sDatabase.RunQuery(res,
         "SELECT i.shipID, i.startDate, i.endDate, i.fraction"
@@ -114,8 +117,19 @@ PyResult ShipDB::GetInsuranceContractsByOwnerID(uint32 ownerID)
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return new PyNone;
     }
+/*
+    DBResultRow row;
+    if(!res.GetRow(row)) return NULL;
 
-    return(DBResultToRowset(res));
+    Rsp_GetInsuranceContracts rsp;
+    rsp.shipID = row.GetUInt( 0 );
+    rsp.startDate = row.GetUInt( 1 );
+    rsp.endDate = row.GetUInt( 2 );
+    rsp.fraction = row.GetUInt( 3 );
+
+    return(rsp.Encode());
+*/
+    return(DBResultToRowset(res));      // this gives "Assertion `DBTYPE_ERROR != result' failed." when there are active contracts.
 }
 
 bool ShipDB::InsertInsuranceByShipID(uint32 shipID, double fraction) {

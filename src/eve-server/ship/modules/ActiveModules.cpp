@@ -34,9 +34,6 @@ ActiveModule::ActiveModule(InventoryItemRef item, ShipRef ship)
     m_Ship = ship;
     m_Effects = new ModuleEffects(m_Item->typeID());
     m_ShipAttrComp = new ModifyShipAttributesComponent(this, ship);
-
-    m_chargeRef = InventoryItemRef();       // Ensure ref is NULL
-    m_chargeLoaded = false;
 }
 
 ActiveModule::~ActiveModule()
@@ -60,7 +57,7 @@ void ActiveModule::Online()
     m_Item->PutOnline();
 }
 
-void ActiveModule::Activate(SystemEntity * targetEntity)
+void ActiveModule::Activate(uint32 targetID)
 {
 	//This will be handled by the Module class itself (eg. Afterburner.cpp)
 }
@@ -70,14 +67,3 @@ void ActiveModule::Deactivate()
 	//This will be handled by the Module class itself (eg. Afterburner.cpp)
 }
 
-void ActiveModule::Load(InventoryItemRef charge)
-{
-    m_chargeRef = charge;
-    m_chargeLoaded = true;
-}
-
-void ActiveModule::Unload()
-{
-    m_chargeRef = InventoryItemRef();       // Ensure ref is NULL
-    m_chargeLoaded = false;
-}

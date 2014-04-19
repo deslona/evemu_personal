@@ -62,7 +62,7 @@ public:
         PyCallable_REG_CALL(DogmaIMBound, CancelOverloading)
 		PyCallable_REG_CALL(DogmaIMBound, SetModuleOnline)
 		PyCallable_REG_CALL(DogmaIMBound, TakeModuleOffline)
-        PyCallable_REG_CALL(DogmaIMBound, LoadAmmoToBank)
+        //PyCallable_REG_CALL(DogmaIMBound, LoadAmmoToBank)
         PyCallable_REG_CALL(DogmaIMBound, AddTarget)
         PyCallable_REG_CALL(DogmaIMBound, RemoveTarget)
         PyCallable_REG_CALL(DogmaIMBound, ClearTargets)
@@ -89,7 +89,7 @@ public:
     PyCallable_DECL_CALL(CancelOverloading)
 	PyCallable_DECL_CALL(SetModuleOnline)
 	PyCallable_DECL_CALL(TakeModuleOffline)
-    PyCallable_DECL_CALL(LoadAmmoToBank)
+    //PyCallable_DECL_CALL(LoadAmmoToBank)
     PyCallable_DECL_CALL(AddTarget)
     PyCallable_DECL_CALL(RemoveTarget)
     PyCallable_DECL_CALL(ClearTargets)
@@ -242,7 +242,7 @@ PyResult DogmaIMBound::Handle_TakeModuleOffline( PyCallArgs& call ) {
 
 	return NULL;
 }
-
+/*
 PyResult DogmaIMBound::Handle_LoadAmmoToBank( PyCallArgs& call ) {
    Call_Dogma_LoadAmmoToBank args;
 
@@ -290,7 +290,7 @@ PyResult DogmaIMBound::Handle_LoadAmmoToBank( PyCallArgs& call ) {
    }
 
    return NULL;
-}
+}*/
 
 PyResult DogmaIMBound::Handle_Activate( PyCallArgs& call )
 {

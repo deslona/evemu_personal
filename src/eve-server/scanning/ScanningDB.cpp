@@ -25,7 +25,6 @@
 
 #include "eve-server.h"
 
-#include "EVEServerConfig.h"
 #include "scanning/Scanning.h"
 #include "scanning/ScanningDB.h"
 

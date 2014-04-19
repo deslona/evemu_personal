@@ -141,23 +141,8 @@ PyResult MapService::Handle_GetSolarSystemVisits(PyCallArgs &call)
 //02:52:11 L MapService::Handle_GetHistory(): size= 2, 0 = Integer (3), 1 = Integer (24)    -ColorStarsByCynosuralFields - ColorStarsByFactionKills - ColorStarsByKills - GetKillLast24H
 //02:52:13 L MapService::Handle_GetHistory(): size= 2, 0 = Integer (1), 1 = Integer (1)     -ColorStarsByJumps1Hour
 //02:52:14 L MapService::Handle_GetHistory(): size= 2, 0 = Integer (3), 1 = Integer (1)     -ColorStarsByPodKills
-//21:20:25 L MapService::Handle_GetHistory(): size= 2, 0 = Interger (5), 1 = Interger (24)  -ColorStarsByKills
+//21:20:25 L MapService::Handle_GetHistory(): size= 2, 0 = Interger (5), 1 = Interger (24)  -ColorStarsByKills  (means ALL kills)
 PyResult MapService::Handle_GetHistory(PyCallArgs &call) {
-    /**
-
-00:59:46 [SvcCall] Service map: calling GetHistory
-00:59:46 [Debug]   Call Arguments:
-00:59:46 [Debug]       Tuple: 2 elements
-00:59:46 [Debug]         [ 0] Integer field: 1
-00:59:46 [Debug]         [ 1] Integer field: 1
-00:59:46 [Debug]   Call Named Arguments:
-00:59:46 [Debug]     Argument 'machoVersion':
-00:59:46 [Debug]         Integer field: 1
-00:59:46 L MapService::Handle_GetHistory(): size= 2, 0 = Interger (1), 1 = Interger (1)
-    */
-
-  //call.Dump(SERVICE__CALLS);
-
     uint32 int1 = call.tuple->GetItem(0)->AsInt()->value();
     uint32 int2 = call.tuple->GetItem(1)->AsInt()->value();
       sLog.Log( "MapService::Handle_GetHistory()", "size= %u, 0 = Interger (%u), 1 = Interger (%u)", call.tuple->size(), int1, int2 );
@@ -180,6 +165,8 @@ PyResult MapService::Handle_GetBeaconCount(PyCallArgs &call)
 //02:51:49 L MapService::Handle_GetStationCount(): size= 0
 PyResult MapService::Handle_GetStationCount(PyCallArgs &call)
 {
+  sLog.Log( "MapService::Handle_GetStationCount()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
   /**
   ColorStarsByStationCount
   - not real sure how to do this one.....see MapDB.cpp
@@ -189,8 +176,7 @@ PyResult MapService::Handle_GetStationCount(PyCallArgs &call)
 
 PyResult MapService::Handle_GetStuckSystems(PyCallArgs &call)
 {
-  sLog.Log( "MapService::Handle_GetStuckSystems()", "size= %u, 0 = %s", call.tuple->size(),
-            call.tuple->GetItem(0)->TypeString() );
+  sLog.Log( "MapService::Handle_GetStuckSystems()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
 
     uint8 none = 0;
@@ -284,6 +270,7 @@ PyResult MapService::Handle_GetAllianceSystems(PyCallArgs &call)
 }
 
 //   factional warfare shit
+//https://wiki.eveonline.com/en/wiki/Victory_Points_and_Command_Bunker
 PyResult MapService::Handle_GetVictoryPoints(PyCallArgs &call)
 {
   sLog.Log( "MapService::Handle_GetVictoryPoints()", "size= %u", call.tuple->size() );

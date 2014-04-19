@@ -303,26 +303,13 @@ protected:
 
 
 // This class is a singleton object, containing all Modifiers loaded from dgmImplantBonusModifiers table as memory objects of type MEffect:
-/**
-class DGM_Implant_Bonus_Modifiers_Table
-: public Singleton< DGM_Implant_Bonus_Modifiers_Table >
-{
-  public:
-    DGM_Implant_Bonus_Modifiers_Table();
-    ~DGM_Implant_Bonus_Modifiers_Table();
-
-    int Initialize();
-
-    ImplantBonusModifier * GetImplantModifier(uint32 implantID);
-
-protected:
-    void _Populate();
-
-    std::map<uint32, ImplantBonusModifier *> m_ImplantBonusModifiersMap;
-};
-
-#define sDGM_Implant_Bonus_Modifiers_Table \
-    ( DGM_Implant_Bonus_Modifiers_Table::get() )  */
+//class DGM_Implant_Bonus_Modifiers_Table
+//: public Singleton< DGM_Implant_Bonus_Modifiers_Table >
+//{
+//}
+//
+//#define sDGM_Implant_Bonus_Modifiers_Table \
+//    ( DGM_Implant_Bonus_Modifiers_Table::get() )
 // -----------------------------------------------------------------------
 
 //////////////////////////////////////////////////////////////////////////
