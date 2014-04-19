@@ -1,5 +1,14 @@
 *****   This will be my main update file.  the format will change to a 'real' update list as i get more time.  **********
 *****   all main code updates are updated here, too, so i wont list them.  *******
+*****       a more comprehensive list can be found at my main eve site, http://eve.alasiya.net/?p=op_status  *******
+
+UPDATES AS OF 18 APRIL 2014:
+manufacturing fixed and working
+text search (buggy)
+market fixed and working
+SkillHistory working (only shows completed skills)
+POS deployable and anchorable (but cannot put online)
+
 
 UPDATES AS OF 23 MARCH 2014:
 All new accounts are given Full GM Status for testing purposes.
@@ -18,7 +27,6 @@ station guest list (with multiple clients online)
 StarMap statistics(mostly working)
 SkillHistory(non-working)
 basic Tutorial code(non-working)
-
 
 
 UPDATES AS OF 04 FEBURARY 2014
