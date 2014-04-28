@@ -322,8 +322,8 @@ PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
     // --- END HACK ---
 
     //  add to active pilots in space count in DB   -allan 28April14
-    call.client->chkDynamicSystemID(call.client->GetSystemID());
-    call.client->AddPilotToDynamicData(call.client->GetSystemID(), false, false);
+    call.client->GetChar()->chkDynamicSystemID(call.client->GetSystemID());
+    call.client->GetChar()->AddPilotToDynamicData(call.client->GetSystemID(), false, false);
 
     return NULL;
 }
