@@ -340,6 +340,7 @@ PyResult AgentMgrService::Handle_GetSolarSystemOfAgent(PyCallArgs &call)
 PyResult AgentMgrService::Handle_GetCareerAgents(PyCallArgs &call)
 {
   sLog.Log( "AgentMgrBound::Handle_GetCareerAgents()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
 
     return new PyInt( 0 );
 }

@@ -145,7 +145,7 @@ bool InventoryDB::GetType(uint32 typeID, TypeData &into) {
     into.capacity = row.GetDouble(6);
     into.portionSize = row.GetUInt(7);
     into.race = EVERace(row.IsNull(8) ? 0 : row.GetUInt(8));
-	into.basePrice = row.GetUInt64(9);  // /100.0;   this gives low prices after gettin prices from eveonline using python db check.
+	into.basePrice = row.GetUInt64(9) *100.0;
     into.published = row.GetInt(10) ? true : false;
     into.marketGroupID = row.IsNull(11) ? 0 : row.GetUInt(11);
     into.chanceOfDuplicating = row.GetDouble(12);

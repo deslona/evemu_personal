@@ -46,3 +46,23 @@ PyTuple* PasswordString::_CreateArgs( PyWString* password )
     return head;
 }
 
+/*
+Bookmark::Bookmark( PyList& list)
+: PyObjectEx_Type2( _CreateArgs( list ), NULL )
+{
+}
+
+PyList* Bookmark::GetList() const
+{
+    return GetArgs()->GetItem( 1 )->AsList();
+}
+
+PyTuple* Bookmark::_CreateArgs( PyList* list )
+{
+    PyTuple* head = new PyTuple( 2 );
+    head->SetItem( 0, new PyToken( "util.BookmarkList" ) );
+    head->SetItem( 1, list );
+
+    return head;
+}
+*/

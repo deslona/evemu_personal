@@ -86,26 +86,29 @@ PyBoundObject *PlanetMgrService::_CreateBoundObject(Client *c, const PyRep *bind
 }
 
 PyResult PlanetMgrBound::Handle_GetPlanetInfo(PyCallArgs &call) {
-    sLog.Debug("Server", "Called GetPlanetInfo Stub.");
+    sLog.Log("PlanetMgrBound", "Handle_GetPlanetInfo() size=%u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
 
     return NULL;
 }
 
 PyResult PlanetMgrBound::Handle_GetPlanetResourceInfo(PyCallArgs &call) {
-    sLog.Debug("Server", "Called GetPlanetResourceInfo Stub.");
+    sLog.Log("PlanetMgrBound", "Handle_GetPlanetResourceInfo() size=%u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
 
     return NULL;
 }
 
 PyResult PlanetMgrService::Handle_GetPlanetsForChar(PyCallArgs &call) {
-    sLog.Debug("Server", "Called GetPlanetsForChar Stub.");
+    sLog.Log("PlanetMgrBound", "Handle_GetPlanetsForChar() size=%u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
 
     return NULL;
 }
 
 PyResult PlanetMgrService::Handle_GetMyLaunchesDetails(PyCallArgs &call) {
-
-    sLog.Debug("Server", "Called GetMyLaunchesDetails Stub.");
+    sLog.Log("PlanetMgrBound", "Handle_GetMyLaunchesDetails() size=%u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
 
     return NULL;
 }

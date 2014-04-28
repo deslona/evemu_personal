@@ -386,7 +386,7 @@ public:
      * @return value 0..5 - the level of skill trained, or, if it was not injected,
      *  0 if zeroForNotInjected.is true, -1 otherwise
      */
-     uint GetSkillLevel(uint32 skillTypeID, bool zeroForNotInjected=true) const;
+     int GetSkillLevel(uint32 skillTypeID, bool zeroForNotInjected=true) const;
     /**
      * Returns skill currently in training.
      *
@@ -426,10 +426,6 @@ public:
      * @param InventoryItem
      */
     bool InjectSkillIntoBrain(SkillRef skill);
-    /**
-     * GM Version, allows level set
-     */
-    bool InjectSkillIntoBrain(SkillRef skill, uint8 level);
     /** AddSkillToSkillQueue()
      *
      * This will add a skill into the skill queue.
@@ -555,8 +551,8 @@ public:
     void SaveSkillHistory(int, double, uint32, uint32, int, double, double);
     bool isOffline(uint32);
     void chkDynamicSystemID(uint32);
-    void AddJumpToDynamicData(uint32);
-    void AddPilotToDynamicData(uint32, bool);
+    void AddJumpToDynamicData(uint32, bool);
+    void AddPilotToDynamicData(uint32, bool, bool);
     void AddKillToDynamicData(uint32 solarSystemID);
     void AddPodKillToDynamicData(uint32 solarSystemID);
     void AddFactionKillToDynamicData(uint32 solarSystemID);

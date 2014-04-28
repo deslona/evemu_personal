@@ -25,6 +25,9 @@
 
 #include "eve-server.h"
 
+#include <boost/range/algorithm/remove_if.hpp>
+#include <boost/algorithm/string/classification.hpp>
+
 #include "PyServiceCD.h"
 #include "system/Search.h"
 
@@ -81,9 +84,14 @@ PyResult Search::Handle_Query( PyCallArgs& call )   //called from people/places 
     sLog.Log( "Search", "Handle_Query" );
   call.Dump(SERVICE__CALLS);
 
+    std::string str = call.tuple->GetItem( 0 )->AsWString()->content();
+
+    //  this removes the '*' that is sent from client in query string....see examples above...
+    str.erase(boost::remove_if(str, boost::is_any_of("*")), str.end());
+
     //  if search type 'all' is selected, use this query to search everything....
     if ( call.tuple->GetItem( 1 )->AsList()->size() > 1 )
-        return(m_db.QueryAll( call.tuple->GetItem( 0 )->AsWString()->content(), call.client->GetCharacterID() ));
+        return(m_db.QueryAll( str, call.client->GetCharacterID() ));
 
     //  else specific search type is selected....
     Call_SearchQuery args;
@@ -93,7 +101,7 @@ PyResult Search::Handle_Query( PyCallArgs& call )   //called from people/places 
         return NULL;
     }
 
-    return(m_db.Query( args.string, args.int1, call.client->GetCharacterID() ));
+    return(m_db.Query( str, args.int1, call.client->GetCharacterID() ));
 }
 
 PyResult Search::Handle_QuickQuery( PyCallArgs& call )  //called from starmap  and contracts
@@ -117,15 +125,22 @@ PyResult Search::Handle_QuickQuery( PyCallArgs& call )  //called from starmap  a
     sLog.Log( "Search", "Handle_QuickQuery" );
   call.Dump(SERVICE__CALLS);
 
+    std::string str = call.tuple->GetItem( 0 )->AsWString()->content();
+    //  this removes the '*' that is sent from client in query string....see examples above...
+    str.erase(boost::remove_if(str, boost::is_any_of("*")), str.end());
+
+  /*  may not need this....
     Call_SearchQuickQuery args;
     if(!args.Decode(&call.tuple)) {
         _log(CLIENT__ERROR, "Failed to decode args.");
         call.client->SendErrorMsg("Search Failed.  Try using a different search string.");
         return NULL;
     }
-
+*/
     //return(m_db.QuickQuery( args.string, args.int1, args.int2, args.int3, call.byname.find("hideNPC"), call.byname.find("onlyAltName"), call.client->GetCharacterID() ));
-    return(m_db.QuickQuery( args.string, args.int1, args.int2, args.int3, call.client->GetCharacterID() ));
+
+    /**  args.ints given as map now when using Call_SearchQuickQuery. */
+    return(m_db.QuickQuery( str, call.client->GetCharacterID() ));
 }
 
 

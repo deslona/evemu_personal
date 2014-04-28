@@ -38,7 +38,7 @@ class SearchDB : public ServiceDB
 
     PyObject *Query(std::string string, int32 int1, uint32 charID);
     PyObject *QueryAll(std::string string, uint32 charID);
-    PyObject *QuickQuery(std::string string, int32 int1, int32 int2, int32 int3, uint32 charID);
+    PyObject *QuickQuery(std::string string, uint32 charID);
     //PyObject *QuickQuery(std::string string, int32 int1, int32 int2, int32 int3, int32 hideNPC, int32 onlyAltName, uint32 charID);
 
   private:

@@ -43,11 +43,13 @@ BookmarkService::BookmarkService(PyServiceMgr *mgr)
 
     PyCallable_REG_CALL(BookmarkService, GetBookmarks)
     PyCallable_REG_CALL(BookmarkService, BookmarkLocation)
-    PyCallable_REG_CALL(BookmarkService, DeleteBookmarks)
     PyCallable_REG_CALL(BookmarkService, UpdateBookmark)
     PyCallable_REG_CALL(BookmarkService, CreateFolder)
     PyCallable_REG_CALL(BookmarkService, UpdateFolder)
     PyCallable_REG_CALL(BookmarkService, DeleteFolder)
+
+    /*  NOT WORKING YET  */
+    PyCallable_REG_CALL(BookmarkService, DeleteBookmarks)
     PyCallable_REG_CALL(BookmarkService, MoveBookmarksToFolder)
 }
 
@@ -263,96 +265,6 @@ PyResult BookmarkService::Handle_BookmarkLocation(PyCallArgs &call)
     return res;
 }
 
-PyResult BookmarkService::Handle_DeleteBookmarks(PyCallArgs &call)          //not working
-{
-  /**
-00:48:20 [SvcCall] Service bookmark: calling DeleteBookmarks
-00:48:20 L BookmarkService::Handle_DeleteBookmarks(): size= 1, 0 = ObjectEx
-00:48:20 [SvcCall]   Call Arguments:
-00:48:20 [SvcCall]       Tuple: 1 elements
-00:48:20 [SvcCall]         [ 0] ObjectEx:
-00:48:20 [SvcCall]         [ 0] Header:
-00:48:20 [SvcCall]         [ 0]   Tuple: 2 elements
-00:48:20 [SvcCall]         [ 0]     [ 0] Token: '__builtin__.set'
-00:48:20 [SvcCall]         [ 0]     [ 1] Tuple: 1 elements
-00:48:20 [SvcCall]         [ 0]     [ 1]   [ 0] List: 1 elements
-00:48:20 [SvcCall]         [ 0]     [ 1]   [ 0]   [ 0] Integer field: 4
-00:48:20 [SvcCall]         [ 0] List data:
-00:48:20 [SvcCall]         [ 0]   Empty
-00:48:20 [SvcCall]         [ 0] Dict data:
-00:48:20 [SvcCall]         [ 0]   Empty
-00:48:20 [SvcCall]   Call Named Arguments:
-00:48:20 [SvcCall]     Argument 'machoVersion':
-00:48:20 [SvcCall]         Integer field: 1
-*/
-  /* cant get python code to work...need more code for objectex in xmlp
-    Call_DeleteBookmarks args;
-
-    if(!args.Decode(&call.tuple)) {
-        _log(SERVICE__ERROR, "Failed to decode args.");
-        return NULL;
-    }
-
-    uint16 bookmarkID = call.byname["bookmarkID"]->AsInt()->value();
-*/
-  /*        orig code.....
-
-    if(call.tuple->IsList())
-    {
-      sLog.Log( "BookmarkService::Handle_DeleteBookmarks()", "Call is PyList");
-      PyList *list = call.tuple->GetItem( 0 )->AsList();
-      uint32 i;
-      uint32 bookmarkID;
-      std::vector<unsigned long> bookmarkIDs;
-
-      if( list->size() > 0 )
-      {
-          for(i=0; i<(list->size()); i++)
-          {
-              bookmarkID = call.tuple->GetItem( 0 )->AsList()->GetItem(i)->AsInt()->value();
-              bookmarkIDs.push_back( bookmarkID );
-          }
-
-          m_db.DeleteBookmarksFromDatabase( call.client->GetCharacterID(),&bookmarkIDs );
-      }else{
-          sLog.Error( "BookmarkService::Handle_DeleteBookmarks()", "%s: call.tuple->GetItem( 0 )->AsList()->size() == 0.  Expected size >= 1.", call.client->GetName() );
-          return NULL;
-      }
-    }else if(call.tuple->IsObjectEx())
-    {
-      sLog.Error( "BookmarkService::Handle_DeleteBookmarks()", "Call is ObjectEx.");
-      return NULL;
-    }else if(call.tuple->IsTuple())
-    {
-      sLog.Log( "BookmarkService::Handle_DeleteBookmarks()", "Call is PyTuple");
-
-      //uint32 bookmarkID;
-      //bookmarkID = call.tuple->GetItem( 0 )->AsObjectEx()->GetItem( 1 )->AsList();
-      //m_db.DeleteBookmarkFromDatabase( call.client->GetCharacterID(), bookmarkID );
-
-    }else{
-      */
-      sLog.Error( "BookmarkService::Handle_DeleteBookmarks()", "Service is not handled yet.  Returning NULL.");
-  call.Dump(SERVICE__CALLS);
-  /*
-    if(call.tuple->IsObjectEx()) {
-      PyObjectEx_Type2* bm_obj = (PyObjectEx_Type2*)bookmarkID;
-      PyTuple* bm_tuple = bm_obj->GetArgs()->AsTuple();
-
-
-      PyList* bookmarkIDs = new PyList();
-      bookmarkIDs = call.tuple->GetItem( 0 )->AsObjectEx()->GetItem( 1 )->AsList();
-      m_db.DeleteBookmarkFromDatabase( call.client->GetCharacterID(), bookmarkID );
-    */
-      return NULL;
-      /*
-    }
-
-    return(new PyNone());
-    */
-}
-
-
 PyResult BookmarkService::Handle_UpdateBookmark(PyCallArgs &call)
 {
     uint32 bookmarkID;
@@ -504,6 +416,104 @@ PyResult BookmarkService::Handle_DeleteFolder(PyCallArgs &call) {
     return(new PyNone());
 }
 
+PyResult BookmarkService::Handle_DeleteBookmarks(PyCallArgs &call)          //not working
+{
+  /**
+00:48:20 [SvcCall] Service bookmark: calling DeleteBookmarks
+00:48:20 L BookmarkService::Handle_DeleteBookmarks(): size= 1, 0 = ObjectEx
+00:48:20 [SvcCall]   Call Arguments:
+00:48:20 [SvcCall]       Tuple: 1 elements
+00:48:20 [SvcCall]         [ 0] ObjectEx:
+00:48:20 [SvcCall]         [ 0] Header:
+00:48:20 [SvcCall]         [ 0]   Tuple: 2 elements
+00:48:20 [SvcCall]         [ 0]     [ 0] Token: '__builtin__.set'
+00:48:20 [SvcCall]         [ 0]     [ 1] Tuple: 1 elements
+00:48:20 [SvcCall]         [ 0]     [ 1]   [ 0] List: 1 elements
+00:48:20 [SvcCall]         [ 0]     [ 1]   [ 0]   [ 0] Integer field: 4
+00:48:20 [SvcCall]         [ 0] List data:
+00:48:20 [SvcCall]         [ 0]   Empty
+00:48:20 [SvcCall]         [ 0] Dict data:
+00:48:20 [SvcCall]         [ 0]   Empty
+00:48:20 [SvcCall]   Call Named Arguments:
+00:48:20 [SvcCall]     Argument 'machoVersion':
+00:48:20 [SvcCall]         Integer field: 1
+*/
+  /* cant get python code to work...need more code for objectex in xmlp
+    Call_DeleteBookmarks args;
+
+    if(!args.Decode(&call.tuple)) {
+        _log(SERVICE__ERROR, "Failed to decode args.");
+        return NULL;
+    }
+
+    uint16 bookmarkID = call.byname["bookmarkID"]->AsInt()->value();
+*/
+  /*        orig code.....
+
+    if(call.tuple->IsList())
+    {
+      sLog.Log( "BookmarkService::Handle_DeleteBookmarks()", "Call is PyList");
+      PyList *list = call.tuple->GetItem( 0 )->AsList();
+      uint32 i;
+      uint32 bookmarkID;
+      std::vector<unsigned long> bookmarkIDs;
+
+      if( list->size() > 0 )
+      {
+          for(i=0; i<(list->size()); i++)
+          {
+              bookmarkID = call.tuple->GetItem( 0 )->AsList()->GetItem(i)->AsInt()->value();
+              bookmarkIDs.push_back( bookmarkID );
+          }
+
+          m_db.DeleteBookmarksFromDatabase( call.client->GetCharacterID(),&bookmarkIDs );
+      }else{
+          sLog.Error( "BookmarkService::Handle_DeleteBookmarks()", "%s: call.tuple->GetItem( 0 )->AsList()->size() == 0.  Expected size >= 1.", call.client->GetName() );
+          return NULL;
+      }
+    }else if(call.tuple->IsObjectEx())
+    {
+      sLog.Error( "BookmarkService::Handle_DeleteBookmarks()", "Call is ObjectEx.");
+      return NULL;
+    }else if(call.tuple->IsTuple())
+    {
+      sLog.Log( "BookmarkService::Handle_DeleteBookmarks()", "Call is PyTuple");
+
+      //uint32 bookmarkID;
+      //bookmarkID = call.tuple->GetItem( 0 )->AsObjectEx()->GetItem( 1 )->AsList();
+      //m_db.DeleteBookmarkFromDatabase( call.client->GetCharacterID(), bookmarkID );
+
+    }else{
+      */
+      sLog.Error( "BookmarkService::Handle_DeleteBookmarks()", "Service is not handled yet.  Returning NULL.");
+  call.Dump(SERVICE__CALLS);
+/*
+    uint32 bookmarkID;
+    if(call.tuple->IsObjectEx()) {
+      PyObjectEx_Type2* bm_obj = (PyObjectEx_Type2*)bookmarkID;
+      PyTuple* bm_tuple = bm_obj->GetArgs()->AsTuple();
+
+      PyTuple* bookmarkID = new PyList();
+      bookmarkID = call.tuple->GetItem( 0 )->AsObjectEx()->GetItem( 1 )->AsList();
+
+      PyObjectEx* bm_object = call.tuple->GetItem( 0 )->AsObjectEx();
+      PyList* bookmarkIDs = new PyList();
+      bookmarkIDs = bm_object->GetItem( 1 )->AsList();
+      if( bookmarkIDs->size() > 1 )
+          m_db.DeleteBookmarksFromDatabase( call.client->GetCharacterID(), bookmarkIDs );  //error: no matching function for call to ‘BookmarkDB::DeleteBookmarksFromDatabase(uint32, PyTuple*)’
+      else
+          m_db.DeleteBookmarkFromDatabase( call.client->GetCharacterID(), *bookmarkIDs );  //error: no matching function for call to ‘BookmarkDB::DeleteBookmarkFromDatabase(uint32, PyTuple&)’
+    }
+  */
+      return NULL;
+      /*
+    }
+
+    return(new PyNone());
+    */
+}
+
+
 PyResult BookmarkService::Handle_MoveBookmarksToFolder(PyCallArgs &call) {
   /**
 23:39:40 E BookmarkService::Handle_MoveBookmarksToFolder(): Service is not handled yet.  Returning NULL.
@@ -534,8 +544,23 @@ PyResult BookmarkService::Handle_MoveBookmarksToFolder(PyCallArgs &call) {
     //  need to get bookmarks as a list using call.byname["bookmarkID"]->AsList();
 */
       sLog.Error( "BookmarkService::Handle_MoveBookmarksToFolder()", "Service is not handled yet.  Returning NULL.");
-  call.Dump(SERVICE__CALLS);
+  //call.Dump(SERVICE__CALLS);
       return NULL;
   //return(new PyNone());
   // needs either a 'real' return or nothing.....*SRVERROR* TypeError: 'NoneType' object is not iterable
+
+    uint32 bookmarkID = 0;
+    uint32 ownerID = call.client->GetCharacterID();
+    uint32 folderID = call.tuple->GetItem( 0 )->AsInt()->value();
+
+    PyTuple* res = NULL;
+    PyTuple* tuple0 = new PyTuple( 3 );
+
+    tuple0->items[ 0 ] = new PyInt( bookmarkID );           // Bookmark ID from Database 'bookmarks' table
+    tuple0->items[ 1 ] = new PyInt( ownerID);                // itemID
+    tuple0->items[ 2 ] = new PyInt( folderID );           // systemID
+
+    res = tuple0;
+
+    return res;
 }

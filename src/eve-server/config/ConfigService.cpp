@@ -80,24 +80,15 @@ PyResult ConfigService::Handle_GetMultiAllianceShortNamesEx(PyCallArgs &call) {
 }
 
 
-PyResult ConfigService::Handle_GetMultiLocationsEx(PyCallArgs &call) {
-  /**
-00:49:01 L ConfigService: Handle_GetMultiLocationsEx
-00:49:01 [SvcCall]   Call Arguments:
-00:49:01 [SvcCall]       Tuple: 1 elements
-00:49:01 [SvcCall]         [ 0] List: 1 elements
-00:49:01 [SvcCall]         [ 0]   [ 0] Integer field: 140000522
-*/
-    sLog.Log( "ConfigService", "Handle_GetMultiLocationsEx" );
-  call.Dump(SERVICE__CALLS);
-    //parse the PyRep to get the list of IDs to query.
+PyResult ConfigService::Handle_GetMultiLocationsEx(PyCallArgs &call) {      // now working correctly  -allan  25April
+    //parse the PyRep to get the ID to query. it is passed from client as a pylist....
     Call_SingleIntList arg;
     if(!arg.Decode(&call.tuple)) {
         _log(SERVICE__ERROR, "Failed to decode arguments.");
         return NULL;
     }
 
-    return(m_db.GetMultiLocationsEx(arg.ints));
+    return(m_db.GetMultiLocationsEx( arg.ints ));
 }
 
 PyResult ConfigService::Handle_GetMultiCorpTickerNamesEx(PyCallArgs &call) {
@@ -297,6 +288,21 @@ PyResult ConfigService::Handle_GetMapConnections(PyCallArgs &call) {
 18:33:25 [SvcCall]         [ 3] Boolean field: true
 18:33:25 [SvcCall]         [ 4] Integer field: 0
 18:33:25 [SvcCall]         [ 5] Integer field: 1
+
+00:47:18 L ConfigService::Handle_GetMapConnections(): size= 6
+00:47:18 [SvcCall]   Call Arguments:
+00:47:18 [SvcCall]       Tuple: 6 elements
+00:47:18 [SvcCall]         [ 0] Integer field: 9
+00:47:18 [SvcCall]         [ 1] Boolean field: true
+00:47:18 [SvcCall]         [ 2] Boolean field: false
+00:47:18 [SvcCall]         [ 3] Boolean field: false
+00:47:18 [SvcCall]         [ 4] Integer field: 0
+00:47:18 [SvcCall]         [ 5] Integer field: 1
+00:47:18 [SvcCall]   Call Named Arguments:
+00:47:18 [SvcCall]     Argument 'machoVersion':
+00:47:18 [SvcCall]         Integer field: 1
+
+
       <int name="queryID" />
       <bool name="bool1" /> args.bool1
       <bool name="bool2" />
@@ -309,7 +315,7 @@ PyResult ConfigService::Handle_GetMapConnections(PyCallArgs &call) {
     Call_GetMapConnections args;
     if(!args.Decode(&call.tuple)) {
         _log(SERVICE__ERROR, "Failed to decode args.");
-        return NULL;
+        return new PyInt(0);
     }
 
     return(m_db.GetMapConnections(args.queryID, args.bool1, args.bool2, args.bool3, args.int2, args.int3));

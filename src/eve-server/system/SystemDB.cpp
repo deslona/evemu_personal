@@ -139,7 +139,7 @@ uint32 SystemDB::GetObjectLocationID( uint32 itemID ) {
         ))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
-        return NULL;
+        return 0;
     }
 
     DBResultRow row;

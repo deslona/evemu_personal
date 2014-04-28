@@ -92,6 +92,8 @@ PyBoundObject *SlashService::_CreateBoundObject(Client *c, PyTuple *bind_args) {
 
 PyResult SlashService::Handle_SlashCmd( PyCallArgs& call )
 {
+  sLog.Log( "SlashService::Handle_SlashCmd()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
     Call_SingleWStringSoftArg arg;
     if( !arg.Decode( &call.tuple ) )
     {

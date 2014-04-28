@@ -115,56 +115,21 @@ PyResult TutorialService::Handle_GetContextHelp( PyCallArgs& call )
 }
 
 //00:25:53 L TutorialService::Handle_GetCharacterTutorialState(): size= 0
-PyResult TutorialService::Handle_GetCharacterTutorialState( PyCallArgs& call )
-{/*
-05:33:49 [SvcCall] Service tutorialSvc: calling GetCharacterTutorialState
-05:33:49 [SvcCall]   Call Arguments:
-05:33:49 [SvcCall]       Tuple: Empty
-05:33:49 [SvcCall]   Call Named Arguments:
-05:33:49 [SvcCall]     Argument 'machoVersion':
-05:33:49 [SvcCall]         Integer field: 1
-*/
-    util_Rowset rs;
-    rs.lines = new PyList;
+PyResult TutorialService::Handle_GetCharacterTutorialState( PyCallArgs& call ) {
+  /*  Empty Call  */
 
-    rs.header.push_back( "characterID" );
-    rs.header.push_back( "tutorialID" );
-    rs.header.push_back( "pageID" );
-    rs.header.push_back( "eventTypeID" );
-
-    return rs.Encode();
+    return new PyInt( 0 );
 }
 
 //00:25:58 L TutorialService::Handle_GetTutorialsAndConnections(): size= 0
 PyResult TutorialService::Handle_GetTutorialsAndConnections( PyCallArgs& call ) {
-  /*
-05:39:02 [SvcCall]   Call Arguments:
-05:39:02 [SvcCall]       Tuple: Empty
-05:39:02 [SvcCall]   Call Named Arguments:
-05:39:02 [SvcCall]     Argument 'machoVersion':
-05:39:02 [SvcCall]         Integer field: 1
-*/
+  /*  Empty Call  */
 
-  // i dunno...just threw something in here.....
-    util_Rowset rs;
-    rs.lines = new PyList;
-
-    rs.header.push_back( "characterID" );
-    rs.header.push_back( "tutorialID" );
-    rs.header.push_back( "pageID" );
-    rs.header.push_back( "eventTypeID" );
-
-    return rs.Encode();
+    return new PyInt( 0 );
 }
 
 PyResult TutorialService::Handle_GetCareerAgents( PyCallArgs& call ) {
-  /*
-05:37:51 L TutorialService::Handle_GetCareerAgents(): size=0
-05:37:51 [SvcCall]   Call Arguments:
-05:37:51 [SvcCall]       Tuple: Empty
-05:37:51 [SvcCall]   Call Named Arguments:
-05:37:51 [SvcCall]     Argument 'machoVersion':
-05:37:51 [SvcCall]         Integer field: 1
-*/
-    return new PyNone;
+  /*  Empty Call  */
+
+    return new PyInt( 0 );
 }

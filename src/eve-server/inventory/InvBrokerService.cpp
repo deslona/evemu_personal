@@ -85,8 +85,7 @@ InvBrokerService::InvBrokerService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(InvBrokerService, GetItemDescriptor)
 }
 
-PyResult InvBrokerService::Handle_GetItemDescriptor(PyCallArgs &call)
-{
+PyResult InvBrokerService::Handle_GetItemDescriptor(PyCallArgs &call) {
     // not really clear on the use of this one? just a general header update?!
     // from Inventory::List
 

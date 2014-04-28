@@ -48,7 +48,7 @@ public:
 
         PyCallable_REG_CALL(InsuranceBound, GetContracts)
         PyCallable_REG_CALL(InsuranceBound, GetInsurancePrice)
-        PyCallable_REG_CALL(InsuranceBound, InsureShip)
+        //PyCallable_REG_CALL(InsuranceBound, InsureShip)
 
         m_strBoundObjectName = "InsuranceBound";
     }
@@ -61,7 +61,7 @@ public:
 
     PyCallable_DECL_CALL(GetContracts)
     PyCallable_DECL_CALL(GetInsurancePrice)
-    PyCallable_DECL_CALL(InsureShip)
+    //PyCallable_DECL_CALL(InsureShip)
 
 protected:
     ShipDB* m_db;
@@ -77,7 +77,9 @@ InsuranceService::InsuranceService(PyServiceMgr *mgr)
     _SetCallDispatcher(m_dispatch);
 
     PyCallable_REG_CALL(InsuranceService, GetContractForShip)
-    PyCallable_REG_CALL(InsuranceService, GetInsurancePrice)
+    //PyCallable_REG_CALL(InsuranceService, GetInsurancePrice)
+    //PyCallable_REG_CALL(InsuranceService, GetContracts)
+    PyCallable_REG_CALL(InsuranceService, InsureShip)
 }
 
 InsuranceService::~InsuranceService() {
@@ -92,27 +94,15 @@ PyBoundObject* InsuranceService::_CreateBoundObject( Client* c, const PyRep* bin
     return new InsuranceBound( m_manager, &m_db );
 }
 
-PyResult InsuranceService::Handle_GetInsurancePrice( PyCallArgs& call )
-{
-    sLog.Log("InsuranceService", "Called GetInsurancePrice stub" );
-
-call.Dump(SERVICE__CALLS);
-
-    return new PyFloat(0.0);
-}
-
 //04:23:28 L InsuranceBound::Handle_GetInsurancePrice(): size= 1, 0=Integer [this passes typeID]
 PyResult InsuranceBound::Handle_GetInsurancePrice( PyCallArgs& call ) {
     /*
     Call Arguments:
         Tuple: 1 elements
             [ 0] Integer field: 606     // typeID
-    Call Named Arguments:
-        Argument 'machoVersion':
-            Integer field: 1
+    */
     sLog.Log("InsuranceBound", "Handle_GetInsurancePrice() size=%u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
-    */
     uint32 typeID = call.tuple->GetItem(0)->AsInt()->value();
 
     const ItemType *type = m_manager->item_factory.GetType(typeID);
@@ -127,9 +117,6 @@ PyResult InsuranceService::Handle_GetContractForShip( PyCallArgs& call ) {
     Call Arguments:
         Tuple: 1 elements
             [ 0] Integer field: 140000078   // shipID
-    Call Named Arguments:
-        Argument 'machoVersion':
-            Integer field: 1
     */
 
     return m_db.GetInsuranceInfoByShipID(call.tuple->GetItem(0)->AsInt()->value());
@@ -149,16 +136,13 @@ PyResult InsuranceBound::Handle_GetContracts( PyCallArgs& call ) {
     return m_db->GetInsuranceContractsByOwnerID(call.client->GetCharacterID());
 }
 
-PyResult InsuranceBound::Handle_InsureShip( PyCallArgs& call ) {
+PyResult InsuranceService::Handle_InsureShip( PyCallArgs& call ) {
     /*
 15:05:24 [SvcCall]   Call Arguments:
 15:05:24 [SvcCall]       Tuple: 3 elements
 15:05:24 [SvcCall]         [ 0] Integer field: 140000227
 15:05:24 [SvcCall]         [ 1] Real field: 1558.900000
 15:05:24 [SvcCall]         [ 2] Integer field: 0
-15:05:24 [SvcCall]   Call Named Arguments:
-15:05:24 [SvcCall]     Argument 'machoVersion':
-15:05:24 [SvcCall]         Integer field: 1
 15:05:24 L Client: Info Modal to Lee Domani:
 15:05:24 [ClientMessage] You cannot insure Rookie ships.
 
@@ -167,12 +151,9 @@ PyResult InsuranceBound::Handle_InsureShip( PyCallArgs& call ) {
 15:11:24 [SvcCall]         [ 0] Integer field: 140000307
 15:11:24 [SvcCall]         [ 1] Real field: 1370977.900000
 15:11:24 [SvcCall]         [ 2] Integer field: 0
-15:11:24 [SvcCall]   Call Named Arguments:
-15:11:24 [SvcCall]     Argument 'machoVersion':
-15:11:24 [SvcCall]         Integer field: 1
 
     */
-    sLog.Log("InsuranceBound", "Handle_InsureShip() size=%u", call.tuple->size() );
+    sLog.Log("InsuranceService", "Handle_InsureShip() size=%u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
   call.client->SendInfoModalMsg("The Insurance System is not Functional at this time.");
   return new PyNone;
@@ -211,7 +192,7 @@ PyResult InsuranceBound::Handle_InsureShip( PyCallArgs& call ) {
     ShipRef ship = m_manager->item_factory.GetShip( shipID );
 
     // calculate the fraction value
-    double shipValue = ship->type().basePrice();
+    double shipValue = ship->type().basePrice() *100;
     double paymentFraction = payment/shipValue;
     double fraction = 0.0;
     if(paymentFraction == 0.05)
@@ -239,10 +220,10 @@ PyResult InsuranceBound::Handle_InsureShip( PyCallArgs& call ) {
     }
 
     // delete old insurance, if any
-    m_db->DeleteInsuranceByShipID(shipID);
+    m_db.DeleteInsuranceByShipID(shipID);
 /**
   *  this is commented out because i cannot get the insurance contract sent back to the client correctly, so it's not showing
-  *  in the insurance window.  the return usually crashes the server when using DBResultToRowset or
+  *  in the insurance window.  the return usually crashes the server when using DBResultToRowset
 
     // add new insurance
     m_db->InsertInsuranceByShipID(shipID, fraction);

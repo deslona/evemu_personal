@@ -28,32 +28,34 @@
 
 #include "ship/modules/components/ModifyShipAttributesComponent.h"
 
+class ActiveModule;
+
 class ActiveModuleProcessingComponent
 {
 public:
 
-    ActiveModuleProcessingComponent(InventoryItemRef item, GenericModule * mod, ShipRef ship, ModifyShipAttributesComponent * shipAttrMod);
+    ActiveModuleProcessingComponent(InventoryItemRef item, ActiveModule * mod, ShipRef ship, ModifyShipAttributesComponent * shipAttrMod);
     ~ActiveModuleProcessingComponent();
 
 	void Process();
 
 	void ActivateCycle();
     void DeactivateCycle();
+    void ProcessActiveCycle();
+    void ProcessDeactivateCycle();
 
     bool ShouldProcessActiveCycle();
 
-    void ProcessActiveCycle();
-	void ProcessDeactivateCycle();
+    double GetRemainingCycleTimeMS();
 
 private:
     //internal storage and record keeping
     bool m_Stop;
 	Timer m_timer;
 
-
     //internal access to owner
 	InventoryItemRef m_Item;
-    GenericModule *m_Mod;
+    ActiveModule *m_Mod;
     ShipRef m_Ship;
     ModifyShipAttributesComponent * m_ShipAttrModComp;
 

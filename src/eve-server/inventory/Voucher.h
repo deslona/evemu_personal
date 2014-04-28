@@ -27,7 +27,6 @@
 #ifndef __VOUCHER_SERVICE_H_INCL__
 #define __VOUCHER_SERVICE_H_INCL__
 
-#include "inventory/Voucher.h"
 #include "PyService.h"
 
 class VoucherService : public PyService {

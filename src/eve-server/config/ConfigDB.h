@@ -37,6 +37,7 @@ class ConfigDB
 public:
     PyRep *GetMultiOwnersEx(const std::vector<int32> &entityIDs);
     PyRep *GetMultiLocationsEx(const std::vector<int32> &entityIDs);
+    //PyRep *GetMultiLocationsEx(int32 entityID);
     PyRep *GetMultiAllianceShortNamesEx(const std::vector<int32> &entityIDs);
     PyRep *GetMultiCorpTickerNamesEx(const std::vector<int32> &entityIDs);
     PyRep *GetMultiGraphicsEx(const std::vector<int32> &entityIDs);
@@ -51,7 +52,6 @@ public:
     PyRep *GetCelestialStatistic(uint32 celestialID);
     PyRep *GetTextsForGroup(const std::string & langID, uint32 textgroup);
     PyObject *GetMapLandmarks();
-
 
     /**
     * @brief Retrieves dynamic, celestial objects for a given solar system

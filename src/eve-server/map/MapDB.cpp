@@ -128,7 +128,8 @@ cynoFields
 jumpsHour
 killsHour
 kills24Hours
-numPilots
+pilotsDocked
+pilotsInSpace
 podKillsHour
 podKills24Hour
 factionKills
@@ -145,7 +146,7 @@ factionKills
     } else if (int1 == 5) {
           sDatabase.RunQuery(res, "SELECT solarSystemID, killsHour AS value1, factionKills AS value2, kills24Hours AS value3, podKillsHour AS value4, podKills24Hour AS value5 FROM mapDynamicData" );
     } else if (int1 == 10) {
-          sDatabase.RunQuery(res, "SELECT solarSystemID, beaconCount FROM mapDynamicData" );//AttributeError: Rowset instance has no attribute 'iteritems'
+          sDatabase.RunQuery(res, "SELECT solarSystemID, beaconCount FROM mapDynamicData WHERE beaconCount != 0" );//AttributeError: Rowset instance has no attribute 'iteritems'
     } else {
        return NULL;
     }

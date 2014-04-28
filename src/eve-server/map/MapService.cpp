@@ -137,11 +137,6 @@ PyResult MapService::Handle_GetSolarSystemVisits(PyCallArgs &call)
     return (m_db.GetSolSystemVisits(charID));
 }
 
-
-//02:52:11 L MapService::Handle_GetHistory(): size= 2, 0 = Integer (3), 1 = Integer (24)    -ColorStarsByCynosuralFields - ColorStarsByFactionKills - ColorStarsByKills - GetKillLast24H
-//02:52:13 L MapService::Handle_GetHistory(): size= 2, 0 = Integer (1), 1 = Integer (1)     -ColorStarsByJumps1Hour
-//02:52:14 L MapService::Handle_GetHistory(): size= 2, 0 = Integer (3), 1 = Integer (1)     -ColorStarsByPodKills
-//21:20:25 L MapService::Handle_GetHistory(): size= 2, 0 = Interger (5), 1 = Interger (24)  -ColorStarsByKills  (means ALL kills)
 PyResult MapService::Handle_GetHistory(PyCallArgs &call) {
     uint32 int1 = call.tuple->GetItem(0)->AsInt()->value();
     uint32 int2 = call.tuple->GetItem(1)->AsInt()->value();

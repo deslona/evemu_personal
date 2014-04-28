@@ -95,6 +95,8 @@ PyBoundObject *TradeService::_CreateBoundObject(Client *c, const PyRep *bind_arg
 
 PyResult TradeService::Handle_InitiateTrade(PyCallArgs &call){
 
+    sLog.Log("TradeService", "Handle_InitiateTrade() size=%u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
     Call_SingleIntegerArg args;
 
     if(!args.Decode(&call.tuple)) {
@@ -121,7 +123,8 @@ PyResult TradeService::Handle_InitiateTrade(PyCallArgs &call){
 }
 PyResult TradeBound::Handle_List(PyCallArgs &call) {
 
+    sLog.Log("TradeBound", "Handle_List() size=%u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
     TradeListRsp tradeListResponse;
-    sLog.Debug("TradeBound", "Called List stub");
     return tradeListResponse.Encode();
 }

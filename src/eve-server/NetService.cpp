@@ -177,21 +177,22 @@ PyResult NetService::Handle_GetTime(PyCallArgs &call) {
 //21:26:54 L NetService::Handle_GetClusterSessionStatistics(): size= 0
 PyResult NetService::Handle_GetClusterSessionStatistics(PyCallArgs &call) {
      /**
-     ColorStarsByNumPilots       --ValueError: too many values to unpack
-        -- should use a solarSystemDict py dictonary return here
+     ColorStarsByNumPilots
 
      this really should be a dynamic system call to systementity service or whatever it is to get systems with clients
      */
     DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT solarSystemID, numPilots AS value1 FROM mapDynamicData" );
+    sDatabase.RunQuery(res, "SELECT solarSystemID, pilotsDocked AS value1, pilotsInSpace AS value2 FROM mapDynamicData WHERE pilotsDocked != 0 OR pilotsInSpace != 0" );
 
+    /*
     DBResultRow row;
     res.GetRow(row);
-    /*
     PyTuple* result = new PyTuple( 2 );
     result->SetItem( 0, row.GetUInt(0));
     result->SetItem( 1, row.GetUInt(1));
     return result;
     */
-    return DBResultToRowset(res);
+    //return DBResultToRowset(res);
+    return(DBResultToTupleSet(res));
+    //return(DBResultToIndexRowset(res, "solarSystemID"));
 }

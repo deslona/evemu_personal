@@ -27,8 +27,7 @@
 
 #include "ship/modules/propulsion_modules/Afterburner.h"
 
-Afterburner::Afterburner( InventoryItemRef item, ShipRef ship )
-{
+Afterburner::Afterburner( InventoryItemRef item, ShipRef ship ) {
     m_Item = item;
     m_Ship = ship;
     m_Effects = new ModuleEffects(m_Item->typeID());
@@ -38,46 +37,37 @@ Afterburner::Afterburner( InventoryItemRef item, ShipRef ship )
 
 Afterburner::~Afterburner()
 {
-
 }
 
-void Afterburner::Process()
-{
+void Afterburner::Process() {
 	m_ActiveModuleProc->Process();
 }
 
 void Afterburner::Load()
 {
-
 }
 
 void Afterburner::Unload()
 {
-
 }
 
 void Afterburner::Repair()
 {
-
 }
 
 void Afterburner::Overload()
 {
-
 }
 
 void Afterburner::DeOverload()
 {
-
 }
 
 void Afterburner::DestroyRig()
 {
-
 }
 
-void Afterburner::Activate(uint32 targetID)
-{
+void Afterburner::Activate(SystemEntity * targetEntity) {
 	m_ActiveModuleProc->ActivateCycle();
 
 	m_Ship->SetAttribute(AttrCharge, 134.999996046585);
@@ -103,8 +93,7 @@ void Afterburner::Activate(uint32 targetID)
 	m_Ship->GetOperator()->GetDestiny()->SendDestinyUpdate(updates, true);
 }
 
-void Afterburner::Deactivate() 
-{
+void Afterburner::Deactivate() {
 	m_ActiveModuleProc->DeactivateCycle();
 
 	m_Ship->SetAttribute(AttrMaxVelocity, 300);

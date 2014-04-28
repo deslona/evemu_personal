@@ -1251,7 +1251,7 @@ PyResult DestinyManager::AttemptDockOperation()
         //set base type for rookie ship
         uint32 typeID = caldariRookie;
 
-        //set spawn location for hangar - not sure if this is correct.  Do you instantly get put in the rookie ship?
+        //set spawn location for hangar - not sure if this is correct.  Do you instantly get put in the rookie ship?  No - allan
         EVEItemFlags flag = (EVEItemFlags)flagHangar;
 
         //create rookie ship of appropriate type
@@ -1308,6 +1308,11 @@ PyResult DestinyManager::AttemptDockOperation()
       [ 1]   [ 1]   [ 1]   [ 2] Real field: 50607993007.845703      // z
       [ 1]   [ 1]   [ 2] Integer field: 60004450                    // Station ID
     */
+
+    //  add to active pilots docked count in DB   -allan 28April14
+    who->GetChar()->chkDynamicSystemID(who->GetSystemID());
+    who->GetChar()->AddPilotToDynamicData(who->GetSystemID(), true, false);
+
     return NULL;
 }
 

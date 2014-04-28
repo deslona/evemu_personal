@@ -48,8 +48,9 @@ public:
                                    uint32 creatorID, uint32 folderID);
 
     bool DeleteBookmarkFromDatabase(uint32 ownerID, uint32 bookmarkID);
-
     bool DeleteBookmarksFromDatabase(uint32 ownerID, std::vector<unsigned long> * bookmarkList);
+    //bool DeleteBookmarkFromDatabase(uint32 ownerID, PyList bookmarkID);
+    //bool DeleteBookmarksFromDatabase(uint32 ownerID, PyList * bookmarkList);
 
     bool UpdateBookmarkInDatabase(uint32 bookmarkID, uint32 ownerID, std::string memo, std::string note);
 

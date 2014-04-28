@@ -130,7 +130,7 @@ PyObject *SearchDB::QueryAll(std::string string, uint32 charID) {
 }
 
 //PyObject *SearchDB::QuickQuery(std::string string, int32 int1, int32 int2, int32 int3, int32 hideNPC, int32 onlyAltName, uint32 charID) {
-PyObject *SearchDB::QuickQuery(std::string string, int32 int1, int32 int2, int32 int3, uint32 charID) {
+PyObject *SearchDB::QuickQuery(std::string string, uint32 charID) {
     DBQueryResult res;
     DBResultRow row;
 
@@ -141,29 +141,29 @@ PyObject *SearchDB::QuickQuery(std::string string, int32 int1, int32 int2, int32
         "   constellationID,"
         "   solarSystemID,"
         "   solarSystemName"
-        " FROM mapSolarSystems "
-        " WHERE solarSystemName = '%%s%' ", string.c_str() ))
+        " FROM mapSolarSystems"
+        " WHERE solarSystemName LIKE '%%s%' ", string.c_str() ))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
 
-    if(res.GetRow(row))
-        return(DBResultToRowset(res));
-    else {    //second: we check to see if the string is a sun, moon, or planet
-        if(!sDatabase.RunQuery(res,
-            "SELECT "
-            "   regionID,"
-            "   constellationID,"
-            "   solarSystemID,"
-            "   itemID,"
-            "   itemName"
-            " FROM mapDenormalize"
-            " WHERE itemName = '%%s%' ", string.c_str() ))
-        {
-            codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
-            return NULL;
-        }
+    if(res.GetRow(row)) return(DBResultToRowset(res));
+    else res.Reset();
+
+    //second: we check to see if the string is a sun, moon, or planet
+    if(!sDatabase.RunQuery(res,
+        "SELECT "
+        "   regionID,"
+        "   constellationID,"
+        "   solarSystemID,"
+        "   itemID,"
+        "   itemName"
+        " FROM mapDenormalize"
+        " WHERE itemName LIKE '%%s%' ", string.c_str() ))
+    {
+        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        return NULL;
     }
 
     if(res.GetRow(row)) return(DBResultToRowset(res)); else { sLog.Error("SearchDB::QuickQuery", "res = NULL"); return NULL; }

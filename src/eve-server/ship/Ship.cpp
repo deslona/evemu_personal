@@ -294,31 +294,39 @@ void Ship::ValidateAddItem(EVEItemFlags flag, InventoryItemRef item)
     else if( flag == flagCargoHold )
     {
         //get all items in cargohold
-        EvilNumber capacityUsed(0);
+        EvilNumber capacityUsed(0.0);
         std::vector<InventoryItemRef> items;
         m_pOperator->GetShip()->FindByFlag(flag, items);        // Operator assumed to be Client *
         for(uint32 i = 0; i < items.size(); i++){
-            capacityUsed += items[i]->GetAttribute(AttrVolume);
+            capacityUsed += (items[i]->GetAttribute(AttrVolume) * items[i]->quantity());
         }
-        if( capacityUsed + item->GetAttribute(AttrVolume) > m_pOperator->GetShip()->GetAttribute(AttrCapacity) )    // Operator assumed to be Client *
+        if( capacityUsed + (item->GetAttribute(AttrVolume) * item->quantity()) > m_pOperator->GetShip()->GetAttribute(AttrCapacity) )    // Operator assumed to be Client *
             throw PyException( MakeCustomError( "Not enough cargo space!") );
     }
     else if( (flag >= flagLowSlot0)  &&  (flag <= flagHiSlot7) )
     {
-        if( m_pOperator->IsClient() )
-            if(!Skill::FitModuleSkillCheck(item, character))        // SKIP THIS SKILL CHECK if Operator is NOT Client *
+        if( m_pOperator->IsClient() )   // SKIP THIS SKILL CHECK if Operator is NOT Client *
+            if(!Skill::FitModuleSkillCheck(item, character))
                 throw PyException( MakeCustomError( "You do not have the required skills to fit this \n%s", item->itemName().c_str() ) );
         if(!ValidateItemSpecifics(item))
             throw PyException( MakeCustomError( "Your ship cannot equip this module" ) );
         if( m_ModuleManager->IsSlotOccupied(flag) )
             throw PyException( MakeUserError( "SlotAlreadyOccupied" ) );
         if(item->categoryID() == EVEDB::invCategories::Charge) {
-            InventoryItemRef module;
-            m_pOperator->GetShip()->FindSingleByFlag(flag, module);     // Operator assumed to be Client *
-            if(module->GetAttribute(AttrChargeSize) != item->GetAttribute(AttrChargeSize) )
-                throw PyException( MakeCustomError( "The charge is not the correct size for this module." ) );
-            if(module->GetAttribute(AttrChargeGroup1) != item->groupID())
-                throw PyException( MakeCustomError( "Incorrect charge type for this module.") );
+           if( m_ModuleManager->GetModule(flag) != NULL ) {
+               InventoryItemRef module;
+               module = m_ModuleManager->GetModule(flag)->getItem();
+               if(module->GetAttribute(AttrChargeSize) != item->GetAttribute(AttrChargeSize) )
+                   throw PyException( MakeCustomError( "The charge is not the correct size for this module." ) );
+               if(module->GetAttribute(AttrChargeGroup1) != item->groupID())
+                   throw PyException( MakeCustomError( "Incorrect charge type for this module.") );
+
+               // NOTE: Module Manager will check for actual room to load charges and make stack splits, or reject loading altogether
+            } else
+                throw PyException( MakeCustomError( "Module at flag '%u' does not exist!", flag ) );
+         } else {
+            if( m_ModuleManager->IsSlotOccupied(flag) )
+                throw PyException( MakeUserError( "SlotAlreadyOccupied" ) );
         }
     }
     else if( (flag >= flagRigSlot0)  &&  (flag <= flagRigSlot7) )
@@ -450,80 +458,11 @@ bool Ship::ValidateBoardShip(ShipRef ship, CharacterRef character)
             return false;
 
     return true;
-/*
-    //Primary Skill
-    if(ship->GetAttribute(AttrRequiredSkill1).get_int() != 0)
-    {
-        requiredSkill = character->GetSkill( ship->GetAttribute(AttrRequiredSkill1).get_int() );
-        if( !requiredSkill )
-            return false;
-
-        if( ship->GetAttribute(AttrRequiredSkill1Level) > requiredSkill->GetAttribute(AttrSkillLevel) )
-            return false;
-    }
-
-    //Secondary Skill
-    if(ship->GetAttribute(AttrRequiredSkill2).get_int() != 0)
-    {
-        requiredSkill = character->GetSkill( ship->GetAttribute(AttrRequiredSkill2).get_int() );
-        if( !requiredSkill )
-            return false;
-
-        if( ship->GetAttribute(AttrRequiredSkill2Level) > requiredSkill->GetAttribute(AttrSkillLevel) )
-            return false;
-    }
-
-    //Tertiary Skill
-    if(ship->GetAttribute(AttrRequiredSkill3).get_int() != 0)
-    {
-        requiredSkill = character->GetSkill( ship->GetAttribute(AttrRequiredSkill3).get_int() );
-        if( !requiredSkill )
-            return false;
-
-        if( ship->GetAttribute(AttrRequiredSkill3Level) > requiredSkill->GetAttribute(AttrSkillLevel) )
-            return false;
-    }
-
-    //Quarternary Skill
-    if(ship->GetAttribute(AttrRequiredSkill4).get_int() != 0)
-    {
-        requiredSkill = character->GetSkill( ship->GetAttribute(AttrRequiredSkill4).get_int() );
-        if( !requiredSkill )
-            return false;
-
-        if( ship->GetAttribute(AttrRequiredSkill4Level) > requiredSkill->GetAttribute(AttrSkillLevel) )
-            return false;
-    }
-
-    //Quinary Skill
-    if(ship->GetAttribute(AttrRequiredSkill5).get_int() != 0)
-    {
-        requiredSkill = character->GetSkill( ship->GetAttribute(AttrRequiredSkill5).get_int() );
-        if( !requiredSkill )
-            return false;
-
-        if( ship->GetAttribute(AttrRequiredSkill5Level) > requiredSkill->GetAttribute(AttrSkillLevel) )
-            return false;
-    }
-
-    //Senary Skill
-    if(ship->GetAttribute(AttrRequiredSkill6).get_int() != 0)
-    {
-        requiredSkill = character->GetSkill( ship->GetAttribute(AttrRequiredSkill6).get_int() );
-        if( !requiredSkill )
-            return false;
-
-        if( ship->GetAttribute(AttrRequiredSkill6Level) > requiredSkill->GetAttribute(AttrSkillLevel) )
-            return false;
-    }
-
-    return true;
-*/
 }
 
 void Ship::SaveShip()
 {
-    sLog.Debug( "Ship::SaveShip()", "Saving all 'entity' info and attribute info to DB for ship %s (%u)...", itemName().c_str(), itemID() );
+    sLog.Log( "Ship::SaveShip()", "Saving all info to DB for ship %s (%u)...", itemName().c_str(), itemID() );
 
     SaveItem();                         // Save all attributes and item info
     m_ModuleManager->SaveModules();     // Save all attributes and item info for all modules fitted to this ship
@@ -546,49 +485,27 @@ bool Ship::ValidateItemSpecifics(InventoryItemRef equip) {
 	if( canFitShipGroup1 != 0 || canFitShipGroup2 != 0 || canFitShipGroup3 != 0 || canFitShipGroup4 != 0 )
 		if( canFitShipGroup1 != groupID && canFitShipGroup2 != groupID && canFitShipGroup3 != groupID && canFitShipGroup4 != groupID )
 			return false;
-	/*
-    if( canFitShipGroup1 != 0 )
-        if( canFitShipGroup1 != groupID )
-            return false;
-
-    if( canFitShipGroup2 != 0 )
-        if( canFitShipGroup2 != groupID )
-            return false;
-
-    if( canFitShipGroup3 != 0 )
-        if( canFitShipGroup3 != groupID )
-            return false;
-
-    if( canFitShipGroup4 != 0 )
-        if( canFitShipGroup4 != groupID )
-            return false;
-	*/
-
     if( canFitShipType1 != 0 || canFitShipType2 != 0 || canFitShipType3 != 0 || canFitShipType4 != 0 )
         if( canFitShipType1 != typeID && canFitShipType2 != typeID && canFitShipType3 != typeID && canFitShipType4 != typeID )
             return false;
-	/*
-    if( canFitShipType1 != 0 )
-        if( canFitShipType1 != typeID )
-            return false;
-
-    if( canFitShipType2 != 0 )
-        if( canFitShipType2 != typeID )
-            return false;
-
-    if( canFitShipType3 != 0 )
-        if( canFitShipType3 != typeID )
-            return false;
-
-    if( canFitShipType4 != 0 )
-        if( canFitShipType4 != typeID )
-            return false;
-	*/
     return true;
-
 }
 
 /* Begin new Module Manager Interface */
+InventoryItemRef Ship::GetModule(EVEItemFlags flag) {
+   if( m_ModuleManager->GetModule(flag) != NULL )
+       return (m_ModuleManager->GetModule(flag))->getItem();
+   else
+       return InventoryItemRef();
+}
+
+InventoryItemRef Ship::GetModule(uint32 itemID) {
+   if( m_ModuleManager->GetModule(itemID) != NULL )
+       return (m_ModuleManager->GetModule(itemID))->getItem();
+   else
+       return InventoryItemRef();
+}
+
 uint32 Ship::FindAvailableModuleSlot( InventoryItemRef item )
 {
 	uint32 slotFound = flagIllegal;
@@ -627,23 +544,37 @@ uint32 Ship::FindAvailableModuleSlot( InventoryItemRef item )
     return slotFound;
 }
 
-void Ship::AddItem(EVEItemFlags flag, InventoryItemRef item)
-{
-
+uint32 Ship::AddItem(EVEItemFlags flag, InventoryItemRef item) {
     ValidateAddItem( flag, item );
 
     //it's a new module, make sure it's state starts at offline so that it is added correctly
     if( item->categoryID() != EVEDB::invCategories::Charge )
         item->PutOffline();
 
-    // TODO: Somehow, if this returns FALSE, the item->Move() above has to be "undone"... can we do the move AFTER attempting to fit?
-    // what if we pass the flag into FitModule().... then if it returns true, the item->Move() can be called
-    if( m_ModuleManager->FitModule(item, flag) )
-        item->Move(m_pOperator->GetLocationID(), flag);  //TODO - check this
+    switch( item->categoryID() ) {
+        case EVEDB::invCategories::Charge: {
+                m_ModuleManager->LoadCharge(item, flag);
+                InventoryItemRef loadedChargeOnModule = m_ModuleManager->GetLoadedChargeOnModule(flag);
+                if( loadedChargeOnModule ) {
+                   return loadedChargeOnModule->itemID();
+               } else
+                   return 0;
+           }
+           break;
+
+        case EVEDB::invCategories::Module:
+            if( m_ModuleManager->FitModule(item, flag) )
+                item->Move(itemID(), flag);
+            break;
+
+        default:
+            sLog.Error( "Ship::AddItem(flag,item)", "ERROR! Function called with item '%s' (id: %u) of category neither Charge nor Module!", item->itemName().c_str(), item->itemID() );
+    }
+
+    return 0;
 }
 
-void Ship::RemoveItem(InventoryItemRef item, uint32 inventoryID, EVEItemFlags flag)
-{
+void Ship::RemoveItem(InventoryItemRef item, uint32 inventoryID, EVEItemFlags flag) {
     //coming from ship, we need to deactivate it and remove mass if it isn't a charge
     if( item->categoryID() != EVEDB::invCategories::Charge ) {
         m_pOperator->GetShip()->Deactivate( item->itemID(), "online" );
@@ -652,13 +583,23 @@ void Ship::RemoveItem(InventoryItemRef item, uint32 inventoryID, EVEItemFlags fl
         m_pOperator->GetShip()->UnloadModule( item->itemID() );
     }
 
+    // if item being removed IS a charge, it needs to be removed via Module Manager so modules know charge is removed
+    if( item->categoryID() == EVEDB::invCategories::Charge ) {
+        m_ModuleManager->UnloadCharge(item->flag());
+    }
+
     //Move New item to its new location
     m_pOperator->MoveItem(item->itemID(), inventoryID, flag);
 }
 
-void Ship::UpdateModules()
-{
+void Ship::UpdateModules() {
+    // List of callees to put this function into context as to what it should be doing:
+    // Client::BoardShip()              - put modules online that are recorded with attributeID 2 as being online / skill check all modules and if any fail, keep those OFFLINE
+    // InventoryBound::_ExecAdd()       - things have been added or removed, recheck all modules for... some reason
+    // Client::MoveItem()               - something has been moved into or out of the ship, recheck all modules for... some reason
 
+    sLog.Error( "Ship::UpdateModules()", "We are currently not checking for modules that need to go online, or skill checking character for any modules of a newly boarded ship, or updating module states based on things being moved into or off the ship!" );
+    sLog.Warning( "Ship::UpdateModules()", "This should really be a simple call to a function ModuleManager::UpdateModules() and the code put inside there." );
 }
 
 void Ship::UnloadModule(uint32 itemID)

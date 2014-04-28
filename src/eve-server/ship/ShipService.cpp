@@ -270,7 +270,7 @@ PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
         return NULL;
     }
 
-    sLog.Error( "ShipBound::Handle_Undock()", "!!! Undock not fully implemented!");
+    sLog.Warning( "ShipBound::Handle_Undock()", "!!! Undock not fully implemented!");
 
     //send an OnItemChange notification
     // tuple:
@@ -310,7 +310,7 @@ PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
     //prevent client from stopping ship automatically stopping - this is sloppy
 
     //revert custom info, for testing.
-    call.client->GetShip()->SetCustomInfo(NULL);
+    //call.client->GetShip()->SetCustomInfo(NULL);
 
     call.client->OnCharNoLongerInStation();
     //should get a stationSvc.GetSolarSystem(solarsystemID)
@@ -320,6 +320,10 @@ PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
     call.client->SetUndockAlignToPoint( dest );
     call.client->SetJustUndocking( true );
     // --- END HACK ---
+
+    //  add to active pilots in space count in DB   -allan 28April14
+    call.client->chkDynamicSystemID(call.client->GetSystemID());
+    call.client->AddPilotToDynamicData(call.client->GetSystemID(), false, false);
 
     return NULL;
 }

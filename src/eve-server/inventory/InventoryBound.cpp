@@ -159,7 +159,7 @@ PyResult InventoryBound::Handle_Add(PyCallArgs &call) {
             sLog.Debug( "InventoryBound::Handle_Add()", "Cannot find key 'flag' from call.byname dictionary." );
             if( IsStation(call.client->GetLocationID()) )
                flag = flagHangar;
-           else
+            else
                flag = flagCargoHold;    // hard-code this since ship cargo to cargo container move flag since key 'flag' in client.byname does not exist
         }
         else
@@ -419,6 +419,10 @@ PyResult InventoryBound::Handle_CreateBookmarkVouchers(PyCallArgs &call) {
       PyList *list = call.tuple->GetItem( 0 )->AsList();
       uint8 i;
       uint32 bookmarkID;
+      char ci[3];
+
+      DBQueryResult res;
+      DBResultRow row;
 
       if( list->size() > 0 ) {
           for(i=0; i<(list->size()); i++) {
@@ -426,9 +430,16 @@ PyResult InventoryBound::Handle_CreateBookmarkVouchers(PyCallArgs &call) {
                               //ItemData ( typeID, ownerID, locationID, flag, quantity, customInfo, contraband)
               ItemData itemBookmarkVoucher( 51, call.client->GetCharacterID(), call.client->GetLocationID(), flagHangar, 1 );
               InventoryItemRef i = m_manager->item_factory.SpawnItem( itemBookmarkVoucher );
-              //InventoryItem::SetCustomInfo(const char *ci)  <- use this to set bookmarkID to DB.entity.customInfo
-              if( !i )
+
+              if( !i ) {
                   codelog(CLIENT__ERROR, "%s: Failed to spawn bookmark voucher for %u", call.client->GetName(), bookmarkID);
+                  break;
+              }
+              sDatabase.RunQuery(res, "SELECT memo FROM bookmarks WHERE bookmarkID = %u", bookmarkID);
+              res.GetRow(row);
+              i->Rename(row.GetText(0));
+              snprintf(ci, sizeof(ci), "%u", bookmarkID);
+              i->SetCustomInfo(ci);  //<- use this to set bookmarkID to DB.entity.customInfo
           }
           sLog.Log( "InventoryBound::Handle_CreateBookmarkVouchers()", "%u Vouchers created", list->size() );
           //  when bm is copied to another players places tab, copy data from db using bookmarkID stored in ItemData.customInfo
@@ -437,9 +448,11 @@ PyResult InventoryBound::Handle_CreateBookmarkVouchers(PyCallArgs &call) {
           return NULL;
       }
 
-      //  need to put check in here for isMove bool.  true=remove from PnP->bookmarks tab....false = leave
+      //  NOTE: need to put check in here for isMove bool.  true=remove from PnP->bookmarks tab....false = leave
 
-    return NULL;
+      //  NOTE: need to reload hangar to show newly created BM item.
+
+    return new PyInt( 0 );
 }
 
 PyResult InventoryBound::Handle_Voucher(PyCallArgs &call){

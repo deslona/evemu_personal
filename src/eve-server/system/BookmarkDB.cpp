@@ -163,18 +163,16 @@ bool BookmarkDB::GetBookmarkInformation(uint32 bookmarkID, uint32 &ownerID, uint
 
     // Query database 'bookmarks' table for the supplied bookmarkID and retrieve entire row:
     if (!sDatabase.RunQuery(res,
-        "SELECT "
-        "  bookmarkID, "
-        "  ownerID, "
-        "  itemID, "
-        "  typeID, "
-        "  flag, "
-        "  memo, "
-        "  created, "
-        "  x, "
-        "  y, "
-        "  z, "
-        "  locationID, "
+        "SELECT"
+        "  bookmarkID,"
+        "  ownerID,"
+        "  itemID,"
+        "  typeID,"
+        "  flag,"
+        "  memo,"
+        "  created,"
+        "  x, y, z,"
+        "  locationID,"
         "  note,"
         "  creatorID,"
         "  folderID"
@@ -230,6 +228,7 @@ bool BookmarkDB::SaveNewBookmarkToDatabase(uint32 &bookmarkID, uint32 ownerID, u
 }
 
 bool BookmarkDB::DeleteBookmarkFromDatabase(uint32 ownerID, uint32 bookmarkID)
+//bool BookmarkDB::DeleteBookmarkFromDatabase(uint32 ownerID, PyList bookmarkID)
 {
     DBerror err;
 
@@ -246,8 +245,8 @@ bool BookmarkDB::DeleteBookmarkFromDatabase(uint32 ownerID, uint32 bookmarkID)
 }
 
 bool BookmarkDB::DeleteBookmarksFromDatabase(uint32 ownerID, std::vector<unsigned long> * bookmarkList)
+//bool BookmarkDB::DeleteBookmarksFromDatabase(uint32 ownerID, PyList * bookmarkList)
 {
-    DBerror err;
     bool ret = true;
     std::stringstream st;
     std::string listString;
@@ -261,6 +260,7 @@ bool BookmarkDB::DeleteBookmarksFromDatabase(uint32 ownerID, std::vector<unsigne
             st << ", ";
     }
 
+    DBerror err;
     if (!sDatabase.RunQuery(err,
         " DELETE FROM bookmarks "
         " WHERE ownerID = %u AND bookmarkID IN (%s)", ownerID, st.str().c_str()

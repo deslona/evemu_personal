@@ -51,11 +51,38 @@ PyResult VoucherService::Handle_GetObject( PyCallArgs& call ) {
 23:33:00 [SvcCall]       Tuple: 1 elements
 23:33:00 [SvcCall]         [ 0] Integer field: 140000575
 
-NOTE:  this function sends  bookmark voucher itemID.  will need to figure out how to save BM with copied original bmID, then get info from original via this voucher using db calls..
+NOTE:  this function sends bookmark voucher itemID.
+will need to figure out how to save BM with copied original bmID, then get info from original via this voucher using db calls...done 20April
 //not sure what the return is yet.
-  sLog.Log( "VoucherService::Handle_GetObject()", "size= %u", call.tuple->size() );
-  call.Dump(SERVICE__CALLS);
-  */
+AttributeError: Rowset instance has no attribute 'GetDescription'
 
-    return NULL;
+  sLog.Log( "VoucherService::Handle_GetObject_1", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
+*/
+    DBQueryResult res;
+    DBResultRow row;
+
+    uint32 voucherID = call.tuple->GetItem( 0 )->AsInt()->value();
+    sDatabase.RunQuery(res, "SELECT customInfo FROM entity WHERE itemID = %u", voucherID);
+    res.GetRow(row);
+  sLog.Log( "VoucherService::Handle_GetObject_2", "customInfo= %s", row.GetText(0) );
+    std::stringstream convert(row.GetText(0));
+    uint32 bookmarkID;
+    convert >> bookmarkID;
+  sLog.Log( "VoucherService::Handle_GetObject_3", "bookmarkID= %u", bookmarkID );
+    res.Reset();
+    sDatabase.RunQuery(res, "SELECT memo FROM bookmarks WHERE bookmarkID = %u", bookmarkID);
+    res.GetRow(row);
+  sLog.Log( "VoucherService::Handle_GetObject_4", "memo= %s", row.GetText(0) );
+
+    return new PyString(row.GetText(0));
+    //return DBResultToRowset(res);
+    //return new PyNone;
+
+    PyTuple* tuple = new PyTuple( 2 );
+
+    tuple->items[ 0 ] = new PyString( "GetDescription" );
+    tuple->items[ 1 ] = new PyString( row.GetText(0) );
+
+    return tuple;
 }

@@ -363,8 +363,6 @@ bool Client::EnterSystem(bool login) {
 
     if(m_system != NULL && m_system->GetID() != GetSystemID()) {
         //we have different m_system
-        GetChar()->chkDynamicSystemID(m_system->GetID());
-        GetChar()->AddPilotToDynamicData(m_system->GetID(), false);
         m_system->RemoveClient(this);
         m_system = NULL;
 
@@ -384,8 +382,16 @@ bool Client::EnterSystem(bool login) {
         m_system->AddClient(this);
     }
 
+    //  add char to Dynamic Data    updated for docked/inspace   -allan 28April14
     GetChar()->chkDynamicSystemID(GetSystemID());
-    GetChar()->AddPilotToDynamicData(GetSystemID(), true);
+    if(login) {
+        if( IsInSpace() )
+            GetChar()->AddPilotToDynamicData(GetSystemID(), false, true);
+        else
+            GetChar()->AddPilotToDynamicData(GetSystemID(), true, true);
+    } else
+        GetChar()->AddPilotToDynamicData(GetSystemID(), false, true);
+
     return true;
 }
 
@@ -1059,18 +1065,16 @@ void Client::StargateJump(uint32 fromGate, uint32 toGate) {
         sLog.Error("Client","%s: Failed to query information for stargate %u", GetName(), fromGate);
         return;
     }
+    //remove from space in this system
     GetChar()->chkDynamicSystemID(fromSystem);
-    GetChar()->AddJumpToDynamicData(fromSystem);
-    GetChar()->AddPilotToDynamicData(fromSystem, false);
+    GetChar()->AddJumpToDynamicData(fromSystem, false);     //updated to modify pilots in space, also.  -allan 28Apr14
 
-    // these are the toSystem.
+    //add to space in this system
     GetChar()->chkDynamicSystemID(solarSystemID);
-    GetChar()->AddJumpToDynamicData(solarSystemID);
-    GetChar()->AddPilotToDynamicData(solarSystemID, true);
+    GetChar()->AddJumpToDynamicData(solarSystemID, true);
 
     // used for showing Visited Systems in StarMap(F10)  -allan 30Jan14
     GetChar()->VisitSystem(solarSystemID);
-
 }
 
 void Client::SetDockingPoint(GPoint &dockPoint)
@@ -1320,7 +1324,8 @@ void Client::SavePosition() {
 
 void Client::SaveAllToDatabase() {
     SavePosition();
-    GetShip()->SaveShip();       // Save Ship's and Modules' attributes and info to DB
+    if( GetShip() ) GetShip()->SaveShip();       // Save Ship and Modules' attributes and info to DB
+
     GetChar()->SaveFullCharacter();                     // Save Character info to DB
 }
 

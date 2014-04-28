@@ -941,7 +941,8 @@ CREATE TABLE IF NOT EXISTS `mapDynamicData` (
   `jumpsHour` int(10) NOT NULL DEFAULT '0',
   `killsHour` int(10) NOT NULL DEFAULT '0',
   `kills24Hours` int(10) NOT NULL DEFAULT '0',
-  `numPilots` int(10) NOT NULL DEFAULT '0',
+  `pilotsDocked` int(10) NOT NULL DEFAULT '0',
+  `pilotsInSpace` int(10) NOT NULL DEFAULT '0',
   `podKillsHour` int(10) NOT NULL DEFAULT '0',
   `podKills24Hour` int(10) NOT NULL DEFAULT '0',
   `factionKills` int(11) NOT NULL DEFAULT '0',
@@ -950,6 +951,7 @@ CREATE TABLE IF NOT EXISTS `mapDynamicData` (
   `kills24DateTime` bigint(20) DEFAULT NULL,
   `podDateTime` bigint(20) DEFAULT NULL,
   `pod24DateTime` bigint(20) DEFAULT NULL,
+  `pilotsDateTime` bigint(20) DEFAULT NULL,
   UNIQUE KEY `solarSystemID` (`solarSystemID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 

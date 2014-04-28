@@ -148,7 +148,7 @@ static const char *DamageMessageIDs_Self[6] = {
     "AttackHit3R",    //hits
     "AttackHit4R",    //aims well at you
     "AttackHit5R",    //places an excellent hit
-    "AttackHit6R"    //strikes you  perfectly, wrecking
+    "AttackHit6R"    //strikes you perfectly, wrecking
 };
 
 static const char *DamageMessageIDs_SelfNamed[6] = {
@@ -157,7 +157,7 @@ static const char *DamageMessageIDs_SelfNamed[6] = {
     "AttackHit3RD",    //hits
     "AttackHit4RD",    //aims well at you
     "AttackHit5RD",    //places an excellent hit
-    "AttackHit6RD"    //strikes you  perfectly, wrecking
+    "AttackHit6RD"    //strikes you perfectly, wrecking
 };
 
 static const char *DamageMessageIDs_Other[6] = {
@@ -166,7 +166,7 @@ static const char *DamageMessageIDs_Other[6] = {
     "AttackHit3",    //hits
     "AttackHit4",    //aims well at you
     "AttackHit5",    //places an excellent hit
-    "AttackHit6"    //strikes you  perfectly, wrecking
+    "AttackHit6"    //strikes you perfectly, wrecking
 };
 
 

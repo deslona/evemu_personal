@@ -297,12 +297,12 @@ PyResult CharMgrService::Handle_GetFactions( PyCallArgs& call )
     return NULL;
 }
 
-PyResult CharMgrService::Handle_SetActivityStatus( PyCallArgs& call )
-{
+PyResult CharMgrService::Handle_SetActivityStatus( PyCallArgs& call ) {
   uint8 size = call.tuple->size();
   uint16 int1 = call.tuple->GetItem(0)->AsInt()->value();
   uint16 int2 = call.tuple->GetItem(1)->AsInt()->value();
   sLog.Log( "CharMgrService::Handle_SetActivityStatus()", "size=%u, 0=Int(%u), 1=Int(%u) ", size, int1, int2   );
+  //call.Dump(SERVICE__CALLS);
 
     return new PyInt( 0 );
 }

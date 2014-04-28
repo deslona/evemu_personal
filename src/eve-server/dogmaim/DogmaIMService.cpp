@@ -62,7 +62,7 @@ public:
         PyCallable_REG_CALL(DogmaIMBound, CancelOverloading)
 		PyCallable_REG_CALL(DogmaIMBound, SetModuleOnline)
 		PyCallable_REG_CALL(DogmaIMBound, TakeModuleOffline)
-        //PyCallable_REG_CALL(DogmaIMBound, LoadAmmoToBank)
+        PyCallable_REG_CALL(DogmaIMBound, LoadAmmoToBank)
         PyCallable_REG_CALL(DogmaIMBound, AddTarget)
         PyCallable_REG_CALL(DogmaIMBound, RemoveTarget)
         PyCallable_REG_CALL(DogmaIMBound, ClearTargets)
@@ -89,7 +89,7 @@ public:
     PyCallable_DECL_CALL(CancelOverloading)
 	PyCallable_DECL_CALL(SetModuleOnline)
 	PyCallable_DECL_CALL(TakeModuleOffline)
-    //PyCallable_DECL_CALL(LoadAmmoToBank)
+    PyCallable_DECL_CALL(LoadAmmoToBank)
     PyCallable_DECL_CALL(AddTarget)
     PyCallable_DECL_CALL(RemoveTarget)
     PyCallable_DECL_CALL(ClearTargets)
@@ -242,12 +242,11 @@ PyResult DogmaIMBound::Handle_TakeModuleOffline( PyCallArgs& call ) {
 
 	return NULL;
 }
-/*
+
 PyResult DogmaIMBound::Handle_LoadAmmoToBank( PyCallArgs& call ) {
    Call_Dogma_LoadAmmoToBank args;
 
-   if( !args.Decode( &call.tuple ) )
-    {
+   if( !args.Decode( &call.tuple ) ) {
         codelog( SERVICE__ERROR, "Unable to decode arguments from '%s'", call.client->GetName() );
         return NULL;
     }
@@ -265,8 +264,7 @@ PyResult DogmaIMBound::Handle_LoadAmmoToBank( PyCallArgs& call ) {
    // Get Reference to Ship, Module, and Charge
    ShipRef shipRef = call.client->GetShip();
    InventoryItemRef moduleRef = shipRef->GetModule(args.moduleItemID);
-   if( moduleRef == NULL )
-   {
+   if( !moduleRef ) {
        sLog.Error("DogmaIMBound::Handle_LoadAmmoToBank()", "ERROR: cannot find module into which charge should be loaded!  How did we get here!?!?!" );
        return NULL;
    }
@@ -281,8 +279,7 @@ PyResult DogmaIMBound::Handle_LoadAmmoToBank( PyCallArgs& call ) {
    //call.client->MoveItem(chargeRef->itemID(), call.client->GetShipID(), moduleFlag);
 
     //Create new item id return result
-   if( loadedChargeID )
-   {
+   if( loadedChargeID ) {
        Call_SingleIntegerArg result;
        result.arg = loadedChargeID;    //chargeRef->itemID();
        //Return new item result
@@ -290,7 +287,7 @@ PyResult DogmaIMBound::Handle_LoadAmmoToBank( PyCallArgs& call ) {
    }
 
    return NULL;
-}*/
+}
 
 PyResult DogmaIMBound::Handle_Activate( PyCallArgs& call )
 {

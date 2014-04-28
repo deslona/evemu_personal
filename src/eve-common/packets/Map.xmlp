@@ -10,9 +10,6 @@
 18:33:22 [SvcCall]         [ 3] Boolean field: false
 18:33:22 [SvcCall]         [ 4] Integer field: 0
 18:33:22 [SvcCall]         [ 5] Integer field: 1
-18:33:22 [SvcCall]   Call Named Arguments:
-18:33:22 [SvcCall]     Argument 'machoVersion':
-18:33:22 [SvcCall]         Integer field: 1
 
 18:33:25 [SvcCall] Service config: calling GetMapConnections
 18:33:25 [SvcCall]   Call Arguments:
@@ -23,9 +20,16 @@
 18:33:25 [SvcCall]         [ 3] Boolean field: true
 18:33:25 [SvcCall]         [ 4] Integer field: 0
 18:33:25 [SvcCall]         [ 5] Integer field: 1
-18:33:25 [SvcCall]   Call Named Arguments:
-18:33:25 [SvcCall]     Argument 'machoVersion':
-18:33:25 [SvcCall]         Integer field: 1
+
+00:47:18 [SvcCall] Service config: calling GetMapConnections
+00:47:18 [SvcCall]   Call Arguments:
+00:47:18 [SvcCall]       Tuple: 6 elements
+00:47:18 [SvcCall]         [ 0] Integer field: 9
+00:47:18 [SvcCall]         [ 1] Boolean field: true
+00:47:18 [SvcCall]         [ 2] Boolean field: false
+00:47:18 [SvcCall]         [ 3] Boolean field: false
+00:47:18 [SvcCall]         [ 4] Integer field: 0
+00:47:18 [SvcCall]         [ 5] Integer field: 1
 -->
 
   <elementDef name="Call_GetMapConnections">

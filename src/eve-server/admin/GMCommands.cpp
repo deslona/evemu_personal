@@ -40,8 +40,7 @@
 #include "system/SystemManager.h"
 #include "system/SystemBubble.h"
 
-PyResult Command_create( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args )
-{
+PyResult Command_create( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args ) {
     if( args.argCount() < 2 ) {
         throw PyException( MakeCustomError("Correct Usage: /create [typeID]") );
     }
@@ -51,8 +50,7 @@ PyResult Command_create( Client* who, CommandDB* db, PyServiceMgr* services, con
     const uint32 typeID = atoi( args.arg( 1 ).c_str() );
 
     uint32 qty = 1;
-    if( 2 < args.argCount() )
-    {
+    if( 2 < args.argCount() ) {
         if( args.isNumber( 2 ) )
             qty = atoi( args.arg( 2 ).c_str() );
     }
@@ -63,13 +61,10 @@ PyResult Command_create( Client* who, CommandDB* db, PyServiceMgr* services, con
     //then stick it in their hangar instead.
     uint32 locationID;
     EVEItemFlags flag;
-    if( who->IsInSpace() )
-    {
+    if( who->IsInSpace() ) {
         locationID = who->GetShipID();
         flag = flagCargoHold;
-    }
-    else
-    {
+    } else {
         locationID = who->GetStationID();
         flag = flagHangar;
     }
@@ -92,8 +87,7 @@ PyResult Command_create( Client* who, CommandDB* db, PyServiceMgr* services, con
     return new PyString( "Creation successful." );
 }
 
-PyResult Command_createitem( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args )
-{
+PyResult Command_createitem( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args ) {
     if( args.argCount() < 2 ) {
         throw PyException( MakeCustomError("Correct Usage: /create [typeID]") );
     }
@@ -105,8 +99,7 @@ PyResult Command_createitem( Client* who, CommandDB* db, PyServiceMgr* services,
     const uint32 typeID = atoi( args.arg( 1 ).c_str() );
 
     uint32 qty = 1;
-    if( 2 < args.argCount() )
-    {
+    if( 2 < args.argCount() ) {
         if( args.isNumber( 2 ) )
             qty = atoi( args.arg( 2 ).c_str() );
     }
@@ -117,13 +110,10 @@ PyResult Command_createitem( Client* who, CommandDB* db, PyServiceMgr* services,
     //then stick it in their hangar instead.
     uint32 locationID;
     EVEItemFlags flag;
-    if( who->IsInSpace() )
-    {
+    if( who->IsInSpace() ) {
         locationID = who->GetShipID();
         flag = flagCargoHold;
-    }
-    else
-    {
+    } else {
         locationID = who->GetStationID();
         flag = flagHangar;
     }
@@ -147,8 +137,7 @@ PyResult Command_createitem( Client* who, CommandDB* db, PyServiceMgr* services,
 }
 
 
-PyResult Command_search( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args )
-{
+PyResult Command_search( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args ) {
     if( args.argCount() < 2 ) {
         throw PyException( MakeCustomError("Correct Usage: /search [text]") );
     }
@@ -156,7 +145,7 @@ PyResult Command_search( Client* who, CommandDB* db, PyServiceMgr* services, con
     const std::string& query = args.arg( 1 );
 
     //an empty query is a bad idea.
-    if( 0 == query.length() )
+    if( query.length() == 0 )
         throw PyException( MakeCustomError( "Usage: /search [text]" ) );
 
     std::map<uint32, std::string> matches;
@@ -169,16 +158,14 @@ PyResult Command_search( Client* who, CommandDB* db, PyServiceMgr* services, con
     std::map<uint32, std::string>::iterator cur, end;
     cur = matches.begin();
     end = matches.end();
-    for(; cur != end; cur++)
-    {
+    for(; cur != end; cur++) {
         result += itoa( cur->first );
         result += ": ";
         result += cur->second;
         result += "<br>";
     }
 
-    if( 10 < matches.size() )
-    {
+    if( 10 < matches.size() ) {
         //send the results in an evemail.
         std::string subject( "Search results for " );
         subject += query;
@@ -186,13 +173,11 @@ PyResult Command_search( Client* who, CommandDB* db, PyServiceMgr* services, con
         who->SelfEveMail( subject.c_str(), result.c_str() );
 
         return new PyString( "Results sent via evemail." );
-    }
-    else
+    } else
         return new PyString( result );
 }
 
-PyResult Command_translocate( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args )
-{
+PyResult Command_translocate( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args ) {
     return Command_tr(who,db,services,args);
 /*
     if( args.argCount() < 2 ) {
@@ -912,35 +897,24 @@ PyResult Command_fit(Client* who, CommandDB* db, PyServiceMgr* services, const S
     }
 }
 
-PyResult Command_giveallskills( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args )
-{
-    uint8 level = 5;            // Ensure that ALL skills trained are trained to level 5
+PyResult Command_giveallskills( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args ) {
+    uint8 level = 5;            // Ensure that ALL skills are trained to level 5
     CharacterRef character;
-    EVEItemFlags flag;
-    uint32 gty = 1;
-    //uint8 oldSkillLevel = 0;
-    EvilNumber oldSkillLevel(0);
     uint32 ownerID = 0;
-    Client * clientPtr = NULL;
+    Client * client = NULL;
 
-    if( args.argCount() >= 2 )
-    {
-        if( args.isNumber( 1 ) )
-        {
+    if( args.argCount() >= 2 ) {
+        if( args.isNumber( 1 ) ) {
             ownerID = atoi( args.arg( 1 ).c_str() );
-            clientPtr = services->entity_list.FindCharacter( ownerID );
-            if( clientPtr == NULL )
+            client = services->entity_list.FindCharacter( ownerID );
+            if( client == NULL )
                 throw PyException( MakeCustomError( "ERROR: Cannot find character #%d", ownerID ) );
             else
-                character = clientPtr->GetChar();
-        }
-        else if( args.arg( 1 ) == "me" )
-        {
+                character = client->GetChar();
+        } else if( args.arg( 1 ) == "me" ) {
             ownerID = who->GetCharacterID();
             character = who->GetChar();
-        }
-        else if( !args.isNumber( 1 ) )
-        {
+        } else if( !args.isNumber( 1 ) ) {
             throw PyException( MakeCustomError( "The use of string based Character names for this command is not yet supported!  Use 'me' instead or the entityID of the character to which you wish to give skills." ) );
             /*
             const char *name = args.arg( 1 ).c_str();
@@ -950,18 +924,13 @@ PyResult Command_giveallskills( Client* who, CommandDB* db, PyServiceMgr* servic
             ownerID = target->GetCharacterID();
             character = target->GetChar();
             */
-        }
-        else
+        } else
             throw PyException( MakeCustomError( "Argument 1 must be Character ID or Character Name ") );
-    }
-    else
+    } else
         throw PyException( MakeCustomError("Correct Usage: /giveallskills [Character Name or ID]") );
 
-    SkillRef skill;
-
     // Make sure character reference is not NULL before trying to use it:
-    if( character != NULL )
-    {
+    if( character != NULL ) {
         // Query Database to get list of ALL skills, then LOOP through each one, checking character for skill, setting level to 5:
         // QUERY DB FOR LIST OF ALL SKILLS:
         //      SELECT * FROM `invTypes` WHERE `groupID` IN (SELECT groupID FROM invGroups WHERE categoryID = 16)
@@ -973,67 +942,56 @@ PyResult Command_giveallskills( Client* who, CommandDB* db, PyServiceMgr* servic
         skill_cur = skillList.begin();
         skill_end = skillList.end();
 
+        SkillRef skill;
         uint32 skillID = 0;
-        for( ; skill_cur != skill_end; skill_cur++ )
-        {
+
+        for( ; skill_cur != skill_end; skill_cur++ ) {
             skillID = *skill_cur;
-            if(character->HasSkill( skillID ) )
-            {
-                // Character already has this skill, so let's get the current level and check to see
-                // if we need to update its level to what's required:
-                SkillRef oldSkill = character->GetSkill( skillID );
-                oldSkillLevel = oldSkill->GetAttribute( AttrSkillLevel );
-
-                // Now check the current level to the required level and update it
-                if( oldSkillLevel < level )
-                    character->InjectSkillIntoBrain( oldSkill, level);
-            }
-            else
-            {
-                // Character DOES NOT have this skill, so spawn a new one and then add this
-                // to the character with required level and skill points:
-                ItemData idata(
-                    skillID,
-                    ownerID,
-                    0, //temp location
-                    flag = (EVEItemFlags)flagSkill,
-                    gty
-                );
-
+            if( character->HasSkillTrainedToLevel( skillID, level ) ) {
+                return new PyNone();
+            } else if( character->HasSkill( skillID ) ) {
+                skill = character->GetSkill( skillID );
+                EvilNumber tmp = EVIL_SKILL_BASE_POINTS * skill->GetAttribute(AttrSkillTimeConstant) * EvilNumber::pow(2, (2.5*(level -     1)));
+                skill->SetAttribute(AttrSkillLevel, level);
+                skill->SetAttribute(AttrSkillPoints, tmp);
+            } else {    // Character DOES NOT have this skill
+                ItemData idata( skillID, ownerID, ownerID, flagSkill, 1 );
                 InventoryItemRef item = services->item_factory.SpawnItem( idata );
-                skill = SkillRef::StaticCast( item );
 
-                if( !item )
-                    throw PyException( MakeCustomError( "ERROR: Unable to create item of type %s.", item->typeID() ) );
-
-                character->InjectSkillIntoBrain( skill, level);
+                if( !item ) {
+                    throw PyException( MakeCustomError( "Unable to create item of type %s.", item->typeID() ) );
+                    return new PyString ("Skill Gifting Failure - Unable to create new skill %s.", item->typeID() );
+                } else {
+                    skill = SkillRef::StaticCast( item );
+                    EvilNumber tmp = EVIL_SKILL_BASE_POINTS * skill->GetAttribute(AttrSkillTimeConstant) * EvilNumber::pow(2, (2.5*(level - 1)));
+                    skill->SetAttribute(AttrSkillLevel, level);
+                    skill->SetAttribute(AttrSkillPoints, tmp);
+                }
             }
+            //  save gm skill gift in history  -allan
+            // 39 - GMSkillGift
+            character->SaveSkillHistory(39, EvilTimeNow().get_float(), ownerID, skillID, level,
+                                        skill->GetAttribute( AttrSkillPoints ).get_float(),
+                                        character->GetTotalSP().get_float());
         }
         // END LOOP
-    }
-    else
+        return new PyString ( "Gifting skills complete" );
+    } else
         throw PyException( MakeCustomError( "ERROR: Unable to validate character object, it was found to be NULL!" ) );
 
     return new PyString ("Skill Gifting Failure");
 }
 
 PyResult Command_giveskills( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args ) {
-
     //pass to command_giveskill
-    Command_giveskill(who,db,services,args);
-
+    Command_giveskill(who, db, services, args);
     return NULL;
-
 }
 
 PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args ) {
-    uint32 typeID;
+    uint32 skillID;
     int level;
     CharacterRef character;
-    EVEItemFlags flag;
-    uint32 gty = 1;
-    //uint8 oldSkillLevel = 0;
-    EvilNumber oldSkillLevel(0);
     uint32 ownerID = 0;
 
     if( args.argCount() == 4 ) {
@@ -1058,55 +1016,45 @@ PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, 
 
         if( !args.isNumber( 2 ) )
             throw PyException( MakeCustomError( "Argument 2 must be type ID." ) );
-        typeID = atoi( args.arg( 2 ).c_str() );
+        skillID = atoi( args.arg( 2 ).c_str() );
 
         if( !args.isNumber( 3 ) )
             throw PyException( MakeCustomError( "Argument 3 must be level" ) );
         level = atoi( args.arg( 3 ).c_str() );
 
-        //levels don't go higher than 5
-        if( level > 5 )
-            level = 5;
+        if( level > 5 ) level = 5;    //levels don't go higher than 5
+
     } else
         throw PyException( MakeCustomError("Correct Usage: /giveskill [Character Name or ID] [skillID] [desired level]") );
 
-    SkillRef skill;
+    if(character.get() != NULL) {       // Make sure Character reference is not NULL before trying to use it:
+        SkillRef skill;
+        uint8 skillLevel;
 
-    // Make sure Character reference is not NULL before trying to use it:
-    if(character.get() != NULL) {
-        if(character->HasSkill( typeID ) ) {
-            // Character already has this skill, so let's get the current level and check to see
-            // if we need to update its level to what's required:
-            SkillRef oldSkill = character->GetSkill( typeID );
-            oldSkillLevel = oldSkill->GetAttribute( AttrSkillLevel );
-
-            // Now check the current level to the required level and update it
-            if( oldSkillLevel < level )
-                character->InjectSkillIntoBrain( oldSkill, level);
-
-            skill = oldSkill;
-        } else {
-            // Character DOES NOT have this skill, so spawn a new one and then add this
-            // to the character with required level and skill points:
-            ItemData idata(
-                typeID,
-                ownerID,
-                0, //temp location
-                flag = (EVEItemFlags)flagSkill,
-                gty
-            );
-
+        if( character->HasSkill( skillID ) ) {
+            skill = character->GetSkill( skillID );
+            skillLevel = skill->GetAttribute(AttrSkillLevel).get_int();
+            if( skillLevel >= level ) {
+                return new PyNone;
+            } else {
+                EvilNumber tmp = EVIL_SKILL_BASE_POINTS * skill->GetAttribute(AttrSkillTimeConstant) * EvilNumber::pow(2, (2.5*(level - 1)));
+                skill->SetAttribute(AttrSkillLevel, level);
+                skill->SetAttribute(AttrSkillPoints, tmp);
+            }
+        } else {    // Character DOES NOT have this skill
+            ItemData idata( skillID, ownerID, ownerID, flagSkill, 1 );
             InventoryItemRef item = services->item_factory.SpawnItem( idata );
-            skill = SkillRef::StaticCast( item );
 
-            if( !item )
+            if( !item ) {
                 throw PyException( MakeCustomError( "Unable to create item of type %s.", item->typeID() ) );
-
-            character->InjectSkillIntoBrain( skill, level);
-
+                return new PyString ("Skill Gifting Failure - Unable to create new skill %s.", item->typeID() );
+            } else {
+                skill = SkillRef::StaticCast( item );
+                EvilNumber tmp = EVIL_SKILL_BASE_POINTS * skill->GetAttribute(AttrSkillTimeConstant) * EvilNumber::pow(2, (2.5*(level - 1)));
+                skill->SetAttribute(AttrSkillLevel, level);
+                skill->SetAttribute(AttrSkillPoints, tmp);
+            }
         }
-        EvilNumber tmp = EVIL_SKILL_BASE_POINTS * skill->GetAttribute(AttrSkillTimeConstant) * EvilNumber::pow(2,( 2.5 * (level - 1)));
-        skill->SetAttribute(AttrSkillPoints, tmp);
 
         // Either way, this character now has this skill trained to the specified level, so inform client:
         if( who != NULL ) {
@@ -1121,13 +1069,15 @@ PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, 
         }
 
         //  save gm skill gift in history  -allan
-        // 39 - GMGiveSkill
-        character->SaveSkillHistory(39, EvilTimeNow().get_float(), ownerID, typeID, level, skill->GetAttribute(AttrSkillPoints).get_float(), character->GetTotalSP().get_float());
+        // 39 - GMSkillGift
+        character->SaveSkillHistory(39, EvilTimeNow().get_float(), ownerID, skillID, level,
+                                    skill->GetAttribute(AttrSkillPoints).get_float(), character->GetTotalSP().get_float());
 
-        return new PyString ( "Gifting skills complete" );
+        return new PyString ( "Skill Gifting Complete" );
     }
 
-    return new PyString ("Skill Gifting Failure");
+    throw PyException( MakeCustomError( "ERROR: Unable to validate character object, it was found to be NULL!" ) );
+    return new PyString ("Skill Gifting Failure - Character Ref = NULL");
 }
 
 

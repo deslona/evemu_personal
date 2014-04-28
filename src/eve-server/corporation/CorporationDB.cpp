@@ -91,22 +91,42 @@ PyObject *CorporationDB::ListStationCorps(uint32 station_id) {
     return DBResultToRowset(res);
 }
 
-PyObject *CorporationDB::ListStationOwners(uint32 station_id) {
+PyObject *CorporationDB::ListStationOwners(uint32 stationID) {
     DBQueryResult res;
-
+  if(stationID < 140000000) {
     if(!sDatabase.RunQuery(res,
-        "SELECT "
-        "   itemID AS ownerID, itemName AS ownerName, typeID, NULL AS ownerNameID"
-        " FROM corporation"
-//no idea what the criteria should be here...
-        "   LEFT JOIN eveNames ON (creatorID=itemID OR ceoID=itemID)"
-        "WHERE stationID=%u",
-            station_id
-    ))
+        "SELECT"
+        "  s.corporationID AS ownerID,"
+        "  c.corporationName AS ownerName,"
+        "  c.corporationType AS typeID,"
+        "  c.corporationID AS ownerNameID,"
+        "  cs.gender"
+        " FROM staStations AS s"
+        "  LEFT JOIN corporation AS c USING ( corporationID )"
+        "  LEFT JOIN characterStatic AS cs ON cs.characterID = c.ceoID"
+        " WHERE s.stationID = %u", stationID ))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
+  } else {
+    if(!sDatabase.RunQuery(res,
+        "SELECT"
+        "  c.corporationID AS ownerID,"
+        "  c.corporationName AS ownerName,"
+        "  c.corporationType AS typeID,"
+        "  c.corporationID AS ownerNameID,"
+        "  cs.gender"
+        " FROM entity AS e"
+        "  LEFT JOIN corporation AS c USING ( corporationID )"
+        "  LEFT JOIN character_ AS cs ON cs.characterID = c.ceoID"
+        " WHERE e.itemID = %u", stationID ))
+    {
+        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        return NULL;
+    }
+
+  }
 
     return DBResultToRowset(res);
 }

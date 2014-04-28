@@ -351,8 +351,7 @@ Character::Character(
     //EnableSaveTimer();
 }
 
-CharacterRef Character::Load(ItemFactory &factory, uint32 characterID)
-{
+CharacterRef Character::Load(ItemFactory &factory, uint32 characterID) {
     return InventoryItem::Load<Character>( factory, characterID );
 }
 
@@ -418,8 +417,7 @@ uint32 Character::_Spawn(ItemFactory &factory,
     return characterID;
 }
 
-bool Character::_Load()
-{
+bool Character::_Load() {
     if( !Owner::_Load() ) {
         sLog.Warning("Character::_Load","Owner::_Load returned false for char %u", itemID());
         return false;
@@ -524,13 +522,11 @@ void Character::SetDescription(const char *newDescription) {
     SaveCharacter();
 }
 
-bool Character::HasSkill(uint32 skillTypeID) const
-{
+bool Character::HasSkill(uint32 skillTypeID) const {
     return GetSkill(skillTypeID);
 }
 
-bool Character::HasSkillTrainedToLevel(uint32 skillTypeID, uint32 skillLevel) const
-{
+bool Character::HasSkillTrainedToLevel(uint32 skillTypeID, uint32 skillLevel) const {
     SkillRef requiredSkill;
 
     // First, check for existence of skill trained or in training:
@@ -566,8 +562,7 @@ SkillRef Character::GetSkill(uint32 skillTypeID) const
     return SkillRef::StaticCast( skill );
 }
 
-uint Character::GetSkillLevel(uint32 skillTypeID, bool zeroForNotInjected) const
-{
+int Character::GetSkillLevel(uint32 skillTypeID, bool zeroForNotInjected) const {
     SkillRef requiredSkill;
 
     // First, check for existence of skill trained or in training:
@@ -681,45 +676,6 @@ bool Character::InjectSkillIntoBrain(SkillRef skill) {
     return true;
 }
 
-bool Character::InjectSkillIntoBrain(SkillRef skill, uint8 level)
-{
-    Client *c = m_factory.entity_list.FindCharacter( itemID() );
-
-    SkillRef oldSkill = GetSkill( skill->typeID() );
-    if( oldSkill )
-    {
-        oldSkill->SetAttribute(AttrSkillLevel, level);
-        EvilNumber eTmp = EVIL_SKILL_BASE_POINTS * skill->GetAttribute(AttrSkillTimeConstant) * EvilNumber::pow(2, (2.5 * (level - 1)));
-        oldSkill->SetAttribute(AttrSkillPoints, eTmp);
-        oldSkill->SetFlag(flagSkill);
-        return true;
-    }
-
-    // are we injecting from a stack of skills?
-    if( skill->quantity() > 1 )
-    {
-        // split the stack to obtain single item
-        InventoryItemRef single_skill = skill->Split( 1 );
-        if( !single_skill )
-        {
-            _log( ITEM__ERROR, "%s (%u): Unable to split stack of %s (%u).", itemName().c_str(), itemID(), skill->itemName().c_str(), skill->itemID() );
-            return false;
-        }
-
-        // use single_skill ...
-        single_skill->MoveInto( *this, flagSkill );
-    }
-    else
-        skill->MoveInto( *this, flagSkill );
-
-    skill->SetAttribute(AttrSkillLevel, level);
-    skill->SetFlag(flagSkill);
-    EvilNumber tmp = EVIL_SKILL_BASE_POINTS * skill->GetAttribute(AttrSkillTimeConstant) * EvilNumber::pow(2,( 2.5 * (level - 1)));
-    skill->SetAttribute(AttrSkillPoints, tmp);
-
-    return true;
-}
-
 void Character::AddToSkillQueue(uint32 typeID, uint8 level) {
     QueuedSkill qs;
     qs.typeID = typeID;
@@ -805,12 +761,15 @@ void Character::UpdateSkillQueue() {
     }
 
     while( !m_skillQueue.empty() ) {        // skills in queue to be trained
-        if( !currentTraining ) {    //nothing being trained....get first skill in list
-            uint32 skillTypeID = m_skillQueue.front().typeID;
+        if( !currentTraining ) {    //nothing being trained
+            uint32 skillTypeID = m_skillQueue.front().typeID;   //....get first skill in list
 
             currentTraining = GetSkill( skillTypeID );
             if( !currentTraining ) {
                 _log( ITEM__ERROR, "%s (%u): Skill %u to train was not found.", itemName().c_str(), itemID(), skillTypeID );
+                //currentTraining->SetAttribute(AttrExpiryTime, 0);
+                //currentTraining->MoveInto( *this, flagSkill );
+                //currentTraining->SaveItem();
                 m_skillQueue.erase( m_skillQueue.begin() );
                 currentTraining = SkillRef();
                 break;
@@ -1279,7 +1238,6 @@ void Character::VisitSystem(uint32 solarSystemID) {
             return;
         }
     }
-    //sLog.Log("Character::VisitSystem","%s: Query saved as charID=%u, solSys=%u, visits=%u, lastTime=%" PRIu64 ")", itemName().c_str(), itemID(), solarSystemID, visits, Win32TimeNow() );
 }
 
 void Character::chkDynamicSystemID(uint32 systemID) {
@@ -1308,44 +1266,70 @@ void Character::chkDynamicSystemID(uint32 systemID) {
   *  NOTE: these will have to be reset each server start.  should prolly trunicate table on restart after everything is working as i am using the count() in this table for active systems on website for testing, etc.
   */
 
-void Character::AddJumpToDynamicData(uint32 solarSystemID) {
+void Character::AddJumpToDynamicData(uint32 solarSystemID, bool add) {
     DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT jumpsHour FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
+    sDatabase.RunQuery(res, "SELECT jumpsHour, pilotsInSpace FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
 
     DBResultRow row;
-    uint16 jumps;
-    if(res.GetRow(row)) jumps = row.GetUInt(0); else jumps = 0;
+    uint16 jumps, pilotsInSpace;
+    if(res.GetRow(row)) {
+        jumps = row.GetUInt(0);
+        pilotsInSpace = row.GetUInt(1);
+    }else {
+        jumps = 0;
+        pilotsInSpace = 0;
+    }
     jumps ++;
+
+    if(add) pilotsInSpace ++; else pilotsInSpace --;
+    if (pilotsInSpace < 0) pilotsInSpace = 0;
 
     DBerror err;
     if(!sDatabase.RunQuery(err,
-        "UPDATE mapDynamicData SET jumpsHour = %u, jumpsDateTime = %" PRIu64 " WHERE solarSystemID = %u",
-        jumps, Win32TimeNow(), solarSystemID )) {
+        "UPDATE mapDynamicData SET jumpsHour = %u, pilotsInSpace = %u, jumpsDateTime = %" PRIu64 ", pilotsDateTime = %" PRIu64 " WHERE solarSystemID = %u",
+        jumps, Win32TimeNow(), Win32TimeNow(), solarSystemID )) {
             sLog.Error("Character::AddJumpToDynamicData","%u: Query Failed: %s", itemID(), err.c_str() );
             return;
     }
-    //sLog.Log("Character::AddJumpToDynamicData","%s (%u): Query saved as solSys=%u, jumpsHour=%u, jumpsDateTime=%" PRIu64 ")", itemName().c_str(), itemID(), solarSystemID, jumps, Win32TimeNow() );
 }
 
 //  this should prolly be changed to a dynamic call from memory, instead of from db....
 //   however, showing pilots in system on the webpage will need the db.  *shrugs*
-void Character::AddPilotToDynamicData(uint32 solarSystemID, bool add) {
+//    updated to show both docked and inspace....duh.   25April
+//    changed....added another arg to accept chars on login.
+void Character::AddPilotToDynamicData(uint32 solarSystemID, bool docked, bool login) {
     DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT numpilots FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
+    sDatabase.RunQuery(res, "SELECT pilotsDocked, pilotsInSpace FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
 
     DBResultRow row;
-    uint16 pilots;
-    if(res.GetRow(row)) pilots = row.GetUInt(0); else pilots = 0;
+    uint16 pilotsDocked, pilotsInSpace;
+    if(res.GetRow(row)) {
+        pilotsDocked = row.GetUInt(0);
+        pilotsInSpace = row.GetUInt(1);
+    } else {
+        pilotsDocked = 0;
+        pilotsInSpace = 0;
+    }
 
-    if (add) pilots ++; else pilots --;
-    if (pilots < 0) pilots = 0;
+    if(login) if(docked) pilotsDocked ++; else pilotsInSpace ++;
+    else {
+        if(docked) {
+            pilotsDocked ++;
+            pilotsInSpace --;
+        } else {
+            pilotsDocked --;
+            pilotsInSpace ++;
+        }
+    }
+
+    if (pilotsDocked < 0) pilotsDocked = 0;
+    if (pilotsInSpace < 0) pilotsInSpace = 0;
 
     DBerror err;
-    if(!sDatabase.RunQuery(err, "UPDATE mapDynamicData SET numpilots = %u WHERE solarSystemID = %u", pilots, solarSystemID )){
+    if(!sDatabase.RunQuery(err, "UPDATE mapDynamicData SET pilotsDocked = %u, pilotsInSpace = %u, pilotsDateTime = %" PRIu64 " WHERE solarSystemID = %u", pilotsDocked, pilotsInSpace, Win32TimeNow(), solarSystemID )){
         sLog.Error("Character::AddPilotToDynamicData","%s: Query Failed: %s", itemID(), err.c_str() );
         return;
     }
-    //sLog.Log("Character::AddPilotToDynamicData","%s (%u): Query saved as solSys=%u, pilots=%u",itemName().c_str(), itemID(), solarSystemID, pilots );
 }
 
 void Character::AddKillToDynamicData(uint32 solarSystemID) {  /**killsHour, kills24Hours */
@@ -1372,7 +1356,6 @@ void Character::AddKillToDynamicData(uint32 solarSystemID) {  /**killsHour, kill
             sLog.Error("Character::AddKillToDynamicData","%u: Query Failed: %s", itemID(), err.c_str() );
             return;
     }
-    //sLog.Log("Character::AddKillToDynamicData","%s (%u): Query saved as solSys=%u, KillsHour=%u, killsDateTime=%" PRIu64 ")", itemName().c_str(), itemID(), solarSystemID, killsHour, Win32TimeNow() );
 }
 
 void Character::AddPodKillToDynamicData(uint32 solarSystemID) {   /**podKillsHour, podKills24Hour */
@@ -1399,7 +1382,6 @@ void Character::AddPodKillToDynamicData(uint32 solarSystemID) {   /**podKillsHou
             sLog.Error("Character::AddPodKillToDynamicData","%u: Query Failed: %s", itemID(), err.c_str() );
             return;
     }
-    //sLog.Log("Character::AddPodKillToDynamicData","%s (%u): Query saved as solSys=%u, podKillsHour=%u, podDateTime=%" PRIu64 ")", itemName().c_str(), itemID(), solarSystemID, podKillsHour, Win32TimeNow() );
 }
 
 void Character::AddFactionKillToDynamicData(uint32 solarSystemID) {     /**factionKills*/

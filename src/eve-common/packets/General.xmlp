@@ -586,9 +586,7 @@
     <tupleInline>
       <wstring name="string" />
       <listInline>
-        <int name="int1" />
-        <int name="int2" />
-        <int name="int3" />
+        <listInt name="ints" />
       </listInline>
     </tupleInline>
   </elementDef>
