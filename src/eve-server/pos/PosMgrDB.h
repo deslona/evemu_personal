@@ -34,6 +34,7 @@ class PosMgrDB
 {
 public:
     PyRep *GetControlTowerFuelRequirements();
+    PyRep *GetSiloCapacityByItemID(uint32 itemID);
 };
 
 

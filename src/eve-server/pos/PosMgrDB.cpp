@@ -42,15 +42,16 @@ PyRep *PosMgrDB::GetControlTowerFuelRequirements() {
 }
 
 
+PyRep *PosMgrDB::GetSiloCapacityByItemID(uint32 itemID) {
+    DBQueryResult res;
+    if (!sDatabase.RunQuery(res,
+        " SELECT attributeID, valueFloat"
+        " FROM dgmTypeAttributes "
+        " WHERE typeID = %u AND attributeID = %u", itemID, -1))
+    {
+        _log(SERVICE__ERROR, "Error in GetSiloCapacityByItemID query: %s", res.error.c_str());
+        return (NULL);
+    }
 
-
-
-
-
-
-
-
-
-
-
-
+    return DBResultToRowset(res);
+}

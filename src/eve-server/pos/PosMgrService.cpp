@@ -29,7 +29,6 @@
 #include "PyServiceCD.h"
 #include "pos/PosMgrService.h"
 
-/*
 class PosMgrBound
     : public PyBoundObject
 {
@@ -48,6 +47,7 @@ public:
         PyCallable_REG_CALL(PosMgrBound, GetMoonForTower)
         PyCallable_REG_CALL(PosMgrBound, SetTowerPassword)
         PyCallable_REG_CALL(PosMgrBound, SetShipPassword)
+        PyCallable_REG_CALL(PosMgrBound, GetSiloCapacityByItemID)
     }
 
     virtual ~PosMgrBound() {delete m_dispatch;}
@@ -58,13 +58,13 @@ public:
     PyCallable_DECL_CALL(GetMoonForTower)
     PyCallable_DECL_CALL(SetTowerPassword)
     PyCallable_DECL_CALL(SetShipPassword)
+    PyCallable_DECL_CALL(GetSiloCapacityByItemID)
 
 protected:
     Dispatcher *const m_dispatch;
     PosMgrDB  *const m_db;        //we do not own this
 
 };
-*/
 
 PyCallable_Make_InnerDispatcher(PosMgrService)
 
@@ -75,24 +75,21 @@ PosMgrService::PosMgrService(PyServiceMgr *mgr)
     _SetCallDispatcher(m_dispatch);
 
     PyCallable_REG_CALL(PosMgrService, GetControlTowerFuelRequirements)
-    PyCallable_REG_CALL(PosMgrService, GetMoonForTower)
-    PyCallable_REG_CALL(PosMgrService, SetTowerPassword)
-    PyCallable_REG_CALL(PosMgrService, SetShipPassword)
     //PyCallable_REG_CALL(PosMgrService, )
 }
 
 PosMgrService::~PosMgrService() {
     delete m_dispatch;
 }
-/*
+
 PyBoundObject* PosMgrService::_CreateBoundObject( Client* c, const PyRep* bind_args ) {
     _log( CLIENT__MESSAGE, "PosMgrService bind request for:" );
     bind_args->Dump( CLIENT__MESSAGE, "    " );
 
     return new PosMgrBound( m_manager, &m_db );
 }
-*/
-PyResult PosMgrService::Handle_GetMoonForTower( PyCallArgs &call ) {
+
+PyResult PosMgrBound::Handle_GetMoonForTower( PyCallArgs &call ) {
   /*
 13:13:06 L PosMgrBound::Handle_GetMoonForTower(): size= 1
 13:13:06 [SvcCall]   Call Arguments:
@@ -107,7 +104,7 @@ PyResult PosMgrService::Handle_GetMoonForTower( PyCallArgs &call ) {
     return result;
 }
 
-PyResult PosMgrService::Handle_SetTowerPassword( PyCallArgs &call ) {
+PyResult PosMgrBound::Handle_SetTowerPassword( PyCallArgs &call ) {
   /*
 13:10:09 L PosMgrBound::Handle_SetTowerPassword(): size= 2
 13:10:09 [SvcCall]   Call Arguments:
@@ -123,7 +120,7 @@ PyResult PosMgrService::Handle_SetTowerPassword( PyCallArgs &call ) {
     return result;
 }
 
-PyResult PosMgrService::Handle_SetShipPassword( PyCallArgs &call ) {
+PyResult PosMgrBound::Handle_SetShipPassword( PyCallArgs &call ) {
   /*
 13:16:17 L PosMgrBound::Handle_SetShipPassword(): size= 1
 13:16:17 [SvcCall]   Call Arguments:
@@ -137,6 +134,15 @@ PyResult PosMgrService::Handle_SetShipPassword( PyCallArgs &call ) {
   PyRep *result = NULL;
 
     return result;
+}
+
+PyResult PosMgrBound::Handle_GetSiloCapacityByItemID(PyCallArgs &call) {
+  sLog.Log( "PosMgrBound::Handle_GetSiloCapacityByItemID()", "size=%u", call.tuple->size());
+    call.Dump(SERVICE__CALLS);
+
+    uint32 itemID;
+
+    return m_db->GetSiloCapacityByItemID(itemID);
 }
 
 PyResult PosMgrService::Handle_GetControlTowerFuelRequirements(PyCallArgs &call) {

@@ -43,9 +43,9 @@ PyObject *SearchDB::Query(std::string string, int32 searchID, uint32 charID) {
                     "   itemName,"
                     "   locationID"
                     " FROM entity"
-                    " WHERE itemName LIKE '%%s%' ";
+                    " WHERE itemName LIKE '%s' ";
             break;
-      case 3:           //  corp
+      case 3:           //  corp            AttributeError: Rowset instance has no attribute 'get'
             query = "SELECT"
                     "   corporationID,"
                     "   corporationName,"
@@ -142,7 +142,7 @@ PyObject *SearchDB::QuickQuery(std::string string, uint32 charID) {
         "   solarSystemID,"
         "   solarSystemName"
         " FROM mapSolarSystems"
-        " WHERE solarSystemName LIKE '%%s%' ", string.c_str() ))
+        " WHERE solarSystemName LIKE '%s' ", string.c_str() ))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
@@ -160,7 +160,7 @@ PyObject *SearchDB::QuickQuery(std::string string, uint32 charID) {
         "   itemID,"
         "   itemName"
         " FROM mapDenormalize"
-        " WHERE itemName LIKE '%%s%' ", string.c_str() ))
+        " WHERE itemName LIKE '%s' ", string.c_str() ))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;

@@ -52,7 +52,7 @@ PyResult Search::Handle_Query( PyCallArgs& call )   //called from people/places 
 06:01:35 L Search: Handle_Query
 06:01:35 [SvcCall]   Call Arguments:
 06:01:35 [SvcCall]       Tuple: 2 elements
-06:01:35 [SvcCall]         [ 0] WString: 'rens'            // search string
+06:01:35 [SvcCall]         [ 0] WString: 'rens'            // search string  .... no "*" means "exact phrase"
 06:01:35 [SvcCall]         [ 1] List: 1 elements           // unknown yet...possible invGroup?   groupID 5=solarSystem
 06:01:35 [SvcCall]         [ 1]   [ 0] Integer field: 5
 
@@ -66,7 +66,7 @@ PyResult Search::Handle_Query( PyCallArgs& call )   //called from people/places 
 23:56:55 L Search: Handle_Query
 23:56:55 [SvcCall]   Call Arguments:
 23:56:55 [SvcCall]       Tuple: 2 elements
-23:56:55 [SvcCall]         [ 0] WString: 'rens*'
+23:56:55 [SvcCall]         [ 0] WString: 'rens*'            // search string  .... "*" is wild card, means "contains"
 23:56:55 [SvcCall]         [ 1] List: 9 elements            //   yep, this is groupID.   this query was run with "any" as search type.
 23:56:55 [SvcCall]         [ 1]   [ 0] Integer field: 1
 23:56:55 [SvcCall]         [ 1]   [ 1] Integer field: 2
