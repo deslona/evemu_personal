@@ -732,7 +732,7 @@ void Character::UpdateSkillQueue() {
             || currentTraining->typeID() != m_skillQueue.front().typeID ) {     //or skill with different typeID is in training ...
             if ( timeEndTrain != 0 && timeEndTrain > EvilTimeNow() ) {         // stop training:
                 EvilNumber nextLevelSP = currentTraining->GetSPForLevel(currentTraining->GetAttribute(AttrSkillLevel) + 1);
-                EvilNumber skillPointsTrained = nextLevelSP - (((timeEndTrain - EvilTimeNow()) / EvilTime_Minute) * GetSPPerMin(currentTraining));      /// TODO: i dont think this math is right.....
+                EvilNumber skillPointsTrained = nextLevelSP - (((timeEndTrain - EvilTimeNow()) / EvilTime_Minute) * GetSPPerMin(currentTraining));
 
                 currentTraining->SetAttribute(AttrSkillPoints, skillPointsTrained);
 
