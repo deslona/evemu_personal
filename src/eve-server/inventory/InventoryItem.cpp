@@ -570,9 +570,6 @@ InventoryItemRef InventoryItem::Spawn(ItemFactory &factory, ItemData &data)
         // Station:
         ///////////////////////////////////////
         case EVEDB::invGroups::Station: {
-            //_log( ITEM__ERROR, "Refusing to create station '%s'.", data.name.c_str() );
-            //return InventoryItemRef();
-            //return Station::Spawn( factory, data );
             uint32 itemID = Station::_Spawn( factory, data );
             if( itemID == 0 )
                 return StationRef();
@@ -758,7 +755,7 @@ bool InventoryItem::Populate( Rsp_CommonGetInfo_Entry& result )
         // timer things, but for now, were hacking it.
         EntityEffectState es;
         es.env_itemID = itemID();
-        es.env_charID = ownerID();  //may not be quite right...
+        es.env_charID = ownerID();  //may not be quite right... need to check for player corp, then get ceo for this...
         es.env_shipID = locationID();
         es.env_target = locationID();   //this is what they do.
         es.env_other = new PyNone;

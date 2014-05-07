@@ -83,25 +83,8 @@ Client::~Client() {
         //johnsus - characterOnline mod
         // switch character online flag to 0
         m_services.serviceDB().SetCharacterOnlineStatus(GetCharacterID(), false);
-
-        //  get login time and set character_.logonMinutes in DB        -allan
-        DBQueryResult res;
-        sDatabase.RunQuery(res, "SELECT logonDateTime, logonMinutes FROM character_ WHERE characterID = %u", GetCharacterID() );
-        DBResultRow row;
-        res.GetRow(row);
-        uint64 logonDateTime = row.GetUInt(0);
-        uint32 logonMinutes = row.GetUInt(1);
-        EvilNumber loginTime = 0;
-        if (logonDateTime > 0 ) loginTime = Win32TimeNow() - logonDateTime;  //  logged in as Win32TimeNow();
-        logonMinutes = logonMinutes + loginTime.get_int();      //logonMinutes will have to be /10m to be used....
-        DBerror err;
-        if ( !sDatabase.RunQuery(err, "UPDATE character_ SET logonMinutes = %d WHERE characterID = %u ", logonMinutes, GetCharacterID() )) {
-            codelog(SERVICE__ERROR, "Client::~Client - Error in query: %s", err.c_str());
-        }
-    }
-
-    if(GetAccountID() != 0) { // this is not very good ....
         m_services.serviceDB().SetAccountOnlineStatus(GetAccountID(), false);
+
     }
 
     m_services.ClearBoundObjects(this);

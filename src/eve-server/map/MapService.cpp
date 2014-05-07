@@ -42,6 +42,7 @@ MapService::MapService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(MapService, GetSolarSystemVisits)
     PyCallable_REG_CALL(MapService, GetBeaconCount)
     PyCallable_REG_CALL(MapService, GetHistory)
+    PyCallable_REG_CALL(MapService, GetStationCount)    //ColorStarsByStationCount
 
     /**  not handled yet...these are empty calls  */
     PyCallable_REG_CALL(MapService, GetStuckSystems)
@@ -51,7 +52,6 @@ MapService::MapService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(MapService, GetIncursionGlobalReport)
     PyCallable_REG_CALL(MapService, GetSystemsInIncursions)
     PyCallable_REG_CALL(MapService, GetSystemsInIncursionsGM)
-    PyCallable_REG_CALL(MapService, GetStationCount)    //ColorStarsByStationCount
     PyCallable_REG_CALL(MapService, GetAllianceSystems)    // wrong place
     PyCallable_REG_CALL(MapService, GetMyExtraMapInfoAgents)  //ColorStarsByMyAgents
     PyCallable_REG_CALL(MapService, GetVictoryPoints)
@@ -73,6 +73,8 @@ PyResult MapService::Handle_GetStationExtraInfo(PyCallArgs &call) {
     PyRep *result = NULL;
 
     ObjectCachedMethodID method_id(GetName(), "GetStationExtraInfo");
+
+    //uint32 systemID = call.client->GetSystemID();
 
     //check to see if this method is in the cache already.
     if(!m_manager->cache_service->IsCacheLoaded(method_id)) {
@@ -140,7 +142,7 @@ PyResult MapService::Handle_GetSolarSystemVisits(PyCallArgs &call)
 PyResult MapService::Handle_GetHistory(PyCallArgs &call) {
     uint32 int1 = call.tuple->GetItem(0)->AsInt()->value();
     uint32 int2 = call.tuple->GetItem(1)->AsInt()->value();
-      sLog.Log( "MapService::Handle_GetHistory()", "size= %u, 0 = Interger (%u), 1 = Interger (%u)", call.tuple->size(), int1, int2 );
+      //sLog.Log( "MapService::Handle_GetHistory()", "size= %u, 0 = Interger (%u), 1 = Interger (%u)", call.tuple->size(), int1, int2 );
 
     return (m_db.GetDynamicData(int1, int2));
 }
@@ -155,8 +157,6 @@ PyResult MapService::Handle_GetBeaconCount(PyCallArgs &call)
     return (m_db.GetDynamicData(10, 0));
 }
 
-/** not handled */
-
 //02:51:49 L MapService::Handle_GetStationCount(): size= 0
 PyResult MapService::Handle_GetStationCount(PyCallArgs &call)
 {
@@ -165,9 +165,12 @@ PyResult MapService::Handle_GetStationCount(PyCallArgs &call)
   /**
   ColorStarsByStationCount
   - not real sure how to do this one.....see MapDB.cpp
+  ValueError: need more than 1 value to unpack
   */
     return (m_db.GetStationCount());
 }
+
+/** not handled */
 
 PyResult MapService::Handle_GetStuckSystems(PyCallArgs &call)
 {

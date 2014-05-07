@@ -460,10 +460,7 @@ bool Ship::ValidateBoardShip(ShipRef ship, CharacterRef character)
     return true;
 }
 
-void Ship::SaveShip()
-{
-    sLog.Log( "Ship::SaveShip()", "Saving all info to DB for ship %s (%u)...", itemName().c_str(), itemID() );
-
+void Ship::SaveShip() {
     SaveItem();                         // Save all attributes and item info
     m_ModuleManager->SaveModules();     // Save all attributes and item info for all modules fitted to this ship
 }

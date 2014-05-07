@@ -41,7 +41,14 @@ PyObject *MapDB::GetPseudoSecurities() {
 PyObject *MapDB::GetStationExtraInfo() {
     DBQueryResult res;
 
-    if(!sDatabase.RunQuery(res, "SELECT stationID, solarSystemID, operationID, stationTypeID, corporationID AS ownerID FROM staStations" )) {
+    if(!sDatabase.RunQuery(res,
+        "SELECT"
+        "   stationID,"
+        "   solarSystemID,"
+        "   operationID,"
+        "   stationTypeID,"
+        "   corporationID AS ownerID"
+        " FROM staStations" )) {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
@@ -53,7 +60,7 @@ PyObject *MapDB::GetStationOpServices() {
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
-        "SELECT operationID, serviceID FROM staOperationServices" )) {
+        "SELECT operationID, serviceID FROM staOperationServices")) {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
@@ -64,7 +71,8 @@ PyObject *MapDB::GetStationOpServices() {
 PyObject *MapDB::GetStationServiceInfo() {
     DBQueryResult res;
 
-    if(!sDatabase.RunQuery(res, "SELECT serviceID, serviceName FROM staServices" )) {
+    if(!sDatabase.RunQuery(res,
+        "SELECT serviceID, serviceName FROM staServices ")) {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
@@ -81,7 +89,20 @@ PyObject *MapDB::GetStationCount() {
     }
     */
 
-    return NULL;
+    DBQueryResult res;
+
+    if(!sDatabase.RunQuery(res,
+        " SELECT "
+        "    COUNT(stationID) "
+        " FROM staStations "
+        " WHERE solarSystemID "
+        ))
+    {
+        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        return NULL;
+    }
+
+    return DBResultToRowset(res);
 }
 
 PyObject *MapDB::GetSolSystemVisits(uint32 charID)
@@ -89,12 +110,12 @@ PyObject *MapDB::GetSolSystemVisits(uint32 charID)
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
-        " SELECT "
-        "   solarSystemID, "
-        "   visits, "
+        " SELECT"
+        "   solarSystemID,"
+        "   visits,"
         "   lastDateTime"
-        " FROM chrVisitedSystems "
-        " WHERE characterID = %u ", charID ))
+        " FROM chrVisitedSystems"
+        " WHERE characterID = %u", charID ))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
@@ -103,8 +124,7 @@ PyObject *MapDB::GetSolSystemVisits(uint32 charID)
     return DBResultToRowset(res);  //DBRowToKeyVal
 }
 
-//  called from MapService by multiple functions based on passed values..will need to split up when i get it working right.
-///  NOTE: Right now, there are no functions for inserting data into this table....
+//  called from MapService by multiple functions based on passed values.
 ///  added jumpsHour and numPilots data inserts.  16Mar14
 ///  added killsHour, factionKills, podKillsHour  24Mar14
 ///  NOTE: DB has fields for timing the *Hour and *24Hour parts. need to write checks for that when everything else starts working.
@@ -146,7 +166,7 @@ factionKills
     } else if (int1 == 5) {
           sDatabase.RunQuery(res, "SELECT solarSystemID, killsHour AS value1, factionKills AS value2, kills24Hours AS value3, podKillsHour AS value4, podKills24Hour AS value5 FROM mapDynamicData" );
     } else if (int1 == 10) {
-          sDatabase.RunQuery(res, "SELECT solarSystemID, beaconCount FROM mapDynamicData WHERE beaconCount != 0" );//AttributeError: Rowset instance has no attribute 'iteritems'
+          sDatabase.RunQuery(res, "SELECT solarSystemID, beaconCount FROM mapDynamicData WHERE beaconCount != 0" );
     } else {
        return NULL;
     }

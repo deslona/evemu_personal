@@ -58,7 +58,6 @@ ConfigService::~ConfigService() {
 }
 
 PyResult ConfigService::Handle_GetMultiOwnersEx(PyCallArgs &call) {
-    //parse the PyRep to get the list of IDs to query.
     Call_SingleIntList arg;
     if(!arg.Decode(&call.tuple)) {
         _log(SERVICE__ERROR, "Failed to decode arguments.");
@@ -69,7 +68,6 @@ PyResult ConfigService::Handle_GetMultiOwnersEx(PyCallArgs &call) {
 }
 
 PyResult ConfigService::Handle_GetMultiAllianceShortNamesEx(PyCallArgs &call) {
-    //parse the PyRep to get the list of IDs to query.
     Call_SingleIntList arg;
     if(!arg.Decode(&call.tuple)) {
         _log(SERVICE__ERROR, "Failed to decode arguments.");
@@ -81,7 +79,17 @@ PyResult ConfigService::Handle_GetMultiAllianceShortNamesEx(PyCallArgs &call) {
 
 
 PyResult ConfigService::Handle_GetMultiLocationsEx(PyCallArgs &call) {      // now working correctly  -allan  25April
-    //parse the PyRep to get the ID to query. it is passed from client as a pylist....
+    // the PyRep is passed from client as a pylist....
+/**
+23:23:57 L ConfigService: Handle_GetMultiLocationsEx
+23:23:57 [SvcCall]   Call Arguments:
+23:23:57 [SvcCall]       Tuple: 1 elements
+23:23:57 [SvcCall]         [ 0] List: 2 elements
+23:23:57 [SvcCall]         [ 0]   [ 0] Integer field: 140000725
+23:23:57 [SvcCall]         [ 0]   [ 1] Integer field: 140001260
+  sLog.Log( "ConfigService", "Handle_GetMultiLocationsEx" );
+  call.Dump(SERVICE__CALLS);
+*/
     Call_SingleIntList arg;
     if(!arg.Decode(&call.tuple)) {
         _log(SERVICE__ERROR, "Failed to decode arguments.");
@@ -141,7 +149,6 @@ PyResult ConfigService::Handle_GetMapOffices(PyCallArgs &call) {
 22:38:58 [SvcCall]         Integer field: 1
   call.Dump(SERVICE__CALLS);
   */
-
     Call_SingleIntegerArg args;
     if(!args.Decode(&call.tuple)) {
         codelog(SERVICE__ERROR, "Failed to decode arguments");
@@ -280,8 +287,17 @@ PyResult ConfigService::Handle_GetMultiInvTypesEx(PyCallArgs &call) {
 }
 
 
+//02:10:35 L ConfigService::Handle_GetMapConnections(): size= 6
 PyResult ConfigService::Handle_GetMapConnections(PyCallArgs &call) {
 /**
+
+02:10:35 [SvcCall]         [ 0] Integer field: 10000065     *region
+02:10:35 [SvcCall]         [ 1] Boolean field: false
+02:10:35 [SvcCall]         [ 2] Boolean field: true
+02:10:35 [SvcCall]         [ 3] Boolean field: false
+02:10:35 [SvcCall]         [ 4] Integer field: 0
+02:10:35 [SvcCall]         [ 5] Integer field: 1
+
 18:33:25 [SvcCall]         [ 0] Integer field: 20000367     *constellation
 18:33:25 [SvcCall]         [ 1] Boolean field: false
 18:33:25 [SvcCall]         [ 2] Boolean field: false
@@ -289,9 +305,6 @@ PyResult ConfigService::Handle_GetMapConnections(PyCallArgs &call) {
 18:33:25 [SvcCall]         [ 4] Integer field: 0
 18:33:25 [SvcCall]         [ 5] Integer field: 1
 
-00:47:18 L ConfigService::Handle_GetMapConnections(): size= 6
-00:47:18 [SvcCall]   Call Arguments:
-00:47:18 [SvcCall]       Tuple: 6 elements
 00:47:18 [SvcCall]         [ 0] Integer field: 9
 00:47:18 [SvcCall]         [ 1] Boolean field: true
 00:47:18 [SvcCall]         [ 2] Boolean field: false
@@ -318,7 +331,7 @@ PyResult ConfigService::Handle_GetMapConnections(PyCallArgs &call) {
         return new PyInt(0);
     }
 
-    return(m_db.GetMapConnections(args.queryID, args.bool1, args.bool2, args.bool3, args.int2, args.int3));
+    return m_db.GetMapConnections(args.queryID, args.bool1, args.bool2, args.bool3, args.int2, args.int3);
 }
 
 PyResult ConfigService::Handle_GetStationSolarSystemsByOwner(PyCallArgs &call) {
@@ -352,7 +365,10 @@ PyResult ConfigService::Handle_GetDynamicCelestials(PyCallArgs &call) {
         return NULL;
     }
 
-    return m_db.GetDynamicCelestials(arg.arg);
+    if(IsSolarSystem(arg.arg))
+        return m_db.GetDynamicCelestials(arg.arg);
+    else
+        return new PyInt( 0 );
 }
 
 PyResult ConfigService::Handle_GetMapLandmarks(PyCallArgs &call) {
@@ -367,6 +383,6 @@ PyResult ConfigService::Handle_GetMapLandmarks(PyCallArgs &call) {
   sLog.Log( "ConfigService::Handle_GetMapLandmarks()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
 */
-    return (m_db.GetMapLandmarks());
+    return m_db.GetMapLandmarks();
 }
 

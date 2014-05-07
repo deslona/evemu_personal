@@ -60,9 +60,18 @@ PyResult AccountService::Handle_GetCashBalance(PyCallArgs &call) {
 22:47:15 [SvcCall]       Tuple: 2 elements
 22:47:15 [SvcCall]         [ 0] Integer field: 1
 22:47:15 [SvcCall]         [ 1] Integer field: 1000
-*/
+e
+03:29:00 L AccountService::Handle_GetCashBalance(): size= 1
+03:29:00 [SvcCall]   Call Arguments:
+03:29:00 [SvcCall]       Tuple: 1 elements
+03:29:00 [SvcCall]         [ 0] Integer field: 0
+
+03:29:00 L AccountService::Handle_GetCashBalance(): size= 0
+03:29:00 [SvcCall]   Call Arguments:
+03:29:00 [SvcCall]       Tuple: Empty
   sLog.Log( "AccountService::Handle_GetCashBalance()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
+*/
     const int32 ACCOUNT_KEY_AURUM = 1200;
 
     bool hasAccountKey = false;
@@ -96,10 +105,10 @@ PyResult AccountService::Handle_GetCashBalance(PyCallArgs &call) {
         else
             //personal wallet
             return new PyFloat( call.client->GetBalance() );
-    } else if (call.tuple->size() > 1) {
-         sLog.Log( "AccountService::Handle_GetCashBalance() size > 1", "size= %u", call.tuple->size() );
     } else if (hasAccountKey && accountKey == ACCOUNT_KEY_AURUM) {
         return new PyFloat(call.client->GetAurBalance());
+    } else if (call.tuple->size() > 1) {
+         sLog.Log( "AccountService::Handle_GetCashBalance() size > 1", "size= %u", call.tuple->size() );
     }
 
 	// FAILSAFE:

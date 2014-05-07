@@ -627,6 +627,7 @@ protected:
     void AddItem(InventoryItemRef item);
 
     void _CalculateTotalSPTrained();
+    void _GetLogonMinutes();
 
     /*
      * Data members

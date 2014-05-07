@@ -32,16 +32,14 @@ bool SystemDB::LoadSystemEntities(uint32 systemID, std::vector<DBSystemEntity> &
 
     if(!sDatabase.RunQuery(res,
         "SELECT "
-        " itemID,typeID,groupID,orbitID,"
-        " x,y,z,radius,security,itemName"
+        "   itemID,typeID,groupID,orbitID,"
+        "   x,y,z,radius,security,itemName"
         " FROM mapDenormalize"
-        " WHERE solarSystemID=%u", systemID
-    ))
-    {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
-        sLog.Warning("SystemDB::LoadSystemEntities", "  Loading system entities for system %u failed", systemID);
-        return false;
-    }
+        " WHERE solarSystemID=%u", systemID )) {
+            codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+            sLog.Warning("SystemDB::LoadSystemEntities", "  Loading system entities for system %u failed", systemID);
+            return false;
+        }
 
     DBResultRow row;
     DBSystemEntity entry;
@@ -50,9 +48,9 @@ bool SystemDB::LoadSystemEntities(uint32 systemID, std::vector<DBSystemEntity> &
         entry.typeID = row.GetInt(1);
         entry.groupID = row.GetInt(2);
         entry.orbitID = (row.IsNull(3) ? 0 : row.GetInt(3));
-        entry.position.x = row.GetDouble(4);
-        entry.position.y = row.GetDouble(5);
-        entry.position.z = row.GetDouble(6);
+        entry.position.x = row.GetInt(4);
+        entry.position.y = row.GetInt(5);
+        entry.position.z = row.GetInt(6);
         entry.radius = (row.IsNull(7) ? 1 : row.GetDouble(7));
         entry.security = (row.IsNull(8) ? 0.0 : row.GetDouble(8));
         entry.itemName = row.GetText(9);
@@ -63,45 +61,39 @@ bool SystemDB::LoadSystemEntities(uint32 systemID, std::vector<DBSystemEntity> &
     return true;
 }
 
-//  are these player-owned?  for now, lets act like they are...pull from 'entity' table.  -allan
-/**  this will need more work later, for POS and other shit */
 bool SystemDB::LoadSystemDynamicEntities(uint32 systemID, std::vector<DBSystemDynamicEntity> &into) {
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        "  entity.itemID,"
-        "  entity.itemName,"
-        "  entity.typeID,"
-        "  entity.ownerID,"
-        "  entity.locationID,"
-        "  entity.flag,"
-        "  invTypes.groupID,"
-        "  invGroups.categoryID,"
-        "  0,"//"   character_.corporationID,"
-        "  0,"//"   corporation.allianceID,"
-        "  x,"
-        "  y,"
-        "  z"
-        " FROM entity, invTypes, invGroups"//, character_, corporation"
-        " WHERE"
-        "   entity.typeID=invTypes.typeID"
-        "  AND invTypes.groupID=invGroups.groupID"
-        "  AND invGroups.categoryID NOT IN (%d,%d)"
-        //"   AND character_.characterID = entity.ownerID"
-        //"   AND corporation.corporationID = character_.corporationID"
-        "  AND locationID=%u",
+        "   e.itemID,"
+        "   e.itemName,"
+        "   e.typeID,"
+        "   e.ownerID,"
+        "   e.locationID,"
+        "   e.flag,"
+        "   t.groupID,"
+        "   g.categoryID,"
+        "   IFNULL(c.corporationID, e.ownerID),"
+        "   IFNULL(co.allianceID, 0),"
+        "   e.x, e.y, e.z"
+        " FROM entity AS e"
+        "  LEFT JOIN invTypes AS t ON t.typeID = e.typeID"
+        "  LEFT JOIN invGroups AS g ON g.groupID = t.groupID"
+        "  LEFT JOIN character_ AS c ON e.ownerID = c.characterID"
+        "  LEFT JOIN corporation AS co ON c.corporationID = co.corporationID"
+        " WHERE locationID = %u"
+        "  AND g.categoryID NOT IN (%d, %d)",
+        systemID,
         //excluded categories:
-            //celestials:
-            EVEDB::invCategories::_System, EVEDB::invCategories::Station,
-            //NPCs:
-            //EVEDB::invCategories::Entity,
-        systemID
-    ))
-    {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
-        return false;
-    }
+        //celestials:            0                             3
+        EVEDB::invCategories::_System, EVEDB::invCategories::Station
+        //NPCs:                   11
+        //EVEDB::invCategories::Entity,
+        )) {
+            codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+            return false;
+        }
 
     DBResultRow row;
     DBSystemDynamicEntity entry;
@@ -131,23 +123,13 @@ uint32 SystemDB::GetObjectLocationID( uint32 itemID ) {
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
-        "SELECT "
-        "   locationID"
-        " FROM entity "
-        " WHERE itemID=%u",
-        itemID
-        ))
-    {
+        "SELECT locationID FROM entity WHERE itemID=%u", itemID )) {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return 0;
     }
 
     DBResultRow row;
-    if (res.GetRow(row)) {
-      return (row.GetUInt(0));
-    }else
-      return 0;
-
+    if (res.GetRow(row)) return (row.GetUInt(0)); else return 0;
 }
 
 bool SystemDB::GetWrecksToTypes(DBQueryResult &res) {
@@ -161,11 +143,7 @@ bool SystemDB::GetWrecksToTypes(DBQueryResult &res) {
 PyObject *SystemDB::ListFactions() {
     DBQueryResult res;
 
-    if(!sDatabase.RunQuery(res,
-        "SELECT "
-        "  factionID"
-        " FROM chrFactions "))
-    {
+    if(!sDatabase.RunQuery(res, "SELECT factionID FROM chrFactions")) {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
@@ -182,8 +160,7 @@ PyObject *SystemDB::ListJumps(uint32 stargateID) {
         "   solarSystemID AS locationID"
         " FROM mapJumps "
         "  LEFT JOIN mapDenormalize ON celestialID=itemID"
-        " WHERE stargateID=%u", stargateID))
-    {
+        " WHERE stargateID=%u", stargateID)) {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }

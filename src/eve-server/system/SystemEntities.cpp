@@ -156,8 +156,6 @@ PyDict *SystemStationEntity::MakeSlimItem() const {
 }
 
 
-
-
 SystemStargateEntity::SystemStargateEntity(SystemManager *system, const DBSystemEntity &entity)
 : SystemStationEntity(system, entity),
   m_jumps(NULL)
@@ -185,10 +183,6 @@ PyDict *SystemStargateEntity::MakeSlimItem() const {
         slim->SetItemString("jumps", m_jumps->Clone());
     return(slim);
 }
-
-
-
-
 
 
 SystemAsteroidBeltEntity::SystemAsteroidBeltEntity(SystemManager *system, const DBSystemEntity &entity)

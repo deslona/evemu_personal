@@ -109,6 +109,7 @@ double Structure::GetCapacity(EVEItemFlags flag) const
         case flagCargoHold:           return GetAttribute(AttrCapacity).get_float();
         case flagSecondaryStorage:    return GetAttribute(AttrCapacitySecondary).get_float();
         case flagSpecializedAmmoHold: return GetAttribute(AttrAmmoCapacity).get_float();
+        case flagSpecializedFuelBay:  return GetAttribute(AttrSpecialFuelBayCapacity).get_float();
         default:                      return 0.0;
     }
 }
@@ -116,7 +117,6 @@ double Structure::GetCapacity(EVEItemFlags flag) const
 void Structure::ValidateAddItem(EVEItemFlags flag, InventoryItemRef item, Client *c)
 {
     CharacterRef character = c->GetChar();
-
     if( flag == flagCargoHold )
     {
         //get all items in cargohold
@@ -127,6 +127,7 @@ void Structure::ValidateAddItem(EVEItemFlags flag, InventoryItemRef item, Client
             capacityUsed += items[i]->GetAttribute(AttrVolume);
         }
         if( capacityUsed + item->GetAttribute(AttrVolume) > c->GetShip()->GetAttribute(AttrCapacity) )
+        //if( capacityUsed + item->GetAttribute(AttrVolume) > itemID()->GetAttribute(AttrCapacity) )
             throw PyException( MakeCustomError( "Not enough cargo space!") );
     }
     else if( flag == flagSecondaryStorage )
@@ -152,6 +153,18 @@ void Structure::ValidateAddItem(EVEItemFlags flag, InventoryItemRef item, Client
         }
         if( capacityUsed + item->GetAttribute(AttrVolume) > c->GetShip()->GetAttribute(AttrAmmoCapacity) )
             throw PyException( MakeCustomError( "Not enough Ammo Storage space!") );
+    }
+    else if( flag == flagSpecializedFuelBay )
+    {
+        //get all items in fuel bay
+        EvilNumber capacityUsed(0);
+        std::vector<InventoryItemRef> items;
+        c->GetShip()->FindByFlag(flag, items);
+        for(uint32 i = 0; i < items.size(); i++){
+            capacityUsed += items[i]->GetAttribute(AttrVolume);
+        }
+        if( capacityUsed + item->GetAttribute(AttrVolume) > c->GetShip()->GetAttribute(AttrSpecialFuelBayCapacity) )
+            throw PyException( MakeCustomError( "Not enough Fuel Storage space!") );
     }
 }
 

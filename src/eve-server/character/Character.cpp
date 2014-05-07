@@ -423,8 +423,8 @@ bool Character::_Load() {
         return false;
     }
 
-    //  get login time and set character_.logonMinutes in DB        -allan
-    //    this is for tracking login time per char, then use Client::~Client() method to get login time and set in DB
+    //  set login time in DB        -allan
+    //    this is for tracking login time per char, then use Character::SaveChar() function to set logonMinutes in charData.
     DBerror err;
     if( !sDatabase.RunQuery( err, "UPDATE character_ SET logonDateTime = %" PRIu64 " WHERE characterID = %u ", Win32TimeNow(), itemID() )) {
         codelog(SERVICE__ERROR, "Character::_Load - Error in query: %s", err.c_str());
@@ -732,14 +732,15 @@ void Character::UpdateSkillQueue() {
             || currentTraining->typeID() != m_skillQueue.front().typeID ) {     //or skill with different typeID is in training ...
             if ( timeEndTrain != 0 && timeEndTrain > EvilTimeNow() ) {         // stop training:
                 EvilNumber nextLevelSP = currentTraining->GetSPForLevel(currentTraining->GetAttribute(AttrSkillLevel) + 1);
-                EvilNumber skillPointsTrained = nextLevelSP - (((timeEndTrain - EvilTimeNow()) / EvilTime_Minute) * GetSPPerMin(currentTraining));
+                EvilNumber skillPointsTrained = nextLevelSP - (((timeEndTrain - EvilTimeNow()) / EvilTime_Minute) * GetSPPerMin(currentTraining));      /// TODO: i dont think this math is right.....
 
                 currentTraining->SetAttribute(AttrSkillPoints, skillPointsTrained);
 
                 //  save cancelled skill training in history  -allan
                 // eventID:38 - SkillTrainingCanceled
-                /**EvilNumber level = currentTraining->GetAttribute(AttrSkillLevel) + 1;  // current level incremented to level being training
-                SaveSkillHistory(38, EvilTimeNow().get_float(), itemID(), currentTraining->typeID(), level.get_int(), skillPointsTrained.get_float(), GetTotalSP().get_float() );*/
+                EvilNumber level = currentTraining->GetAttribute(AttrSkillLevel) + 1;  // current level incremented to level being trained
+                SaveSkillHistory(38, EvilTimeNow().get_float(), itemID(), currentTraining->typeID(), level.get_int(), skillPointsTrained.get_float(), GetTotalSP().get_float() );
+                    sLog.Error( "skillHistory", "training cancelled, skill: %u, level: %d", currentTraining->typeID(), level.get_int() );
             }
             currentTraining->SaveItem();        // Save changes to this skill before removing it from training:
             currentTraining->SetAttribute(AttrExpiryTime, 0);
@@ -762,11 +763,10 @@ void Character::UpdateSkillQueue() {
 
     while( !m_skillQueue.empty() ) {        // skills in queue to be trained
         if( !currentTraining ) {    //nothing being trained
-            uint32 skillTypeID = m_skillQueue.front().typeID;   //....get first skill in list
-
-            currentTraining = GetSkill( skillTypeID );
+            uint32 skillID = m_skillQueue.front().typeID;   //....get first skill in list
+            currentTraining = GetSkill( skillID );
             if( !currentTraining ) {
-                _log( ITEM__ERROR, "%s (%u): Skill %u to train was not found.", itemName().c_str(), itemID(), skillTypeID );
+                _log( ITEM__ERROR, "%s (%u): Skill %u to train was not found.", itemName().c_str(), itemID(), skillID );
                 //currentTraining->SetAttribute(AttrExpiryTime, 0);
                 //currentTraining->MoveInto( *this, flagSkill );
                 //currentTraining->SaveItem();
@@ -777,9 +777,7 @@ void Character::UpdateSkillQueue() {
 
             EvilNumber SPToNextLevel = currentTraining->GetSPForLevel(currentTraining->GetAttribute(AttrSkillLevel) + 1);
             EvilNumber CurrentSP = currentTraining->GetAttribute(AttrSkillPoints);
-
             SPToNextLevel = SPToNextLevel.get_float() - CurrentSP.get_float();
-
             EvilNumber timeTraining = EvilTimeNow() + ((EvilTime_Minute * SPToNextLevel) / GetSPPerMin(currentTraining));
 
             currentTraining->MoveInto( *this, flagSkillInTraining );
@@ -787,11 +785,12 @@ void Character::UpdateSkillQueue() {
 
             //  save start skill training in history  -allan
             // eventID:36 - SkillTrainingStarted
-           /** EvilNumber level = currentTraining->GetAttribute(AttrSkillLevel) + 1;
-            SaveSkillHistory(36, EvilTimeNow().get_float(), itemID(), skillTypeID, level.get_int(), CurrentSP.get_float(), GetTotalSP().get_float() );*/
-                //sLog.Log( "skillHistory", "training started, skill: %u, level: %d", skillTypeID, level.get_int() );
+            EvilNumber level = currentTraining->GetAttribute(AttrSkillLevel);
+            SaveSkillHistory(36, EvilTimeNow().get_float(), itemID(), skillID, level.get_int(), CurrentSP.get_float(), GetTotalSP().get_float() );
+                sLog.Warning( "skillHistory", "training started, skill: %u, level: %d", skillID, level.get_int() );
 
             currentTraining->SaveItem();
+
             if( c ) {
                 OnSkillStartTraining osst;
                 osst.itemID = currentTraining->itemID();
@@ -816,9 +815,7 @@ void Character::UpdateSkillQueue() {
             EvilNumber completeTime = currentTraining->GetAttribute(AttrExpiryTime).get_float();
             if ( completeTime < 1 ) completeTime = EvilTimeNow();
             SaveSkillHistory(37, completeTime.get_float(), itemID(), skillID, currentTraining->GetAttribute(AttrSkillLevel).get_int(), currentTraining->GetAttribute(AttrSkillPoints).get_float(), GetTotalSP().get_float() );
-            //sLog.Log( "skillHistory", "training complete, skill: %u, level: %d", skillID, currentTraining->GetAttribute(AttrSkillLevel).get_int() );
-
-            timeEndTrain = currentTraining->GetAttribute(AttrExpiryTime);
+            sLog.Success( "skillHistory", "training complete, skill: %u, level: %d", skillID, currentTraining->GetAttribute(AttrSkillLevel).get_int() );
 
             currentTraining->SetAttribute(AttrExpiryTime, 0);
             currentTraining->MoveInto( *this, flagSkill, true );
@@ -845,13 +842,20 @@ void Character::UpdateSkillQueue() {
             skillID = m_skillQueue.front().typeID;           //  uint32
             currentTraining = GetSkill( skillID );           //  skillRef
 
-            EvilNumber SPToNextLevel = currentTraining->GetSPForLevel(currentTraining->GetAttribute(AttrSkillLevel) + 1);
+            EvilNumber SPToNextLevel = currentTraining->GetSPForLevel(currentTraining->GetAttribute(AttrSkillLevel) + 2);
             EvilNumber CurrentSP = currentTraining->GetAttribute(AttrSkillPoints);
             SPToNextLevel = SPToNextLevel.get_float() - CurrentSP.get_float();
-            EvilNumber timeTraining = timeEndTrain + EvilTime_Minute * SPToNextLevel / GetSPPerMin(currentTraining);
+            EvilNumber timeTraining = completeTime + EvilTime_Minute * SPToNextLevel / GetSPPerMin(currentTraining) + EvilTime_Second * 5;
 
             currentTraining->MoveInto( *this, flagSkillInTraining );
             currentTraining->SetAttribute(AttrExpiryTime, timeTraining.get_float());
+
+            //  save start skill training in history  -allan
+            // eventID:36 - SkillTrainingStarted
+            EvilNumber level = currentTraining->GetAttribute(AttrSkillLevel) + 1;
+            completeTime += EvilTime_Second * 5;
+            SaveSkillHistory(36, completeTime.get_float(), itemID(), skillID, level.get_int(), CurrentSP.get_float(), GetTotalSP().get_float() );
+                sLog.Warning( "skillHistory", "training started 2, skill: %u, level: %d", skillID, level.get_int() );
 
             if( c ) {
                 OnSkillStartTraining osst;
@@ -863,16 +867,12 @@ void Character::UpdateSkillQueue() {
                 PySafeDecRef( tmp );
                 c->UpdateSkillTraining();
             }
-            //  save start skill training in history  -allan
-            // eventID:36 - SkillTrainingStarted
-            /** EvilNumber level = currentTraining->GetAttribute(AttrSkillLevel) + 1;
-            SaveSkillHistory(36, timeTraining.get_float(), itemID(), skillID, level.get_int(), CurrentSP.get_float(), GetTotalSP().get_float() );*/
-
         } else break;
     }
 
     if ( !m_skillQueue.empty() && currentTraining ) {
         _CalculateTotalSPTrained();      // Re-Calculate total SP trained and store in internal variable:
+        _GetLogonMinutes();              // Update Character's Online Time (LogonMinutes)
         SaveSkillQueue();                // Save character skill data:
         UpdateSkillQueueEndTime(m_skillQueue);   // and Queue end time:
     } else ClearSkillQueue();
@@ -1038,6 +1038,9 @@ void Character::SaveCharacter() {
     // Calculate total Skill Points trained at this time to save to DB:
     _CalculateTotalSPTrained();
 
+    // Set current m_logonMinutes
+    _GetLogonMinutes();
+
     sLog.Debug( "Character::SaveCharacter()", "Saving character info to DB for character %s...", itemName().c_str() );
     // character data
     m_factory.db().SaveCharacter(
@@ -1166,6 +1169,27 @@ EvilNumber Character::GetTotalSP() {
     return(totalSP);
 }
 
+void Character::_GetLogonMinutes() {
+    //  get login time and set _logonMinutes       -allan
+    DBQueryResult res;
+    sDatabase.RunQuery(res, "SELECT logonDateTime FROM character_ WHERE characterID = %u", itemID() );
+    DBResultRow row;
+    res.GetRow(row);
+    uint64 logonDateTime = row.GetUInt64(0);
+    EvilNumber loginTime = 0;
+    if (logonDateTime > 0 ) loginTime = ((Win32TimeNow() - logonDateTime) / 1000000000) * 2;  //  logged as Win32TimeNow();
+        sLog.Warning("Character::_GetLogonMinutes"," Char %s -- logonDateTime = %" PRIu64 ", TimeNow = %" PRIu64 ", loginTime.get_int() = %u, logonMinutes() = %u", itemName().c_str(), logonDateTime, Win32TimeNow(), loginTime.get_int(), logonMinutes() );
+
+    m_logonMinutes = logonMinutes() + loginTime.get_int();
+
+    // updated logonDateTime to now....last check was then to now, so remove that time and reset
+    DBerror err;
+    if( !sDatabase.RunQuery( err, "UPDATE character_ SET logonDateTime = %" PRIu64 " WHERE characterID = %u ", Win32TimeNow(), itemID() )) {
+        codelog(SERVICE__ERROR, "Character::_GetLogonMinutes - Error in query: %s", err.c_str());
+    }
+}
+
+
 void Character::SaveSkillHistory(int eventID, double logDate, uint32 characterID, uint32 skillTypeID, int skillLevel, double relativePoints, double absolutePoints) {
     DBerror err;
     if( !sDatabase.RunQuery( err,
@@ -1188,7 +1212,9 @@ PyObject* Character::GetSkillHistory() {
     if(!sDatabase.RunQuery(res,
         "SELECT logDate, eventTypeID, skillTypeID, relativePoints AS absolutePoints"
         " FROM chrSkillHistory"
-        " WHERE characterID = %d",
+        " WHERE characterID = %d"
+        " ORDER BY logDate DESC"
+        " LIMIT 100",
         itemID() )) {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;

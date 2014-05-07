@@ -920,6 +920,7 @@ typedef enum {
     corpRoleStarbaseCaretaker 	= 288230376151711744LL,
     corpRoleFittingManager 	= 576460752303423488LL,
     corpRoleInfrastructureTacticalOfficer = 144115188075855872LL,
+    corpRoleAllFull         = 72057594037927935LL,
 
     //Some Combos
     corpRoleAllHangar		= (corpRoleHangarCanTake1|corpRoleHangarCanTake2|corpRoleHangarCanTake3|corpRoleHangarCanTake4|corpRoleHangarCanTake5|corpRoleHangarCanTake6|corpRoleHangarCanTake7|corpRoleHangarCanQuery1|corpRoleHangarCanQuery2|corpRoleHangarCanQuery3|corpRoleHangarCanQuery4|corpRoleHangarCanQuery5|corpRoleHangarCanQuery6|corpRoleHangarCanQuery7),

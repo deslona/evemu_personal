@@ -182,7 +182,7 @@ PyResult NetService::Handle_GetClusterSessionStatistics(PyCallArgs &call) {
      this really should be a dynamic system call to systementity service or whatever it is to get systems with clients
      */
     DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT solarSystemID, pilotsDocked AS value1, pilotsInSpace AS value2 FROM mapDynamicData WHERE pilotsDocked != 0 OR pilotsInSpace != 0" );
+    sDatabase.RunQuery(res, "SELECT solarSystemID, pilotsDocked, pilotsInSpace FROM mapDynamicData WHERE pilotsDocked != 0 OR pilotsInSpace != 0" );
 
     /*
     DBResultRow row;
@@ -192,7 +192,7 @@ PyResult NetService::Handle_GetClusterSessionStatistics(PyCallArgs &call) {
     result->SetItem( 1, row.GetUInt(1));
     return result;
     */
-    //return DBResultToRowset(res);
-    return(DBResultToTupleSet(res));
+    return DBResultToRowset(res);
+    //return(DBResultToTupleSet(res));
     //return(DBResultToIndexRowset(res, "solarSystemID"));
 }
