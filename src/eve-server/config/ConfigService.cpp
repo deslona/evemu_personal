@@ -315,7 +315,6 @@ PyResult ConfigService::Handle_GetMapConnections(PyCallArgs &call) {
 00:47:18 [SvcCall]     Argument 'machoVersion':
 00:47:18 [SvcCall]         Integer field: 1
 
-
       <int name="queryID" />
       <bool name="bool1" /> args.bool1
       <bool name="bool2" />
@@ -331,7 +330,10 @@ PyResult ConfigService::Handle_GetMapConnections(PyCallArgs &call) {
         return new PyInt(0);
     }
 
-    return m_db.GetMapConnections(args.queryID, args.bool1, args.bool2, args.bool3, args.int2, args.int3);
+    if(args.queryID == 9 || args.bool1)
+        return m_db.GetMapConnections(call.client->GetSystemID(), args.bool1, args.bool2, args.bool3, args.int2, args.int3);
+    else
+        return m_db.GetMapConnections(args.queryID, args.bool1, args.bool2, args.bool3, args.int2, args.int3);
 }
 
 PyResult ConfigService::Handle_GetStationSolarSystemsByOwner(PyCallArgs &call) {

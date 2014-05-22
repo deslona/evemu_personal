@@ -130,7 +130,3 @@ INSERT INTO eveStaticOwners (ownerID, ownerName, typeID)
 INSERT INTO eveStaticOwners (ownerID, ownerName, typeID)
  SELECT corporationID, corporationName, 2 AS typeID
  FROM corporationStatic;
-
-UPDATE `dgmTypeAttributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `attributeID`=280 AND `valueFloat`=0;
-UPDATE `entity_attributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `attributeID`=280 AND `valueFloat`=0;
-UPDATE `entity_default_attributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `attributeID`=280 AND `valueFloat`=0;

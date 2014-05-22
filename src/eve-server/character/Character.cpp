@@ -828,8 +828,6 @@ void Character::UpdateSkillQueue() {
                 PyTuple* tmp = ost.Encode();
                 c->QueueDestinyEvent( &tmp );
                 PySafeDecRef( tmp );
-
-                c->UpdateSkillTraining();
             }
 
             // erase first element in skill queue
@@ -842,10 +840,11 @@ void Character::UpdateSkillQueue() {
             skillID = m_skillQueue.front().typeID;           //  uint32
             currentTraining = GetSkill( skillID );           //  skillRef
 
-            EvilNumber SPToNextLevel = currentTraining->GetSPForLevel(currentTraining->GetAttribute(AttrSkillLevel) + 2);
+            EvilNumber SPToNextLevel = currentTraining->GetSPForLevel(currentTraining->GetAttribute(AttrSkillLevel) + 1);
             EvilNumber CurrentSP = currentTraining->GetAttribute(AttrSkillPoints);
             SPToNextLevel = SPToNextLevel.get_float() - CurrentSP.get_float();
-            EvilNumber timeTraining = completeTime + EvilTime_Minute * SPToNextLevel / GetSPPerMin(currentTraining) + EvilTime_Second * 5;
+            EvilNumber timeTraining = (EvilTime_Minute * SPToNextLevel) / GetSPPerMin(currentTraining) ;
+            timeTraining += completeTime + (EvilTime_Second * 5);
 
             currentTraining->MoveInto( *this, flagSkillInTraining );
             currentTraining->SetAttribute(AttrExpiryTime, timeTraining.get_float());
@@ -853,9 +852,9 @@ void Character::UpdateSkillQueue() {
             //  save start skill training in history  -allan
             // eventID:36 - SkillTrainingStarted
             EvilNumber level = currentTraining->GetAttribute(AttrSkillLevel) + 1;
-            completeTime += EvilTime_Second * 5;
+            completeTime += (EvilTime_Second * 5);
             SaveSkillHistory(36, completeTime.get_float(), itemID(), skillID, level.get_int(), CurrentSP.get_float(), GetTotalSP().get_float() );
-                sLog.Warning( "skillHistory", "training started 2, skill: %u, level: %d", skillID, level.get_int() );
+                sLog.Warning( "skillHistory", "persistant training started, skill: %u, level: %d", skillID, level.get_int() );
 
             if( c ) {
                 OnSkillStartTraining osst;

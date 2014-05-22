@@ -33,6 +33,7 @@ SearchDB::SearchDB() { }
 //  starting basic search querys.....
 
 PyObject *SearchDB::Query(std::string string, int32 searchID, uint32 charID) {
+   sLog.Warning("SearchDB::Query", "Search : String = %s, ID = %u", string.c_str(), searchID );
     std::string query = "";
 
     switch (searchID) {
@@ -100,12 +101,12 @@ PyObject *SearchDB::Query(std::string string, int32 searchID, uint32 charID) {
             break;
       default:
             codelog(SERVICE__ERROR, "Invalid query '%s' on search %u for %u", query.c_str(), searchID, charID);
-            return (NULL);
+            return NULL;
     }
 
     DBQueryResult res;
     if (!sDatabase.RunQuery(res, query.c_str(), string.c_str() )) {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
 
@@ -116,6 +117,7 @@ PyObject *SearchDB::Query(std::string string, int32 searchID, uint32 charID) {
 }
 
 PyObject *SearchDB::QueryAll(std::string string, uint32 charID) {
+   sLog.Warning("SearchDB::QueryAll", "Search String = %s", string.c_str() );
     DBQueryResult res;
     if(!sDatabase.RunQuery(res,
         "SELECT regionID, constellationID, solarSystemID, solarSystemName FROM mapSolarSystems WHERE solarSystemName = '%s'", string.c_str() )) {
@@ -131,6 +133,7 @@ PyObject *SearchDB::QueryAll(std::string string, uint32 charID) {
 
 //PyObject *SearchDB::QuickQuery(std::string string, int32 int1, int32 int2, int32 int3, int32 hideNPC, int32 onlyAltName, uint32 charID) {
 PyObject *SearchDB::QuickQuery(std::string string, uint32 charID) {
+   sLog.Warning("SearchDB::QuickQuery", "Search String = %s", string.c_str() );
     DBQueryResult res;
     DBResultRow row;
 
@@ -144,7 +147,7 @@ PyObject *SearchDB::QuickQuery(std::string string, uint32 charID) {
         " FROM mapSolarSystems"
         " WHERE solarSystemName LIKE '%s' ", string.c_str() ))
     {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
 
@@ -162,7 +165,7 @@ PyObject *SearchDB::QuickQuery(std::string string, uint32 charID) {
         " FROM mapDenormalize"
         " WHERE itemName LIKE '%s' ", string.c_str() ))
     {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
 

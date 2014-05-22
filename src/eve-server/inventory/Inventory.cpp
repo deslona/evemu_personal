@@ -136,7 +136,7 @@ Inventory *Inventory::Cast(InventoryItemRef item)
 bool Inventory::LoadContents(ItemFactory &factory) {
     // check if the contents has already been loaded...
     if( ContentsLoaded() ) return true;
-    sLog.Log("Inventory", "Loading contents of inventory %u", inventoryID() );
+    sLog.Debug("Inventory", "Loading contents of inventory %u", inventoryID() );
     /**
       * need to put check here for offline chars.....no need to load them at this point.  -allan 31Mar14
       * use this.....
@@ -152,7 +152,7 @@ bool Inventory::LoadContents(ItemFactory &factory) {
         return false;
     }
 
-    //Now get each one from the factory (possibly recursing)  ....very recursing -allan
+    //Now get each one from the factory (possibly recursing)  yes, twice   -allan
     ItemData into;
     uint32 characterID = 0;
     uint32 corporationID = 0;

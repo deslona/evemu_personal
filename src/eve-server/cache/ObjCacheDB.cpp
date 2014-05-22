@@ -602,7 +602,7 @@ PyRep *ObjCacheDB::Generate_mapCelestialDescriptions()
 PyRep *ObjCacheDB::Generate_tickerNames()
 {
     DBQueryResult res;
-    const char *q = "SELECT corporationID,tickerName,shape1,shape2,shape3,color1,color2,color3 FROM corporation WHERE hasPlayerPersonnelManager=0";
+    const char *q = "SELECT corporationID,tickerName,shape1,shape2,shape3,color1,color2,color3 FROM corporation WHERE corporationType=1";
     if(sDatabase.RunQuery(res, q)==false)
     {
         _log(SERVICE__ERROR, "Error in query for cached object 'config.BulkData.tickernames': %s", res.error.c_str());
@@ -661,6 +661,21 @@ PyRep *ObjCacheDB::Generate_invShipTypes()
 
 PyRep *ObjCacheDB::Generate_cacheLocations()
 {
+  /**  need to generate the db table before we can generate the cache.
+  still need a way to update cache when location data is updated....update db with new 'location' item when created?
+
+       use this query to generate cacheLocations table...
+
+INSERT INTO `cacheLocations`(`locationID`, `locationName`, `x`, `y`, `z`)
+        SELECT
+           e.itemID,
+           e.itemName,
+           e.x, e.y, e.z
+         FROM entity AS e
+          LEFT JOIN invTypes AS t ON t.typeID = e.typeID
+          LEFT JOIN invGroups AS g ON g.groupID = t.groupID
+         WHERE g.categoryID IN (0, 2, 3, 6, 22, 23)
+         */
     DBQueryResult res;
     const char *q = "SELECT locationID, locationName, x, y, z FROM cacheLocations";
     if(sDatabase.RunQuery(res, q)==false)

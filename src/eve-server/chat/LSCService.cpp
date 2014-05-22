@@ -996,7 +996,7 @@ PyResult LSCService::Handle_SendMessage( PyCallArgs& call )
         }
         channel_id = args.channel.id;
         message = args.message;
-        sLog.Log( "LSCService", "Handle_SendMessage: call is Corp/Local/Region/Constellation chat.");
+        sLog.Debug( "LSCService", "Handle_SendMessage: call is Corp/Local/Region/Constellation chat.");
     }
 
     std::map<uint32, LSCChannel*>::iterator res = m_channels.find( channel_id );

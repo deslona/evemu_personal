@@ -49,7 +49,7 @@ PyRep *ConfigDB::GetMultiOwnersEx(const std::vector<int32> &entityIDs) {
         " FROM entity "
         " WHERE itemID in (%s)", ids.c_str()))
     {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return new PyInt(0);
     }
 
@@ -63,7 +63,7 @@ PyRep *ConfigDB::GetMultiOwnersEx(const std::vector<int32> &entityIDs) {
             " FROM eveStaticOwners "
             " WHERE ownerID in (%s)", ids.c_str()))
         {
-            codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+            codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
             return new PyInt(0);
         }
     } else {
@@ -83,7 +83,7 @@ PyRep *ConfigDB::GetMultiOwnersEx(const std::vector<int32> &entityIDs) {
             " LEFT JOIN entity ON characterID = itemID"
             " WHERE characterID in (%s)", ids.c_str()))
         {
-            codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+            codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
             return NULL;
         }
     } else {
@@ -110,7 +110,7 @@ PyRep *ConfigDB::GetMultiAllianceShortNamesEx(const std::vector<int32> &entityID
         ids.c_str()
         ))
     {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return new PyInt(0);
     }
 
@@ -137,7 +137,7 @@ PyRep *ConfigDB::GetMultiLocationsEx(const std::vector<int32> &entityIDs) {     
             " FROM mapDenormalize "
             " WHERE itemID in (%s)", ids.c_str()))
         {
-            codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+            codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
             return new PyNone;
         }
     } else {
@@ -150,7 +150,7 @@ PyRep *ConfigDB::GetMultiLocationsEx(const std::vector<int32> &entityIDs) {     
             " FROM entity "
             " WHERE itemID in (%s)", ids.c_str()))
         {
-            codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+            codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
             return new PyNone;
         }
     }
@@ -173,7 +173,7 @@ PyRep *ConfigDB::GetMultiCorpTickerNamesEx(const std::vector<int32> &entityIDs) 
         " FROM corporation "
         " WHERE corporationID in (%s)", ids.c_str()))
     {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return new PyInt(0);
     }
 
@@ -194,7 +194,7 @@ PyRep *ConfigDB::GetMultiGraphicsEx(const std::vector<int32> &entityIDs) {
         " FROM eveGraphics "
         " WHERE graphicID in (%s)", ids.c_str()))
     {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return new PyInt(0);
     }
 
@@ -210,7 +210,7 @@ PyObject *ConfigDB::GetUnits() {
         " unitID, unitName, displayName"
         " FROM eveUnits "))
     {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
 
@@ -234,18 +234,14 @@ PyObjectEx *ConfigDB::GetMapObjects(uint32 entityID, bool wantRegions,
 
     DBQueryResult res;
 
-#   pragma message( "hacked 'connector' field in GetMapObjects" )
-
     if(!sDatabase.RunQuery(res,
         "SELECT "
         "   groupID, typeID, itemID, itemName, solarSystemID AS locationID, IFNULL(orbitID, 0) AS orbitID,"
-        //"   0 as connector,"
         "   x, y, z"
         " FROM mapDenormalize"
         " WHERE %s=%u", key, entityID
-    ))
-    {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+    )) {
+        codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
 
@@ -261,12 +257,8 @@ PyObject *ConfigDB::GetMap(uint32 solarSystemID) {
     if(!sDatabase.RunQuery(res,
         "SELECT "
         "   s.solarSystemID AS locationID,"
-        "   s.xMin,"
-        "   s.xMax,"
-        "   s.yMin,"
-        "   s.yMax,"
-        "   s.zMin,"
-        "   s.zMax,"
+        "   s.xMin, s.xMax, s.yMin,"
+        "   s.yMax, s.zMin, s.zMax,"
         "   s.luminosity,"
         "   d.x, d.y, d.z,"
         "   d.itemID,"
@@ -279,9 +271,8 @@ PyObject *ConfigDB::GetMap(uint32 solarSystemID) {
         "  LEFT JOIN mapDenormalize AS d USING (solarSystemID)"
         "  LEFT JOIN mapJumps AS j ON j.stargateID = d.itemID"
         " WHERE solarSystemID=%u", solarSystemID
-    ))
-    {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+    )) {
+        codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
 
@@ -295,9 +286,8 @@ PyObject *ConfigDB::ListLanguages() {
         "SELECT "
         "   languageID,languageName,translatedLanguageName"
         " FROM languages"
-    ))
-    {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+    )) {
+        codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
 
@@ -320,7 +310,7 @@ PyRep *ConfigDB::GetMultiInvTypesEx(const std::vector<int32> &entityIDs) {
         " FROM invTypes "
         " WHERE typeID in (%s)", ids.c_str()))
     {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return new PyInt(0);
     }
 
@@ -337,7 +327,7 @@ PyRep *ConfigDB::GetStationSolarSystemsByOwner(uint32 ownerID) {
         " WHERE corporationID = %u ", ownerID
         ))
     {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return new PyInt(0);
     }
 
@@ -354,12 +344,12 @@ PyRep *ConfigDB::GetCelestialStatistic(uint32 celestialID) {
         " FROM mapDenormalize "
         " WHERE itemID = %u ", celestialID))
     {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return new PyInt(0);
     }
 
     if (!res.GetRow(row)) {
-        codelog(SERVICE__ERROR, "Unable to find celestial object %u", celestialID);
+        codelog(DATABASE__ERROR, "Unable to find celestial object %u", celestialID);
         return new PyInt(0);
     }
     uint32 groupID = row.GetUInt(0);
@@ -418,13 +408,13 @@ PyRep *ConfigDB::GetCelestialStatistic(uint32 celestialID) {
             break;
 
     default:
-            codelog(SERVICE__ERROR, "Invalid object groupID (%u) for %u", groupID, celestialID);
+            codelog(DATABASE__ERROR, "Invalid object groupID (%u) for %u", groupID, celestialID);
             return new PyInt(0);
     }
 
     if (!sDatabase.RunQuery(res, query.c_str(), celestialID))
     {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return new PyInt(0);
     }
 
@@ -439,16 +429,16 @@ PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID) {       // updated t
         "   e.itemID,"
         "   e.itemName,"
         "   e.typeID,"
-        "   e.ownerID,"
+        "   t.groupID,"
+        "   IFNULL(c.corporationID, e.ownerID) AS ownerID,"
         "   e.locationID,"
-        "   IFNULL(c.corporationID, e.ownerID) AS corporationID,"
-        "   IFNULL(co.allianceID, 0) AS allianceID,"
+        "   e.flag,"
         "   e.x, e.y, e.z"
         " FROM entity AS e"
         "  LEFT JOIN invTypes AS t ON t.typeID = e.typeID"
         "  LEFT JOIN invGroups AS g ON g.groupID = t.groupID"
-        "  LEFT JOIN character_ AS c ON e.ownerID = c.characterID"
-        "  LEFT JOIN corporation AS co ON c.corporationID = co.corporationID"
+        "  LEFT JOIN character_ AS c ON c.characterID = e.ownerID"
+        "  LEFT JOIN corporation AS co ON co.corporationID = c.corporationID"
         " WHERE locationID = %u"
         "  AND g.categoryID NOT IN (%d, %d)",
         solarSystemID,
@@ -456,18 +446,20 @@ PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID) {       // updated t
         //celestials:            0                             3
         EVEDB::invCategories::_System, EVEDB::invCategories::Station
         )) {
-        codelog(SERVICE__ERROR, "GetDynamicCelestials Error in query: %s", result.error.c_str());
+        codelog(DATABASE__ERROR, "GetDynamicCelestials Error in query: %s", result.error.c_str());
         return new PyInt(0);
     }
 
-    return DBResultToRowset(result);   //TypeError: a float is required    ** will not draw 2d map.  -needs cords?
+    //TypeError: a float is required    ** will not draw 2d map.  -needs cords?    not sure if this is still accurate....
+    //TypeError: an integer is required  **this is new... 8May
+    return DBResultToRowset(result);
 }
 
 PyRep *ConfigDB::GetTextsForGroup(const std::string & langID, uint32 textgroup) {
     DBQueryResult res;
     if (!sDatabase.RunQuery(res, "SELECT textLabel, `text` FROM intro WHERE langID = '%s' AND textgroup = %u", langID.c_str(), textgroup))
     {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return new PyInt(0);
     }
 
@@ -486,7 +478,7 @@ PyObject *ConfigDB::GetMapOffices(uint32 solarSystemID) {
         " WHERE solarSystemID=%u", solarSystemID
     ))
     {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
 //  AttributeError: stationID     need to find this in db.....????
@@ -504,31 +496,35 @@ PyObject *ConfigDB::GetMapConnections(uint32 queryID, bool bool1, bool bool2, bo
   sLog.Warning ("ConfigDB::GetMapConnections", "DB query:%u, B1:%u, B2:%u, B3:%u, I2:%u, I3:%u", queryID, bool1, bool2, bool3, int2, int3);
 
     DBQueryResult res;
-    if(bool2) {
+    if(bool2) {             //ValueError: need more than 7 values to unpack   -updated 7May
       if(!sDatabase.RunQuery(res,
         "SELECT "
         "  regionID,"
         "  regionName,"
         "  x, y, z,"
-        "  factionID,"
+        "  xMin, yMin, zMin,"
+        "  xMax, yMax, zMax,"
+        "  IFNULL(factionID, 0) AS factionID,"
         "  radius"
         " FROM mapRegions"
         " WHERE regionID=%u", queryID )) {
-          codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+          codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
           return NULL;
       }
-    } else if(bool3){
+    } else if(bool3){       //ValueError: need more than 8 values to unpack     -updated 7May
       if(!sDatabase.RunQuery(res,
         "SELECT "
         "  regionID,"
         "  constellationID,"
         "  constellationName,"
         "  x, y, z,"
-        "  factionID,"
+        "  xMin, yMin, zMin,"
+        "  xMax, yMax, zMax,"
+        "  IFNULL(factionID, 0) AS factionID,"
         "  radius"
         " FROM mapConstellations"
         " WHERE constellationID=%u", queryID )) {
-          codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+          codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
           return NULL;
       }
     } else if(bool1) {
@@ -540,11 +536,13 @@ PyObject *ConfigDB::GetMapConnections(uint32 queryID, bool bool1, bool bool2, bo
         "  solarSystemName,"
         "  border,"
         "  x, y, z,"
-        "  factionID,"
+        "  xMin, yMin, zMin,"
+        "  xMax, yMax, zMax,"
+        "  IFNULL(factionID, 0) AS factionID,"
         "  radius"
         " FROM mapSolarSystems"
         " WHERE solarSystemID=%u", queryID )) {
-          codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+          codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
           return NULL;
       }
     }
@@ -576,6 +574,7 @@ importance
           "SELECT"
           "   landmarkID,"
           "   landmarkName,"
+          "   0 AS landmarkNameID,"
           "   description,"
           "   locationID,"
           "   x, y, z,"
@@ -584,7 +583,7 @@ importance
           "   importance"
           " FROM mapLandmarks" ))
       {
-          codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+          codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
           return NULL;
       }
     return DBResultToRowset(res);

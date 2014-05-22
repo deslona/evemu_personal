@@ -93,8 +93,8 @@ PyResult Search::Handle_Query( PyCallArgs& call )   //called from people/places 
     if ( call.tuple->GetItem( 1 )->AsList()->size() > 1 )
         return(m_db.QueryAll( str, call.client->GetCharacterID() ));
 
-    //  else specific search type is selected....
-    Call_SearchQuery args;
+    //  else specific search type is selected....passed as single int arg.
+    Call_SearchQuery args;      // this decodes a single int arg passed in a PyList
     if(!args.Decode(&call.tuple)) {
         _log(CLIENT__ERROR, "Failed to decode args.");
         call.client->SendErrorMsg("Search Failed.  Try using a different search string.");
@@ -104,7 +104,7 @@ PyResult Search::Handle_Query( PyCallArgs& call )   //called from people/places 
     return(m_db.Query( str, args.int1, call.client->GetCharacterID() ));
 }
 
-PyResult Search::Handle_QuickQuery( PyCallArgs& call )  //called from starmap  and contracts
+PyResult Search::Handle_QuickQuery( PyCallArgs& call )  //called from starmap  and contracts......and the fuckin mail search...
 {/*
 05:56:52 L search::Handle_QuickQuery(): size=2, 0=WString(rens*), 1=List()
 05:56:52 [SvcCall]   Call Arguments:
@@ -121,26 +121,37 @@ PyResult Search::Handle_QuickQuery( PyCallArgs& call )  //called from starmap  a
 05:56:52 [SvcCall]         Integer field: 1
 05:56:52 [SvcCall]     Argument 'onlyAltName':
 05:56:52 [SvcCall]         Integer field: 0
+
+00:41:50 L Search: Handle_QuickQuery
+00:41:50 [SvcCall]   Call Arguments:
+00:41:50 [SvcCall]       Tuple: 2 elements
+00:41:50 [SvcCall]         [ 0] WString: 'lee domani'
+00:41:50 [SvcCall]         [ 1] List: 1 elements
+00:41:50 [SvcCall]         [ 1]   [ 0] Integer field: 2             //  shit...this is a char item...called from the damn mail window....
 */
     sLog.Log( "Search", "Handle_QuickQuery" );
   call.Dump(SERVICE__CALLS);
 
     std::string str = call.tuple->GetItem( 0 )->AsWString()->content();
-    //  this removes the '*' that is sent from client in query string....see examples above...
+    //  this removes the '*' that is sent from client in query string for wildcard....see examples above...
     str.erase(boost::remove_if(str, boost::is_any_of("*")), str.end());
 
   /*  may not need this....
-    Call_SearchQuickQuery args;
+    Call_SearchQuickQuery args;    //  args.ints given as map now when using Call_SearchQuickQuery.
+*/
+    //return(m_db.QuickQuery( args.string, args.int1, args.int2, args.int3, call.byname.find("hideNPC"), call.byname.find("onlyAltName"), call.client->GetCharacterID() ));
+
+    if ( call.tuple->GetItem( 1 )->AsList()->size() > 1 )
+        return(m_db.QuickQuery( str, call.client->GetCharacterID() ));
+
+    Call_SearchQuery args;      // this decodes a single int arg passed in a PyList
     if(!args.Decode(&call.tuple)) {
         _log(CLIENT__ERROR, "Failed to decode args.");
         call.client->SendErrorMsg("Search Failed.  Try using a different search string.");
         return NULL;
     }
-*/
-    //return(m_db.QuickQuery( args.string, args.int1, args.int2, args.int3, call.byname.find("hideNPC"), call.byname.find("onlyAltName"), call.client->GetCharacterID() ));
 
-    /**  args.ints given as map now when using Call_SearchQuickQuery. */
-    return(m_db.QuickQuery( str, call.client->GetCharacterID() ));
+    return(m_db.Query( str, args.int1, call.client->GetCharacterID() ));
 }
 
 
