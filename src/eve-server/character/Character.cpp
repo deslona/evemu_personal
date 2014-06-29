@@ -1177,14 +1177,16 @@ void Character::_GetLogonMinutes() {
     uint64 logonDateTime = row.GetUInt64(0);
     EvilNumber loginTime = 0;
     if (logonDateTime > 0 ) loginTime = ((Win32TimeNow() - logonDateTime) / 1000000000) * 2;  //  logged as Win32TimeNow();
+
+    // some checks are done < 1m, so if this check has no minutes, keep original time and exit
+    if(loginTime > 0) {
         sLog.Warning("Character::_GetLogonMinutes"," Char %s -- logonDateTime = %" PRIu64 ", TimeNow = %" PRIu64 ", loginTime.get_int() = %u, logonMinutes() = %u", itemName().c_str(), logonDateTime, Win32TimeNow(), loginTime.get_int(), logonMinutes() );
-
-    m_logonMinutes = logonMinutes() + loginTime.get_int();
-
-    // updated logonDateTime to now....last check was then to now, so remove that time and reset
-    DBerror err;
-    if( !sDatabase.RunQuery( err, "UPDATE character_ SET logonDateTime = %" PRIu64 " WHERE characterID = %u ", Win32TimeNow(), itemID() )) {
-        codelog(SERVICE__ERROR, "Character::_GetLogonMinutes - Error in query: %s", err.c_str());
+        m_logonMinutes = logonMinutes() + loginTime.get_int();
+        // updated logonDateTime to now....last check was then to now, so remove that time and reset
+        DBerror err;
+        if( !sDatabase.RunQuery( err, "UPDATE character_ SET logonDateTime = %" PRIu64 " WHERE characterID = %u ", Win32TimeNow(), itemID() )) {
+            codelog(SERVICE__ERROR, "Character::_GetLogonMinutes - Error in query: %s", err.c_str());
+        }
     }
 }
 

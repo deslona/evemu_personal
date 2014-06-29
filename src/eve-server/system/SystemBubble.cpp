@@ -47,27 +47,34 @@ SystemBubble::SystemBubble(const GPoint &center, double radius)
 
 //send a set of destiny events and updates to everybody in the bubble.
 void SystemBubble::BubblecastDestiny(std::vector<PyTuple *> &updates, std::vector<PyTuple *> &events, const char *desc) const {
+    BubblecastDestinyUpdate(updates, desc);
+    BubblecastDestinyEvent(events, desc);
+}
+
+//send a set of destiny updates to everybody in the bubble.
+void SystemBubble::BubblecastDestinyUpdate(std::vector<PyTuple *> &updates, const char *desc) const {
     //this could be done more efficiently....
-    {
-        std::vector<PyTuple *>::iterator cur, end;
-        cur = updates.begin();
-        end = updates.end();
-        for(; cur != end; cur++) {
-            PyTuple *up = *cur;
-            BubblecastDestinyUpdate(&up, desc);    //update is consumed.
-        }
-        updates.clear();
+    std::vector<PyTuple *>::iterator cur, end;
+    cur = updates.begin();
+    end = updates.end();
+    for(; cur != end; cur++) {
+        PyTuple *up = *cur;
+        BubblecastDestinyUpdate(&up, desc);    //update is consumed.
     }
-    {
-        std::vector<PyTuple *>::iterator cur, end;
-        cur = events.begin();
-        end = events.end();
-        for(; cur != end; cur++) {
-            PyTuple *up = *cur;
-            BubblecastDestinyUpdate(&up, desc);    //update is consumed.
-        }
-        events.clear();
+    updates.clear();
+}
+
+//send a set of destiny events to everybody in the bubble.
+void SystemBubble::BubblecastDestinyEvent(std::vector<PyTuple *> &events, const char *desc) const {
+    //this could be done more efficiently....
+    std::vector<PyTuple *>::iterator cur, end;
+    cur = events.begin();
+    end = events.end();
+    for(; cur != end; cur++) {
+        PyTuple *up = *cur;
+        BubblecastDestinyUpdate(&up, desc);    //update is consumed.
     }
+    events.clear();
 }
 
 //send a destiny update to everybody in the bubble.
@@ -110,17 +117,17 @@ void SystemBubble::BubblecastDestinyUpdateExclusive( PyTuple** payload, const ch
     end = m_dynamicEntities.end();
     for(; cur != end; ++cur)
     {
-        // Only queue a Destiny update for this bubble if the current SystemEntity is not 'ent':
-        // (this is an update to all SystemEntity objects in the bubble EXCLUDING 'ent')
-        if( (*cur)->GetID() != ent->GetID() )
-        {
-            if( NULL == up_dup )
-                up_dup = new PyTuple( *up );
+		// Only queue a Destiny update for this bubble if the current SystemEntity is not 'ent':
+		// (this is an update to all SystemEntity objects in the bubble EXCLUDING 'ent')
+		if( (*cur)->GetID() != ent->GetID() )
+		{
+			if( NULL == up_dup )
+				up_dup = new PyTuple( *up );
 
-            _log( DESTINY__BUBBLE_TRACE, "Bubblecast %s update to %s (%u)", desc, (*cur)->GetName(), (*cur)->GetID() );
-            (*cur)->QueueDestinyUpdate( &up_dup );
-            //they may not have consumed it (NPCs for example), so dont re-dup it in that case.
-        }
+			_log( DESTINY__BUBBLE_TRACE, "Bubblecast %s update to %s (%u)", desc, (*cur)->GetName(), (*cur)->GetID() );
+			(*cur)->QueueDestinyUpdate( &up_dup );
+			//they may not have consumed it (NPCs for example), so dont re-dup it in that case.
+		}
     }
 
     PySafeDecRef( up_dup );
@@ -191,15 +198,15 @@ void SystemBubble::Add(SystemEntity *ent, bool notify) {
         return;
     }
     //regardless, if this entity is a Client and it is NOT cloaked,
-    //notify everybody else in the bubble of the add.
-    if(ent->IsClient())
-    {
-        if( (ent->CastToClient()->Destiny() != NULL) )
-            if( !(ent->CastToClient()->Destiny()->IsCloaked()) )
-                _BubblecastAddBall(ent);
-    }
-    else
-        _BubblecastAddBall(ent);
+	//notify everybody else in the bubble of the add.
+	if(ent->IsClient())
+	{
+		if( (ent->CastToClient()->Destiny() != NULL) )
+			if( !(ent->CastToClient()->Destiny()->IsCloaked()) )
+				_BubblecastAddBall(ent);
+	}
+	else
+		_BubblecastAddBall(ent);
 
     _log(DESTINY__BUBBLE_DEBUG, "Adding entity %u at (%.2f,%.2f,%.2f) to bubble %u at (%.2f,%.2f,%.2f) with radius %.2f", ent->GetID(), ent->GetPosition().x, ent->GetPosition().y, ent->GetPosition().z, this->GetBubbleID(), m_center.x, m_center.y, m_center.z, m_radius);
     m_entities[ent->GetID()] = ent;
@@ -208,12 +215,12 @@ void SystemBubble::Add(SystemEntity *ent, bool notify) {
         m_dynamicEntities.insert(ent);
     }
 
-    // Trigger SpawnManager for this bubble to generate NPC Spawn, if any,
-    // only if this entity is a Client and it is NOT cloaked:
-    if( ent->IsClient() )
-        if( (ent->CastToClient()->Destiny() != NULL) )
-            if( !(ent->CastToClient()->Destiny()->IsCloaked()) )
-                ent->System()->DoSpawnForBubble(*this);
+	// Trigger SpawnManager for this bubble to generate NPC Spawn, if any,
+	// only if this entity is a Client and it is NOT cloaked:
+	if( ent->IsClient() )
+		if( (ent->CastToClient()->Destiny() != NULL) )
+			if( !(ent->CastToClient()->Destiny()->IsCloaked()) )
+				ent->System()->DoSpawnForBubble(*this);
 }
 
 void SystemBubble::Remove(SystemEntity *ent, bool notify) {
@@ -254,9 +261,9 @@ void SystemBubble::AddExclusive(SystemEntity *ent, bool notify) {
     //    m_dynamicEntities.insert(ent);
     //}
 
-    //// Trigger SpawnManager for this bubble to generate NPC Spawn, if any:
-    //if( ent->IsClient() )
-    //  ent->System()->DoSpawnForBubble(*this);
+	//// Trigger SpawnManager for this bubble to generate NPC Spawn, if any:
+	//if( ent->IsClient() )
+	//	ent->System()->DoSpawnForBubble(*this);
 }
 
 void SystemBubble::RemoveExclusive(SystemEntity *ent, bool notify) {
@@ -284,11 +291,11 @@ void SystemBubble::clear() {
 
 SystemEntity * const SystemBubble::GetEntity(uint32 entityID) const
 {
-    std::map<uint32, SystemEntity *>::const_iterator entity_iterator = m_entities.find(entityID);
-    if( entity_iterator != m_entities.end() )
-        return (entity_iterator->second);
-    else
-        return NULL;
+	std::map<uint32, SystemEntity *>::const_iterator entity_iterator = m_entities.find(entityID);
+	if( entity_iterator != m_entities.end() )
+		return (entity_iterator->second);
+	else
+		return NULL;
 }
 
 void SystemBubble::GetEntities(std::set<SystemEntity *> &into) const {

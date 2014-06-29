@@ -32,29 +32,27 @@
 
 class ActiveModule : public GenericModule
 {
+  friend ActiveModuleProcessingComponent;
+  friend ModuleManager;
 public:
     ActiveModule(InventoryItemRef item, ShipRef ship);
     ~ActiveModule();
 
-	virtual void Process()						{/*do nothing*/}
-    void Offline();
-    void Online();
-	void Activate(SystemEntity * targetEntity);
-    void Deactivate();
-    void Load(InventoryItemRef charge);
-    void Unload();
+	virtual void Process();
+    virtual void Offline();
+	virtual void Activate(SystemEntity * targetEntity);
+    virtual void Deactivate();
+    virtual void Load(InventoryItemRef charge);
+    virtual void Unload();
 
     //access functions
     ModulePowerLevel GetModulePowerLevel()                    { return isHighPower() ? MODULE_BANK_HIGH_POWER : ( isMediumPower() ? MODULE_BANK_MEDIUM_POWER : MODULE_BANK_LOW_POWER); }
 
-    InventoryItemRef GetLoadedChargeRef()                   { return m_chargeRef; }
+	InventoryItemRef GetLoadedChargeRef()					{ return m_ChargeRef; }
 
-    bool isLoaded()                                         { return m_chargeLoaded; }
-    bool isHighPower()                                        { return m_Effects->isHighSlot(); }
-    bool isMediumPower()                                    { return m_Effects->isMediumSlot(); }
-    bool isLowPower()                                        { return m_Effects->isLowSlot(); }
-    bool isRig()                                            { return false; }
-    bool isSubSystem()                                        { return false; }
+	virtual bool isLoaded()											{ return m_ChargeRef.get() != NULL; }
+    virtual bool isRig()                                            { return false; }
+    virtual bool isSubSystem()                                        { return false; }
     bool requiresTarget()
     {
         if( m_Effects->HasDefaultEffect() )
@@ -63,20 +61,50 @@ public:
             return false;
     }
 
-    // Calls Reserved for components usage only!
-    virtual void DoCycle()                                  { /* Do nothing here */ }
+	// Calls Reserved for components usage only!
+private:
+    /**
+     * Called when the cycle starts.
+     * This is where special effects should be started.
+     * This is where weapons should do there damage or launch missiles
+     */
+	virtual void StartCycle()									{ /* Do nothing here */ }
+    /**
+     * Called when the cycle completes.
+     * This is where repair/mining modules should do there actions.
+     * @note mining modules should also gather there minerals when deactivated and then not again when the cycle ends.
+     */
+	virtual void EndCycle()									{ /* Do nothing here */ }
+
+    /**
+     * Called when charge loading cycle ends.
+     */
+    virtual void EndLoading(InventoryItemRef charge);
+    /**
+     * Get the targetID of this modules target.
+     * @return The targets targetID.
+     */
+
+public:
+    uint32 GetTargetID() { return m_targetEntity == NULL ? 0 : m_targetEntity->Item()->itemID(); };
+    /**
+     * Get the targetEntity of this modules target.
+     * @return The targets targetEntity.
+     */
+    SystemEntity *GetTargetEntity() { return m_targetEntity; };
+    
+    bool isBusy() {
+      return m_ActiveModuleProc->IsBusy();
+    }
 
 protected:
-    ModifyShipAttributesComponent * m_ShipAttrComp;
 	ActiveModuleProcessingComponent * m_ActiveModuleProc;
-    uint32 m_targetID;  //passed to us by activate
-    SystemEntity * m_targetEntity;  // we do not own this
-    InventoryItemRef m_chargeRef;       // we do not own this
+	SystemEntity * m_targetEntity;	// we do not own this
 
-    bool m_chargeLoaded;
+	InventoryItemRef m_ChargeRef;		// we do not own this
+    bool m_RequiresCharge;
+    uint32 m_LoadCycleTime;
 
-    //inheritance crap
-    ActiveModule() {}
 };
 
 

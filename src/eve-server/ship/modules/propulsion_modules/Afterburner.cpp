@@ -27,48 +27,57 @@
 
 #include "ship/modules/propulsion_modules/Afterburner.h"
 
-Afterburner::Afterburner( InventoryItemRef item, ShipRef ship ) {
-    m_Item = item;
-    m_Ship = ship;
-    m_Effects = new ModuleEffects(m_Item->typeID());
-    m_ShipAttrComp = new ModifyShipAttributesComponent(this, ship);
-	m_ActiveModuleProc = new ActiveModuleProcessingComponent(item, this, ship ,m_ShipAttrComp);
+Afterburner::Afterburner( InventoryItemRef item, ShipRef ship )
+:ActiveModule(item, ship)
+{
+    // to-do: find the effect id and pass the correct value.
+    EVEEffectID effectID = EVEEffectID::effectSpeedBoost;
+	m_ActiveModuleProc = new ActiveModuleProcessingComponent(item, this, ship);
 }
 
 Afterburner::~Afterburner()
 {
+
 }
 
-void Afterburner::Process() {
+void Afterburner::Process()
+{
 	m_ActiveModuleProc->Process();
 }
 
 void Afterburner::Load()
 {
+
 }
 
 void Afterburner::Unload()
 {
+
 }
 
 void Afterburner::Repair()
 {
+
 }
 
 void Afterburner::Overload()
 {
+
 }
 
 void Afterburner::DeOverload()
 {
+
 }
 
 void Afterburner::DestroyRig()
 {
+
 }
 
-void Afterburner::Activate(SystemEntity * targetEntity) {
-	m_ActiveModuleProc->ActivateCycle();
+void Afterburner::Activate(SystemEntity * targetEntity)
+{
+	m_ActiveModuleProc->ActivateCycle(effectSpeedBoost );
 
 	m_Ship->SetAttribute(AttrCharge, 134.999996046585);
 	m_Ship->SetAttribute(AttrMaxVelocity, 387);
@@ -93,7 +102,8 @@ void Afterburner::Activate(SystemEntity * targetEntity) {
 	m_Ship->GetOperator()->GetDestiny()->SendDestinyUpdate(updates, true);
 }
 
-void Afterburner::Deactivate() {
+void Afterburner::Deactivate() 
+{
 	m_ActiveModuleProc->DeactivateCycle();
 
 	m_Ship->SetAttribute(AttrMaxVelocity, 300);

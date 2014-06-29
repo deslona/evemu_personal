@@ -20,30 +20,24 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Luck
+    Author:        avianrr
 */
 
-#ifndef PASSIVE_MODULES_H
-#define PASSIVE_MODULES_H
+#ifndef WEAPONMODULE_H
+#define	WEAPONMODULE_H
 
-#include "ship/modules/Modules.h"
-#include "ship/modules/components/ModifyShipAttributesComponent.h"
+#include "ship/modules/ActiveModules.h"
 
-class PassiveModule : public GenericModule
-{
+class WeaponModule : public ActiveModule{
 public:
-    PassiveModule(InventoryItemRef item, ShipRef ship);
-    ~PassiveModule();
+    WeaponModule(InventoryItemRef item, ShipRef ship);
+  
+    // Module Action Methods:
+    virtual void Activate(SystemEntity * targetEntity);
 
-    void Offline();
-    void Online();
-
-protected:
-    ModifyShipAttributesComponent * m_ShipAttrComp;
-
-    //inheritance crap
-    PassiveModule() { }
+private:
 
 };
 
-#endif
+#endif	/* WEAPONMODULE_H */
+

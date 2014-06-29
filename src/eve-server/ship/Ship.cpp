@@ -88,10 +88,13 @@ Ship::Ship(
     // InventoryItem stuff:
     const ShipType &_shipType,
     const ItemData &_data)
-: InventoryItem(_factory, _shipID, _shipType, _data)
+: InventoryItem(_factory, _shipID, _shipType, _data),
+    m_UpdateTimer(0, true)
 {
     m_ModuleManager = NULL;
     m_pOperator = new ShipOperatorInterface();
+
+    m_UpdateTimer.Start(100);
 
     // Activate Save Info Timer with somewhat randomized timer value:
     //SetSaveTimerExpiry( MakeRandomInt( (10 * 60), (15 * 60) ) );        // Randomize save timer expiry to between 10 and 15 minutes
@@ -550,9 +553,11 @@ uint32 Ship::AddItem(EVEItemFlags flag, InventoryItemRef item) {
 
     switch( item->categoryID() ) {
         case EVEDB::invCategories::Charge: {
-                m_ModuleManager->LoadCharge(item, flag);
+                std::vector<InventoryItemRef> chargeList;
+                chargeList.push_back(item);
+                m_ModuleManager->LoadCharge(chargeList, flag);
                 InventoryItemRef loadedChargeOnModule = m_ModuleManager->GetLoadedChargeOnModule(flag);
-                if( loadedChargeOnModule ) {
+                if( loadedChargeOnModule.get() ) {
                    return loadedChargeOnModule->itemID();
                } else
                    return 0;
@@ -568,6 +573,15 @@ uint32 Ship::AddItem(EVEItemFlags flag, InventoryItemRef item) {
             sLog.Error( "Ship::AddItem(flag,item)", "ERROR! Function called with item '%s' (id: %u) of category neither Charge nor Module!", item->itemName().c_str(), item->itemID() );
     }
 
+    return 0;
+}
+
+uint32 Ship::LoadCharge( EVEItemFlags flag, std::vector<InventoryItemRef> chargeList)
+{
+    m_ModuleManager->LoadCharge(chargeList, flag);
+    InventoryItemRef loadedChargeOnModule = m_ModuleManager->GetLoadedChargeOnModule(flag);
+    if( loadedChargeOnModule.get() != NULL )
+        return loadedChargeOnModule->itemID();
     return 0;
 }
 
@@ -595,8 +609,8 @@ void Ship::UpdateModules() {
     // InventoryBound::_ExecAdd()       - things have been added or removed, recheck all modules for... some reason
     // Client::MoveItem()               - something has been moved into or out of the ship, recheck all modules for... some reason
 
-    sLog.Error( "Ship::UpdateModules()", "We are currently not checking for modules that need to go online, or skill checking character for any modules of a newly boarded ship, or updating module states based on things being moved into or off the ship!" );
-    sLog.Warning( "Ship::UpdateModules()", "This should really be a simple call to a function ModuleManager::UpdateModules() and the code put inside there." );
+    //sLog.Error( "Ship::UpdateModules()", "We are currently not checking for modules that need to go online, or skill checking character for any modules of a newly boarded ship, or updating module states based on things being moved into or off the ship!" );
+    //sLog.Warning( "Ship::UpdateModules()", "This should really be a simple call to a function ModuleManager::UpdateModules() and the code put inside there." );
 }
 
 void Ship::UnloadModule(uint32 itemID)
@@ -658,6 +672,45 @@ void Ship::RemoveRig( InventoryItemRef item, uint32 inventoryID )
 void Ship::Process()
 {
     m_ModuleManager->Process();
+
+    // Check to see if there is at least one update interval.
+    if(!m_UpdateTimer.Check(true))
+        return;
+    // Yep, perform updates.
+    // Get capacitor and shield information.
+    double cap = GetAttribute(AttrCharge).get_float();
+    double capRate = GetAttribute(AttrRechargeRate).get_float();
+    double capMax = GetAttribute(AttrCapacitorCapacity).get_float();
+    double shield = GetAttribute(AttrShieldCharge).get_float();
+    double shieldRate = GetAttribute(AttrShieldRechargeRate).get_float();
+    double shieldMax = GetAttribute(AttrShieldCapacity).get_float();
+
+    // Get the elapsed interval.
+    double interval = m_UpdateTimer.GetTimerTime() / 1000.0;
+    double capChange = 0;
+    double shieldChange = 0;
+
+    // We had an update interval so we need to run this loop at least once.
+    do
+    {
+        // update one interval of time.
+        double capDelta = InventoryItem::CalculateRechargeRate( capMax, capRate, cap + capChange );
+        double shieldDelta = InventoryItem::CalculateRechargeRate( shieldMax, shieldRate, shield + shieldChange );
+        capChange += capDelta * interval;
+        shieldChange += shieldDelta * interval;
+    }
+
+    while(m_UpdateTimer.Check(true));
+    // check the limits, allow final 0.05 charge to instantly finish to prevent lots of small increments.
+    if(cap + capChange > capMax - 0.05)
+        capChange = capMax - cap;
+    if(shield + shieldChange > shieldMax - 0.05)
+        shieldChange = shieldMax - shield;
+    // Save the updated values.
+    if(capChange > 0)
+      SetAttribute(AttrCharge, cap + capChange);
+    if(shieldChange > 0)
+      SetAttribute(AttrShieldCharge, shield + shieldChange);
 }
 
 void Ship::OnlineAll()
@@ -675,9 +728,9 @@ void Ship::DeactivateAllModules()
     m_ModuleManager->DeactivateAllModules();
 }
 
-std::vector<GenericModule *> Ship::GetStackedItems(uint32 typeID, ModulePowerLevel level)
+std::vector<GenericModule *> Ship::GetStackedItems(uint32 groupID, ModulePowerLevel level)
 {
-    return m_ModuleManager->GetStackedItems(typeID, level);
+    return m_ModuleManager->GetStackedItems(groupID, level);
 }
 
 /* End new Module Manager Interface */

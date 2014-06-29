@@ -392,16 +392,14 @@ bool AttributeMap::SetAttribute( uint32 attributeId, EvilNumber &num, bool nofit
     return true;
 }
 
-EvilNumber AttributeMap::GetAttribute( uint32 attributeId )
+EvilNumber AttributeMap::GetAttribute( const uint32 attributeId ) const
 {
-	// ENSURE this code and that in AttributeMap::GetAttribute(const uint32 attributeId) const are IDENTICAL
-    AttrMapItr itr = mAttributes.find(attributeId);
+    AttrMapConstItr itr = mAttributes.find(attributeId);
     if (itr != mAttributes.end()) {
         return itr->second;
     }
     else
     {
-        // ONLY output ERROR message for a "missing" attributeID if it is not in the list of commonly "not found" attributes:
         switch( attributeId )
         {
             case AttrRequiredSkill2:
@@ -431,9 +429,9 @@ EvilNumber AttributeMap::GetAttribute( uint32 attributeId )
     }
 }
 
-EvilNumber AttributeMap::GetAttribute( const uint32 attributeId ) const
+EvilNumber AttributeMap::GetAttribute( const uint32 attributeId, const EvilNumber &defaultValue ) const
 {
-	// IDENTICAL CODE to AttributeMap::GetAttribute(uint32 attributeId) defined directly above
+	// IDENTICAL CODE to AttributeMap::GetAttribute( const uint32 attributeId ) const defined directly above
     AttrMapConstItr itr = mAttributes.find(attributeId);
     if (itr != mAttributes.end()) {
         return itr->second;
@@ -470,9 +468,8 @@ EvilNumber AttributeMap::GetAttribute( const uint32 attributeId ) const
     }
 }
 
-bool AttributeMap::HasAttribute(uint32 attributeID)
+bool AttributeMap::HasAttribute(const uint32 attributeID) const
 {
-	// ENSURE this code and that in AttributeMap::HasAttribute(const uint32 attributeID) const are IDENTICAL
     AttrMapConstItr itr = mAttributes.find(attributeID);
     if (itr != mAttributes.end())
         return true;
@@ -480,12 +477,14 @@ bool AttributeMap::HasAttribute(uint32 attributeID)
         return false;
 }
 
-bool AttributeMap::HasAttribute(const uint32 attributeID) const
+bool AttributeMap::HasAttribute(const uint32 attributeID, EvilNumber &value) const
 {
-	// IDENTICAL CODE to AttributeMap::HasAttribute(uint32 attributeID) defined directly above
     AttrMapConstItr itr = mAttributes.find(attributeID);
     if (itr != mAttributes.end())
+    {
+        value = itr->second;
         return true;
+    }
     else
         return false;
 }
@@ -564,36 +563,10 @@ bool AttributeMap::SendAttributeChanges( PyTuple* attrChange )
 
 bool AttributeMap::ResetAttribute(uint32 attrID, bool notify)
 {
-    //this isn't particularly efficient, but until I write a better solution, this will do
-    DBQueryResult res;
+    // TODO: modify value by attribute modifiers applied by modules and enemies
 
-    if(!sDatabase.RunQuery(res, "SELECT * FROM dgmTypeAttributes WHERE typeID='%u'", mItem.typeID())) {
-        sLog.Error("AttributeMap", "Error in db load query: %s", res.error.c_str());
-        return false;
-    }
-
-    DBResultRow row;
-    EvilNumber attrVal;
-    uint32 attributeID;
-
-    int amount = res.GetRowCount();
-    for (int i = 0; i < amount; i++)
-    {
-        res.GetRow(row);
-        attributeID = row.GetUInt(1);
-        if( attributeID == attrID )
-        {
-            if(!row.IsNull(2))
-                attrVal = row.GetUInt64(2);
-            else
-                attrVal = row.GetDouble(3);
-
-            SetAttribute(attributeID, attrVal, notify);
-        }
-    }
-
-    return true;
-
+    EvilNumber value = mItem.GetDefaultAttribute(attrID);
+    return SetAttribute(attrID, value, notify);
 }
 
 bool AttributeMap::Load()

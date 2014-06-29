@@ -100,7 +100,7 @@ public:
     }
 
     ~Modifier();
-
+    
     double GetModifierValue() { return m_ModifierValue; }
     void SetModifierValue(double newModifierValue) { m_ModifierValue = newModifierValue; }
     uint32 GetOriginatorID() { return m_OriginatorID; }
@@ -178,8 +178,10 @@ public:
     void SaveModules();
 
 private:
+
     //internal enums
-    enum processType {
+    enum processType
+    {
         typeOnlineAll,
         typeOfflineAll,
         typeDeactivateAll,
@@ -187,7 +189,8 @@ private:
         typeProcessAll
     };
 
-    enum slotType {
+    enum slotType
+    {
         highSlot,
         mediumSlot,
         lowSlot,
@@ -261,6 +264,7 @@ public:
     SubEffect(uint32 attrID, EVECalculationType type, EvilNumber val, uint32 targetItemID = 0)
     : m_AttrID( attrID ), m_TargetItemID( targetItemID ), m_CalcType( type ), m_Val( val )
     {
+
     }
 
     ~SubEffect() { }
@@ -287,27 +291,34 @@ public:
     Effect()
     : m_Count( 0 )
     {
+
     }
 
-    ~Effect() {
-        for (int i = 0; i <= m_Count; i++) {
+    ~Effect()
+    {
+        for (int i = 0; i <= m_Count; i++)
+        {
             delete m_SubEffects[i];
         }
     }
 
-    void AddEffect(uint32 attributeID, EVECalculationType type, EvilNumber val, uint32 targetItemID = 0) {
+    void AddEffect(uint32 attributeID, EVECalculationType type, EvilNumber val, uint32 targetItemID = 0)
+    {
         SubEffect * s = new SubEffect(attributeID, type, val, targetItemID);
-        if( m_Count + 1 < MAX_EFFECT_COUNT ) {
+        if( m_Count + 1 < MAX_EFFECT_COUNT )
+        {
             m_SubEffects[m_Count] = s;
             m_Count++;
         }
     }
 
-    bool hasEffect() { return (m_Count > 0); }
+    bool hasEffect() { return (m_Count > 0);  }
 
-    SubEffect * next() {
+    SubEffect * next()
+    {
         m_Count--;
         return m_SubEffects[m_Count];
+
     }
 
 private:
@@ -350,7 +361,7 @@ public:
     void DeOverload(uint32 itemID);
     void DamageModule(uint32 itemID, EvilNumber val);
     void RepairModule(uint32 itemID);
-    void LoadCharge(InventoryItemRef chargeRef, EVEItemFlags flag);
+    void LoadCharge(std::vector<InventoryItemRef> &chargeList, EVEItemFlags flag);
     void UnloadCharge(EVEItemFlags flag);
     void UnloadAllModules();
     void CharacterLeavingShip();
@@ -359,12 +370,18 @@ public:
     void ShipJumping();
     void Process();
     void ProcessExternalEffect(Effect * e);
-    std::vector<GenericModule *> GetStackedItems(uint32 typeID, ModulePowerLevel level);  //should only be used by components
+    /**
+     * Get a list of all module in the same group.
+     * @param groupID The groupID of the modules to get.
+     * @param level The power level of the modules to get.
+     * @return The list of modules.
+     */
+    std::vector<GenericModule *> GetStackedItems(uint32 groupID, ModulePowerLevel level);  //should only be used by components
 
     GenericModule * GetModule(EVEItemFlags flag)    { return m_Modules->GetModule(flag); }
     GenericModule * GetModule(uint32 itemID)        { return m_Modules->GetModule(itemID); }
 
-    InventoryItemRef GetLoadedChargeOnModule(EVEItemFlags flag);
+	InventoryItemRef GetLoadedChargeOnModule(EVEItemFlags flag);
 
 	void GetModuleListOfRefs(std::vector<InventoryItemRef> * pModuleList);
     void SaveModules();
@@ -397,7 +414,7 @@ private:
     void _SendInfoMessage(const char* fmt, ...);
     void _SendErrorMessage(const char* fmt, ...);
 
-    //access to the ship. its system entity that owns us.  We do not own these
+    //access to the ship its system entity that owns us.  We do not own these
     Ship * m_Ship;
 
     //modules storage, we own this

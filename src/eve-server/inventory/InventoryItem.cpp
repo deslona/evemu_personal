@@ -34,6 +34,7 @@
 #include "station/Station.h"
 #include "system/Celestial.h"
 #include "system/Container.h"
+#include "AttributeModifier.h"
 
 //const uint32 SKILL_BASE_POINTS = 250;
 const EvilNumber EVIL_SKILL_BASE_POINTS(250);
@@ -164,11 +165,11 @@ InventoryItemRef InventoryItem::LoadEntity(ItemFactory &factory, uint32 itemID, 
 {
     const ItemType *type = factory.GetType( data.typeID );
 
-    InventoryItemRef itemRef = InventoryItemRef( new InventoryItem(factory, itemID, *type, data) );
+	InventoryItemRef itemRef = InventoryItemRef( new InventoryItem(factory, itemID, *type, data) );
 
-    itemRef->_Load();
+	itemRef->_Load();
 
-    return itemRef;
+	return itemRef;
 }
 
 template<class _Ty>
@@ -209,19 +210,19 @@ RefPtr<_Ty> InventoryItem::_LoadItem(ItemFactory &factory, uint32 itemID,
             if( (type.groupID() == EVEDB::invGroups::Spawn_Container) )
                 return CargoContainerRef( new CargoContainer( factory, itemID, type, data ) );
             else
-                if( (type.groupID() >= EVEDB::invGroups::Asteroid_Angel_Cartel_Frigate
-                            && type.groupID() <= EVEDB::invGroups::Deadspace_Serpentis_Frigate)
-                            || (type.groupID() >= 755 /* Asteroid Rogue Drone BattleCruiser */
-                            && type.groupID() <= 761 /* Asteroid Rogue Drone Swarm */)
-                            || (type.groupID() >= 789 /* Asteroid Angel Cartel Commander Frigate */
-                            && type.groupID() <= 814 /* Asteroid Serpentis Commander Frigate */)
-                            || (type.groupID() >= 843 /* Asteroid Rogue Drone Commander BattleCruiser */
-                            && type.groupID() <= 852 /* Asteroid Serpentis Commander Battleship */)
-                            || (type.groupID() >= 959 /* Deadspace Sleeper Sleepless Sentinel */
-                            && type.groupID() <= 987 /* Deadspace Sleeper Emergent Patroller */) )
-                    return InventoryItemRef( new InventoryItem(factory, itemID, type, data) );
-                else
-                    return CelestialObjectRef( new CelestialObject( factory, itemID, type, data ) );
+				if( (type.groupID() >= EVEDB::invGroups::Asteroid_Angel_Cartel_Frigate
+							&& type.groupID() <= EVEDB::invGroups::Deadspace_Serpentis_Frigate) 
+							|| (type.groupID() >= 755 /* Asteroid Rogue Drone BattleCruiser */
+							&& type.groupID() <= 761 /* Asteroid Rogue Drone Swarm */) 
+							|| (type.groupID() >= 789 /* Asteroid Angel Cartel Commander Frigate */
+							&& type.groupID() <= 814 /* Asteroid Serpentis Commander Frigate */)
+							|| (type.groupID() >= 843 /* Asteroid Rogue Drone Commander BattleCruiser */
+							&& type.groupID() <= 852 /* Asteroid Serpentis Commander Battleship */)
+							|| (type.groupID() >= 959 /* Deadspace Sleeper Sleepless Sentinel */
+							&& type.groupID() <= 987 /* Deadspace Sleeper Emergent Patroller */) )
+					return InventoryItemRef( new InventoryItem(factory, itemID, type, data) );
+				else
+					return CelestialObjectRef( new CelestialObject( factory, itemID, type, data ) );
         }
 
         ///////////////////////////////////////
@@ -278,7 +279,7 @@ bool InventoryItem::_Load()
 {
     // load attributes
     mAttributeMap.Load();
-    mDefaultAttributeMap.Load();
+	mDefaultAttributeMap.Load();
 
     // update inventory
     Inventory *inventory = m_factory.GetInventory( locationID(), false );
@@ -309,19 +310,19 @@ InventoryItemRef InventoryItem::Spawn(ItemFactory &factory, ItemData &data)
         case EVEDB::invCategories::Reaction:
              break;
 
-        ///////////////////////////////////////
+		///////////////////////////////////////
         // Entity:
         ///////////////////////////////////////
         case EVEDB::invCategories::Entity: {
-            // Spawn generic item for Entities at this time:
-            uint32 itemID = InventoryItem::_SpawnEntity( factory, data );
-            if( itemID == 0 )
-                return InventoryItemRef();
-            InventoryItemRef itemRef = InventoryItem::LoadEntity( factory, itemID, data );
-            return itemRef;
-        }
+			// Spawn generic item for Entities at this time:
+			uint32 itemID = InventoryItem::_SpawnEntity( factory, data );
+			if( itemID == 0 )
+				return InventoryItemRef();
+			InventoryItemRef itemRef = InventoryItem::LoadEntity( factory, itemID, data );
+			return itemRef;
+		}
 
-        ///////////////////////////////////////
+		///////////////////////////////////////
         // Blueprint:
         ///////////////////////////////////////
         case EVEDB::invCategories::Blueprint: {
@@ -411,10 +412,10 @@ InventoryItemRef InventoryItem::Spawn(ItemFactory &factory, ItemData &data)
         }
 
         ///////////////////////////////////////
-        // Charge:
+        // Module:
         ///////////////////////////////////////
         case EVEDB::invCategories::Charge:
-        {
+		{
             // Spawn generic item:
             uint32 itemID = InventoryItem::_Spawn( factory, data );
             if( itemID == 0 )
@@ -433,9 +434,9 @@ InventoryItemRef InventoryItem::Spawn(ItemFactory &factory, ItemData &data)
             itemRef.get()->SaveAttributes();
 
             return itemRef;
-        }
+		}
 
-        ///////////////////////////////////////
+		///////////////////////////////////////
         // Module:
         ///////////////////////////////////////
         case EVEDB::invCategories::Module:
@@ -570,6 +571,9 @@ InventoryItemRef InventoryItem::Spawn(ItemFactory &factory, ItemData &data)
         // Station:
         ///////////////////////////////////////
         case EVEDB::invGroups::Station: {
+            //_log( ITEM__ERROR, "Refusing to create station '%s'.", data.name.c_str() );
+            //return InventoryItemRef();
+            //return Station::Spawn( factory, data );
             uint32 itemID = Station::_Spawn( factory, data );
             if( itemID == 0 )
                 return StationRef();
@@ -598,7 +602,7 @@ InventoryItemRef InventoryItem::Spawn(ItemFactory &factory, ItemData &data)
         return InventoryItemRef();
     InventoryItemRef itemRef = InventoryItem::Load( factory, itemID );
 
-    // Create some basic attributes that are NOT found in dgmTypeAttributes for most items, yet most items DO need:
+	// Create some basic attributes that are NOT found in dgmTypeAttributes for most items, yet most items DO need:
     itemRef.get()->SetAttribute(AttrIsOnline,    1);                                              // Is Online
     itemRef.get()->SetAttribute(AttrDamage,      0.0);                                              // Structure Damage
     itemRef.get()->SetAttribute(AttrMass,        itemRef.get()->type().attributes.mass());         // Mass
@@ -606,7 +610,7 @@ InventoryItemRef InventoryItem::Spawn(ItemFactory &factory, ItemData &data)
     itemRef.get()->SetAttribute(AttrVolume,      itemRef.get()->type().attributes.volume());     // Volume
     itemRef.get()->SetAttribute(AttrCapacity,    itemRef.get()->type().attributes.capacity()); // Capacity
 
-    itemRef.get()->SaveAttributes();
+	itemRef.get()->SaveAttributes();
     return itemRef;
 }
 
@@ -646,7 +650,7 @@ uint32 InventoryItem::_SpawnEntity(ItemFactory &factory,
         data.name = t->name();
 
     // Get a new Entity ID from ItemFactory's ID Authority:
-    return factory.GetNextEntityID();
+	return factory.GetNextEntityID();
 }
 
 void InventoryItem::Delete() {
@@ -686,14 +690,15 @@ PyPackedRow* InventoryItem::GetItemStatusRow() const
 
 void InventoryItem::GetItemStatusRow( PyPackedRow* into ) const
 {
+    EvilNumber attrib;
     into->SetField( "instanceID",    new PyLong( itemID() ) );
-    into->SetField( "online",        new PyBool( (mAttributeMap.HasAttribute(AttrIsOnline) ? GetAttribute(AttrIsOnline).get_int() : 0) ) );
-    into->SetField( "damage",        new PyFloat( (mAttributeMap.HasAttribute(AttrDamage) ? GetAttribute(AttrDamage).get_float() : 0) ) );
-    into->SetField( "charge",        new PyFloat( (mAttributeMap.HasAttribute(AttrCharge) ? GetAttribute(AttrCharge).get_float() : 0) ) );
-    into->SetField( "skillPoints",   new PyInt( (mAttributeMap.HasAttribute(AttrSkillPoints) ? GetAttribute(AttrSkillPoints).get_int() : 0) ) );
-    into->SetField( "armorDamage",   new PyFloat( (mAttributeMap.HasAttribute(AttrArmorDamageAmount) ? GetAttribute(AttrArmorDamageAmount).get_float() : 0.0) ) );
-    into->SetField( "shieldCharge",  new PyFloat( (mAttributeMap.HasAttribute(AttrShieldCharge) ? GetAttribute(AttrShieldCharge).get_float() : 0.0) ) );
-    into->SetField( "incapacitated", new PyBool( (mAttributeMap.HasAttribute(AttrIsIncapacitated) ? GetAttribute(AttrIsIncapacitated).get_int() : 0) ) );
+    into->SetField( "online",        new PyBool( (mAttributeMap.HasAttribute(AttrIsOnline, attrib) ? attrib.get_int() : 0) ) );
+    into->SetField( "damage",        new PyFloat( (mAttributeMap.HasAttribute(AttrDamage, attrib) ? attrib.get_float() : 0) ) );
+    into->SetField( "charge",        new PyFloat( (mAttributeMap.HasAttribute(AttrCharge, attrib) ? attrib.get_float() : 0) ) );
+    into->SetField( "skillPoints",   new PyInt( (mAttributeMap.HasAttribute(AttrSkillPoints, attrib) ? attrib.get_int() : 0) ) );
+    into->SetField( "armorDamage",   new PyFloat( (mAttributeMap.HasAttribute(AttrArmorDamageAmount, attrib) ? attrib.get_float() : 0.0) ) );
+    into->SetField( "shieldCharge",  new PyFloat( (mAttributeMap.HasAttribute(AttrShieldCharge, attrib) ? attrib.get_float() : 0.0) ) );
+    into->SetField( "incapacitated", new PyBool( (mAttributeMap.HasAttribute(AttrIsIncapacitated, attrib) ? attrib.get_int() : 0) ) );
 }
 
 PyPackedRow* InventoryItem::GetItemRow() const
@@ -755,11 +760,10 @@ bool InventoryItem::Populate( Rsp_CommonGetInfo_Entry& result )
         // timer things, but for now, were hacking it.
         EntityEffectState es;
         es.env_itemID = itemID();
-        es.env_charID = ownerID();  //may not be quite right... need to check for player corp, then get ceo for this...
+        es.env_charID = ownerID();  //may not be quite right...
         es.env_shipID = locationID();
         es.env_target = locationID();   //this is what they do.
         es.env_other = new PyNone;
-        es.env_area = new PyNone;
         es.env_effectID = effectOnline;
         es.startTime = Win32TimeNow() - Win32Time_Hour; //act like it happened an hour ago
         es.duration = INT_MAX;
@@ -884,15 +888,15 @@ bool InventoryItem::SetQuantity(uint32 qty_new, bool notify) {
 bool InventoryItem::SetFlag(EVEItemFlags new_flag, bool notify) {
     EVEItemFlags old_flag = m_flag;
     m_flag = new_flag;
-
+    
     SaveItem();
-
+    
     if(notify) {
         std::map<int32, PyRep *> changes;
-
-    //send the notify to the new owner.
-    changes[ixFlag] = new PyInt(new_flag);
-    SendItemChange(m_ownerID, changes); //changes is consumed
+	
+	//send the notify to the new owner.
+	changes[ixFlag] = new PyInt(new_flag);
+	SendItemChange(m_ownerID, changes); //changes is consumed
     }
     return true;
 }
@@ -905,6 +909,7 @@ InventoryItemRef InventoryItem::Split(int32 qty_to_take, bool notify) {
     if(!AlterQuantity(-qty_to_take, notify)) {
         _log(ITEM__ERROR, "%s (%u): Failed to remove quantity %d during split.", itemName().c_str(), itemID(), qty_to_take);
         return InventoryItemRef();
+
     }
 
     ItemData idata(
@@ -998,7 +1003,7 @@ void InventoryItem::ChangeOwner(uint32 new_owner, bool notify) {
 
 void InventoryItem::SaveItem()
 {
-    _log( ITEM__TRACE, "Saving item %u.", itemID() );
+    //_log( ITEM__TRACE, "Saving item %u.", itemID() );
 
     SaveAttributes();
 
@@ -1065,19 +1070,19 @@ void InventoryItem::SetOnline(bool online) {
     ogf.start = online?1:0;
     ogf.active = online?1:0;
 
-    PyList *environment = new PyList;
-    environment->AddItem(new PyInt(ogf.itemID));
-    environment->AddItem(new PyInt(m_ownerID));
-    environment->AddItem(new PyInt(m_locationID));
-    environment->AddItem(new PyNone);
-    environment->AddItem(new PyNone);
-    environment->AddItem(new PyNone);
-    environment->AddItem(new PyInt(ogf.effectID));
-
-    ogf.environment = environment;
-    ogf.startTime = ogf.when;
-    ogf.duration = 10000;
-    ogf.repeat = online?new PyInt(1000):new PyInt(0);
+	PyList *environment = new PyList;
+	environment->AddItem(new PyInt(ogf.itemID));
+	environment->AddItem(new PyInt(m_ownerID));
+	environment->AddItem(new PyInt(m_locationID));
+	environment->AddItem(new PyNone);
+	environment->AddItem(new PyNone);
+	environment->AddItem(new PyNone);
+	environment->AddItem(new PyInt(ogf.effectID));
+	
+	ogf.environment = environment;
+	ogf.startTime = ogf.when;
+	ogf.duration = 10000;
+	ogf.repeat = online?new PyInt(1000):new PyInt(0);
     ogf.randomSeed = new PyNone();
     ogf.error = new PyNone();
 
@@ -1091,38 +1096,38 @@ void InventoryItem::SetOnline(bool online) {
 
 void InventoryItem::SetActive(bool active, uint32 effectID, double duration, bool repeat)
 {
-    Client* c = sEntityList.FindCharacter(m_ownerID);
+	Client* c = sEntityList.FindCharacter(m_ownerID);
     if(c == NULL)
     {
         sLog.Error("InventoryItem", "unable to set ourselfs online//offline because we can't find the client");
         return;
     }
 
-    Notify_OnGodmaShipEffect shipEffect;
+	Notify_OnGodmaShipEffect shipEffect;
 
-    shipEffect.itemID = m_itemID;
-    shipEffect.effectID = effectID;
-    shipEffect.when = Win32TimeNow();
-    shipEffect.start = active?1:0;
-    shipEffect.active = active?1:0;
+	shipEffect.itemID = m_itemID;
+	shipEffect.effectID = effectID;
+	shipEffect.when = Win32TimeNow();
+	shipEffect.start = active?1:0;
+	shipEffect.active = active?1:0;
 
-    PyList* env = new PyList;
-    env->AddItem(new PyInt(m_itemID));
-    env->AddItem(new PyInt(ownerID()));
-    env->AddItem(new PyInt(m_locationID));
-    env->AddItem(new PyNone);               //targetID
-    env->AddItem(new PyNone);               //otherID
-    env->AddItem(new PyNone);               //area
-    env->AddItem(new PyInt(effectID));
+	PyList* env = new PyList;
+	env->AddItem(new PyInt(m_itemID));
+	env->AddItem(new PyInt(ownerID()));
+	env->AddItem(new PyInt(m_locationID));
+	env->AddItem(new PyNone);				//targetID
+	env->AddItem(new PyNone);				//otherID
+	env->AddItem(new PyNone);				//area
+	env->AddItem(new PyInt(effectID));
 
-    shipEffect.environment = env;
-    shipEffect.startTime = shipEffect.when;
-    shipEffect.duration = duration;
-    shipEffect.repeat = repeat?new PyInt(1000):new PyInt(0);
-    shipEffect.randomSeed = new PyNone;
-    shipEffect.error = new PyNone;
+	shipEffect.environment = env;
+	shipEffect.startTime = shipEffect.when;
+	shipEffect.duration = duration;
+	shipEffect.repeat = repeat?new PyInt(1000):new PyInt(0);
+	shipEffect.randomSeed = new PyNone;
+	shipEffect.error = new PyNone;
 
-    Notify_OnMultiEvent multi;
+	Notify_OnMultiEvent multi;
     multi.events = new PyList;
     multi.events->AddItem(shipEffect.Encode());
 
@@ -1150,65 +1155,60 @@ void InventoryItem::Relocate(const GPoint &pos) {
 bool InventoryItem::SetAttribute( uint32 attributeID, int64 num, bool notify /* true */, bool shadow_copy_to_default_set /* false */ )
 {
     EvilNumber devil_number(num);
-    bool status = mAttributeMap.SetAttribute(attributeID, devil_number, notify);
-    if(shadow_copy_to_default_set)
-        status = status && mDefaultAttributeMap.SetAttribute(attributeID, devil_number, notify);
+	bool status = mAttributeMap.SetAttribute(attributeID, devil_number, notify);
+	if(shadow_copy_to_default_set)
+		status = status && mDefaultAttributeMap.SetAttribute(attributeID, devil_number, notify);
 
-    return status;
+	return status;
 }
 
 bool InventoryItem::SetAttribute( uint32 attributeID, double num, bool notify /* true */, bool shadow_copy_to_default_set /* false */ )
 {
     EvilNumber devil_number(num);
     bool status = mAttributeMap.SetAttribute(attributeID, devil_number, notify);
-    if(shadow_copy_to_default_set)
-        status = status && mDefaultAttributeMap.SetAttribute(attributeID, devil_number, notify);
+	if(shadow_copy_to_default_set)
+		status = status && mDefaultAttributeMap.SetAttribute(attributeID, devil_number, notify);
 
-    return status;
+	return status;
 }
 
 bool InventoryItem::SetAttribute( uint32 attributeID, EvilNumber num, bool notify /* true */, bool shadow_copy_to_default_set /* false */ )
 {
     bool status = mAttributeMap.SetAttribute(attributeID, num, notify);
-    if(shadow_copy_to_default_set)
-        status = status && mDefaultAttributeMap.SetAttribute(attributeID, num, notify);
+	if(shadow_copy_to_default_set)
+		status = status && mDefaultAttributeMap.SetAttribute(attributeID, num, notify);
 
-    return status;
+	return status;
 }
 
 bool InventoryItem::SetAttribute( uint32 attributeID, int num, bool notify /* true */, bool shadow_copy_to_default_set /* false */ )
 {
     EvilNumber devil_number(num);
     bool status = mAttributeMap.SetAttribute(attributeID, devil_number, notify);
-    if(shadow_copy_to_default_set)
-        status = status && mDefaultAttributeMap.SetAttribute(attributeID, devil_number, notify);
+	if(shadow_copy_to_default_set)
+		status = status && mDefaultAttributeMap.SetAttribute(attributeID, devil_number, notify);
 
-    return status;
+	return status;
 }
 
 bool InventoryItem::SetAttribute( uint32 attributeID, uint64 num, bool notify /* true */, bool shadow_copy_to_default_set /* false */ )
 {
     EvilNumber devil_number(*((int64*)&num));
     bool status = mAttributeMap.SetAttribute(attributeID, devil_number, notify);
-    if(shadow_copy_to_default_set)
-        status = status && mDefaultAttributeMap.SetAttribute(attributeID, devil_number, notify);
+	if(shadow_copy_to_default_set)
+		status = status && mDefaultAttributeMap.SetAttribute(attributeID, devil_number, notify);
 
-    return status;
+	return status;
 }
 
 bool InventoryItem::SetAttribute( uint32 attributeID, uint32 num, bool notify /* true */, bool shadow_copy_to_default_set /* false */ )
 {
     EvilNumber devil_number((int64)num);
     bool status = mAttributeMap.SetAttribute(attributeID, devil_number, notify);
-    if(shadow_copy_to_default_set)
-        status = status && mDefaultAttributeMap.SetAttribute(attributeID, devil_number, notify);
+	if(shadow_copy_to_default_set)
+		status = status && mDefaultAttributeMap.SetAttribute(attributeID, devil_number, notify);
 
-    return status;
-}
-
-EvilNumber InventoryItem::GetAttribute( uint32 attributeID )
-{
-    return mAttributeMap.GetAttribute(attributeID);
+	return status;
 }
 
 EvilNumber InventoryItem::GetAttribute( const uint32 attributeID ) const
@@ -1216,27 +1216,92 @@ EvilNumber InventoryItem::GetAttribute( const uint32 attributeID ) const
      return mAttributeMap.GetAttribute(attributeID);
 }
 
-EvilNumber InventoryItem::GetDefaultAttribute( uint32 attributeID )
+EvilNumber InventoryItem::GetAttribute( const uint32 attributeID , const EvilNumber &defaultValue ) const
 {
-    return mDefaultAttributeMap.GetAttribute(attributeID);
+     return mAttributeMap.GetAttribute(attributeID, defaultValue);
 }
 
 EvilNumber InventoryItem::GetDefaultAttribute( const uint32 attributeID ) const
 {
-     return mDefaultAttributeMap.GetAttribute(attributeID);
+     return mDefaultAttributeMap.GetAttribute(attributeID, 0);
 }
 
-bool InventoryItem::HasAttribute(uint32 attributeID)
+bool InventoryItem::HasAttribute(const uint32 attributeID) const
 {
     return mAttributeMap.HasAttribute(attributeID);
 }
 
+bool InventoryItem::HasAttribute(const uint32 attributeID, EvilNumber &value) const
+{
+    return mAttributeMap.HasAttribute(attributeID, value);
+}
+
 bool InventoryItem::SaveAttributes()
 {
-    return (mAttributeMap.SaveAttributes() && mDefaultAttributeMap.SaveAttributes());
+	return (mAttributeMap.SaveAttributes() && mDefaultAttributeMap.SaveAttributes());
 }
 
 bool InventoryItem::ResetAttribute(uint32 attrID, bool notify)
 {
-    return mAttributeMap.ResetAttribute(attrID, notify);
+    bool success = mAttributeMap.ResetAttribute(attrID, false);
+    EvilNumber nVal = mAttributeMap.GetAttribute(attrID, EvilNumber(0));
+    // modify the value by attribute modifiers applied by modules and enemy's.
+    double amount = 0;
+    AttributeModifierSource::FactorList factors;
+    AttributeModifierSource::FactorList stackedfactors;
+    std::vector<AttributeModifierSource *>::iterator itr = m_attributeModifiers.begin();
+    for(;itr != m_attributeModifiers.end(); itr++)
+    {
+        AttributeModifierSource *src = *itr;
+        if(src == NULL)
+            continue;
+        src->GetModification(attrID, amount, factors, stackedfactors);
+    }
+    double value = AttributeModifierSource::FinalizeModification(nVal.get_float(), amount, factors, stackedfactors);
+    if(nVal.get_type() == EVIL_NUMBER_TYPE::evil_number_int)
+        nVal = EvilNumber((int64)value);
+    else
+        nVal = EvilNumber(value);
+    return mAttributeMap.SetAttribute(attrID, nVal, notify);
+}
+
+void InventoryItem::AddAttributeModifier(AttributeModifierSource *modifier)
+{
+    if(modifier == NULL)
+        return;
+    if(std::find(m_attributeModifiers.begin(), m_attributeModifiers.end(), modifier) == m_attributeModifiers.end())
+    {
+        m_attributeModifiers.push_back(modifier);
+        modifier->UpdateModifiers(this, true);
+    }
+}
+
+void InventoryItem::RemoveAttributeModifier(AttributeModifierSource *modifier)
+{
+    std::vector<AttributeModifierSource *>::iterator itr = std::find(m_attributeModifiers.begin(), m_attributeModifiers.end(), modifier);
+    if(itr != m_attributeModifiers.end())
+    {
+        AttributeModifierSource *src = *itr;
+        m_attributeModifiers.erase(itr);
+        src->UpdateModifiers(this, true);
+    }
+}
+
+double InventoryItem::CalculateRechargeRate(double Capacity, double RechargeTimeMS, double Current)
+{
+    // prevent divide by zero.
+    RechargeTimeMS = RechargeTimeMS < 1 ? 1 : RechargeTimeMS;
+    Current = Current < 1 ? 1 : Current;
+    double Cmax = Capacity < 1 ? 1 : Capacity;
+    // tau = "cap recharge time" / 5.0
+    double tau = RechargeTimeMS / 5000.0;
+    // (2*Cmax) / tau
+    double Cmax2_tau = (Cmax * 2) / tau;
+    double C = Current;
+    // C / Cmax
+    double C_Cmax = C / Cmax;
+    // sqrt( C / Cmax )
+    double sC_Cmax = sqrt(C_Cmax);
+    // charge rate in Gj / sec
+    return Cmax2_tau * (sC_Cmax - C_Cmax);
 }

@@ -303,7 +303,7 @@ double ReprocessingServiceBound::_CalcReprocessingEfficiency(const Client *c, In
     double efficiency =  0.375*(1 + 0.02 * ch->GetSkillLevel(skillRefining))
                       *(1 + 0.04 * ch->GetSkillLevel(skillRefineryEfficiency));
 
-    if(item != NULL) {
+    if(item.get() != NULL) {
         uint32 specificSkill = item->GetAttribute(AttrReprocessingSkillType).get_int();
         if(specificSkill != 0)
             efficiency *= 1 + 0.05 * ch->GetSkillLevel(specificSkill);

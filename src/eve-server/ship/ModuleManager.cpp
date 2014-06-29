@@ -723,7 +723,7 @@ ModuleManager::ModuleManager(Ship *const ship)
                                     (uint32)ship->GetAttribute(AttrMedSlots).get_int(),
                                     (uint32)ship->GetAttribute(AttrHiSlots).get_int(),
                                     (uint32)ship->GetAttribute(AttrRigSlots).get_int(),
-                                    (uint32)ship->GetAttribute(AttrSubSystemSlot).get_int(),
+                                    (uint32)ship->GetAttribute(AttrSubSystemSlot, 0).get_int(),
                                     (uint32)ship->GetAttribute(AttrTurretSlotsLeft).get_int(),
                                     (uint32)ship->GetAttribute(AttrLauncherSlotsLeft).get_int(),
                                     this);
@@ -744,16 +744,25 @@ ModuleManager::ModuleManager(Ship *const ship)
     // Load modules, rigs and subsystems from Ship's inventory into ModuleContainer:
 	m_pLog->Log("ModuleManager", "Loading modules...");
     uint32 flagIndex;
-    for(flagIndex=flagLowSlot0; flagIndex<=flagLowSlot7; flagIndex++) {
-        InventoryItemRef moduleRef;
-        InventoryItemRef chargeRef;
-        std::vector<InventoryItemRef>::iterator cur, end;
-        std::vector<InventoryItemRef> items;
-        m_Ship->FindByFlag( (EVEItemFlags)flagIndex, items );        // Operator assumed to be Client *
-        cur = items.begin();
-        end = items.end();
-
-        if( items.size() > 0 )	{
+    int rangeIndex;
+    uint32 rangeStart[5] = {flagLowSlot0, flagMedSlot0, flagHiSlot0, flagRigSlot0, flagSubSystem0 };
+    uint32 rangeEnd[5] = {flagLowSlot7, flagMedSlot7, flagHiSlot7, flagRigSlot7, flagSubSystem7 };
+    std::string rangeName[5] = { "Low", "Med", "Hi", "Rig", "Sub" };
+    // load low, medium and hi slots.
+    for(int rangeIndex = 0; rangeIndex < 3; rangeIndex++)
+    {
+        for(flagIndex=rangeStart[rangeIndex]; flagIndex<=rangeEnd[rangeIndex]; flagIndex++)
+        {
+            std::vector<InventoryItemRef> items;
+            m_Ship->FindByFlag( (EVEItemFlags)flagIndex, items );        // Operator assumed to be Client *
+            // if no items found go to next slot.
+            if( items.empty() )
+                continue;
+            InventoryItemRef moduleRef;
+            InventoryItemRef chargeRef;
+            std::vector<InventoryItemRef>::iterator cur, end;
+            cur = items.begin();
+            end = items.end();
             while( (cur != end) ) {
                 if( cur->get()->categoryID() == EVEDB::invCategories::Charge )
                     chargeRef = (*cur);
@@ -761,143 +770,59 @@ ModuleManager::ModuleManager(Ship *const ship)
                     moduleRef = (*cur);
                 cur++;
             }
-
-            if( moduleRef ) {
-                if( _fitModule( moduleRef, (EVEItemFlags)flagIndex ) ) {
-                    _fitModule( moduleRef, (EVEItemFlags)flagIndex );
+            if( !(moduleRef.get() == NULL) )
+            {
+                if( _fitModule( moduleRef, (EVEItemFlags)flagIndex ) )
+                {
                     if( moduleRef->GetAttribute(AttrIsOnline).get_int() == 1 )
                         Online(moduleRef->itemID());
                     else
                         Offline(moduleRef->itemID());
-                    if( chargeRef )
-                        ((ActiveModule *)GetModule((EVEItemFlags)flagIndex))->Load(chargeRef);
-               } else {
-                    sLog.Error( "ModuleManager::ModuleManager()", "ERROR: Cannot fit Low Slot module '%s' (id %u)", moduleRef->itemName().c_str(), moduleRef->itemID() );
+                    if( chargeRef.get() != NULL )
+                    {
+                        ActiveModule *mod = (ActiveModule *)GetModule((EVEItemFlags)flagIndex);
+                        mod->m_ChargeRef = chargeRef;
+                        mod->m_Charge_State = ChargeStates::MOD_LOADED;
+                    }
+                }
+                else
+                {
+                    sLog.Error( "ModuleManager::ModuleManager()", "ERROR: Cannot fit %s Slot module '%s' (id %u)", rangeName[rangeIndex].c_str(), moduleRef->itemName().c_str(), moduleRef->itemID() );
                     throw PyException( MakeCustomError( "ERROR! Cannot fit Low Slot module '%s'", moduleRef->itemName().c_str() ) );
-               }
-            }
-		}
-    }
-
-    for(flagIndex=flagMedSlot0; flagIndex<=flagMedSlot7; flagIndex++) {
-        InventoryItemRef moduleRef;
-        InventoryItemRef chargeRef;
-        std::vector<InventoryItemRef>::iterator cur, end;
-        std::vector<InventoryItemRef> items;
-        m_Ship->FindByFlag( (EVEItemFlags)flagIndex, items );        // Operator assumed to be Client *
-        cur = items.begin();
-        end = items.end();
-
-        if( items.size() > 0 ) {
-            while( (cur != end) ) {
-                if( cur->get()->categoryID() == EVEDB::invCategories::Charge )
-                    chargeRef = (*cur);
-                if( cur->get()->categoryID() == EVEDB::invCategories::Module )
-                    moduleRef = (*cur);
-                cur++;
-            }
-
-            if( moduleRef ) {
-                if( _fitModule( moduleRef, (EVEItemFlags)flagIndex ) ) {
-                    _fitModule( moduleRef, (EVEItemFlags)flagIndex );
-                    if( moduleRef->GetAttribute(AttrIsOnline).get_int() == 1 )
-                        Online(moduleRef->itemID());
-                    else
-                        Offline(moduleRef->itemID());
-                    if( chargeRef )
-                        ((ActiveModule *)GetModule((EVEItemFlags)flagIndex))->Load(chargeRef);
-                } else {
-                    sLog.Error( "ModuleManager::ModuleManager()", "ERROR: Cannot fit Med Slot module '%s' (id %u)", moduleRef->itemName().c_str(), moduleRef->itemID() );
-                    throw PyException( MakeCustomError( "ERROR! Cannot fit Med Slot module '%s'", moduleRef->itemName().c_str() ) );
                 }
             }
-		}
+        }
     }
 
-    for(flagIndex=flagHiSlot0; flagIndex<=flagHiSlot7; flagIndex++) {
-        InventoryItemRef moduleRef;
-        InventoryItemRef chargeRef;
-        std::vector<InventoryItemRef>::iterator cur, end;
-        std::vector<InventoryItemRef> items;
-        m_Ship->FindByFlag( (EVEItemFlags)flagIndex, items );        // Operator assumed to be Client *
-        cur = items.begin();
-        end = items.end();
-
-        if( items.size() > 0 ) {
-            while( (cur != end) ) {
-                if( cur->get()->categoryID() == EVEDB::invCategories::Charge )
-                    chargeRef = (*cur);
-                if( cur->get()->categoryID() == EVEDB::invCategories::Module )
-                    moduleRef = (*cur);
-                cur++;
-            }
-
-            if( moduleRef ) {
-                if( _fitModule( moduleRef, (EVEItemFlags)flagIndex ) ) {
-                    if( moduleRef->GetAttribute(AttrIsOnline).get_int() == 1 )
-                        Online(moduleRef->itemID());
-                    else
-                        Offline(moduleRef->itemID());
-                    if( chargeRef )
-                        ((ActiveModule *)GetModule((EVEItemFlags)flagIndex))->Load(chargeRef);
-                } else {
-                    sLog.Error( "ModuleManager::ModuleManager()", "ERROR: Cannot fit High Slot module '%s' (id %u)", moduleRef->itemName().c_str(), moduleRef->itemID() );
-                    throw PyException( MakeCustomError( "ERROR! Cannot fit High Slot module '%s'", moduleRef->itemName().c_str() ) );
-                }
-            }
-		}
-    }
-
-    for(flagIndex=flagRigSlot0; flagIndex<=flagRigSlot7; flagIndex++) {
-        InventoryItemRef itemRef;
-        std::vector<InventoryItemRef>::iterator cur, end;
-        std::vector<InventoryItemRef> items;
-        m_Ship->FindByFlag( (EVEItemFlags)flagIndex, items );        // Operator assumed to be Client *
-        cur = items.begin();
-        end = items.end();
-
-        if( items.size() > 0 ) {
+    // load rig and subsystem slots
+    for(int rangeIndex = 3; rangeIndex < 5; rangeIndex++)
+    {
+        for(flagIndex=rangeStart[rangeIndex]; flagIndex<=rangeEnd[rangeIndex]; flagIndex++)
+        {
+            std::vector<InventoryItemRef> items;
+            m_Ship->FindByFlag( (EVEItemFlags)flagIndex, items );        // Operator assumed to be Client *
+            // if no items found go to next slot.
+            if( items.empty() )
+                continue;
+            InventoryItemRef itemRef;
+            std::vector<InventoryItemRef>::iterator cur, end;
+            cur = items.begin();
+            end = items.end();
             while( (cur->get()->categoryID() != EVEDB::invCategories::Module) && (cur != end) ) {
                 cur++;
             }
             if( cur->get()->categoryID() == EVEDB::invCategories::Module )
                 itemRef = (*cur);
-            if( itemRef ) {
+            if( !(itemRef.get() == NULL) )
+            {
                 _fitModule( itemRef, (EVEItemFlags)flagIndex );
-                // We don't think Rigs need the Online attribute set, but keep this code here in case we do:
+                // We don't think Rigs or subsystems need the Online attribute set, but keep this code here in case we do:
                 //if( itemRef->GetAttribute(AttrIsOnline).get_int() == 1 )
-                //  Online(itemRef->itemID());
+                //	Online(itemRef->itemID());
                 //else
-                //  Offline(itemRef->itemID());
+                //	Offline(itemRef->itemID());
             }
-		}
-    }
-
-    for(flagIndex=flagSubSystem0; flagIndex<=flagSubSystem7; flagIndex++) {
-        InventoryItemRef itemRef;
-        std::vector<InventoryItemRef>::iterator cur, end;
-        std::vector<InventoryItemRef> items;
-        m_Ship->FindByFlag( (EVEItemFlags)flagIndex, items );        // Operator assumed to be Client *
-        cur = items.begin();
-        end = items.end();
-
-        if( items.size() > 0 ) {
-            while( (cur->get()->categoryID() != EVEDB::invCategories::Module) && (cur != end) ) {
-                cur++;
-            }
-
-            if( cur->get()->categoryID() == EVEDB::invCategories::Module )
-                itemRef = (*cur);
-
-            if( itemRef ) {
-                _fitModule( itemRef, (EVEItemFlags)flagIndex );
-                // We don't think Subsystems need the Online attribute set, but keep this code here in case we do:
-                //if( itemRef->GetAttribute(AttrIsOnline).get_int() == 1 )
-                //  Online(itemRef->itemID());
-                //else
-                //  Offline(itemRef->itemID());
-            }
-		}
+        }
     }
 
 	m_pLog->Log("ModuleManager", "Module loading complete!");
@@ -1008,6 +933,16 @@ bool ModuleManager::FitModule(InventoryItemRef item, EVEItemFlags flag)
 {
     if(item->categoryID() == EVEDB::invCategories::Module)
     {
+        double Power = m_Ship->GetAttribute(AttrPowerOutput).get_float();
+        double PowerLoad = m_Ship->GetAttribute(AttrPowerLoad).get_float();
+        // check to see if there is sufficient power capacity available.
+        if(Power - PowerLoad < item->GetAttribute(AttrPower).get_float())
+            return false;
+        double CPU = m_Ship->GetAttribute(AttrCpuOutput).get_float();
+        double CPUload = m_Ship->GetAttribute(AttrCpuLoad).get_float();
+        // check to see if there is sufficient CPU capacity available.
+        if(CPU - CPUload < item->GetAttribute(AttrCpu).get_float())
+            return false;
         // Attempt to fit the module
         if( _fitModule(item, flag) )
         {
@@ -1115,13 +1050,16 @@ void ModuleManager::OfflineAll()
     m_Modules->OfflineAll();
 }
 
-int32 ModuleManager::Activate(uint32 itemID, std::string effectName, uint32 targetID, uint32 repeat) {
+int32 ModuleManager::Activate(uint32 itemID, std::string effectName, uint32 targetID, uint32 repeat)
+{
     sLog.Debug("Activate","Needs to be implemented");
     //return 1;
 
     GenericModule * mod = m_Modules->GetModule(itemID);
-    if( mod != NULL ) {
-		if(effectName == "online") {
+    if( mod != NULL )
+    {
+		if(effectName == "online")
+		{
 			//ModuleCommand cmd = _translateEffectName(effectName);		// GET RID of this function, effectName should be passed into the module's calls
 			mod->Online();
 
@@ -1129,9 +1067,11 @@ int32 ModuleManager::Activate(uint32 itemID, std::string effectName, uint32 targ
 			//if(cmd == ONLINE)
 		    //    mod->Online();     // this currently fails since m_selectedEffect and m_defaultEffect in the ModuleEffect class are undefined
 			//there needs to be more cases here i just don't know what they're called yet
-		} else {
-            SystemEntity * targetEntity = this->m_Ship->GetOperator()->GetDestiny()->GetCurrentBubble()->GetEntity(targetID);
-            mod->Activate(targetEntity);
+		}
+		else
+		{
+			SystemEntity * targetEntity = this->m_Ship->GetOperator()->GetDestiny()->GetCurrentBubble()->GetEntity(targetID);
+			mod->Activate(targetEntity);
 			m_pLog->Log("ModuleManager::Activate()", "Module '%s' Activating...", mod->getItem()->itemName().c_str());
 		}
     }
@@ -1139,10 +1079,13 @@ int32 ModuleManager::Activate(uint32 itemID, std::string effectName, uint32 targ
     return 1;
 }
 
-void ModuleManager::Deactivate(uint32 itemID, std::string effectName) {
+void ModuleManager::Deactivate(uint32 itemID, std::string effectName)
+{
     GenericModule * mod = m_Modules->GetModule(itemID);
-    if( mod != NULL ) {
-		if(effectName == "offline") {
+    if( mod != NULL )
+    {
+		if(effectName == "online")
+		{
 			//ModuleCommand cmd = _translateEffectName(effectName);		// GET RID of this function, effectName should be passed into the module's calls
 			mod->Offline();
 
@@ -1150,228 +1093,393 @@ void ModuleManager::Deactivate(uint32 itemID, std::string effectName) {
 			//if(cmd == OFFLINE)
 			//    mod->Offline();     // this currently fails since m_selectedEffect and m_defaultEffect in the ModuleEffect class are undefined
 			//there needs to be more cases here i just don't know what they're called yet
-		} else {
+		}
+		else
+		{
 			mod->Deactivate();
 			m_pLog->Log("ModuleManager::Deactivate()", "Module '%s' Deactivating...", mod->getItem()->itemName().c_str());
 		}
     }
 }
 
-void ModuleManager::DeactivateAllModules() {
+void ModuleManager::DeactivateAllModules()
+{
     m_Modules->DeactivateAll();
 }
 
-void ModuleManager::Overload(uint32 itemID) {
+void ModuleManager::Overload(uint32 itemID)
+{
     GenericModule * mod = m_Modules->GetModule(itemID);
-    if( mod != NULL ) {
+    if( mod != NULL )
+    {
         mod->Overload();
     }
 }
 
-void ModuleManager::DeOverload(uint32 itemID) {
+void ModuleManager::DeOverload(uint32 itemID)
+{
     GenericModule * mod = m_Modules->GetModule(itemID);
-    if( mod != NULL ) {
+    if( mod != NULL )
+    {
         mod->DeOverload();
     }
 }
 
-void ModuleManager::DamageModule(uint32 itemID, EvilNumber val) {
+void ModuleManager::DamageModule(uint32 itemID, EvilNumber val)
+{
     GenericModule * mod = m_Modules->GetModule(itemID);
-    if( mod != NULL) {
+    if( mod != NULL)
+    {
         mod->SetAttribute(AttrHp, val);
     }
 }
 
-void ModuleManager::RepairModule(uint32 itemID) {
+void ModuleManager::RepairModule(uint32 itemID)
+{
     GenericModule * mod = m_Modules->GetModule(itemID);
-    if( mod != NULL ) {
+    if( mod != NULL )
+    {
         mod->Repair();
     }
 }
 
-void ModuleManager::LoadCharge(InventoryItemRef chargeRef, EVEItemFlags flag) {
-    ActiveModule * mod = (ActiveModule *)(m_Modules->GetModule(flag));         // Should not be dangrous to assume ALL modules where charges are loaded are ACTIVE modules
-    if( mod != NULL ) {
-        // Scenarios to handle:
-        // + no charge loaded: check capacity >= volume of charge to add, if true, LOAD
-        //     - ELSE: if charge to load is qty > 1, calculate smallest integer qty that will EQUAL capacity, SPLIT remainder off, then LOAD!
-        // + some charge loaded: check capacity >= volume of charge to add, if true, MERGE new charge to existing
-        //     - ELSE: if charge to load is qty > 1, calculate smallest integer qty that added to existing charge qty will EQUAL capacity, SPLIT remainder off, then LOAD!
+void ModuleManager::LoadCharge(std::vector<InventoryItemRef> &chargeList, EVEItemFlags flag)
+{
+    ActiveModule * mod = (ActiveModule *)(m_Modules->GetModule(flag));			// Should not be dangrous to assume ALL modules where charges are loaded are ACTIVE modules
+    if( mod == NULL )
+    {
+        return;
+    }
+    // if the module is busy we can't load a charge.
+    if(mod->isBusy())
+        throw PyException( MakeCustomError( "Module is busy, cannot load charge!" ) );
+    
+    EvilNumber zero(0);
+    int64 launcherGroup[3] = {
+        mod->GetAttribute(AttrLauncherGroup, zero).get_int(),
+        mod->GetAttribute(AttrLauncherGroup2, zero).get_int(),
+        mod->GetAttribute(AttrLauncherGroup3, zero).get_int() };
+    int64 chargeGroup[5] = {
+        mod->GetAttribute(AttrChargeGroup1, zero).get_int(),
+        mod->GetAttribute(AttrChargeGroup2, zero).get_int(),
+        mod->GetAttribute(AttrChargeGroup3, zero).get_int(),
+        mod->GetAttribute(AttrChargeGroup4, zero).get_int(),
+        mod->GetAttribute(AttrChargeGroup5, zero).get_int() };
 
-        // Key facts to get:
-        // * existing charge ref -> qty and volume/unit
-        // * module ref -> capacity of module
-        // * charge to add ref -> qty and volume/unit
-
-        EvilNumber modCapacity = mod->getItem()->GetAttribute(AttrCapacity);
-        EvilNumber chargeToLoadVolume = chargeRef->GetAttribute(AttrVolume);
-        EvilNumber chargeToLoadQty = EvilNumber(chargeRef->quantity());
-
-        /////////////////////////////////////////
-        // chargeRef->Split();
-        // chargeRef->Merge();
-        // mod->Load(chargeRef);
-        // chargeRef->Move(m_Ship->itemID(), flag);     // used to be (m_pOperator->GetLocationID(), flag)
-        /////////////////////////////////////////
-
-        //m_Ship->GetOperator()->Client()->MoveItem(chargeRef->itemID(), m_Ship->itemID(), flag);
-
-        if( mod->isLoaded() ) {
-            // Module is loaded, let's check available capacity:
-            InventoryItemRef loadedChargeRef = mod->GetLoadedChargeRef();
-            EvilNumber loadedChargeVolume = loadedChargeRef->GetAttribute(AttrVolume);
-            EvilNumber loadedChargeQty = EvilNumber(loadedChargeRef->quantity());
-            modCapacity -= (loadedChargeVolume * loadedChargeQty);      // Calculate remaining capacity
-            if( modCapacity > chargeToLoadVolume ) {
-                // Great!  We can load at least one, let's top off the loaded charges:
-                uint32 quantityWeCanLoad = floor((modCapacity / chargeToLoadVolume).get_float());
-                if( quantityWeCanLoad > 0 ) {
-                    if( quantityWeCanLoad < chargeToLoadQty.get_int() ) {
-                        // Split chargeRef to qty 'quantityWeCanLoad'
-                        // Merge new smaller qty 'quantityWeCanLoad' with loadedChargeRef
-                        // Load this merged charge Ref into module
-                        InventoryItemRef loadableChargeQtyRef = chargeRef->Split( quantityWeCanLoad );
-                        loadableChargeQtyRef->ChangeOwner( chargeRef->ownerID() );
-                        loadedChargeRef->Merge( loadableChargeQtyRef );
-                        mod->Load( loadedChargeRef );
-                        loadedChargeRef->Move(m_Ship->itemID(), flag);      // used to be (m_pOperator->GetLocationID(), flag)
-                    } else {
-                        // Merge chargeRef with loadedChargeRef
-                        // Load this merged charge Ref into module
-                        loadedChargeRef->Merge( chargeRef );
-                        mod->Load( loadedChargeRef );
-                        loadedChargeRef->Move(m_Ship->itemID(), flag);      // used to be (m_pOperator->GetLocationID(), flag)
-                    }
-                } else
-                    throw PyException( MakeCustomError( "Cannot load even one unit of this charge!" ) );
-
-            } else
-                throw PyException( MakeCustomError( "Charge is full!" ) );
-        } else {
-            // Module is not loaded at all, let's check total volume of charge to load against available capacity:
-            if( modCapacity >= (chargeToLoadVolume * chargeToLoadQty) ) {
-                // We can insert entire stack of chargeRef into module
-                // Load chargeRef as-is into module
-                mod->Load( chargeRef );
-                chargeRef->Move(m_Ship->itemID(), flag);        // used to be (m_pOperator->GetLocationID(), flag)
-            } else {
-                // We need to split off only as many charge units as can fit into this module
-                // Split chargeRef
-                uint32 quantityWeCanLoad = floor((modCapacity / chargeToLoadVolume).get_float());
-                if( quantityWeCanLoad > 0 ) {
-                    // Split chargeRef to qty 'quantityWeCanLoad'
-                    // Merge new smaller qty 'quantityWeCanLoad' with loadedChargeRef
-                    // Load this merged charge Ref into module
-                    InventoryItemRef loadableChargeQtyRef = chargeRef->Split( quantityWeCanLoad );
-                    loadableChargeQtyRef->ChangeOwner( chargeRef->ownerID() );
-                    mod->Load( loadableChargeQtyRef );
-                    loadableChargeQtyRef->Move(m_Ship->itemID(), flag);     // used to be (m_pOperator->GetLocationID(), flag)
-                } else
-                    throw PyException( MakeCustomError( "Cannot load even one unit of this charge!" ) );
+    double modSize = mod->GetAttribute(AttrChargeSize).get_float();
+    InventoryItemRef loadedChargeRef = mod->GetLoadedChargeRef();
+    bool TypeMismatch = false;
+    bool SizeMismatch = false;
+    bool TypeFound = false;
+    bool InsufficientSpace = false;
+    std::vector<InventoryItemRef>::iterator itr = chargeList.begin();
+    // remove incompatible charges.
+    while(itr != chargeList.end())
+    {
+        // get the charge reference.
+        InventoryItemRef charge = *itr;
+        // if it was a null reference remove it.
+        if(charge.get() == NULL)
+        {
+            itr = chargeList.erase(itr);
+            continue;
+        }
+        // charges must be the same size.
+        double chargeSize = charge->GetAttribute(AttrChargeSize).get_float();
+        if(chargeSize != modSize)
+        {
+            SizeMismatch = true;
+            itr = chargeList.erase(itr);
+            continue;
+        }
+        // if module has launcher group and charge is from launcher group
+        int l = 0;
+        for(;l < 3;l++)
+            if(launcherGroup[l] == charge->groupID())
+                break;
+        // if module has charge group and charge is from charge group
+        int c = 0;
+        for(;c < 5;c++)
+            if(chargeGroup[c] == charge->groupID())
+                break;
+        // if we didn't find at least one group it's bad.
+        if(c == 5 && l == 3)
+        {
+            TypeMismatch = true;
+            itr = chargeList.erase(itr);
+            continue;
+        }
+        // Does the module already have charges loaded?
+        if(loadedChargeRef.get() != NULL)
+        {
+            // yep, make sure there compatible.
+            if(loadedChargeRef->typeID() != charge->typeID())
+                // charge is not the same type.
+                TypeMismatch = true;
+            else
+                // charge is the same type
+                TypeFound = true;
+        }
+        itr++;
+    }
+    if(TypeFound == false)
+    {
+        // if there are valid charges but none of the loaded type...
+        if(!chargeList.empty())
+        {
+            // if a charge of the loaded type was not found load the first type in the list.
+            loadedChargeRef = *chargeList.begin();
+            TypeFound = true;
+            TypeMismatch = true;
+            InventoryItemRef oldCharge = mod->GetLoadedChargeRef();
+            if(oldCharge.get() != NULL)
+            {
+                // if a charge of the type loaded was not found but another type was assume loading a different charge.
+                //InventoryItemRef oldLoc = oldCharge->GetItemFactory()->GetItem( loadedChargeRef->locationID() );
+                //if(oldLoc != NULL)
+                //{
+                    //double spaceNeed = oldCharge->quantity() * oldCharge->type()->volume();
+                    // to-do: check for suffecient space before move.
+                    oldCharge->Move(loadedChargeRef->locationID(), loadedChargeRef->flag(), true);
+                    mod->Unload();
+                //}
             }
         }
+    }
+    // a load type has been found and there may be different types in the list, remove them.
+    if(TypeFound == true && TypeMismatch == true)
+    {
+        TypeMismatch = false;
+        itr = chargeList.begin();
+        // remove incompatible charges.
+        while(itr != chargeList.end())
+        {
+            // yep, make sure there compatible.
+            if(loadedChargeRef->typeID() != (*itr)->typeID())
+            {
+                itr = chargeList.erase(itr);
+                TypeMismatch = true;
+                continue;
+            }
+            itr++;
+        }
+    }
+    // if the charge list is empty, there is noting to load check for an error.
+    if(chargeList.empty())
+    {
+        // no charges were acceptable.
+        if(TypeMismatch)
+            // we haven't loaded any charges and were at the end of the list.
+            throw PyException( MakeCustomError( "Cannot load different types of charge!" ) );
+        if(SizeMismatch)
+            // we haven't loaded any charges and were at the end of the list.
+            throw PyException( MakeCustomError( "The charge is not the correct size for this module." ) );
+        throw PyException( MakeCustomError( "No valid charges for loading." ) );
+    }
+    double chargeVolume = loadedChargeRef->GetAttribute(AttrVolume).get_float();
+    loadedChargeRef = mod->GetLoadedChargeRef();
+    InventoryItemRef chargeRef = InventoryItemRef();
+    double modCapacity = mod->getItem()->GetAttribute(AttrCapacity).get_float();
+    bool Loaded = false;
+    // loop through the accepted charges.
+    itr = chargeList.begin();
+    while(itr != chargeList.end())
+    {
+        // this will be the charge that's loaded.
+        chargeRef = *itr;
+        itr++;
+        if(chargeRef.get() == NULL)
+            continue;
+        int32 quantityWeCanLoad = floor((modCapacity / chargeVolume));
+
+        // Does the module already have charges loaded?
+        if(loadedChargeRef.get() != NULL)
+        {
+            // let's get the remaining capacity
+            int32 loadedChargeQty = loadedChargeRef->quantity();
+            // Calculate remaining capacity
+            quantityWeCanLoad -= loadedChargeQty;
+        }
+        // Do we get enough charges to fully load the module?
+        if( quantityWeCanLoad > chargeRef->quantity() )
+        {
+            // No, we can only load as many as are available.
+            quantityWeCanLoad = chargeRef->quantity();
+        }
+        // can we load more charges?
+        if( quantityWeCanLoad <= 0 )
+        {
+            // flag that there was insufficient space to load a charge and stop looking.
+            InsufficientSpace = true;
+            break;
+        }
+        // Great!  We can load at least one, let's top off the loaded charges:
+        if(loadedChargeRef.get() == NULL)
+        {
+            // if there are more charges available than will fit?
+            if(chargeRef->quantity() > quantityWeCanLoad)
+            {
+                // We need to split the stack so we can load a partial stack.
+                // Split chargeRef to qty 'quantityWeCanLoad'
+                InventoryItemRef splitChargeRef = chargeRef->Split( quantityWeCanLoad );
+                splitChargeRef->ChangeOwner( chargeRef->ownerID() );
+                // and then load the split charge.
+                chargeRef = splitChargeRef;
+            }
+        }
+        else
+        {
+            // there are already some charges so just move the numbers.
+            if(chargeRef->quantity() == quantityWeCanLoad)
+                // there all used so just delete the old stack.
+                chargeRef->Delete();
+            // otherwise just adjust the quantity.
+            else if(!chargeRef->AlterQuantity(-quantityWeCanLoad) && !Loaded)
+                // if the change quantity failed and no other charges have been loaded.
+                throw PyException( MakeCustomError( "Cannot load this charge!" ) );
+
+            // now add them to the old charge.
+            loadedChargeRef->AlterQuantity(quantityWeCanLoad);
+            // and then load the merged charge.
+            chargeRef = loadedChargeRef;
+        }
+        // set this so it'll be valid for the next loop.  even if the charge isn't loaded yet.
+        loadedChargeRef = chargeRef;
+        // we've loaded at least one charge!
+        Loaded = true;
+    }
+    if(Loaded)
+    {
+        // load the charge and move it onto the ship.
+        mod->Load( chargeRef );
+    }
+    else
+    {
+        if(InsufficientSpace)
+            // we haven't loaded any charges and were at the end of the list.
+            throw PyException( MakeCustomError( "Cannot load even one unit of this charge!" ) );
+        // An unknown error...
+        throw PyException( MakeCustomError( "Failed to load charge!" ) );
     }
 }
 
 void ModuleManager::UnloadCharge(EVEItemFlags flag)
 {
-    ActiveModule * mod = (ActiveModule *)(m_Modules->GetModule(flag));         // Should not be dangrous to assume ALL modules where charges are loaded are ACTIVE modules
+    ActiveModule * mod = (ActiveModule *)(m_Modules->GetModule(flag));			// Should not be dangrous to assume ALL modules where charges are loaded are ACTIVE modules
     if( mod != NULL )
     {
-       if( mod->isLoaded() )
-       {
-           InventoryItemRef loadedChargeRef = mod->GetLoadedChargeRef();
-           mod->Unload();
-       }
-   }
+		if( mod->isLoaded() )
+		{
+			InventoryItemRef loadedChargeRef = mod->GetLoadedChargeRef();
+			mod->Unload();
+		}
+	}
 }
 
-InventoryItemRef ModuleManager::GetLoadedChargeOnModule(EVEItemFlags flag) {
-    ActiveModule * mod = (ActiveModule *)(m_Modules->GetModule(flag));         // Should not be dangrous to assume ALL modules where charges are loaded are ACTIVE modules
-    if( mod != NULL ) {
-       if( mod->isLoaded() )
-           return mod->GetLoadedChargeRef();
-       else
-           return InventoryItemRef();
-   }
+InventoryItemRef ModuleManager::GetLoadedChargeOnModule(EVEItemFlags flag)
+{
+    ActiveModule * mod = (ActiveModule *)(m_Modules->GetModule(flag));			// Should not be dangrous to assume ALL modules where charges are loaded are ACTIVE modules
+    if( mod != NULL )
+    {
+		if( mod->isLoaded() )
+			return mod->GetLoadedChargeRef();
+		else
+			return InventoryItemRef();
+	}
 
-   return InventoryItemRef();
+	return InventoryItemRef();
 }
 
-void ModuleManager::UnloadAllModules() {
+void ModuleManager::UnloadAllModules()
+{
     m_Modules->UnloadAll();
 }
 
-void ModuleManager::CharacterLeavingShip() {
+void ModuleManager::CharacterLeavingShip()
+{
     sLog.Debug("CharacterLeavingShip","Needs to be implemented");
     //this is complicated and im gonna leave it alone for now until
     //a few things become more clear
 }
 
-void ModuleManager::CharacterBoardingShip() {
+void ModuleManager::CharacterBoardingShip()
+{
     sLog.Debug("CharacterBoardingShip","Needs to be implemented");
     //this is complicated and im gonna leave it alone for now until
     //a few things become more clear
 }
 
-void ModuleManager::ShipWarping() {
+void ModuleManager::ShipWarping()
+{
     sLog.Debug("ShipWarping","Needs to be implemented");
     //need to remove targets and such
 }
 
-void ModuleManager::ShipJumping() {
+void ModuleManager::ShipJumping()
+{
     //disable non-warpsafe modules
 
     //probably should to send a message to the client
 }
 
-void ModuleManager::Process() {
+
+void ModuleManager::Process()
+{
     m_Modules->Process();
 }
 
-void ModuleManager::ProcessExternalEffect(Effect * e) {
-    while(e->hasEffect()) {
+void ModuleManager::ProcessExternalEffect(Effect * e)
+{
+    while(e->hasEffect())
+    {
         _processExternalEffect(e->next());
     }
 }
 
-std::vector<GenericModule *> ModuleManager::GetStackedItems(uint32 typeID, ModulePowerLevel level) {
+std::vector<GenericModule *> ModuleManager::GetStackedItems(uint32 groupID, ModulePowerLevel level)
+{
     std::vector<GenericModule *> mods;
     GenericModule * tmp;
 
-    switch(level) {
+    switch(level)
+    {
     case MODULE_BANK_HIGH_POWER:
-        for(int i = flagHiSlot0; i < flagHiSlot7 + 1; i++) {
+        for(int i = flagHiSlot0; i < flagHiSlot7 + 1; i++)
+        {
             tmp = m_Modules->GetModule((EVEItemFlags)i);
-            if( tmp->typeID() == typeID && tmp->isOnline() )
+            if( tmp->groupID() == groupID && tmp->isOnline() )
                 mods.push_back(tmp);
         }
         break;
     case MODULE_BANK_MEDIUM_POWER:
-        for(int i = flagMedSlot0; i < flagMedSlot7 + 1; i++) {
+        for(int i = flagMedSlot0; i < flagMedSlot7 + 1; i++)
+        {
             tmp = m_Modules->GetModule((EVEItemFlags)i);
-            if( tmp->typeID() == typeID && tmp->isOnline() )
+            if( tmp->groupID() == groupID && tmp->isOnline() )
                 mods.push_back(tmp);
         }
         break;
     case MODULE_BANK_LOW_POWER:
-        for(int i = flagLowSlot0; i < flagLowSlot7 + 1; i++) {
+        for(int i = flagLowSlot0; i < flagLowSlot7 + 1; i++)
+        {
             tmp = m_Modules->GetModule((EVEItemFlags)i);
-            if( tmp->typeID() == typeID && tmp->isOnline() )
+            if( tmp->groupID() == groupID && tmp->isOnline() )
                 mods.push_back(tmp);
         }
         break;
     case MODULE_BANK_RIG:
-        for(int i = flagRigSlot0; i < flagRigSlot7 + 1; i++) {
+        for(int i = flagRigSlot0; i < flagRigSlot7 + 1; i++)
+        {
             tmp = m_Modules->GetModule((EVEItemFlags)i);
-            if( tmp->typeID() == typeID && tmp->isOnline() )
+            if( tmp->groupID() == groupID && tmp->isOnline() )
                 mods.push_back(tmp);
         }
         break;
     case MODULE_BANK_SUBSYSTEM:
-        for(int i = flagSubSystem0; i < flagSubSystem7 + 1; i++) {
+        for(int i = flagSubSystem0; i < flagSubSystem7 + 1; i++)
+        {
             tmp = m_Modules->GetModule((EVEItemFlags)i);
-            if( tmp->typeID() == typeID && tmp->isOnline() )
+            if( tmp->groupID() == groupID && tmp->isOnline() )
                 mods.push_back(tmp);
         }
         break;
@@ -1380,11 +1488,13 @@ std::vector<GenericModule *> ModuleManager::GetStackedItems(uint32 typeID, Modul
     return mods;
 }
 
-void ModuleManager::GetModuleListOfRefs(std::vector<InventoryItemRef> * pModuleList) {
+void ModuleManager::GetModuleListOfRefs(std::vector<InventoryItemRef> * pModuleList)
+{
 	m_Modules->GetModuleListOfRefs(pModuleList);
 }
 
-void ModuleManager::SaveModules() {
+void ModuleManager::SaveModules()
+{
     m_Modules->SaveModules();
 }
 
@@ -1467,7 +1577,7 @@ int32 ModuleManager::RemoveSubsystemEffect(uint32 attributeID, uint32 originator
     {
         modMap = m_LocalSubsystemModifierMaps->find(attributeID)->second;
         modMap->m_MapIsDirty = true;
-
+        
         if( modMap->m_ModifierMap.find(modifierRef->GetModifierValue()) != modMap->m_ModifierMap.end() )
         {
             modMap->m_MapIsDirty = true;
@@ -1565,7 +1675,7 @@ int32 ModuleManager::RemoveShipSkillEffect(uint32 attributeID, uint32 originator
     {
         modMap = m_LocalShipSkillModifierMaps->find(attributeID)->second;
         modMap->m_MapIsDirty = true;
-
+        
         if( modMap->m_ModifierMap.find(modifierRef->GetModifierValue()) != modMap->m_ModifierMap.end() )
         {
             modMap->m_MapIsDirty = true;

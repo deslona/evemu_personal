@@ -293,19 +293,51 @@ public:
      */
     bool SetAttribute(uint32 attributeId, EvilNumber &num, bool nofity = true);
 
-    EvilNumber GetAttribute(uint32 attributeId);
-
+    /**
+* GetAttribute
+* Retrieves the attribute of the entity.
+* @param attributeID the attribute to check for.
+* @returns the attribute value
+* @note a value of zero is returned and an error message generated if the value is not found.
+*
+* @note this function should be used very infrequently and only for specific reasons
+*/
     EvilNumber GetAttribute(const uint32 attributeId) const;
+    /**
+* GetAttribute
+* Retrieves the attribute of the entity.
+* @note Should only be used when the attribute might not be defined.
+* @param attributeID the attribute to check for.
+* @param defaultValue a default value to return if no attribute is found.
+* @returns the attribute value or the default value.
+* @note does not generate an error message if the value is not found.
+*
+* @note this function should be used very infrequently and only for specific reasons
+*/
+    EvilNumber GetAttribute(const uint32 attributeID, const EvilNumber &defaultValue) const;
 
     /**
-     * HasAttribute
-     *
-     * returns true if this item has the attribute 'attributeID', false if it does not have this attribute
-     * @note this function should be used very infrequently and only for specific reasons
-     */
-    bool HasAttribute(uint32 attributeID);
-
+* HasAttribute
+* Checks to see if the entity has the specified attribute.
+* @param attributeID the attribute to check for.
+* @returns true if this item has the attribute 'attributeID', false if it does not have this attribute
+*
+* @note this function should be used very infrequently and only for specific reasons
+*/
     bool HasAttribute(const uint32 attributeID) const;
+
+    /**
+* HasAttribute
+* Checks to see if the entity has the specified attribute.
+* value not altered if attribute not found. This could be useful for preserving a default value.
+* @param attributeID the attribute to check for.
+* @param value the location to return the attribute if it exist.
+* @returns true if this item has the attribute 'attributeID', false if it does not have this attribute
+*
+* @note this function should be used very infrequently and only for specific reasons
+*/
+    bool HasAttribute(const uint32 attributeID, EvilNumber &value) const;
+
 
     /** ATM we don't load or save as we assume that all attribute modifiers are calculated on the fly
      * except charge attributes but we won't handle them for now

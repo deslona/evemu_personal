@@ -44,7 +44,19 @@ RepairService::~RepairService() {
 }
 
 PyResult RepairService::Handle_UnasembleItems(PyCallArgs &call) {
-    sLog.Log("RepairService::Handle_UnasembleItems", "Called UnasembleItems stub.");
+  /*
+19:49:29 L RepairService::Handle_UnasembleItems: Called UnasembleItems stub.
+19:49:29 [SvcCall]   Call Arguments:
+19:49:29 [SvcCall]       Tuple: 2 elements
+19:49:29 [SvcCall]         [ 0] Dictionary: 1 entries
+19:49:29 [SvcCall]         [ 0]   [ 0] Key: Integer field: 60004450
+19:49:29 [SvcCall]         [ 0]   [ 0] Value: List: 1 elements
+19:49:29 [SvcCall]         [ 0]   [ 0] Value:   [ 0] Tuple: 2 elements
+19:49:29 [SvcCall]         [ 0]   [ 0] Value:   [ 0]   [ 0] Integer field: 140001999
+19:49:29 [SvcCall]         [ 0]   [ 0] Value:   [ 0]   [ 1] Integer field: 60004450
+19:49:29 [SvcCall]         [ 1] List: Empty
+*/
+    sLog.Warning("RepairService::Handle_UnasembleItems", "Called UnasembleItems stub.");
   call.Dump(SERVICE__CALLS);
 
     return NULL;

@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Reve
+    Author:        avianrr
  */
 
 #include "eve-server.h"
@@ -28,22 +28,16 @@
 #include "EntityList.h"
 #include "system/SystemBubble.h"
 #include "system/Damage.h"
-#include "ship/modules/weapon_modules/EnergyTurret.h"
+#include "ship/modules/weapon_modules/ProjectileTurret.h"
 
-EnergyTurret::EnergyTurret(InventoryItemRef item, ShipRef ship)
+ProjectileTurret::ProjectileTurret(InventoryItemRef item, ShipRef ship)
 : WeaponModule(item, ship)
 {
+    // charge loading time is 10 seconds.
+    m_LoadCycleTime = 10000;
 }
 
-void EnergyTurret::Load(InventoryItemRef charge)
-{
-    if(charge->quantity() > 1)
-        throw new PyException( MakeCustomError( "Can only load one crystal per turret.") );
-    ActiveModule::Load(charge);
-
-}
-
-void EnergyTurret::StartCycle()
+void ProjectileTurret::StartCycle()
 {
     // Create Destiny Updates:
     DoDestiny_OnDamageStateChange dmgChange;
@@ -62,11 +56,6 @@ void EnergyTurret::StartCycle()
     dmgMsg.target = m_targetEntity->GetID();
     dmgMsg.damage = (m_Item->GetAttribute(AttrDamageMultiplier).get_float() * 48.0);
 
-//    PyTuple *event = dmgMsg.Encode();
-//    PyTuple *update = dmgChange.Encode();
-//    m_Ship->GetOperator()->GetDestiny()->SendSelfDestinyUpdate(&update);
-//    m_Ship->GetOperator()->GetDestiny()->SendSelfDestinyUpdate(&event);
-    
     std::vector<PyTuple*> events;
     events.push_back(dmgMsg.Encode());
 
@@ -112,29 +101,24 @@ void EnergyTurret::StartCycle()
              effectTargetAttack // from EVEEffectID::
              );
 
-    if (m_targetEntity->ApplyDamage(damageDealt))
+    if(m_targetEntity->ApplyDamage(damageDealt))
     {
-        // target died.
-        m_ActiveModuleProc->DeactivateCycle();
+        m_targetEntity = NULL;
+        Deactivate();
     }
 
-    // check if the crystal takes damage.
-    if (m_ChargeRef->singleton())
+    // expend round.
+    if (m_ChargeRef->quantity() <= 1)
     {
-        double random_chance = MakeRandomFloat(0, 100) / 100;
-        // check if random chance damages the crystal
-        if (random_chance < m_ChargeRef->GetAttribute(AttrCrystalVolatilityChance).get_float())
+        // last rounds used.
+        if(m_Ship.get() != NULL)
         {
-            double newDamage = m_ChargeRef->GetAttribute(AttrDamage).get_float() - m_ChargeRef->GetAttribute(AttrCrystalVolatilityDamage).get_float();
-            m_ChargeRef->SetAttribute(AttrDamage, newDamage, true, false);
-            if (newDamage <= 0)
-            {
-                Deactivate();
-                m_ChargeRef->Delete();
-                Unload();
-                // to-do: auto-reload
-            }
+            Deactivate();
+            m_ChargeRef->Delete();
+            Unload();
+            // to-do: auto-reload
         }
     }
+    else
+      m_ChargeRef->AlterQuantity(-1, true);
 }
-

@@ -224,6 +224,7 @@ SET( imageserver_SOURCE
 SET( inventory_INCLUDE
      "${TARGET_INCLUDE_DIR}/inventory/AttributeEnum.h"
      "${TARGET_INCLUDE_DIR}/inventory/AttributeMgr.h"
+     "${TARGET_INCLUDE_DIR}/inventory/AttributeModifier.h"
      "${TARGET_INCLUDE_DIR}/inventory/EffectsEnum.h"
      "${TARGET_INCLUDE_DIR}/inventory/EVEAttributeMgr.h"
      "${TARGET_INCLUDE_DIR}/inventory/EVEAttributes.h"
@@ -239,6 +240,7 @@ SET( inventory_INCLUDE
      "${TARGET_INCLUDE_DIR}/inventory/Owner.h"
      "${TARGET_INCLUDE_DIR}/inventory/Voucher.h" )
 SET( inventory_SOURCE
+     "${TARGET_SOURCE_DIR}/inventory/AttributeModifier.cpp"
      "${TARGET_SOURCE_DIR}/inventory/EVEAttributeMgr.cpp"
      "${TARGET_SOURCE_DIR}/inventory/InvBrokerService.cpp"
      "${TARGET_SOURCE_DIR}/inventory/Inventory.cpp"
@@ -288,6 +290,7 @@ SET( market_INCLUDE
      "${TARGET_INCLUDE_DIR}/market/ContractProxy.h"
      "${TARGET_INCLUDE_DIR}/market/MarketDB.h"
      "${TARGET_INCLUDE_DIR}/market/MarketProxyService.h"
+     "${TARGET_INCLUDE_DIR}/market/NPCMarket.h"
      "${TARGET_INCLUDE_DIR}/market/TradeService.h" )
 SET( market_SOURCE
      "${TARGET_SOURCE_DIR}/market/BillMgrService.cpp"
@@ -295,6 +298,7 @@ SET( market_SOURCE
      "${TARGET_SOURCE_DIR}/market/ContractProxy.cpp"
      "${TARGET_SOURCE_DIR}/market/MarketDB.cpp"
      "${TARGET_SOURCE_DIR}/market/MarketProxyService.cpp"
+     "${TARGET_SOURCE_DIR}/market/NPCMarket.cpp"
      "${TARGET_SOURCE_DIR}/market/TradeService.cpp" )
 
 SET( mining_INCLUDE
@@ -394,20 +398,25 @@ SET( ship_modules_INCLUDE
      "${TARGET_INCLUDE_DIR}/ship/modules/ModuleEffects.h"
      "${TARGET_INCLUDE_DIR}/ship/modules/ModuleFactory.h"
      "${TARGET_INCLUDE_DIR}/ship/modules/Modules.h"
-     "${TARGET_INCLUDE_DIR}/ship/modules/PassiveModules.h"
      "${TARGET_INCLUDE_DIR}/ship/modules/RigModule.h"
      "${TARGET_INCLUDE_DIR}/ship/modules/SubSystemModules.h"
+     "${TARGET_INCLUDE_DIR}/ship/modules/logistics_modules/RepairModule.h"
      "${TARGET_INCLUDE_DIR}/ship/modules/propulsion_modules/Afterburner.h"
-	 "${TARGET_INCLUDE_DIR}/ship/modules/weapon_modules/EnergyTurret.h" )
+	 "${TARGET_INCLUDE_DIR}/ship/modules/weapon_modules/EnergyTurret.h"
+     "${TARGET_INCLUDE_DIR}/ship/modules/weapon_modules/ProjectileTurret.h"
+     "${TARGET_INCLUDE_DIR}/ship/modules/weapon_modules/WeaponModule.h" )
 SET( ship_modules_SOURCE
      "${TARGET_SOURCE_DIR}/ship/modules/ActiveModules.cpp"
      "${TARGET_SOURCE_DIR}/ship/modules/ModuleDB.cpp"
      "${TARGET_SOURCE_DIR}/ship/modules/ModuleEffects.cpp"
-     "${TARGET_SOURCE_DIR}/ship/modules/PassiveModules.cpp"
+     "${TARGET_SOURCE_DIR}/ship/modules/Modules.cpp"
      "${TARGET_SOURCE_DIR}/ship/modules/RigModule.cpp"
      "${TARGET_SOURCE_DIR}/ship/modules/SubSystemModules.cpp"
+     "${TARGET_SOURCE_DIR}/ship/modules/logistics_modules/RepairModule.cpp"
      "${TARGET_SOURCE_DIR}/ship/modules/propulsion_modules/Afterburner.cpp"
-	 "${TARGET_SOURCE_DIR}/ship/modules/weapon_modules/EnergyTurret.cpp")
+	 "${TARGET_SOURCE_DIR}/ship/modules/weapon_modules/EnergyTurret.cpp"
+     "${TARGET_SOURCE_DIR}/ship/modules/weapon_modules/ProjectileTurret.cpp"
+     "${TARGET_SOURCE_DIR}/ship/modules/weapon_modules/WeaponModule.cpp" )
     #"${TARGET_SOURCE_DIR}/ship/modules/.cpp"
     #"${TARGET_SOURCE_DIR}/ship/modules/.cpp" )
 

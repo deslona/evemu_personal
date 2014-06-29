@@ -20,22 +20,21 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Luck
+    Author:        Reve
 */
 
-#ifndef RIG_MODULE_H
-#define RIG_MODULE_H
+#ifndef __PROJECTILETURRET_H__
+#define __PROJECTILETURRET_H__
 
-#include "ship/modules/Modules.h"
+#include "ship/modules/weapon_modules/WeaponModule.h"
 
-class RigModule
-: public GenericModule
+class ProjectileTurret: public WeaponModule
 {
 public:
-    RigModule(InventoryItemRef item, ShipRef ship);
-    ~RigModule();
+    ProjectileTurret( InventoryItemRef item, ShipRef ship );
 
-    ModulePowerLevel GetModulePowerLevel();
+	// Calls Reserved for components usage only!
+	virtual void StartCycle();
 };
 
 #endif

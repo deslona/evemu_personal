@@ -187,7 +187,7 @@ PyResult MarketProxyService::Handle_GetOrders(PyCallArgs &call) {
 
 #   pragma message( "TODO: temporary solution, make cache objects with arguments" )
 
-#    pragma message("TODO: need to check if cache is refreshed when marker orders change.")
+#   pragma message("TODO: need to check if cache is refreshed when market orders change.")
 //    m_manager->cache_service->InvalidateCache(method_id);
 
     //check to see if this method is in the cache already.

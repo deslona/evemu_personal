@@ -219,6 +219,7 @@ public:
     EvilNumber GetMaxTurrentHardpoints() { return GetAttribute(AttrTurretSlotsLeft); }
     EvilNumber GetMaxLauncherHardpoints() { return GetAttribute(AttrLauncherSlotsLeft); }
     uint32 AddItem( EVEItemFlags flag, InventoryItemRef item);
+    uint32 LoadCharge( EVEItemFlags flag, std::vector<InventoryItemRef> chargeList);
     void RemoveItem( InventoryItemRef item, uint32 inventoryID, EVEItemFlags flag );
     void UpdateModules();
     void UnloadModule(uint32 itemID);
@@ -236,7 +237,7 @@ public:
     void DeactivateAllModules();
     void OnlineAll();
     ShipOperatorInterface * GetOperator() { return m_pOperator; }
-    std::vector<GenericModule *> GetStackedItems(uint32 typeID, ModulePowerLevel level);
+    std::vector<GenericModule *> GetStackedItems(uint32 groupID, ModulePowerLevel level);
 
     // External Methods For use by hostile entities directing effects to this entity:
     int32 ApplyRemoteEffect() { assert(true); }     // DO NOT CALL THIS YET!!!  This function needs to call down to ModuleManager::ApplyRemoteEffect with the proper argument list.
@@ -302,6 +303,7 @@ private:
 
     //the ship's module manager.  We own this
     ModuleManager * m_ModuleManager;
+    Timer m_UpdateTimer;
 };
 
 /**
@@ -381,14 +383,6 @@ protected:
     PyServiceMgr &m_services;    //we do not own this
     ShipRef _shipRef;   // We don't own this
 
-    /* Used to calculate the damages on NPCs
-     * I don't know why, npc->Set_shieldCharge does not work
-     * calling npc->shieldCharge() return the complete shield
-     * So we get the values on creation and use then instead.
-    */
-    double m_shieldCharge;
-    double m_armorDamage;
-    double m_hullDamage;
 };
 
 #endif /* !__SHIP__H__INCL__ */

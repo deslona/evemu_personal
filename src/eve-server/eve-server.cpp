@@ -174,8 +174,8 @@ int main( int argc, char* argv[] )
 
     sLog.InitializeLogging(sConfig.files.logDir);
     sLog.Log("server init", "Loading server...");
-    sLog.Log("SERVER VERSION", "EVEmu 0.7.22-allan" );
-    sLog.Log("BUILD DATE", "27 April 2014");
+    sLog.Log("SERVER VERSION", "EVEmu 0.7.24-allan" );
+    sLog.Log("BUILD DATE", "28 June 2014");
     sLog.Log("SOURCE", "get at " EVEMU_REPOSITORY );
     sLog.Log("SERVER INIT", "\n"
         "\tSupported Client: %s\n"
@@ -334,9 +334,9 @@ int main( int argc, char* argv[] )
     services.RegisterService(new VoucherService(&services));
     services.RegisterService(new WarRegistryService(&services));
 
-    sLog.Log("server init", "Priming cached objects.");
+    sLog.Warning("server init", "Priming cached objects.");
     services.cache_service->PrimeCache();
-    sLog.Log("server init", "finished priming");
+    sLog.Success("server init", "finished priming");
 
     // start up the image server
     sImageServer.Run();

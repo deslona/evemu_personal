@@ -662,7 +662,7 @@ void Client::_UpdateSession2( uint32 characterID )
     mSession.SetLong( "rolesAtOther", rolesAtOther );
 
     m_shipId = shipID;
-    if( m_char != NULL )
+    if( m_char.get() != NULL )
         m_char->SetActiveShip(m_shipId);
     if (IsInSpace())
         mSession.SetInt( "shipid", shipID );
@@ -733,7 +733,7 @@ void Client::_SendSessionChange()
     if( scn.changes->empty() )
         return;
 
-    sLog.Log("Client","Session updated, sending session change");
+    sLog.Debug("Client::_SendSessionChange()"," Session updated, sending session change");
     scn.changes->Dump(CLIENT__SESSION, "  Changes: ");
 
     //this is probably not necessary...
@@ -1298,7 +1298,7 @@ void Client::TargetsCleared()
 }
 
 void Client::SavePosition() {
-    if( !GetShip() || m_destiny == NULL ) {
+    if( !GetShip().get() || m_destiny == NULL ) {
         sLog.Debug("Client","%s: Unable to save position. We are probably not in space.", GetName());
         return;
     }
@@ -1307,9 +1307,9 @@ void Client::SavePosition() {
 
 void Client::SaveAllToDatabase() {
     SavePosition();
-    if( GetShip() ) GetShip()->SaveShip();       // Save Ship and Modules' attributes and info to DB
+    if( GetShip() ) GetShip()->SaveShip();  // Save Ship and Modules' attributes and info to DB
 
-    GetChar()->SaveFullCharacter();                     // Save Character info to DB
+    GetChar()->SaveFullCharacter();         // Save Character info to DB
 }
 
 bool Client::LaunchDrone(InventoryItemRef drone) {
@@ -1648,8 +1648,6 @@ bool Client::_VerifyLogin( CryptoChallengePacket& ccp )
     mNet->QueueRep( rsp );
     PyDecRef( rsp );
 
-    sLog.Log("Client","successful");
-
     /* update account information, increase login count, last login timestamp and mark account as online */
     m_services.serviceDB().UpdateAccountInformation( account_info.name.c_str(), true );
 
@@ -1688,6 +1686,8 @@ bool Client::_VerifyLogin( CryptoChallengePacket& ccp )
     mSession.SetInt( "userType", 1 );
     mSession.SetInt( "userid", account_info.id );
     mSession.SetLong( "role", account_info.role );
+
+    sLog.Success("Client::Login()","%s logged in from %s", account_info.name.c_str() ,EVEClientSession::GetAddress().c_str() );
 
     return true;
 

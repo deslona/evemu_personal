@@ -26,28 +26,18 @@
 #ifndef __ENERGYTURRET_H__
 #define __ENERGYTURRET_H__
 
-#include "ship/modules/ActiveModules.h"
+#include "ship/modules/weapon_modules/WeaponModule.h"
 
-class EnergyTurret: public ActiveModule
+class EnergyTurret: public WeaponModule
 {
 public:
     EnergyTurret( InventoryItemRef item, ShipRef ship );
-    ~EnergyTurret();
-
-	void Process();
 
     // Module Action Methods:
-    void Load(InventoryItemRef charge);
-    void Unload();
-    void Repair();
-    void Overload();
-    void DeOverload();
-    void DestroyRig();
-	void Activate(SystemEntity * targetEntity);
-	void Deactivate();
+    virtual void Load(InventoryItemRef charge);
 
-    // Calls Reserved for components usage only!
-    void DoCycle();
+	// Calls Reserved for components usage only!
+	virtual void StartCycle();
 };
 
 #endif

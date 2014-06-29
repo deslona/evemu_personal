@@ -800,7 +800,7 @@ void ModuleEffects::_populate(uint32 typeID)
 {
     //first get list of all of the effects associated with the typeID
     DBQueryResult *res = new DBQueryResult();
-    //ModuleDB::GetDgmTypeEffectsInformation(typeID, *res);
+    ModuleDB::GetDgmTypeEffects(typeID, *res);
 
     //counter
     MEffect * mEffectPtr;
@@ -847,6 +847,9 @@ void ModuleEffects::_populate(uint32 typeID)
                     break;
                 case EFFECT_OVERLOAD:
                     m_OverloadEffects.insert(std::pair<uint32, MEffect *>(effectID,mEffectPtr));
+                    break;
+                case EFFECT_PASSIVE:
+                    m_PassiveEffects.insert(std::pair<uint32, MEffect *>(effectID,mEffectPtr));
                     break;
                 default:
                     sLog.Error("ModuleEffects::_populate()", "Illegal value '%u' obtained from the 'effectAppliedInState' field of the 'dgmEffectsInfo' table", mEffectPtr->GetModuleStateWhenEffectApplied());

@@ -20,22 +20,28 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Luck
+    Author:        avianrr
 */
 
-#ifndef RIG_MODULE_H
-#define RIG_MODULE_H
+#ifndef REPAIRMODULE_H
+#define	REPAIRMODULE_H
 
-#include "ship/modules/Modules.h"
+#include "ship/modules/ActiveModules.h"
 
-class RigModule
-: public GenericModule
+class RepairModule : public ActiveModule
 {
 public:
-    RigModule(InventoryItemRef item, ShipRef ship);
-    ~RigModule();
+    RepairModule(InventoryItemRef item, ShipRef ship);
+    
+private:
+    /**
+     * Called when the cycle completes.
+     * This is where repair/mining modules should do there actions.
+     * @note mining modules should also gather there minerals when deactivated and then not again when the cycle ends.
+     */
+	virtual void EndCycle();
 
-    ModulePowerLevel GetModulePowerLevel();
 };
 
-#endif
+#endif	/* REPAIRMODULE_H */
+

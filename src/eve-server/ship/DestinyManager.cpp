@@ -75,7 +75,7 @@ DestinyManager::DestinyManager(SystemEntity *self, SystemManager *system)
     m_targetEntity.first = 0;
     m_targetEntity.second = NULL;
 
-    m_cloaked = false;
+	m_cloaked = false;
 
     m_warpDecelerateFactor = 0.75;
 }
@@ -89,25 +89,46 @@ void DestinyManager::Process() {
     ProcessTic();
 }
 
-void DestinyManager::SendSingleDestinyUpdate(PyTuple **up, bool self_only) const {
-    std::vector<PyTuple *> updates(1, *up);
-    *up = NULL;
-    std::vector<PyTuple *> events;
-    //consumes updates and events
-    SendDestinyUpdate(updates, events, self_only);
+void DestinyManager::SendSelfDestinyUpdate(PyTuple **up) const {
+    m_self->QueueDestinyUpdate( up );
+    PySafeDecRef( *up ); //they are not required to consume it.
+}
+
+void DestinyManager::SendSelfDestinyEvent(PyTuple **up) const {
+    m_self->QueueDestinyEvent( up );
+    PySafeDecRef( *up ); //they are not required to consume it.
+}
+
+void DestinyManager::SendDestinyUpdate(PyTuple **up, bool self_only) const {
+    if( self_only )
+    {
+        SendSelfDestinyUpdate( up );
+    }
+    else
+    {
+        _log( DESTINY__TRACE, "[%u] Broadcasting destiny update.", GetStamp());
+
+        m_self->Bubble()->BubblecastDestinyUpdate( up, "destiny" );
+    }
+}
+
+void DestinyManager::SendDestinyEvent(PyTuple **up, bool self_only) const {
+    if( self_only )
+    {
+        SendSelfDestinyEvent( up );
+    }
+    else
+    {
+        _log( DESTINY__TRACE, "[%u] Broadcasting destiny update.", GetStamp());
+
+        m_self->Bubble()->BubblecastDestinyEvent( up, "destiny" );
+    }
 }
 
 void DestinyManager::SendDestinyUpdate(std::vector<PyTuple *> &updates, bool self_only) const {
-    std::vector<PyTuple *> events;
-    //consumes updates and events
-    SendDestinyUpdate(updates, events, self_only);
-}
-
-void DestinyManager::SendDestinyUpdate( std::vector<PyTuple*>& updates, std::vector<PyTuple*>& events, bool self_only ) const
-{
     if( self_only )
     {
-        _log( DESTINY__TRACE, "[%u] Sending destiny update (%lu, %lu) to self (%u).", GetStamp(), updates.size(), events.size(), m_self->GetID() );
+        _log( DESTINY__TRACE, "[%u] Sending destiny update (%lu) to self (%u).", GetStamp(), updates.size(), m_self->GetID() );
 
         std::vector<PyTuple*>::iterator cur, end;
         cur = updates.begin();
@@ -115,30 +136,62 @@ void DestinyManager::SendDestinyUpdate( std::vector<PyTuple*>& updates, std::vec
         for(; cur != end; cur++)
         {
             PyTuple* t = *cur;
-            m_self->QueueDestinyUpdate( &t );
-            PySafeDecRef( t ); //they are not required to consume it.
+            SendSelfDestinyUpdate( &t );
         }
         updates.clear();
+    }
+    else if( NULL != m_self->Bubble() )
+    {
+        _log( DESTINY__TRACE, "[%u] Broadcasting destiny update (%lu)", GetStamp(), updates.size() );
+
+        m_self->Bubble()->BubblecastDestinyUpdate( updates, "destiny" );
+    }
+    else
+    {
+        _log( DESTINY__ERROR, "[%u] Cannot broadcast destiny update (%lu); entity (%u) is not in any bubble.", GetStamp(), updates.size(), m_self->GetID() );
+    }
+}
+
+void DestinyManager::SendDestinyEvent( std::vector<PyTuple*>& events, bool self_only ) const
+{
+    if( self_only )
+    {
+        _log( DESTINY__TRACE, "[%u] Sending destiny event (%lu) to self (%u).", GetStamp(), events.size(), m_self->GetID() );
+
+        std::vector<PyTuple*>::iterator cur, end;
 
         cur = events.begin();
         end = events.end();
         for(; cur != end; cur++)
         {
             PyTuple* t = *cur;
-            m_self->QueueDestinyEvent( &t );
-            PySafeDecRef( t ); //they are not required to consume it.
+            SendSelfDestinyEvent( &t );
         }
         events.clear();
     }
     else if( NULL != m_self->Bubble() )
     {
-        _log( DESTINY__TRACE, "[%u] Broadcasting destiny update (%lu, %lu)", GetStamp(), updates.size(), events.size() );
+        _log( DESTINY__TRACE, "[%u] Broadcasting destiny event (%lu)", GetStamp(), events.size() );
 
-        m_self->Bubble()->BubblecastDestiny( updates, events, "destiny" );
+        m_self->Bubble()->BubblecastDestinyEvent( events, "destiny" );
     }
     else
     {
-        _log( DESTINY__ERROR, "[%u] Cannot broadcast destiny update (%lu, %lu); entity (%u) is not in any bubble.", GetStamp(), updates.size(), events.size(), m_self->GetID() );
+        _log( DESTINY__ERROR, "[%u] Cannot broadcast destiny update (%lu); entity (%u) is not in any bubble.", GetStamp(), events.size(), m_self->GetID() );
+    }
+}
+
+void DestinyManager::SendDestinyUpdate( std::vector<PyTuple*>& updates, std::vector<PyTuple*>& events, bool self_only ) const
+{
+    if( self_only )
+    {
+        SendDestinyUpdate(updates, self_only);
+        SendDestinyEvent(events, self_only);
+    }
+    else
+    {
+        _log( DESTINY__TRACE, "[%u] Broadcasting destiny event (%lu, %lu)", GetStamp(), updates.size(), events.size() );
+        m_self->Bubble()->BubblecastDestiny( updates, events, "destiny" );
     }
 }
 
@@ -495,10 +548,10 @@ void DestinyManager::_InitWarp() {
         warp_speed = m_system->GetWarpSpeed();
     }
 
-    m_warpNumerator = 2.0f;
-    m_warpDenomenator = 3.0f;
-    m_warpExpFactor = 1.0f;
-    m_warpVelocityMagnitudeFactorDivisor = 3.0f;
+	m_warpNumerator = 2.0f;
+	m_warpDenomenator = 3.0f;
+	m_warpExpFactor = 1.0f;
+	m_warpVelocityMagnitudeFactorDivisor = 3.0f;
 
     if(1.5*warp_distance < warp_speed) {//not positive on this conditional
         warp_speed = 1.5*warp_distance;
@@ -653,10 +706,10 @@ void DestinyManager::_Warp() {
         //put ourself back into a bubble.
         //m_system->bubbles.UpdateBubble(m_self);
         Stop(false);    //no updates, client is doing this too.
-        // Set our position one final time - BAND-AID for WARP-IN bug!  Remove once that is fixed!  This will make it VERY apparent a desync happened!
-        SetPosition( GetPosition(), true );
-        // Update bubble one final time:
-        m_system->bubbles.UpdateBubble(m_self, true, false, true);
+		// Set our position one final time - BAND-AID for WARP-IN bug!  Remove once that is fixed!  This will make it VERY apparent a desync happened!
+		SetPosition( GetPosition(), true );
+		// Update bubble one final time:
+		m_system->bubbles.UpdateBubble(m_self, true, false, true);
     }
 }
 
@@ -831,8 +884,8 @@ void DestinyManager::EntityRemoved(SystemEntity *who) {
 //Global Actions:
 void DestinyManager::Stop(bool update) {
     //Clear any pending docking operation since the user stopped ship movement:
-    if( m_self->IsClient() )
-        m_self->CastToClient()->SetPendingDockOperation( false );
+	if( m_self->IsClient() )
+		m_self->CastToClient()->SetPendingDockOperation( false );
 
     // THIS IS A HACK AS WE DONT KNOW WHY THE CLIENT CALLS STOP AT UNDOCK
     if( m_self->IsClient() && m_self->CastToClient()->GetJustUndocking() )
@@ -876,7 +929,7 @@ void DestinyManager::Stop(bool update) {
             du.entityID = m_self->GetID();
 
             PyTuple *tmp = du.Encode();
-            SendSingleDestinyUpdate(&tmp);    //consumed
+            SendDestinyUpdate(&tmp);    //consumed
         }
     }
 }
@@ -889,8 +942,8 @@ void DestinyManager::Halt(bool update) {
     _UpdateDerrived();
 
     //Clear any pending docking operation since the user halted ship movement:
-    if( m_self->IsClient() )
-        m_self->CastToClient()->SetPendingDockOperation( false );
+	if( m_self->IsClient() )
+		m_self->CastToClient()->SetPendingDockOperation( false );
 
     State = DSTBALL_STOP;
 
@@ -938,8 +991,8 @@ void DestinyManager::Follow(SystemEntity *who, double distance, bool update) {
     }
 
     //Clear any pending docking operation since the user set a new course:
-    if( m_self->IsClient() )
-        m_self->CastToClient()->SetPendingDockOperation( false );
+	if( m_self->IsClient() )
+		m_self->CastToClient()->SetPendingDockOperation( false );
 
     if(update) {
         DoDestiny_CmdFollowBall du;
@@ -948,7 +1001,7 @@ void DestinyManager::Follow(SystemEntity *who, double distance, bool update) {
         du.unknown = uint32(distance);
 
         PyTuple *tmp = du.Encode();
-        SendSingleDestinyUpdate(&tmp);    //consumed
+        SendDestinyUpdate(&tmp);    //consumed
     }
 
     sLog.Debug( "DestinyManager::GotoDirection()", "SystemEntity '%s' following SystemEntity '%s' at velocity %f",
@@ -982,7 +1035,7 @@ void DestinyManager::Orbit(SystemEntity *who, double distance, bool update) {
         du.distance = uint32(distance);
 
         PyTuple *tmp = du.Encode();
-        SendSingleDestinyUpdate(&tmp);    //consumed
+        SendDestinyUpdate(&tmp);    //consumed
     }
 }
 
@@ -990,11 +1043,11 @@ void DestinyManager::OrbitingCruise(SystemEntity *who, double distance, bool upd
     if(State == DSTBALL_ORBIT && m_targetEntity.second == who && m_targetDistance == distance)
         return;
 
-    if( cruiseSpeed > 0 )
-    {
-        m_maxShipVelocity = cruiseSpeed;
-        _UpdateDerrived();
-    }
+	if( cruiseSpeed > 0 )
+	{
+		m_maxShipVelocity = cruiseSpeed;
+		_UpdateDerrived();
+	}
 
     State = DSTBALL_ORBIT;
     m_stateStamp = GetStamp()+1;
@@ -1016,7 +1069,7 @@ void DestinyManager::OrbitingCruise(SystemEntity *who, double distance, bool upd
         du.distance = uint32(distance);
 
         PyTuple *tmp = du.Encode();
-        SendSingleDestinyUpdate(&tmp);    //consumed
+        SendDestinyUpdate(&tmp);    //consumed
     }
 }
 
@@ -1070,7 +1123,7 @@ void DestinyManager::SetPosition(const GPoint &pt, bool update, bool isWarping, 
         du.z = pt.z;
 
         PyTuple *tmp = du.Encode();
-        SendSingleDestinyUpdate(&tmp);    //consumed
+        SendDestinyUpdate(&tmp);    //consumed
     }
     m_system->bubbles.UpdateBubble(m_self, update, isWarping, isPostWarp);
 }
@@ -1086,7 +1139,7 @@ void DestinyManager::SetSpeedFraction(double fraction, bool update) {
         du.fraction = fraction;
 
         PyTuple *tmp = du.Encode();
-        SendSingleDestinyUpdate(&tmp);    //consumed
+        SendDestinyUpdate(&tmp);    //consumed
     }
 }
 
@@ -1110,8 +1163,8 @@ void DestinyManager::AlignTo(const GPoint &direction, bool update) {
     }
 
     //Clear any pending docking operation since the user set a new course:
-    if( m_self->IsClient() )
-        m_self->CastToClient()->SetPendingDockOperation( false );
+	if( m_self->IsClient() )
+		m_self->CastToClient()->SetPendingDockOperation( false );
 
     if(update) {
         DoDestiny_GotoPoint du;
@@ -1121,7 +1174,7 @@ void DestinyManager::AlignTo(const GPoint &direction, bool update) {
         du.z = direction.z;
 
         PyTuple *tmp = du.Encode();
-        SendSingleDestinyUpdate(&tmp);    //consumed
+        SendDestinyUpdate(&tmp);    //consumed
     }
 
     sLog.Debug( "DestinyManager::GotoDirection()", "SystemEntity '%s' vectoring to (%f,%f,%f) at velocity %f",
@@ -1142,8 +1195,8 @@ void DestinyManager::GotoDirection(const GPoint &direction, bool update) {
     }
 
     //Clear any pending docking operation since the user set a new course:
-    if( m_self->IsClient() )
-        m_self->CastToClient()->SetPendingDockOperation( false );
+	if( m_self->IsClient() )
+		m_self->CastToClient()->SetPendingDockOperation( false );
 
     sLog.Debug( "DestinyManager::GotoDirection()", "SystemEntity '%s' vectoring to (%f,%f,%f) at velocity %f",
                 m_self->GetName(), direction.x, direction.y, direction.z, m_maxVelocity );
@@ -1156,7 +1209,7 @@ void DestinyManager::GotoDirection(const GPoint &direction, bool update) {
         du.z = direction.z;
 
         PyTuple *tmp = du.Encode();
-        SendSingleDestinyUpdate(&tmp);    //consumed
+        SendDestinyUpdate(&tmp);    //consumed
     }
 }
 
@@ -1238,7 +1291,7 @@ PyResult DestinyManager::AttemptDockOperation()
     Stop(false);
 
     // When docking, Set X,Y,Z to origin so that when changing ships in stations, they don't appear outside:
-    who->MoveToLocation( stationID, stationDockPoint );     // if stationDockPoint does not help, try m_position
+	who->MoveToLocation( stationID, stationDockPoint );		// if stationDockPoint does not help, try m_position
 
     who->SetPendingDockOperation( false );
 
@@ -1251,7 +1304,7 @@ PyResult DestinyManager::AttemptDockOperation()
         //set base type for rookie ship
         uint32 typeID = caldariRookie;
 
-        //set spawn location for hangar - not sure if this is correct.  Do you instantly get put in the rookie ship?  No - allan
+        //set spawn location for hangar - not sure if this is correct.  Do you instantly get put in the rookie ship?
         EVEItemFlags flag = (EVEItemFlags)flagHangar;
 
         //create rookie ship of appropriate type
@@ -1287,8 +1340,8 @@ PyResult DestinyManager::AttemptDockOperation()
     if( who->IsClient() )
         who->CastToClient()->SaveAllToDatabase();
 
-    // Finally, remove ship from current bubble and system manager:
-    //who->System()->RemoveClient(who);
+	// Finally, remove ship from current bubble and system manager:
+	//who->System()->RemoveClient(who);
 
     // Docking was accepted, so send the OnDockingAccepted packet:
     // Packet::Notification
@@ -1318,18 +1371,18 @@ PyResult DestinyManager::AttemptDockOperation()
 
 void DestinyManager::Cloak()
 {
-    sLog.Warning("DestinyManager::Cloak()", "TODO - check for warp-safe-ness, and turn on any cloaking device module fitted");
-    m_cloaked = true;
-    SendCloakShip(true);
-    m_self->Bubble()->RemoveExclusive(m_self,true);
+	sLog.Warning("DestinyManager::Cloak()", "TODO - check for warp-safe-ness, and turn on any cloaking device module fitted");
+	m_cloaked = true;
+	SendCloakShip(true);
+	m_self->Bubble()->RemoveExclusive(m_self,true);
 }
 
 void DestinyManager::UnCloak()
 {
-    sLog.Warning("DestinyManager::UnCloak()", "TODO - check for warp-safe-ness, and turn off any cloaking device module fitted");
-    m_cloaked = false;
-    SendUncloakShip();
-    m_self->Bubble()->AddExclusive(m_self,true);
+	sLog.Warning("DestinyManager::UnCloak()", "TODO - check for warp-safe-ness, and turn off any cloaking device module fitted");
+	m_cloaked = false;
+	SendUncloakShip();
+	m_self->Bubble()->AddExclusive(m_self,true);
 }
 
 
@@ -1342,8 +1395,8 @@ void DestinyManager::WarpTo(const GPoint &where, double distance, bool update) {
     }
 
     //Clear any pending docking operation since the user initiated warp:
-    if( m_self->IsClient() )
-        m_self->CastToClient()->SetPendingDockOperation( false );
+	if( m_self->IsClient() )
+		m_self->CastToClient()->SetPendingDockOperation( false );
 
     State = DSTBALL_WARP;
     m_targetEntity.first = 0;
@@ -1481,7 +1534,7 @@ void DestinyManager::SendJumpOutEffect(std::string JumpEffect, uint32 locationID
     DoDestiny_OnSpecialFX10 effect;
     effect.entityID = m_self->GetID();
     effect.targetID = locationID;
-    effect.effect_type = "effects.JumpDriveOut";
+	effect.effect_type = "effects.JumpDriveOut";
     effect.isOffensive = 0;
     effect.start = 1;
     effect.active = 0;
@@ -1551,7 +1604,7 @@ void DestinyManager::SendGateActivity() const {
     du.active = 0;
 
     PyTuple *tmp = du.Encode();
-    SendSingleDestinyUpdate(&tmp);    //consumed
+    SendDestinyUpdate(&tmp);    //consumed
 }
 
 void DestinyManager::SendSetState(const SystemBubble *b) const {
@@ -1562,7 +1615,7 @@ void DestinyManager::SendSetState(const SystemBubble *b) const {
     m_system->MakeSetState(b, ss);
 
     PyTuple *tmp = ss.Encode();
-    SendSingleDestinyUpdate(&tmp, true);    //consumed
+    SendDestinyUpdate(&tmp, true);    //consumed
 }
 
 void DestinyManager::SendBallInfoOnUndock(bool update) const {
@@ -1714,7 +1767,7 @@ void DestinyManager::SendCloakShip(const bool IsWarpSafe) const {
 
       DoDestiny_OnSpecialFX10 effect;
     effect.effect_type = "effects.Cloak";
-    effect.entityID = m_self->GetID();
+	effect.entityID = m_self->GetID();
     effect.isOffensive = 0;
     effect.start = 1;
     effect.active = 0;
@@ -1728,7 +1781,7 @@ void DestinyManager::SendUncloakShip() const {
 
     DoDestiny_OnSpecialFX10 effect;
     effect.effect_type = "effects.Uncloak";
-    effect.entityID = m_self->GetID();
+	effect.entityID = m_self->GetID();
     effect.isOffensive = 0;
     effect.start = 1;
     effect.active = 0;
@@ -1741,7 +1794,7 @@ void DestinyManager::SendSpecialEffect(const ShipRef shipRef, uint32 moduleID, u
     uint32 targetID, uint32 chargeID, std::string effectString, bool isOffensive, bool isActive, double duration, uint32 repeat) const
 {
     std::vector<PyTuple *> updates;
-    std::vector<int32, std::allocator<int32> > area;
+	std::vector<int32, std::allocator<int32> > area;
 
     DoDestiny_OnSpecialFX13 effect;
     effect.entityID = shipRef->itemID();
