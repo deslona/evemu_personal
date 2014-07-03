@@ -111,23 +111,24 @@ PyObject *SearchDB::Query(std::string string, int32 searchID, uint32 charID) {
     }
 
     DBResultRow row;
-    if(res.GetRow(row)) return(DBResultToRowset(res)); else { sLog.Error("SearchDB::Query", "res = NULL"); return NULL; }
+    if(res.GetRow(row)) return(DBResultToRowset(res)); else { sLog.Error("SearchDB::Query", "res = NULL : query = %s : string = %s", query.c_str(), string.c_str() ); return NULL; }
 
     //return DBResultToRowset(res);
 }
 
+
+//  this needs work....use nested querys like ConfigDB::GetMultiOwnersEx to search till matched or end.
 PyObject *SearchDB::QueryAll(std::string string, uint32 charID) {
    sLog.Warning("SearchDB::QueryAll", "Search String = %s", string.c_str() );
     DBQueryResult res;
     if(!sDatabase.RunQuery(res,
-        "SELECT regionID, constellationID, solarSystemID, solarSystemName FROM mapSolarSystems WHERE solarSystemName = '%s'", string.c_str() )) {
+        "SELECT regionID, constellationID, solarSystemID, solarSystemName FROM mapSolarSystems WHERE solarSystemName LIKE '%s'", string.c_str() )) {
             sLog.Error("SearchDB::QueryAll","%u: Query Failed: %s", charID, res.error.c_str() );
             return NULL;
     }
 
     DBResultRow row;
-    if(res.GetRow(row)) return(DBResultToRowset(res)); else { sLog.Error("SearchDB::QueryAll", "res = NULL"); return NULL; }
-
+    if(res.GetRow(row)) return(DBResultToRowset(res)); else { sLog.Error("SearchDB::QueryAll","res = NULL : string = %s", string.c_str() ); return NULL; }
     //return DBResultToRowset(res);
 }
 
@@ -169,5 +170,5 @@ PyObject *SearchDB::QuickQuery(std::string string, uint32 charID) {
         return NULL;
     }
 
-    if(res.GetRow(row)) return(DBResultToRowset(res)); else { sLog.Error("SearchDB::QuickQuery", "res = NULL"); return NULL; }
+    if(res.GetRow(row)) return(DBResultToRowset(res)); else { sLog.Error("SearchDB::QuickQuery", "res = NULL : string = %s",  string.c_str() ); return NULL; }
 }

@@ -124,6 +124,24 @@ PyResult TutorialService::Handle_GetCharacterTutorialState( PyCallArgs& call ) {
 //00:25:58 L TutorialService::Handle_GetTutorialsAndConnections(): size= 0
 PyResult TutorialService::Handle_GetTutorialsAndConnections( PyCallArgs& call ) {
   /*  Empty Call  */
+/**  python from client  ../ui/services/tutorialsvc.py
+    def GetTutorialsByCategory(self):
+        tutorials = self.GetTutorials()
+        byCategs = {}
+        for tutorialID, tutorialData in tutorials.iteritems():
+            if tutorialData.categoryID not in byCategs:
+                byCategs[tutorialData.categoryID] = []
+            tutorialName = localization.GetByMessageID(tutorialData.tutorialNameID)
+            byCategs[tutorialData.categoryID].append((tutorialName, tutorialData))
+
+        for k, v in byCategs.iteritems():
+            byCategs[k] = uiutil.SortListOfTuples(v)
+
+        return byCategs
+
+
+AttributeError: 'NoneType' object has no attribute 'iteritems'
+ */
 
     return new PyInt( 0 );
 }

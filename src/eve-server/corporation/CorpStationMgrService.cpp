@@ -94,6 +94,7 @@ CorpStationMgrService::CorpStationMgrService(PyServiceMgr *mgr)
     _SetCallDispatcher(m_dispatch);
 
     //PyCallable_REG_CALL(CorpStationMgrService, MachoBindObject)
+    //PyCallable_REG_CALL(CorpStationMgrService, GetImprovementStaticData)
 }
 
 CorpStationMgrService::~CorpStationMgrService() {

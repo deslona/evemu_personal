@@ -166,7 +166,109 @@ void LSCService::InitiateStaticChannels() {
 
 
 PyResult LSCService::Handle_GetChannels(PyCallArgs &call)
-{
+{/**
+16:53:01 [SvcCall] Service LSC: calling GetChannels
+16:53:01 [SvcCallTrace]   Call Arguments:
+16:53:01 [SvcCallTrace]       Tuple: Empty
+16:53:01 [SvcCallTrace]   Call Named Arguments:
+16:53:01 [SvcCallTrace]     Argument 'machoVersion':
+16:53:01 [SvcCallTrace]         Integer field: 1
+16:53:01 [LSCChan] Creating channel "System Channels\Region"
+16:53:01 [SvcError] CharID 140000623 isn't present in the database
+16:53:01 [SvcCallTrace] Call GetChannels returned:
+16:53:01 [SvcCallTrace]       Object:
+16:53:01 [SvcCallTrace]         Type: String: 'util.Rowset'
+16:53:01 [SvcCallTrace]         Args: Dictionary: 3 entries
+16:53:01 [SvcCallTrace]         Args:   [ 0] Key: String: 'lines'
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value: List: 5 elements
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 0] List: 13 elements
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 0]   [ 0] Integer field: 1000165
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 0]   [ 1] Integer field: 1
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 0]   [ 2] String: 'System Channels\Corp'
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 0]   [ 3] String: 'Hedion University'
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 0]   [ 4] String: ''
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 0]   [ 5] Boolean field: false
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 0]   [ 6] String: ''
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 0]   [ 7] Boolean field: false
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 0]   [ 8] Integer field: 1
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 0]   [ 9] Integer field: 0
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 0]   [10] Integer field: 2950
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 0]   [11] Boolean field: true
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 0]   [12] Integer field: 1
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 1] List: 13 elements
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 1]   [ 0] Integer field: 10000065
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 1]   [ 1] Integer field: 1
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 1]   [ 2] String: 'System Channels\Region'
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 1]   [ 3] String: 'Kor-Azor'
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 1]   [ 4] String: ''
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 1]   [ 5] Boolean field: false
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 1]   [ 6] String: ''
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 1]   [ 7] Boolean field: false
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 1]   [ 8] Integer field: 1
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 1]   [ 9] Integer field: 0
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 1]   [10] Integer field: 2950
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 1]   [11] Boolean field: false
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 1]   [12] Integer field: 0
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 2] List: 13 elements
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 2]   [ 0] Integer field: 20000737
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 2]   [ 1] Integer field: 1
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 2]   [ 2] String: 'System Channels\Constellation'
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 2]   [ 3] String: 'Gebem'
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 2]   [ 4] String: ''
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 2]   [ 5] Boolean field: false
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 2]   [ 6] String: ''
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 2]   [ 7] Boolean field: false
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 2]   [ 8] Integer field: 1
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 2]   [ 9] Integer field: 0
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 2]   [10] Integer field: 2950
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 2]   [11] Boolean field: true
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 2]   [12] Integer field: 1
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 3] List: 13 elements
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 3]   [ 0] Integer field: 30005042
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 3]   [ 1] Integer field: 1
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 3]   [ 2] String: 'System Channels\Local'
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 3]   [ 3] String: 'Sehmy'
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 3]   [ 4] String: ''
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 3]   [ 5] Boolean field: false
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 3]   [ 6] String: ''
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 3]   [ 7] Boolean field: false
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 3]   [ 8] Integer field: 1
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 3]   [ 9] Integer field: 0
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 3]   [10] Integer field: 2950
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 3]   [11] Boolean field: true
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 3]   [12] Integer field: 1
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 4] List: 13 elements
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 4]   [ 0] Integer field: 140000623
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 4]   [ 1] Integer field: 1
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 4]   [ 2] String: ''
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 4]   [ 3] String: ''
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 4]   [ 4] String: ''
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 4]   [ 5] Boolean field: false
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 4]   [ 6] String: ''
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 4]   [ 7] Boolean field: false
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 4]   [ 8] Integer field: 1
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 4]   [ 9] Integer field: 0
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 4]   [10] Integer field: 2950
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 4]   [11] Boolean field: true
+16:53:01 [SvcCallTrace]         Args:   [ 0] Value:   [ 4]   [12] Integer field: 1
+16:53:01 [SvcCallTrace]         Args:   [ 1] Key: String: 'RowClass'
+16:53:01 [SvcCallTrace]         Args:   [ 1] Value: Token: 'util.Row'
+16:53:01 [SvcCallTrace]         Args:   [ 2] Key: String: 'header'
+16:53:01 [SvcCallTrace]         Args:   [ 2] Value: List: 13 elements
+16:53:01 [SvcCallTrace]         Args:   [ 2] Value:   [ 0] String: 'channelID'
+16:53:01 [SvcCallTrace]         Args:   [ 2] Value:   [ 1] String: 'ownerID'
+16:53:01 [SvcCallTrace]         Args:   [ 2] Value:   [ 2] String: 'displayName'
+16:53:01 [SvcCallTrace]         Args:   [ 2] Value:   [ 3] String: 'motd'
+16:53:01 [SvcCallTrace]         Args:   [ 2] Value:   [ 4] String: 'comparisonKey'
+16:53:01 [SvcCallTrace]         Args:   [ 2] Value:   [ 5] String: 'memberless'
+16:53:01 [SvcCallTrace]         Args:   [ 2] Value:   [ 6] String: 'password'
+16:53:01 [SvcCallTrace]         Args:   [ 2] Value:   [ 7] String: 'mailingList'
+16:53:01 [SvcCallTrace]         Args:   [ 2] Value:   [ 8] String: 'cspa'
+16:53:01 [SvcCallTrace]         Args:   [ 2] Value:   [ 9] String: 'temporary'
+16:53:01 [SvcCallTrace]         Args:   [ 2] Value:   [10] String: 'mode'
+16:53:01 [SvcCallTrace]         Args:   [ 2] Value:   [11] String: 'subscribed'
+16:53:01 [SvcCallTrace]         Args:   [ 2] Value:   [12] String: 'estimatedMemberCount'
+**/
     /*
         Assume this is only called when the char's logging in.
         Next step from the client is to join to all channels that's been sent by this

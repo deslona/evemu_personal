@@ -127,6 +127,17 @@ PyResult CorporationService::Handle_GetFactionInfo(PyCallArgs &call) {
 }
 
 PyResult CorporationService::Handle_GetCorpInfo(PyCallArgs &call) {
+  /*
+18:22:36 L CorporationService::Handle_GetCorpInfo(): size= 1
+18:22:36 [SvcCall]   Call Arguments:
+18:22:36 [SvcCall]       Tuple: 1 elements
+18:22:36 [SvcCall]         [ 0] Integer field: 1000084
+18:22:36 [SvcCall]   Call Named Arguments:
+18:22:36 [SvcCall]     Argument 'machoVersion':
+18:22:36 [SvcCall]         Integer field: 1
+18:22:36 [SvcCallTrace] Call GetCorpInfo returned:
+18:22:36 [SvcCallTrace]       (None)
+*/
       sLog.Log( "CorporationService::Handle_GetCorpInfo()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
 

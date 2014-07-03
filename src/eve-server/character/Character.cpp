@@ -775,6 +775,13 @@ void Character::UpdateSkillQueue() {
                 break;
             }
 
+            if(currentTraining->GetAttribute(AttrSkillLevel) >= 5) {  //check for skillLevel above max.
+                currentTraining->SetAttribute(AttrExpiryTime, 0);
+                currentTraining->MoveInto( *this, flagSkill, true );
+                currentTraining->SaveItem();
+                break;
+            }
+
             EvilNumber SPToNextLevel = currentTraining->GetSPForLevel(currentTraining->GetAttribute(AttrSkillLevel) + 1);
             EvilNumber CurrentSP = currentTraining->GetAttribute(AttrSkillPoints);
             SPToNextLevel = SPToNextLevel.get_float() - CurrentSP.get_float();
@@ -785,7 +792,7 @@ void Character::UpdateSkillQueue() {
 
             //  save start skill training in history  -allan
             // eventID:36 - SkillTrainingStarted
-            EvilNumber level = currentTraining->GetAttribute(AttrSkillLevel);
+            EvilNumber level = currentTraining->GetAttribute(AttrSkillLevel) + 1;  // current level incremented to level being trained
             SaveSkillHistory(36, EvilTimeNow().get_float(), itemID(), skillID, level.get_int(), CurrentSP.get_float(), GetTotalSP().get_float() );
                 sLog.Warning( "skillHistory", "training started, skill: %u, level: %d", skillID, level.get_int() );
 
@@ -839,6 +846,13 @@ void Character::UpdateSkillQueue() {
 
             skillID = m_skillQueue.front().typeID;           //  uint32
             currentTraining = GetSkill( skillID );           //  skillRef
+
+            if(currentTraining->GetAttribute(AttrSkillLevel) >= 5) {  //check for skillLevel above max.
+                currentTraining->SetAttribute(AttrExpiryTime, 0);
+                currentTraining->MoveInto( *this, flagSkill, true );
+                currentTraining->SaveItem();
+                break;
+            }
 
             EvilNumber SPToNextLevel = currentTraining->GetSPForLevel(currentTraining->GetAttribute(AttrSkillLevel) + 1);
             EvilNumber CurrentSP = currentTraining->GetAttribute(AttrSkillPoints);
@@ -1180,7 +1194,7 @@ void Character::_GetLogonMinutes() {
 
     // some checks are done < 1m, so if this check has no minutes, keep original time and exit
     if(loginTime > 0) {
-        sLog.Warning("Character::_GetLogonMinutes"," Char %s -- logonDateTime = %" PRIu64 ", TimeNow = %" PRIu64 ", loginTime.get_int() = %u, logonMinutes() = %u", itemName().c_str(), logonDateTime, Win32TimeNow(), loginTime.get_int(), logonMinutes() );
+        sLog.Debug("Character::_GetLogonMinutes"," Char %s -- logonDateTime = %" PRIu64 ", TimeNow = %" PRIu64 ", loginTime.get_int() = %u, logonMinutes() = %u", itemName().c_str(), logonDateTime, Win32TimeNow(), loginTime.get_int(), logonMinutes() );
         m_logonMinutes = logonMinutes() + loginTime.get_int();
         // updated logonDateTime to now....last check was then to now, so remove that time and reset
         DBerror err;

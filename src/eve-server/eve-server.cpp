@@ -174,8 +174,8 @@ int main( int argc, char* argv[] )
 
     sLog.InitializeLogging(sConfig.files.logDir);
     sLog.Log("server init", "Loading server...");
-    sLog.Log("SERVER VERSION", "EVEmu 0.7.24-allan" );
-    sLog.Log("BUILD DATE", "28 June 2014");
+    sLog.Log("SERVER VERSION", "EVEmu 0.7.25-allan" );
+    sLog.Log("BUILD DATE", "1 July 2014");
     sLog.Log("SOURCE", "get at " EVEMU_REPOSITORY );
     sLog.Log("SERVER INIT", "\n"
         "\tSupported Client: %s\n"
@@ -363,6 +363,9 @@ int main( int argc, char* argv[] )
     //sDGM_Implant_Bonus_Modifiers_Table.Initialize();
     //sLog.Log("server init", "---> sDGM_Wrecks_to_Salvage_Table: Loading...");
     //sDGM_Wrecks_to_Salvage_Table.Initialize();
+
+    //sLog.Warning("server init", "Adding NPC Market Orders.");
+    //NPCMarket::CreateNPCMarketFromFile("/etc/npcMarket.xml");
 
     sLog.Success("server init", "Init done.");
 

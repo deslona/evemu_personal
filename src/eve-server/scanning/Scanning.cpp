@@ -30,5 +30,9 @@
 /**
 Scanning::ScanningData()
 {
+
+  scanSvc.GetProbeData (probeID)
+  scanSvc.GetActiveProbes (probeID)
+  scanSvc.GetProbeLabel(probe.probeID)
 }
 */

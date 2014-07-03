@@ -108,20 +108,8 @@ void Agent::DoAction(
 }
 
 
+/**
+agents.GetAgentsByStationID()
+agents.GetDivisions()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+*/

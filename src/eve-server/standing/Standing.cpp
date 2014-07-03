@@ -278,26 +278,9 @@ PyResult Standing::Handle_GetCorpStandings(PyCallArgs &call) {
 }
 
 
+/**
+  standing.CanUseAgent
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+*/

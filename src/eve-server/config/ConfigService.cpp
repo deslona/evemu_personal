@@ -58,6 +58,15 @@ ConfigService::~ConfigService() {
 }
 
 PyResult ConfigService::Handle_GetMultiOwnersEx(PyCallArgs &call) {
+  /*
+23:14:21 L ConfigService: Handle_GetMultiOwnersEx
+23:14:21 [SvcCall]   Call Arguments:
+23:14:21 [SvcCall]       Tuple: 1 elements
+23:14:21 [SvcCall]         [ 0] List: 1 elements
+23:14:21 [SvcCall]         [ 0]   [ 0] Integer field: 140000053
+*/
+  sLog.Log( "ConfigService", "Handle_GetMultiOwnersEx" );
+  call.Dump(SERVICE__CALLS);
     Call_SingleIntList arg;
     if(!arg.Decode(&call.tuple)) {
         _log(SERVICE__ERROR, "Failed to decode arguments.");
@@ -290,6 +299,14 @@ PyResult ConfigService::Handle_GetMultiInvTypesEx(PyCallArgs &call) {
 //02:10:35 L ConfigService::Handle_GetMapConnections(): size= 6
 PyResult ConfigService::Handle_GetMapConnections(PyCallArgs &call) {
 /**
+this is cached on clientside.  only called if not in client cache
+
+00:47:18 [SvcCall]         [ 0] Integer field: 9            * should be solarsystem
+00:47:18 [SvcCall]         [ 1] Boolean field: true
+00:47:18 [SvcCall]         [ 2] Boolean field: false
+00:47:18 [SvcCall]         [ 3] Boolean field: false
+00:47:18 [SvcCall]         [ 4] Integer field: 0
+00:47:18 [SvcCall]         [ 5] Integer field: 1
 
 02:10:35 [SvcCall]         [ 0] Integer field: 10000065     *region
 02:10:35 [SvcCall]         [ 1] Boolean field: false
@@ -305,22 +322,13 @@ PyResult ConfigService::Handle_GetMapConnections(PyCallArgs &call) {
 18:33:25 [SvcCall]         [ 4] Integer field: 0
 18:33:25 [SvcCall]         [ 5] Integer field: 1
 
-00:47:18 [SvcCall]         [ 0] Integer field: 9
-00:47:18 [SvcCall]         [ 1] Boolean field: true
-00:47:18 [SvcCall]         [ 2] Boolean field: false
-00:47:18 [SvcCall]         [ 3] Boolean field: false
-00:47:18 [SvcCall]         [ 4] Integer field: 0
-00:47:18 [SvcCall]         [ 5] Integer field: 1
-00:47:18 [SvcCall]   Call Named Arguments:
-00:47:18 [SvcCall]     Argument 'machoVersion':
-00:47:18 [SvcCall]         Integer field: 1
-
-      <int name="queryID" />
-      <bool name="bool1" /> args.bool1
-      <bool name="bool2" />
-      <bool name="bool3" />
-      <int name="int2" />
-      <int name="int3" />
+GetMapConnections(id, sol, reg, con, cel, _c)  <- from client py code
+      <int name="id" />
+      <bool name="sol" />
+      <bool name="reg" /> args.reg
+      <bool name="con" />
+      <int name="cel" />
+      <int name="_c" />
 */
   sLog.Log( "ConfigService::Handle_GetMapConnections()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
@@ -330,13 +338,38 @@ PyResult ConfigService::Handle_GetMapConnections(PyCallArgs &call) {
         return new PyInt(0);
     }
 
-    if(args.queryID == 9 || args.bool1)
-        return m_db.GetMapConnections(call.client->GetSystemID(), args.bool1, args.bool2, args.bool3, args.int2, args.int3);
-    else
-        return m_db.GetMapConnections(args.queryID, args.bool1, args.bool2, args.bool3, args.int2, args.int3);
+    if(args.id == 9 || args.sol) {
+        sLog.Warning( "ConfigService::Handle_GetMapConnections()", "args.id = 9 | args.sol = 1");
+        return m_db.GetMapConnections(call.client->GetSystemID(), args.sol, args.reg, args.con, args.cel, args._c);
+    } else {
+        sLog.Success( "ConfigService::Handle_GetMapConnections()", "args.id is good number");
+        return m_db.GetMapConnections(args.id, args.sol, args.reg, args.con, args.cel, args._c);
+    }
 }
 
 PyResult ConfigService::Handle_GetStationSolarSystemsByOwner(PyCallArgs &call) {
+  /*
+18:22:36 L ConfigService::Handle_GetStationSolarSystemsByOwner(): size= 1
+18:22:36 [SvcCall]   Call Arguments:
+18:22:36 [SvcCall]       Tuple: 1 elements
+18:22:36 [SvcCall]         [ 0] Integer field: 1000084
+18:22:36 [SvcCallTrace] Call GetStationSolarSystemsByOwner returned:
+18:22:36 [SvcCallTrace]       Object:
+18:22:36 [SvcCallTrace]         Type: String: 'util.Rowset'
+18:22:36 [SvcCallTrace]         Args: Dictionary: 3 entries
+18:22:36 [SvcCallTrace]         Args:   [ 0] Key: String: 'lines'
+18:22:36 [SvcCallTrace]         Args:   [ 0] Value: List: 42 elements
+18:22:36 [SvcCallTrace]         Args:   [ 0] Value:   [ 0] List: 2 elements
+18:22:36 [SvcCallTrace]         Args:   [ 0] Value:   [ 0]   [ 0] Integer field: 1000084
+18:22:36 [SvcCallTrace]         Args:   [ 0] Value:   [ 0]   [ 1] Integer field: 30002279
+                        .......<snip>.....
+18:22:36 [SvcCallTrace]         Args:   [ 1] Key: String: 'RowClass'
+18:22:36 [SvcCallTrace]         Args:   [ 1] Value: Token: 'util.Row'
+18:22:36 [SvcCallTrace]         Args:   [ 2] Key: String: 'header'
+18:22:36 [SvcCallTrace]         Args:   [ 2] Value: List: 2 elements
+18:22:36 [SvcCallTrace]         Args:   [ 2] Value:   [ 0] String: 'corporationID'
+18:22:36 [SvcCallTrace]         Args:   [ 2] Value:   [ 1] String: 'solarSystemID'
+*/
   sLog.Log( "ConfigService::Handle_GetStationSolarSystemsByOwner()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
     Call_SingleIntegerArg arg;
@@ -367,24 +400,16 @@ PyResult ConfigService::Handle_GetDynamicCelestials(PyCallArgs &call) {
         return NULL;
     }
 
-    if(IsSolarSystem(arg.arg))
+    if(IsSolarSystem(arg.arg)) {
+        sLog.Success("GetDynamicCelesitals", " IsSolarSystem %u", arg.arg);
         return m_db.GetDynamicCelestials(arg.arg);
-    else
+    } else {
+        sLog.Error("GetDynamicCelesitals", "  !IsSolarSystem %u", arg.arg);
         return new PyInt( 0 );
+    }
 }
 
 PyResult ConfigService::Handle_GetMapLandmarks(PyCallArgs &call) {
-  /*
-22:00:55 L ConfigService::Handle_GetMapLandmarks(): size= 0
-22:00:55 [SvcCall]   Call Arguments:
-22:00:55 [SvcCall]       Tuple: Empty
-22:00:55 [SvcCall]   Call Named Arguments:
-22:00:55 [SvcCall]     Argument 'machoVersion':
-22:00:55 [SvcCall]         Integer field: 1
-
-  sLog.Log( "ConfigService::Handle_GetMapLandmarks()", "size= %u", call.tuple->size() );
-    call.Dump(SERVICE__CALLS);
-*/
     return m_db.GetMapLandmarks();
 }
 

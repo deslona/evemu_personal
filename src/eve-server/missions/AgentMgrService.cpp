@@ -193,6 +193,26 @@ PyResult AgentMgrBound::Handle_DoAction(PyCallArgs &call) {
   sLog.Log( "AgentMgrBound::Handle_DoAction()", "size= %u, 0=%s", call.tuple->size(), call.tuple->GetItem( 0 )->TypeString() );
     call.Dump(SERVICE__CALLS);
     */
+  /**
+16:53:45 [SvcMessage] agentMgr Service: MachoBindObject also contains call to DoAction
+16:53:45 [SvcCallTrace]   Call Arguments:
+16:53:45 [SvcCallTrace]       Tuple: 1 elements
+16:53:45 [SvcCallTrace]         [ 0] (None)
+16:53:45 [SvcCallTrace] Call DoAction returned:
+16:53:45 [SvcCallTrace]       Tuple: 2 elements
+16:53:45 [SvcCallTrace]         [ 0] Tuple: 2 elements
+16:53:45 [SvcCallTrace]         [ 0]   [ 0] String: 'Result of DoAction(0)'
+16:53:45 [SvcCallTrace]         [ 0]   [ 1] List: 2 elements
+16:53:45 [SvcCallTrace]         [ 0]   [ 1]   [ 0] Tuple: 2 elements
+16:53:45 [SvcCallTrace]         [ 0]   [ 1]   [ 0]   [ 0] Integer field: 2
+16:53:45 [SvcCallTrace]         [ 0]   [ 1]   [ 0]   [ 1] String: 'I want work, do you have anything?'
+16:53:45 [SvcCallTrace]         [ 0]   [ 1]   [ 1] Tuple: 2 elements
+16:53:45 [SvcCallTrace]         [ 0]   [ 1]   [ 1]   [ 0] Integer field: 15
+16:53:45 [SvcCallTrace]         [ 0]   [ 1]   [ 1]   [ 1] String: 'I need to find somebody.  Can you help me?'
+16:53:45 [SvcCallTrace]         [ 1] Dictionary: 1 entries
+16:53:45 [SvcCallTrace]         [ 1]   [ 0] Key: String: 'loyaltyPoints'
+16:53:45 [SvcCallTrace]         [ 1]   [ 0] Value: Integer field: 0
+*/
     //takes a single argument, which may be None, or may be an integer actionID
     Call_SingleArg args;
     if(!args.Decode(&call.tuple)) {
@@ -238,6 +258,24 @@ PyResult AgentMgrBound::Handle_GetAgentLocationWrap(PyCallArgs &call)
 
 //21:13:12 L AgentMgrBound::Handle_GetMissionBriefingInfo(): size= 0
 PyResult AgentMgrBound::Handle_GetMissionBriefingInfo(PyCallArgs &call) {
+  /**
+16:53:46 [SvcCallTrace] Call GetMissionBriefingInfo returned:
+16:53:46 [SvcCallTrace]       Dictionary: 7 entries
+16:53:46 [SvcCallTrace]         [ 0] Key: String: 'ContentID'
+16:53:46 [SvcCallTrace]         [ 0] Value: Integer field: 123
+16:53:46 [SvcCallTrace]         [ 1] Key: String: 'Mission Briefing ID'
+16:53:46 [SvcCallTrace]         [ 1] Value: String: 'Mission Briefing ID'
+16:53:46 [SvcCallTrace]         [ 2] Key: String: 'Decline Time'
+16:53:46 [SvcCallTrace]         [ 2] Value: Real field: 130486424260000000.000000
+16:53:46 [SvcCallTrace]         [ 3] Key: String: 'Expiration Time'
+16:53:46 [SvcCallTrace]         [ 3] Value: Real field: 130487252260000000.000000
+16:53:46 [SvcCallTrace]         [ 4] Key: String: 'Mission Title ID'
+16:53:46 [SvcCallTrace]         [ 4] Value: String: 'Mission Title ID'
+16:53:46 [SvcCallTrace]         [ 5] Key: String: 'Mission Image'
+16:53:46 [SvcCallTrace]         [ 5] Value: String: 'MissionImage'
+16:53:46 [SvcCallTrace]         [ 6] Key: String: 'Mission Keywords'
+16:53:46 [SvcCallTrace]         [ 6] Value: String: 'Mission Keywords'
+*/
   sLog.Log( "AgentMgrBound::Handle_GetMissionBriefingInfo()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
     PyDict *res = new PyDict();

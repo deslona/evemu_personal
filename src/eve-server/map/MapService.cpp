@@ -53,8 +53,8 @@ MapService::MapService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(MapService, GetSystemsInIncursions)
     PyCallable_REG_CALL(MapService, GetSystemsInIncursionsGM)
     PyCallable_REG_CALL(MapService, GetAllianceSystems)    // wrong place
-    PyCallable_REG_CALL(MapService, GetMyExtraMapInfoAgents)  //ColorStarsByMyAgents
     PyCallable_REG_CALL(MapService, GetVictoryPoints)
+    PyCallable_REG_CALL(MapService, GetMyExtraMapInfoAgents)  //ColorStarsByMyAgents
 
 }
 
@@ -281,6 +281,8 @@ PyResult MapService::Handle_GetVictoryPoints(PyCallArgs &call)
 PyResult MapService::Handle_GetMyExtraMapInfoAgents(PyCallArgs &call)  //ColorStarsByMyAgents
 {
      /**
+/client/script/ui/shared/maps/starmapsvc.py(2318) SetStarColorMode
+/client/script/ui/shared/maps/starmodehandler.py(896) ColorStarsByMyAgents
      ColorStarsByMyAgents  -AttributeError: 'NoneType' object has no attribute 'Index'
 
      --  this one will have to work in multiple steps....

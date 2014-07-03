@@ -110,8 +110,6 @@ PyResult SkillMgrBound::Handle_GetEndOfTraining(PyCallArgs &call) {
 }
 
 PyResult SkillMgrBound::Handle_GetSkillHistory( PyCallArgs& call ) {
-    // NOTE:  Screenshots from DaVinci show that this call sends back only 20 most recent entries in this history
-
     CharacterRef ch = call.client->GetChar();
     return (ch->GetSkillHistory());
 }

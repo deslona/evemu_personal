@@ -31,7 +31,13 @@ PyRep *ConfigDB::GetMultiOwnersEx(const std::vector<int32> &entityIDs) {
 #   pragma message( "we need to deal with corporations!" )
     //we only get called for items which are not already sent in the
     // eveStaticOwners cachable object.
-
+    /*
+23:14:21 L ConfigService: Handle_GetMultiOwnersEx
+23:14:21 [SvcCall]   Call Arguments:
+23:14:21 [SvcCall]       Tuple: 1 elements
+23:14:21 [SvcCall]         [ 0] List: 1 elements
+23:14:21 [SvcCall]         [ 0]   [ 0] Integer field: 140000053
+*/
     std::string ids;
     ListToINString(entityIDs, ids, "-1");
 
@@ -322,7 +328,7 @@ PyRep *ConfigDB::GetStationSolarSystemsByOwner(uint32 ownerID) {
 
     if (!sDatabase.RunQuery(res,
         " SELECT "
-        " corporationID, solarSystemID "
+        " stationID, solarSystemID "
         " FROM staStations "
         " WHERE corporationID = %u ", ownerID
         ))
@@ -339,8 +345,8 @@ PyRep *ConfigDB::GetCelestialStatistic(uint32 celestialID) {
     DBResultRow row;
 
     if (!sDatabase.RunQuery(res,
-        " SELECT "
-        " groupID "
+        "SELECT "
+        "   groupID "
         " FROM mapDenormalize "
         " WHERE itemID = %u ", celestialID))
     {
@@ -421,7 +427,8 @@ PyRep *ConfigDB::GetCelestialStatistic(uint32 celestialID) {
     return DBResultToCRowset(res);
 }
 
-PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID) {       // updated to show only dymanic celestial items.  -allan 3May
+PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID) {    // updated to show only dynamic celestial items.  -allan 30June
+
     DBQueryResult result;
 
     if (!sDatabase.RunQuery(result,
@@ -433,25 +440,25 @@ PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID) {       // updated t
         "   IFNULL(c.corporationID, e.ownerID) AS ownerID,"
         "   e.locationID,"
         "   e.flag,"
-        "   e.x, e.y, e.z"
+        "   CAST(e.x AS UNSIGNED INTEGER) AS x,"
+        "   CAST(e.y AS UNSIGNED INTEGER) AS y,"
+        "   CAST(e.z AS UNSIGNED INTEGER) AS z"
         " FROM entity AS e"
         "  LEFT JOIN invTypes AS t ON t.typeID = e.typeID"
         "  LEFT JOIN invGroups AS g ON g.groupID = t.groupID"
         "  LEFT JOIN character_ AS c ON c.characterID = e.ownerID"
         "  LEFT JOIN corporation AS co ON co.corporationID = c.corporationID"
-        " WHERE locationID = %u"
-        "  AND g.categoryID NOT IN (%d, %d)",
+        " WHERE e.locationID = %u"
+        " AND g.categoryID NOT IN (%d, %d)",
         solarSystemID,
         //excluded categories:
-        //celestials:            0                             3
-        EVEDB::invCategories::_System, EVEDB::invCategories::Station
+        //celestials: 0 3
+        EVEDB::invCategories::_System , EVEDB::invCategories::Station
         )) {
-        codelog(DATABASE__ERROR, "GetDynamicCelestials Error in query: %s", result.error.c_str());
-        return new PyInt(0);
+            codelog(DATABASE__ERROR, "GetDynamicCelestials Error in query: %s", result.error.c_str());
+            return new PyInt(0);
     }
 
-    //TypeError: a float is required    ** will not draw 2d map.  -needs cords?    not sure if this is still accurate....
-    //TypeError: an integer is required  **this is new... 8May
     return DBResultToRowset(result);
 }
 
@@ -485,89 +492,34 @@ PyObject *ConfigDB::GetMapOffices(uint32 solarSystemID) {
     return DBResultToRowset(res);
 }
 
-//                                      constellation     0           0           1           0?              0?
+//                                      system            1           0           0           0?              1?
 //                                      region            0           1           0           0?              0?
-//                                      u/k   (9)         1           0           0           0?              1?
-//23:54:52 W ConfigDB::GetMapConnections: DB query:20000367, B1:0, B2:0, B3:1, I2:0, I3:0
-//02:10:35 W ConfigDB::GetMapConnections: DB query:10000065, B1:0, B2:1, B3:0, I2:0, I3:1
+//                                      constellation     0           0           1           0?              0?
 //00:47:18 W ConfigDB::GetMapConnections: DB query:9,        B1:1, B2:0, B3:0, I2:0, I3:1
-//02:10:35 W ConfigDB::GetMapConnections: DB query:9,        B1:1, B2:0, B3:0, I2:0, I3:1
-PyObject *ConfigDB::GetMapConnections(uint32 queryID, bool bool1, bool bool2, bool bool3, uint16 int2, uint16 int3) {
-  sLog.Warning ("ConfigDB::GetMapConnections", "DB query:%u, B1:%u, B2:%u, B3:%u, I2:%u, I3:%u", queryID, bool1, bool2, bool3, int2, int3);
+//02:10:35 W ConfigDB::GetMapConnections: DB query:10000065, B1:0, B2:1, B3:0, I2:0, I3:1
+//23:54:52 W ConfigDB::GetMapConnections: DB query:20000367, B1:0, B2:0, B3:1, I2:0, I3:0
+PyObject *ConfigDB::GetMapConnections(uint32 id, bool sol, bool reg, bool con, uint16 cel, uint16 _c) {
+  sLog.Warning ("ConfigDB::GetMapConnections", "DB query:%u, B1:%u, B2:%u, B3:%u, I2:%u, I3:%u", id, sol, reg, con, cel, _c);
+
+    const char *key = "fromsol";
+    if(sol) key = "fromsol";
+    else if(reg) key = "fromreg";
+    else if(con) key = "fromcon";
+    else sLog.Error ("ConfigDB::GetMapConnections()", "Bad argument passed to key.");
 
     DBQueryResult res;
-    if(bool2) {             //ValueError: need more than 7 values to unpack   -updated 7May
-      if(!sDatabase.RunQuery(res,
-        "SELECT "
-        "  regionID,"
-        "  regionName,"
-        "  x, y, z,"
-        "  xMin, yMin, zMin,"
-        "  xMax, yMax, zMax,"
-        "  IFNULL(factionID, 0) AS factionID,"
-        "  radius"
-        " FROM mapRegions"
-        " WHERE regionID=%u", queryID )) {
-          codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
-          return NULL;
-      }
-    } else if(bool3){       //ValueError: need more than 8 values to unpack     -updated 7May
-      if(!sDatabase.RunQuery(res,
-        "SELECT "
-        "  regionID,"
-        "  constellationID,"
-        "  constellationName,"
-        "  x, y, z,"
-        "  xMin, yMin, zMin,"
-        "  xMax, yMax, zMax,"
-        "  IFNULL(factionID, 0) AS factionID,"
-        "  radius"
-        " FROM mapConstellations"
-        " WHERE constellationID=%u", queryID )) {
-          codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
-          return NULL;
-      }
-    } else if(bool1) {
-      if(!sDatabase.RunQuery(res,
-        "SELECT "
-        "  regionID,"
-        "  constellationID,"
-        "  solarSystemID,"
-        "  solarSystemName,"
-        "  border,"
-        "  x, y, z,"
-        "  xMin, yMin, zMin,"
-        "  xMax, yMax, zMax,"
-        "  IFNULL(factionID, 0) AS factionID,"
-        "  radius"
-        " FROM mapSolarSystems"
-        " WHERE solarSystemID=%u", queryID )) {
-          codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
-          return NULL;
-      }
+    if(!sDatabase.RunQuery(res,
+        "SELECT ctype, fromreg, fromcon, fromsol, stargateID, celestialID, tosol, tocon, toreg"
+        " FROM mapConnections"
+        " WHERE %s = %u", key, id )) {
+            codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
+            sLog.Error ("ConfigDB::GetMapConnections()", "No Data for key: %s, id: %u.", key, id);
+            return NULL;
     }
-
     return DBResultToRowset(res);
 }
 
-PyObject *ConfigDB::GetMapLandmarks() {
-  /*mapLandmarks
-landmarkID
-landmarkName
-description
-locationID
-x
-y
-z
-radius
-iconID
-importance
-
-        landmarks = None
-        filterNo = 1
-
-        ****  get everything and return
-*/
+PyObject *ConfigDB::GetMapLandmarks() {    // working 29June14
     DBQueryResult res;
 
       if(!sDatabase.RunQuery(res,
@@ -575,11 +527,8 @@ importance
           "   landmarkID,"
           "   landmarkName,"
           "   0 AS landmarkNameID,"
-          "   description,"
-          "   locationID,"
           "   x, y, z,"
           "   radius,"
-          "   iconID,"
           "   importance"
           " FROM mapLandmarks" ))
       {

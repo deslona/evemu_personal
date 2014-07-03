@@ -130,7 +130,39 @@ PyResult BrowserLockdownService::Handle_GetFlaggedSitesList(PyCallArgs &call)
                   itr[1]:0xC017
             itr[2]:None
             */
+        /**
+16:53:03 [SvcCall] Service browserLockdownSvc: calling GetFlaggedSitesList
+16:53:03 [SvcCallTrace]   Call Arguments:
+16:53:03 [SvcCallTrace]       Tuple: Empty
+16:53:03 [SvcCallTrace]   Call Named Arguments:
+16:53:03 [SvcCallTrace]     Argument 'machoVersion':
+16:53:03 [SvcCallTrace]         Integer field: 1
+16:53:03 [SvcCallTrace] Call GetFlaggedSitesList returned:
+16:53:03 [SvcCallTrace]       Object:
+16:53:03 [SvcCallTrace]         Type: String: 'objectCaching.CachedMethodCallResult'
+16:53:03 [SvcCallTrace]         Args: Tuple: 3 elements
+16:53:03 [SvcCallTrace]         Args:   [ 0] Dictionary: 1 entries
+16:53:03 [SvcCallTrace]         Args:   [ 0]   [ 0] Key: String: 'versionCheck'
+16:53:03 [SvcCallTrace]         Args:   [ 0]   [ 0] Value: Tuple: 3 elements
+16:53:03 [SvcCallTrace]         Args:   [ 0]   [ 0] Value:   [ 0] String: 'run'
+16:53:03 [SvcCallTrace]         Args:   [ 0]   [ 0] Value:   [ 1] String: 'run'
+16:53:03 [SvcCallTrace]         Args:   [ 0]   [ 0] Value:   [ 2] String: 'run'
+16:53:03 [SvcCallTrace]         Args:   [ 1] Object:
+16:53:03 [SvcCallTrace]         Args:   [ 1]   Type: String: 'util.CachedObject'
+16:53:03 [SvcCallTrace]         Args:   [ 1]   Args: Tuple: 3 elements
+16:53:03 [SvcCallTrace]         Args:   [ 1]   Args:   [ 0] Tuple: 3 elements
+16:53:03 [SvcCallTrace]         Args:   [ 1]   Args:   [ 0]   [ 0] String: 'Method Call'
+16:53:03 [SvcCallTrace]         Args:   [ 1]   Args:   [ 0]   [ 1] String: 'server'
+16:53:03 [SvcCallTrace]         Args:   [ 1]   Args:   [ 0]   [ 2] Tuple: 2 elements
+16:53:03 [SvcCallTrace]         Args:   [ 1]   Args:   [ 0]   [ 2]   [ 0] String: 'browserLockdownSvc'
+16:53:03 [SvcCallTrace]         Args:   [ 1]   Args:   [ 0]   [ 2]   [ 1] String: 'GetFlaggedSitesHash'
+16:53:03 [SvcCallTrace]         Args:   [ 1]   Args:   [ 1] Integer field: 708301
+16:53:03 [SvcCallTrace]         Args:   [ 1]   Args:   [ 2] Tuple: 2 elements
+16:53:03 [SvcCallTrace]         Args:   [ 1]   Args:   [ 2]   [ 0] Integer field: 129520925397448096
+16:53:03 [SvcCallTrace]         Args:   [ 1]   Args:   [ 2]   [ 1] Integer field: 49175
+16:53:03 [SvcCallTrace]         Args:   [ 2] (None)
 
+*/
 
     PyTuple* arg_tuple = new PyTuple(3);
 

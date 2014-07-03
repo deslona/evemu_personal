@@ -367,8 +367,20 @@ PyTuple * AccountService::GiveCashToChar(Client * const client, Client * const o
 
 //02:46:06 L AccountService::Handle_GetJournal(): size= 6, 0=Integer, 1=Long, 2=None, 3=Boolean, 4=None, 5=Integer
 PyResult AccountService::Handle_GetJournal(PyCallArgs &call) {
-  sLog.Log( "AccountService::Handle_GetJournal()", "size= %u, 0=%s, 1=%s, 2=%s, 3=%s, 4=%s, 5=%s", call.tuple->size(), call.tuple->GetItem( 0 )->TypeString(), call.tuple->GetItem( 1 )->TypeString(), call.tuple->GetItem( 2 )->TypeString(), call.tuple->GetItem( 3 )->TypeString(), call.tuple->GetItem( 4 )->TypeString(), call.tuple->GetItem( 5 )->TypeString() );
-  call.Dump(SERVICE__CALLS);
+  /*
+00:53:38 L AccountService::Handle_GetJournal(): size= 6, 0=Integer, 1=Long, 2=None, 3=Boolean, 4=None, 5=Integer
+00:53:38 [SvcCall]   Call Arguments:
+00:53:38 [SvcCall]       Tuple: 6 elements
+00:53:38 [SvcCall]         [ 0] Integer field: 1000
+00:53:38 [SvcCall]         [ 1] Integer field: 130485600000000000
+00:53:38 [SvcCall]         [ 2] (None)
+00:53:38 [SvcCall]         [ 3] Boolean field: false
+00:53:38 [SvcCall]         [ 4] (None)
+00:53:38 [SvcCall]         [ 5] Integer field: 1
+
+*/
+  //sLog.Log( "AccountService::Handle_GetJournal()", "size= %u, 0=%s, 1=%s, 2=%s, 3=%s, 4=%s, 5=%s", call.tuple->size(), call.tuple->GetItem( 0 )->TypeString(), call.tuple->GetItem( 1 )->TypeString(), call.tuple->GetItem( 2 )->TypeString(), call.tuple->GetItem( 3 )->TypeString(), call.tuple->GetItem( 4 )->TypeString(), call.tuple->GetItem( 5 )->TypeString() );
+  //call.Dump(SERVICE__CALLS);
     Call_GetJournal args;
     if(!args.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "Invalid arguments");

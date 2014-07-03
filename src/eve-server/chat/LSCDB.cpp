@@ -693,7 +693,7 @@ void LSCDB::GetChannelSubscriptions(uint32 charID, std::vector<unsigned long> & 
     }
 
     if (rowCount == 0) {
-        _log(SERVICE__ERROR, "CharID %u isn't present in the database", charID);
+        //_log(SERVICE__ERROR, "CharID %u isn't present in the database", charID);
         return;
     }
 

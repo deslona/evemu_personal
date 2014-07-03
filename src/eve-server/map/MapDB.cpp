@@ -173,3 +173,4 @@ factionKills
 
     return DBResultToRowset(res);
 }
+

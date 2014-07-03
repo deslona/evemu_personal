@@ -245,7 +245,7 @@ PyResult BookmarkService::Handle_BookmarkLocation(PyCallArgs &call)
     ////////////////////////////////////////
     // Build return packet:
     //
-    // (bookmarkID, itemID, typeID, x, y, z, locationID,)
+    // (bookmarkID, itemID, typeID, x, y, z, locationID)
     ////////////////////////////////////////
 
     PyTuple* res = NULL;

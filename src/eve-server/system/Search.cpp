@@ -53,7 +53,7 @@ PyResult Search::Handle_Query( PyCallArgs& call )   //called from people/places 
 06:01:35 [SvcCall]   Call Arguments:
 06:01:35 [SvcCall]       Tuple: 2 elements
 06:01:35 [SvcCall]         [ 0] WString: 'rens'            // search string  .... no "*" means "exact phrase"
-06:01:35 [SvcCall]         [ 1] List: 1 elements           // unknown yet...possible invGroup?   groupID 5=solarSystem
+06:01:35 [SvcCall]         [ 1] List: 1 elements           // invGroup   groupID 5=solarSystem
 06:01:35 [SvcCall]         [ 1]   [ 0] Integer field: 5
 
 23:48:01 L Search: Handle_Query
@@ -67,7 +67,7 @@ PyResult Search::Handle_Query( PyCallArgs& call )   //called from people/places 
 23:56:55 [SvcCall]   Call Arguments:
 23:56:55 [SvcCall]       Tuple: 2 elements
 23:56:55 [SvcCall]         [ 0] WString: 'rens*'            // search string  .... "*" is wild card, means "contains"
-23:56:55 [SvcCall]         [ 1] List: 9 elements            //   yep, this is groupID.   this query was run with "any" as search type.
+23:56:55 [SvcCall]         [ 1] List: 9 elements            // this query was run with "any" as search type.
 23:56:55 [SvcCall]         [ 1]   [ 0] Integer field: 1
 23:56:55 [SvcCall]         [ 1]   [ 1] Integer field: 2
 23:56:55 [SvcCall]         [ 1]   [ 2] Integer field: 3
@@ -110,7 +110,7 @@ PyResult Search::Handle_QuickQuery( PyCallArgs& call )  //called from starmap  a
 05:56:52 [SvcCall]   Call Arguments:
 05:56:52 [SvcCall]       Tuple: 2 elements
 05:56:52 [SvcCall]         [ 0] WString: 'rens*'            // search string
-05:56:52 [SvcCall]         [ 1] List: 3 elements            // unknown yet...possible invGroup?   groupID 6=sun, 7=planet, 8=moon
+05:56:52 [SvcCall]         [ 1] List: 3 elements            // invGroup   groupID 6=sun, 7=planet, 8=moon
 05:56:52 [SvcCall]         [ 1]   [ 0] Integer field: 6
 05:56:52 [SvcCall]         [ 1]   [ 1] Integer field: 7
 05:56:52 [SvcCall]         [ 1]   [ 2] Integer field: 8
@@ -133,10 +133,11 @@ PyResult Search::Handle_QuickQuery( PyCallArgs& call )  //called from starmap  a
   call.Dump(SERVICE__CALLS);
 
     std::string str = call.tuple->GetItem( 0 )->AsWString()->content();
+
     //  this removes the '*' that is sent from client in query string for wildcard....see examples above...
     str.erase(boost::remove_if(str, boost::is_any_of("*")), str.end());
 
-  /*  may not need this....
+  /*  may not need this....using same python xml decode as above searchquery
     Call_SearchQuickQuery args;    //  args.ints given as map now when using Call_SearchQuickQuery.
 */
     //return(m_db.QuickQuery( args.string, args.int1, args.int2, args.int3, call.byname.find("hideNPC"), call.byname.find("onlyAltName"), call.client->GetCharacterID() ));
@@ -154,4 +155,32 @@ PyResult Search::Handle_QuickQuery( PyCallArgs& call )  //called from starmap  a
     return(m_db.Query( str, args.int1, call.client->GetCharacterID() ));
 }
 
-
+/**
+18:21:22 [SvcCall] Service search: calling QuickQuery
+18:21:22 [SvcCallTrace]   Call Arguments:
+18:21:22 [SvcCallTrace]       Tuple: 2 elements
+18:21:22 [SvcCallTrace]         [ 0] WString: 'zyen* domani*'
+18:21:22 [SvcCallTrace]         [ 1] List: 1 elements
+18:21:22 [SvcCallTrace]         [ 1]   [ 0] Integer field: 2
+18:21:22 [SvcCallTrace]   Call Named Arguments:
+18:21:22 [SvcCallTrace]     Argument 'hideNPC':
+18:21:22 [SvcCallTrace]         Integer field: 0
+18:21:22 [SvcCallTrace]     Argument 'machoVersion':
+18:21:22 [SvcCallTrace]         Integer field: 1
+18:21:22 [SvcCallTrace]     Argument 'onlyAltName':
+18:21:22 [SvcCallTrace]         Integer field: 0
+18:21:22 [SvcCall]   Call Arguments:
+18:21:22 [SvcCall]       Tuple: 2 elements
+18:21:22 [SvcCall]         [ 0] WString: 'zyen* domani*'
+18:21:22 [SvcCall]         [ 1] List: 1 elements
+18:21:22 [SvcCall]         [ 1]   [ 0] Integer field: 2
+18:21:22 [SvcCall]   Call Named Arguments:
+18:21:22 [SvcCall]     Argument 'hideNPC':
+18:21:22 [SvcCall]         Integer field: 0
+18:21:22 [SvcCall]     Argument 'machoVersion':
+18:21:22 [SvcCall]         Integer field: 1
+18:21:22 [SvcCall]     Argument 'onlyAltName':
+18:21:22 [SvcCall]         Integer field: 0
+18:21:22 [SvcCallTrace] Call QuickQuery returned:
+18:21:22 [SvcCallTrace]       (None)
+*/

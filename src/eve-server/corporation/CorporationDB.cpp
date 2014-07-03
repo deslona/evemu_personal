@@ -290,14 +290,12 @@ bool CorporationDB::ListAllFactionRaces(std::map<int32, PyRep *> &into) {
 
 PyObject *CorporationDB::ListNPCDivisions() {
     DBQueryResult res;
+        //"   divisionID, divisionName, divisionNameID, description, leaderType, leaderTypeID"
 
     if(!sDatabase.RunQuery(res,
         "SELECT "
-        //"   divisionID, divisionName, divisionNameID, description, leaderType, leaderTypeID"
-        "   divisionID, divisionName, description, leaderType"
-        " FROM crpNPCDivisions"
-    ))
-    {
+        "   divisionID, divisionName, divisionNameID, leaderType"
+        " FROM crpNPCDivisions" )) {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }

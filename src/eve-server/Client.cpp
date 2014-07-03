@@ -159,8 +159,8 @@ void Client::Process() {
     //if( mModulesMgr.CheckSaveTimer() )
     //    mModulesMgr.SaveModules();
 
-    if( m_timeEndTrain != 0 ) {
-        if( m_timeEndTrain <= EvilTimeNow() )    //Win32TimeNow()
+    if( m_timeEndTrain > 0 ) {
+        if( m_timeEndTrain < EvilTimeNow() )    //Win32TimeNow()
             GetChar()->UpdateSkillQueue();
     }
 
@@ -1160,11 +1160,9 @@ bool Client::SelectCharacter( uint32 char_id )
     UpdateLocation();
 
     // update skill queue
-    GetChar()->UpdateSkillQueue();   //this is somewhat expensive for clients logging into server....put it on hold for now.
+    GetChar()->UpdateSkillQueue();
     //  this will set training end time, then we wait for the process tick which will check this then update skillqueue
     //UpdateSkillTraining();
-    //GetChar()->PauseSkillQueue();
-    //GetChar()->LoadPausedSkillQueue();
 
     //johnsus - characterOnline mod
     m_services.serviceDB().SetCharacterOnlineStatus( GetCharacterID(), true );
