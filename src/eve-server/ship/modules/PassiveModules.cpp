@@ -25,17 +25,20 @@
 
 #include "eve-server.h"
 
-#include "ship/modules/RigModule.h"
+#include "ship/modules/PassiveModules.h"
 
-RigModule::RigModule(InventoryItemRef item, ShipRef ship)
+PassiveModule::PassiveModule(InventoryItemRef item, ShipRef ship)
 {
     m_Item = item;
     m_Ship = ship;
     m_Effects = new ModuleEffects(m_Item->typeID());
     m_ShipAttrComp = new ModifyShipAttributesComponent(this, ship);
+
+    m_ModuleState = MOD_UNFITTED;
+    m_ChargeState = MOD_UNLOADED;
 }
 
-RigModule::~RigModule()
+PassiveModule::~PassiveModule()
 {
     //delete members
     delete m_Effects;
@@ -46,8 +49,30 @@ RigModule::~RigModule()
     m_ShipAttrComp = NULL;
 }
 
-//not much to do here... hopefully there won't be
-ModulePowerLevel RigModule::GetModulePowerLevel()
+void PassiveModule::Offline()
 {
-    return MODULE_BANK_RIG;
+    //remove item attributes
+    //m_Effects->SetDefaultEffectAsActive();
+    //for(uint32 i = 0; i < m_Effects->GetSizeOfAttributeList(); i++)
+    //{
+    //    m_ShipAttrComp->ModifyShipAttribute(m_Effects->GetTargetAttributeID(i), m_Effects->GetSourceAttributeID(i), m_Effects->GetReverseCalculationType(i));
+    //}
+
+    //change item state
+    m_Item->PutOffline();
+    m_ModuleState = MOD_OFFLINE;
+}
+
+void PassiveModule::Online()
+{
+    //add item attributes
+    //m_Effects->SetDefaultEffectAsActive();
+    //for(uint32 i = 0; i < m_Effects->GetSizeOfAttributeList(); i++)
+    //{
+    //    m_ShipAttrComp->ModifyShipAttribute(m_Effects->GetTargetAttributeID(i), m_Effects->GetSourceAttributeID(i), m_Effects->GetCalculationType(i));
+    //}
+
+    //change item state
+    m_Item->PutOnline();
+    m_ModuleState = MOD_ONLINE;
 }

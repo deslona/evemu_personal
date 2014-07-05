@@ -20,21 +20,39 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Reve
+    Author:        AknorJaden
 */
 
 #ifndef __PROJECTILETURRET_H__
 #define __PROJECTILETURRET_H__
 
-#include "ship/modules/weapon_modules/WeaponModule.h"
+#include "ship/modules/ActiveModules.h"
 
-class ProjectileTurret: public WeaponModule
+class ProjectileTurret: public ActiveModule
 {
 public:
     ProjectileTurret( InventoryItemRef item, ShipRef ship );
+    ~ProjectileTurret();
+
+	void Process();
+
+    // Module Action Methods:
+    void Load(InventoryItemRef charge);
+    void Unload();
+    void Repair();
+    void Overload();
+    void DeOverload();
+    void DestroyRig();
+	void Activate(SystemEntity * targetEntity);
+	void Deactivate();
 
 	// Calls Reserved for components usage only!
-	virtual void StartCycle();
+	void DoCycle();
+	void StopCycle(bool abort=false);
+
+protected:
+	void _ProcessCycle() {}
+	void _ShowCycle();
 };
 
 #endif

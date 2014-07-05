@@ -54,16 +54,6 @@ RamProxyService::~RamProxyService() {
 }
 
 PyResult RamProxyService::Handle_AssemblyLinesGet(PyCallArgs &call) {
-  /*
-23:53:50 [SvcCall] Service ramProxy: calling AssemblyLinesGet
-23:53:50 [SvcCall]   Call Arguments:
-23:53:50 [SvcCall]       Tuple: 1 elements
-23:53:50 [SvcCall]         [ 0] Integer field: 60005728
-23:53:50 [SvcCall]   Call Named Arguments:
-23:53:50 [SvcCall]     Argument 'machoVersion':
-23:53:50 [SvcCall]         Integer field: 1
-  call.Dump(SERVICE__CALLS);
-  */
     Call_SingleIntegerArg arg;  // containerID
 
     if(!arg.Decode(&call.tuple)) {
@@ -124,11 +114,10 @@ PyResult RamProxyService::Handle_GetJobs2(PyCallArgs &call) {
         }
     }
 
-    return(m_db.GetJobs2(args.ownerID, args.completed));//, args.fromDate, args.toDate));
+    return(m_db.GetJobs2(args.ownerID, args.completed));
 }
 
 PyResult RamProxyService::Handle_InstallJob(PyCallArgs &call) {
-  //call.Dump(SERVICE__CALLS);
     Call_InstallJob args;
     if(!args.Decode(&call.tuple)) {
         _log(SERVICE__ERROR, "Failed to decode args.");

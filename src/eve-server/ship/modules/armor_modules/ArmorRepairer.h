@@ -20,34 +20,39 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Luck
+    Author:        AknorJaden
 */
 
-#include "eve-server.h"
+#ifndef __ARMORREPAIRER_H__
+#define __ARMORREPAIRER_H__
 
-#include "ship/modules/RigModule.h"
+#include "ship/modules/ActiveModules.h"
 
-RigModule::RigModule(InventoryItemRef item, ShipRef ship)
+class ArmorRepairer: public ActiveModule
 {
-    m_Item = item;
-    m_Ship = ship;
-    m_Effects = new ModuleEffects(m_Item->typeID());
-    m_ShipAttrComp = new ModifyShipAttributesComponent(this, ship);
-}
+public:
+    ArmorRepairer( InventoryItemRef item, ShipRef ship );
+    ~ArmorRepairer();
 
-RigModule::~RigModule()
-{
-    //delete members
-    delete m_Effects;
-    delete m_ShipAttrComp;
+	void Process();
 
-    //null ptrs
-    m_Effects = NULL;
-    m_ShipAttrComp = NULL;
-}
+    // Module Action Methods:
+    void Load(InventoryItemRef charge);
+    void Unload();
+    void Repair();
+    void Overload();
+    void DeOverload();
+    void DestroyRig();
+	void Activate(SystemEntity * targetEntity);
+	void Deactivate();
 
-//not much to do here... hopefully there won't be
-ModulePowerLevel RigModule::GetModulePowerLevel()
-{
-    return MODULE_BANK_RIG;
-}
+	// Calls Reserved for components usage only!
+	void DoCycle();
+	void StopCycle();
+
+protected:
+	void _ProcessCycle() {}
+	void _ShowCycle();
+};
+
+#endif

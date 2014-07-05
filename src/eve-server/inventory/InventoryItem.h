@@ -28,7 +28,6 @@
 #include "inventory/EVEAttributeMgr.h"
 #include "inventory/ItemFactory.h"
 #include "inventory/ItemType.h"
-#include "inventory/AttributeModifier.h"
 
 class PyRep;
 class PyDict;
@@ -195,60 +194,20 @@ public:
     bool SetAttribute(uint32 attributeID, double num, bool notify = true, bool shadow_copy_to_default_set = false);
     bool SetAttribute(uint32 attributeID, EvilNumber num, bool notify = true, bool shadow_copy_to_default_set = false);
 
-    /**
-     * GetAttribute
-     * Retrieves the attribute of the entity.
-     * @param attributeID the attribute to check for.
-     * @returns the attribute value
-     * @note a value of zero is returned and an error message generated if the value is not found.
-     *
-     * @note this function should be used very infrequently and only for specific reasons
-     */
+    EvilNumber GetAttribute(uint32 attributeID);
     EvilNumber GetAttribute(const uint32 attributeID) const;
-    /**
-     * GetAttribute
-     * Retrieves the attribute of the entity.
-     * @note Should only be used when the attribute might not be defined.
-     * @param attributeID the attribute to check for.
-     * @param defaultValue a default value to return if no attribute is found.
-     * @returns the attribute value or the default value.
-     * @note does not generate an error message if the value is not found.
-     *
-     * @note this function should be used very infrequently and only for specific reasons
-     */
-    EvilNumber GetAttribute(const uint32 attributeID, const EvilNumber &defaultValue) const;
 
-    /**
-     * GetDefaultAttribute
-     * Retrieves the default attribute of the entity.
-     * @param attributeID the attribute to check for.
-     * @returns the attribute value or zero.
-     * @note does not generate an error message if the value is not found.
-     *
-     * @note this function should be used very infrequently and only for specific reasons
-     */
+    EvilNumber GetDefaultAttribute(uint32 attributeID);
     EvilNumber GetDefaultAttribute(const uint32 attributeID) const;
 
-    /**
+    /*
      * HasAttribute
-     * Checks to see if the entity has the specified attribute.
-     * @param attributeID the attribute to check for.
-     * @returns true if this item has the attribute 'attributeID', false if it does not have this attribute
+     *
+     * returns true if this item has the attribute 'attributeID', false if it does not have this attribute
      *
      * @note this function should be used very infrequently and only for specific reasons
      */
-    bool HasAttribute(const uint32 attributeID) const;
-    /**
-     * HasAttribute
-     * Checks to see if the entity has the specified attribute.
-     * value not altered if attribute not found.  This could be useful for preserving a default value.
-     * @param attributeID the attribute to check for.
-     * @param value the location to return the attribute if it exist.
-     * @returns true if this item has the attribute 'attributeID', false if it does not have this attribute
-     *
-     * @note this function should be used very infrequently and only for specific reasons
-     */
-    bool HasAttribute(const uint32 attributeID, EvilNumber &value) const;
+    bool HasAttribute(uint32 attributeID) const;
 
     /**
      * SaveAttributes
@@ -259,30 +218,15 @@ public:
      */
     bool SaveAttributes();
 
-    /**
+    /*
      * ResetAttribute
-     * Reset the attribute to the value in the default attribute map and adjust according to applied effects.
-     * @param attrID The attribute to reset.
-     * @param notify Whether or not to notify the client.
-     * @return True on success.
+     *
+     *@note this function will force reload the default value for the specified attribute
      */
     bool ResetAttribute(uint32 attrID, bool notify);
-    void AddAttributeModifier(AttributeModifierSource *modifier);
-    void RemoveAttributeModifier(AttributeModifierSource *modifier);
-
     /************************************************************************/
     /* end experimental new attribute system                                */
     /************************************************************************/
-    
-    /**
-     * CalculateRechargeRate
-     * Calculate the recharge rate of capacitor or shields.
-     * @param Capacity The maximum capacity of the item.
-     * @param RechargeTimeMS The time in ms that it takes to fully recharge the item.
-     * @param Current The current charge of the item.
-     * @return The rate of charge for the item.
-     */
-    static double CalculateRechargeRate(double Capacity, double RechargeTimeMS, double Current);
 
 protected:
     InventoryItem(
@@ -306,7 +250,7 @@ protected:
             return RefPtr<_Ty>();
 
         // dynamic load
-         if( !i->_Load() )
+        if( !i->_Load() )
             return RefPtr<_Ty>();
 
         return i;
@@ -375,8 +319,8 @@ protected:
     int32               m_quantity;
     GPoint              m_position;
     std::string         m_customInfo;
-    
-    std::vector<AttributeModifierSource *> m_attributeModifiers;
+
+	std::map<EVEItemFlags, double> m_cargoHoldsUsedVolumeByFlag;
 };
 
 #endif

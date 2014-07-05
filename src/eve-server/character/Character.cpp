@@ -24,7 +24,6 @@
 */
 
 #include "eve-server.h"
-#include "EVEServerConfig.h"
 
 #include "Client.h"
 #include "EntityList.h"
@@ -121,7 +120,7 @@ _Ty *CharacterType::_LoadCharacterType(ItemFactory &factory, uint32 typeID, uint
 /*
  * CharacterData
  */
-CharacterData::CharacterData(
+CharacterData::CharacterData(   //uses v3
     uint32 _accountID,
     const char *_title,
     const char *_desc,
@@ -437,7 +436,7 @@ bool Character::_Load() {
         return false;
     }
 
-    if( !m_factory.db().LoadSkillQueue( itemID(), m_skillQueue ) ) {
+    if( !m_db.LoadSkillQueue( itemID(), m_skillQueue ) ) {
         sLog.Warning("Character::_Load","LoadSkillQueue returned false for char %u", itemID());
         return false;
     }
@@ -601,11 +600,12 @@ EvilNumber Character::GetSPPerMin( SkillRef skill )
     primarySPperMin = primarySPperMin + secondarySPperMin / 2.0f;
 
 ///      *****   SP/Min is also calculated by client....if changed here, client needs many updates.  *****
+/*
     if( sConfig.rates.skillRate > 1 )    // is skillRate defined in config?
     {
       primarySPperMin = primarySPperMin * sConfig.rates.skillRate;
       sLog.Debug( "Character::GetSPPerMin()", " new SPperMin by rates.skillRate %u", primarySPperMin );
-    }
+    }  */
 /**
     // 100% Training bonus has been removed in Incursion...i like it, so re-instated   -allan 01/11/14
     EvilNumber chkSPMax =  0;
@@ -711,14 +711,14 @@ void Character::ClearSkillQueue() {
 }
 
 void Character::PauseSkillQueue() {
-    m_factory.db().SavePausedSkillQueue(
+    m_db.SavePausedSkillQueue(
         itemID(),
         m_skillQueue
     );
 }
 
 void Character::LoadPausedSkillQueue() {
-    m_factory.db().LoadPausedSkillQueue( itemID(), m_skillQueue );
+    m_db.LoadPausedSkillQueue( itemID(), m_skillQueue );
 }
 
 void Character::UpdateSkillQueue() {
@@ -726,8 +726,8 @@ void Character::UpdateSkillQueue() {
 
     SkillRef currentTraining = GetSkillInTraining();
     EvilNumber timeEndTrain = 0;
-    if( currentTraining ) timeEndTrain = currentTraining->GetAttribute(AttrExpiryTime);
     if( currentTraining ) {
+	timeEndTrain = currentTraining->GetAttribute(AttrExpiryTime);
         if( m_skillQueue.empty()        // either queue is empty
             || currentTraining->typeID() != m_skillQueue.front().typeID ) {     //or skill with different typeID is in training ...
             if ( timeEndTrain != 0 && timeEndTrain > EvilTimeNow() ) {         // stop training:
@@ -920,15 +920,6 @@ void Character::UpdateSkillQueueEndTime(const SkillQueue &queue) {
         return;
     }
     sLog.Debug("Character::UpdateSkillQueueEndTime()", " %s (%u): Saved Queue Data to DB", itemName().c_str(), itemID());
-}
-
-void Character::RemoveSkillFromQueue(uint32 charID, uint16 skillID) {       /**  unused?  */
-    DBerror err;
-    if( !sDatabase.RunQuery( err, "DELETE FROM chrSkillQueue WHERE characterID = %u AND typeID = %u ", charID, skillID ) )
-    {
-        _log(DATABASE__ERROR, "Failed to delete skill %u for character %u: %s", skillID, charID, err.c_str());
-        return;
-    }
 }
 
 double Character::GetEffectiveStandingFromNPC(uint32 itemID) {
@@ -1129,11 +1120,11 @@ void Character::SaveFullCharacter() {
 
 }
 
-void Character::SaveSkillQueue() const {
+void Character::SaveSkillQueue() {
     _log( ITEM__TRACE, "Saving skill queue of character %u.", itemID() );
 
     // skill queue
-    m_factory.db().SaveSkillQueue(
+    m_db.SaveSkillQueue(
         itemID(),
         m_skillQueue
     );
@@ -1182,71 +1173,27 @@ EvilNumber Character::GetTotalSP() {
     return(totalSP);
 }
 
-void Character::_GetLogonMinutes() {
-    //  get login time and set _logonMinutes       -allan
-    DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT logonDateTime FROM character_ WHERE characterID = %u", itemID() );
-    DBResultRow row;
-    res.GetRow(row);
-    uint64 logonDateTime = row.GetUInt64(0);
-    EvilNumber loginTime = 0;
-    if (logonDateTime > 0 ) loginTime = ((Win32TimeNow() - logonDateTime) / 1000000000) * 2;  //  logged as Win32TimeNow();
-
-    // some checks are done < 1m, so if this check has no minutes, keep original time and exit
-    if(loginTime > 0) {
-        sLog.Debug("Character::_GetLogonMinutes"," Char %s -- logonDateTime = %" PRIu64 ", TimeNow = %" PRIu64 ", loginTime.get_int() = %u, logonMinutes() = %u", itemName().c_str(), logonDateTime, Win32TimeNow(), loginTime.get_int(), logonMinutes() );
-        m_logonMinutes = logonMinutes() + loginTime.get_int();
-        // updated logonDateTime to now....last check was then to now, so remove that time and reset
-        DBerror err;
-        if( !sDatabase.RunQuery( err, "UPDATE character_ SET logonDateTime = %" PRIu64 " WHERE characterID = %u ", Win32TimeNow(), itemID() )) {
-            codelog(SERVICE__ERROR, "Character::_GetLogonMinutes - Error in query: %s", err.c_str());
-        }
-    }
-}
-
-
 void Character::SaveSkillHistory(int eventID, double logDate, uint32 characterID, uint32 skillTypeID, int skillLevel, double relativePoints, double absolutePoints) {
-    DBerror err;
-    if( !sDatabase.RunQuery( err,
-        "INSERT INTO chrSkillHistory (eventTypeID, logDate, characterID, skillTypeID, skillLevel, relativePoints, absolutePoints)"
-        " VALUES (%u, %f, %u, %u, %u, %f, %f)", eventID, logDate, characterID, skillTypeID, skillLevel, relativePoints, absolutePoints ))
-            _log(DATABASE__ERROR, "Failed to set chrSkillHistory for character %u: %s", characterID, err.c_str());
+    m_db.SaveSkillHistory(eventID, logDate, characterID, skillTypeID, skillLevel, relativePoints, absolutePoints);
 }
 
 PyObject* Character::GetSkillHistory() {
-    // eventTypeIDs:
-    // 34 - SkillClonePenalty
-    // 36 - SkillTrainingStarted
-    // 37 - SkillTrainingComplete
-    // 38 - SkillTrainingCanceled
-    // 39 - GMGiveSkill
-    // 53 - SkillTrainingComplete
-    // 307 - SkillPointsApplied
+    return(m_db.GetSkillHistory( itemID() ));
+}
 
-    DBQueryResult res;
-    if(!sDatabase.RunQuery(res,
-        "SELECT logDate, eventTypeID, skillTypeID, relativePoints AS absolutePoints"
-        " FROM chrSkillHistory"
-        " WHERE characterID = %d"
-        " ORDER BY logDate DESC"
-        " LIMIT 100",
-        itemID() )) {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
-        return NULL;
+void Character::_GetLogonMinutes() {
+    //  get login time and set _logonMinutes       -allan
+    EvilNumber loginTime = m_db.GetLoginTime(itemID());
+
+    // some checks are done < 1m, so if this check has no minutes, keep original time and exit
+    if(loginTime > 0) {
+        m_logonMinutes = logonMinutes() + loginTime.get_int();
+        m_db.UpdateLoginTime(itemID());
     }
-
-    return(DBResultToRowset(res));
 }
 
 bool Character::isOffline(uint32 charID) {
-    DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT Online FROM character_ WHERE characterID = %u", charID );
-
-    DBResultRow row;
-    if(res.GetRow(row))
-      return false; //row.GetUInt(0);
-    else
-      return true;
+    return m_db.isOffline(charID);
 }
 
 void Character::VisitSystem(uint32 solarSystemID) {
@@ -1343,17 +1290,15 @@ void Character::AddPilotToDynamicData(uint32 solarSystemID, bool docked, bool lo
     sDatabase.RunQuery(res, "SELECT pilotsDocked, pilotsInSpace FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
 
     DBResultRow row;
-    uint16 pilotsDocked, pilotsInSpace;
+    uint16 pilotsDocked = 0, pilotsInSpace = 0;
     if(res.GetRow(row)) {
         pilotsDocked = row.GetUInt(0);
         pilotsInSpace = row.GetUInt(1);
-    } else {
-        pilotsDocked = 0;
-        pilotsInSpace = 0;
     }
 
-    if(login) if(docked) pilotsDocked ++; else pilotsInSpace ++;
-    else {
+    if(login) {
+        if(docked) pilotsDocked ++; else pilotsInSpace ++;
+    } else {
         if(docked) {
             pilotsDocked ++;
             pilotsInSpace --;
@@ -1363,13 +1308,12 @@ void Character::AddPilotToDynamicData(uint32 solarSystemID, bool docked, bool lo
         }
     }
 
-    if (pilotsDocked < 0) pilotsDocked = 0;
-    if (pilotsInSpace < 0) pilotsInSpace = 0;
+    if (pilotsDocked < 0 || pilotsDocked > 100) pilotsDocked = 0;
+    if (pilotsInSpace < 0 || pilotsInSpace > 100) pilotsInSpace = 0;
 
     DBerror err;
     if(!sDatabase.RunQuery(err, "UPDATE mapDynamicData SET pilotsDocked = %u, pilotsInSpace = %u, pilotsDateTime = %" PRIu64 " WHERE solarSystemID = %u", pilotsDocked, pilotsInSpace, Win32TimeNow(), solarSystemID )){
         sLog.Error("Character::AddPilotToDynamicData","%s: Query Failed: %s", itemID(), err.c_str() );
-        return;
     }
 }
 

@@ -20,40 +20,41 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Reve
- */
+    Author:        AknorJaden
+*/
 
-#include "eve-server.h"
+#ifndef __MININGLASER_H__
+#define __MININGLASER_H__
 
-#include "EntityList.h"
-#include "system/SystemBubble.h"
-#include "system/Damage.h"
-#include "ship/modules/weapon_modules/WeaponModule.h"
+#include "ship/modules/ActiveModules.h"
 
-WeaponModule::WeaponModule(InventoryItemRef item, ShipRef ship)
-: ActiveModule(item, ship)
+class MiningLaser: public ActiveModule
 {
-    m_RequiresCharge = true;
-}
+public:
+    MiningLaser( InventoryItemRef item, ShipRef ship );
+    ~MiningLaser();
 
-void WeaponModule::Activate(SystemEntity * targetEntity)
-{
-    // if the weapon is already busy do nothing.
-    if(m_ActiveModuleProc->IsBusy())
-        return;
-    // make sure its a valid target and charge.
-    if (m_ChargeRef.get() != NULL && targetEntity != NULL)
-    {
-        // check for civilian version with infinite ammo.
-        if(!HasAttribute(AttrAmmoLoaded))
-        {
-            sLog.Error("WeaponModule::Activate()", "ERROR: Cannot find charge that is supposed to be loaded into this module!");
-            throw PyException(MakeCustomError("ERROR!  Cannot find charge that is supposed to be loaded into this module!"));
-        }
-    }
-    
-    // store the target entity.
-    m_targetEntity = targetEntity;
-    // Activate active processing component timer:
-    m_ActiveModuleProc->ActivateCycle(-1, m_ChargeRef);
-}
+	void Process();
+
+    // Module Action Methods:
+    void Load(InventoryItemRef charge);
+    void Unload();
+    void Repair();
+    void Overload();
+    void DeOverload();
+    void DestroyRig();
+	void Activate(SystemEntity * targetEntity);
+	void Deactivate();
+
+	// Calls Reserved for components usage only!
+	void DoCycle();
+	void StopCycle(bool abort=false);
+
+protected:
+	void _ProcessCycle();
+	void _ShowCycle();
+
+	bool m_IsInitialCycle;
+};
+
+#endif

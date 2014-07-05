@@ -20,24 +20,39 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        avianrr
+    Author:        AknorJaden
 */
 
-#ifndef WEAPONMODULE_H
-#define	WEAPONMODULE_H
+#ifndef __MISSILELAUNCHER_H__
+#define __MISSILELAUNCHER_H__
 
 #include "ship/modules/ActiveModules.h"
 
-class WeaponModule : public ActiveModule{
+class MissileLauncher: public ActiveModule
+{
 public:
-    WeaponModule(InventoryItemRef item, ShipRef ship);
-  
+    MissileLauncher( InventoryItemRef item, ShipRef ship );
+    ~MissileLauncher();
+
+	void Process();
+
     // Module Action Methods:
-    virtual void Activate(SystemEntity * targetEntity);
+    void Load(InventoryItemRef charge);
+    void Unload();
+    void Repair();
+    void Overload();
+    void DeOverload();
+    void DestroyRig();
+	void Activate(SystemEntity * targetEntity);
+	void Deactivate();
 
-private:
+	// Calls Reserved for components usage only!
+	void DoCycle();
+	void StopCycle(bool abort=false);
 
+protected:
+	void _ProcessCycle() {}
+	void _ShowCycle();
 };
 
-#endif	/* WEAPONMODULE_H */
-
+#endif

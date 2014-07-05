@@ -318,8 +318,8 @@ class Character
     friend class InventoryItem;    // to let it construct us
     friend class Owner;    // to let it construct us
 public:
-    typedef InventoryDB::QueuedSkill QueuedSkill;
-    typedef InventoryDB::SkillQueue SkillQueue;
+    typedef CharacterDB::QueuedSkill QueuedSkill;
+    typedef CharacterDB::SkillQueue SkillQueue;
     typedef InventoryDB::currentCertificates cCertificates;
     typedef InventoryDB::Certificates Certificates;
 
@@ -419,25 +419,17 @@ public:
      */
     EvilNumber GetEndOfTraining() const;
 
-    /** InjectSkillIntoBrain(InventoryItem *skill)
-     *
-     * Perform injection of passed skill into the character.
-     * @author xanarox
-     * @param InventoryItem
-     */
-    bool InjectSkillIntoBrain(SkillRef skill);
-    /** AddSkillToSkillQueue()
-     *
-     * This will add a skill into the skill queue.
-     * @author xanarox
-     */
-    void AddToSkillQueue(uint32 typeID, uint8 level);
-    void ClearSkillQueue();
-    void PauseSkillQueue();
-    void LoadPausedSkillQueue();
-    void UpdateSkillQueue();
-    void UpdateSkillQueueEndTime( const SkillQueue &queue );
-    void RemoveSkillFromQueue(uint32, uint16);
+    bool            InjectSkillIntoBrain(SkillRef skill);
+    PyTuple         *GetSkillQueue();
+    void            AddToSkillQueue(uint32 typeID, uint8 level);
+    void            ClearSkillQueue();
+    void            PauseSkillQueue();
+    void            LoadPausedSkillQueue();
+    void            UpdateSkillQueue();
+    void            UpdateSkillQueueEndTime( const SkillQueue &queue);
+    PyObject*       GetSkillHistory();
+    EvilNumber      GetTotalSP();
+
 
     /** GrantCertificate( uint32 certificateID )
      *
@@ -480,13 +472,6 @@ public:
      */
     PyDict *CharGetInfo();
     PyObject *GetDescription() const;
-
-    /** GetSkillQueue()
-     *
-     * This will get the skills from the skill queue for a character.
-     * @author xanarox
-    */
-    PyTuple *GetSkillQueue();
 
     /**
      * Public fields:
@@ -540,26 +525,25 @@ public:
     uint64                  corporationDateTime() const { return m_corporationDateTime; }
 
     uint32                  shipID() const { return m_shipID; }
+    void                    SetActiveShip( uint32 );
 
-    void SaveCharacter();
-	void SaveFullCharacter();
-    void SaveSkillQueue() const;
-    void SaveCertificates() const;
-    void SetActiveShip( uint32 );
+    //  saves
+    void                    SaveCharacter();
+    void                    SaveFullCharacter();
+    void                    SaveSkillQueue();
+    void                    SaveCertificates() const;
+    void                    SaveSkillHistory(int, double, uint32, uint32, int, double, double);
 
-    void VisitSystem(uint32);
-    void SaveSkillHistory(int, double, uint32, uint32, int, double, double);
-    bool isOffline(uint32);
-    void chkDynamicSystemID(uint32);
-    void AddJumpToDynamicData(uint32, bool);
-    void AddPilotToDynamicData(uint32, bool, bool);
-    void AddKillToDynamicData(uint32 solarSystemID);
-    void AddPodKillToDynamicData(uint32 solarSystemID);
-    void AddFactionKillToDynamicData(uint32 solarSystemID);
+    //  Dynamic Data
+    void                    VisitSystem(uint32);
+    void                    chkDynamicSystemID(uint32);
+    void                    AddJumpToDynamicData(uint32, bool);
+    void                    AddPilotToDynamicData(uint32, bool, bool);
+    void                    AddKillToDynamicData(uint32 solarSystemID);
+    void                    AddPodKillToDynamicData(uint32 solarSystemID);
+    void                    AddFactionKillToDynamicData(uint32 solarSystemID);
 
-    PyObject* GetSkillHistory();
-
-    EvilNumber GetTotalSP();
+    bool                    isOffline(uint32);
 
 protected:
     Character(

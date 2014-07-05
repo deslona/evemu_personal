@@ -41,40 +41,54 @@
 class GenericModule
 {
 public:
-    GenericModule(InventoryItemRef item, ShipRef ship);
-    virtual ~GenericModule();
+    GenericModule()
+    {
+        m_ModuleState = MOD_UNFITTED;
+        m_ChargeState = MOD_UNLOADED;
+    }
+    virtual ~GenericModule()
+    {
+    // ALL DERIVED CLASSES SHOULD OVERRIDE THIS
+    //    //warn user - yes be obnoxious
+    //    sLog.Error("GenericModule","MEMORY LEAK!");
+
+    //    //force the users to override the inherited destructor
+    //    assert(false); //crash if they don't
+    }
 
     virtual void Process()											{ /* Do nothing here */ }
-    virtual void Offline();
-    virtual void Online();
+    virtual void Offline()											{ /* Do nothing here */ }
+    virtual void Online()											{ /* Do nothing here */ }
 	virtual void Activate(SystemEntity * targetEntity)				{ /* Do nothing here */ }
     virtual void Deactivate()										{ /* Do nothing here */ }
     virtual void Load(InventoryItemRef charge)						{ /* Do nothing here */ }
     virtual void Unload()											{ /* Do nothing here */ }
-    virtual void Overload()											{ _isOverload = true; }
-    virtual void DeOverload()										{ _isOverload = false; }
+    virtual void Overload()											{ /* Do nothing here */ }
+    virtual void DeOverload()										{ /* Do nothing here */ }
     virtual void DestroyRig()										{ /* Do nothing here */ }
 
 
     virtual void Repair()                                        { m_Item->ResetAttribute(AttrHp, true); }
     virtual void Repair(EvilNumber amount)                        { m_Item->SetAttribute(AttrHp, m_Item->GetAttribute(AttrHp) + amount); }
 
-    virtual void SetAttribute(uint32 attrID, EvilNumber val)        { m_Item->SetAttribute(attrID, val); }
-    virtual EvilNumber GetAttribute(uint32 attrID)                  { return m_Item->GetAttribute(attrID); }
-    virtual EvilNumber GetAttribute(uint32 attrID, EvilNumber &val) { return m_Item->GetAttribute(attrID, val); }
-	virtual bool HasAttribute(uint32 attrID)                        { return m_Item->HasAttribute(attrID); }
-	virtual bool HasAttribute(uint32 attrID, EvilNumber &val)		{ return m_Item->HasAttribute(attrID, val); }
+    virtual void SetAttribute(uint32 attrID, EvilNumber val)    { m_Item->SetAttribute(attrID, val); }
+    virtual EvilNumber GetAttribute(uint32 attrID)                { return m_Item->GetAttribute(attrID); }
+	virtual bool HasAttribute(uint32 attrID)					{ return m_Item->HasAttribute(attrID); }
 
     //access functions
     InventoryItemRef getItem()                                  { return m_Item; }
     virtual uint32 itemID()                                        { return m_Item->itemID(); }
     virtual EVEItemFlags flag()                                    { return m_Item->flag(); }
     virtual uint32 typeID()                                        { return m_Item->typeID(); }
-    virtual uint32 groupID()                                        { return m_Item->groupID(); }
     virtual bool isOnline()                                        { return (m_Item->GetAttribute(AttrIsOnline) == 1); }
     virtual bool isHighPower()                                    { return m_Effects->isHighSlot(); }
     virtual bool isMediumPower()                                { return m_Effects->isMediumSlot(); }
     virtual bool isLowPower()                                    { return m_Effects->isLowSlot(); }
+	virtual bool isLoaded()										{ return false; }
+	ModuleStates GetModuleState()								{ return m_ModuleState; }
+	ChargeStates GetChargeState()								{ return m_ChargeState; }
+
+	InventoryItemRef GetLoadedChargeRef()					{ return InventoryItemRef(); }
 
     virtual bool isTurretFitted()
     {
@@ -115,28 +129,16 @@ public:
 
 	void SetLog(Basic_Log * pLog) { m_pMM_Log = pLog; }
 	Basic_Log * GetLog() { return m_pMM_Log; }
-    
-    ShipRef GetShip() { return m_Ship; };
 
 protected:
     InventoryItemRef m_Item;
     ShipRef m_Ship;
     ModuleEffects * m_Effects;
-    bool _isOverload;
 
-    ModuleStates m_Module_State;
-    ChargeStates m_Charge_State;
+    ModuleStates m_ModuleState;
+    ChargeStates m_ChargeState;
 
 	Basic_Log * m_pMM_Log;		// We do not own this
-
-    AttributeModifierSource m_ShipModifiers;
-    // references to resistance modifiers so that active modules can turn them off.
-    AttributeModifier *_EM_Modifier;
-    AttributeModifier *_Explosive_Modifier;
-    AttributeModifier *_Kinetic_Modifier;
-    AttributeModifier *_Thermal_Modifier;
-    
-    void GenerateModifiers();
 };
 
 #endif /* __MODULES_H__ */

@@ -140,7 +140,8 @@ NPC::~NPC() {
     //possibility of any of these things making virtual calls...
     //
     // this makes inheriting NPC a bad idea (see constructor)
-    m_system->RemoveNPC(this);
+
+    //m_system->RemoveNPC(this);
     if(m_spawner != NULL)
         m_spawner->SpawnDepoped(m_self->itemID());
     targets.DoDestruction();

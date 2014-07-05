@@ -29,9 +29,9 @@
 #include "npc/SpawnDB.h"
 
 class SystemManager;
-class PyServiceMgr;
 class BubbleManager;
 class SystemBubble;
+class PyServiceMgr;
 
 //TODO: add formation stuff....
 
@@ -135,9 +135,9 @@ public:
     void Process();
 
 protected:
-	SpawnEntry * _FindSpawnForBubble(SystemBubble &thisBubble);
+    SpawnEntry * _FindSpawnForBubble(SystemBubble &thisBubble);
 
-    SystemManager &m_system;    //we do not own this
+	SystemManager &m_system;    //we do not own this
     PyServiceMgr &m_services;    //we do not own this
 
     SpawnDB m_db;

@@ -384,5 +384,8 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
     // Release the item factory now that the character is finished being accessed:
     m_manager->item_factory.UnsetUsingClient();
 
+    //  add charID to staticOwners
+    //m_db.addOwnerCache(char_item->itemID(), char_item->itemName(), char_type->id() );
+
     return new PyInt( char_item->itemID() );
 }

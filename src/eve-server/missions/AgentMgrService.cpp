@@ -347,6 +347,7 @@ PyResult AgentMgrService::Handle_GetSolarSystemOfAgent(PyCallArgs &call)
     call.Dump(SERVICE__CALLS);
     */
 
+/**  not working....crashes server
     DBQueryResult res;
 
     uint32 AgentID = call.tuple->GetItem(0)->AsInt()->value();
@@ -372,7 +373,10 @@ PyResult AgentMgrService::Handle_GetSolarSystemOfAgent(PyCallArgs &call)
     t->items[0] = new PyInt( row.GetUInt(1) );
 
     return t;
+    */
 
+        throw(PyException(MakeCustomError("Agent Finder is not avalible at this time.")));
+    return NULL;
 }
 
 PyResult AgentMgrService::Handle_GetCareerAgents(PyCallArgs &call)

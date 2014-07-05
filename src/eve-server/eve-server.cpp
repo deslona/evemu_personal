@@ -174,8 +174,8 @@ int main( int argc, char* argv[] )
 
     sLog.InitializeLogging(sConfig.files.logDir);
     sLog.Log("server init", "Loading server...");
-    sLog.Log("SERVER VERSION", "EVEmu 0.7.25-allan" );
-    sLog.Log("BUILD DATE", "1 July 2014");
+    sLog.Log("SERVER VERSION", "EVEmu 0.7.30-allan" );
+    sLog.Log("BUILD DATE", "5 July 2014");
     sLog.Log("SOURCE", "get at " EVEMU_REPOSITORY );
     sLog.Log("SERVER INIT", "\n"
         "\tSupported Client: %s\n"
@@ -353,14 +353,16 @@ int main( int argc, char* argv[] )
 	// Create In-Memory Database Objects for Critical Systems, such as ModuleManager:
 	sLog.Log("server init", "---> sDGM_Effects_Table: Loading...");
 	sDGM_Effects_Table.Initialize();
+    sLog.Log("server init", "---> sDGM_Type_Effects_Table: Loading...");
+    sDGM_Type_Effects_Table.Initialize();
 	sLog.Log("server init", "---> sDGM_Skill_Bonus_Modifiers_Table: Loading...");
 	sDGM_Skill_Bonus_Modifiers_Table.Initialize();
-    sLog.Log("server init", "---> sDGM_Types_to_Wrecks_Table: Loading...");
-    sDGM_Types_to_Wrecks_Table.Initialize();
 	//sLog.Log("server init", "---> sDGM_Ship_Bonus_Modifiers_Table: Loading...");
 	//sDGM_Ship_Bonus_Modifiers_Table.Initialize();
     //sLog.Log("server init", "---> sDGM_Implant_Bonus_Modifiers_Table: Loading...");
     //sDGM_Implant_Bonus_Modifiers_Table.Initialize();
+    sLog.Log("server init", "---> sDGM_Types_to_Wrecks_Table: Loading...");
+    sDGM_Types_to_Wrecks_Table.Initialize();
     //sLog.Log("server init", "---> sDGM_Wrecks_to_Salvage_Table: Loading...");
     //sDGM_Wrecks_to_Salvage_Table.Initialize();
 

@@ -89,12 +89,13 @@ Ship::Ship(
     const ShipType &_shipType,
     const ItemData &_data)
 : InventoryItem(_factory, _shipID, _shipType, _data),
-    m_UpdateTimer(0, true)
+  m_processTimerTick(SHIP_PROCESS_TICK_MS),
+  m_processTimer(SHIP_PROCESS_TICK_MS)
 {
     m_ModuleManager = NULL;
     m_pOperator = new ShipOperatorInterface();
 
-    m_UpdateTimer.Start(100);
+	m_processTimer.Start();
 
     // Activate Save Info Timer with somewhat randomized timer value:
     //SetSaveTimerExpiry( MakeRandomInt( (10 * 60), (15 * 60) ) );        // Randomize save timer expiry to between 10 and 15 minutes
@@ -236,7 +237,35 @@ bool Ship::_Load()
 
     bool loadSuccess = InventoryItem::_Load();      // Attributes are loaded here!
 
-    // TODO: MOVE THIS TO Ship::Load() or some other place AFTER InventoryItem::mAttributeMap has been loaded
+	// fill cargo holds data here:
+	// NOTE: These all still need to have skill and ship bonuses applied when creating the capacities!
+	if( HasAttribute(AttrCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.insert(std::pair<EVEItemFlags,double>(flagCargoHold,mAttributeMap.GetAttribute(AttrCapacity).get_float()));
+	if( HasAttribute(AttrDroneCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.insert(std::pair<EVEItemFlags,double>(flagDroneBay,mAttributeMap.GetAttribute(AttrDroneCapacity).get_float()));
+	if( HasAttribute(AttrSpecialFuelBayCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.insert(std::pair<EVEItemFlags,double>(flagSpecializedFuelBay,mAttributeMap.GetAttribute(AttrSpecialFuelBayCapacity).get_float()));
+	if( HasAttribute(AttrSpecialOreHoldCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.insert(std::pair<EVEItemFlags,double>(flagSpecializedOreHold,mAttributeMap.GetAttribute(AttrSpecialOreHoldCapacity).get_float()));
+	if( HasAttribute(AttrSpecialGasHoldCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.insert(std::pair<EVEItemFlags,double>(flagSpecializedGasHold,mAttributeMap.GetAttribute(AttrSpecialGasHoldCapacity).get_float()));
+	if( HasAttribute(AttrSpecialMineralHoldCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.insert(std::pair<EVEItemFlags,double>(flagSpecializedMineralHold,mAttributeMap.GetAttribute(AttrSpecialMineralHoldCapacity).get_float()));
+	if( HasAttribute(AttrSpecialSalvageHoldCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.insert(std::pair<EVEItemFlags,double>(flagSpecializedSalvageHold,mAttributeMap.GetAttribute(AttrSpecialSalvageHoldCapacity).get_float()));
+	if( HasAttribute(AttrSpecialShipHoldCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.insert(std::pair<EVEItemFlags,double>(flagSpecializedShipHold,mAttributeMap.GetAttribute(AttrSpecialShipHoldCapacity).get_float()));
+	if( HasAttribute(AttrSpecialSmallShipHoldCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.insert(std::pair<EVEItemFlags,double>(flagSpecializedSmallShipHold,mAttributeMap.GetAttribute(AttrSpecialSmallShipHoldCapacity).get_float()));
+	if( HasAttribute(AttrSpecialLargeShipHoldCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.insert(std::pair<EVEItemFlags,double>(flagSpecializedLargeShipHold,mAttributeMap.GetAttribute(AttrSpecialLargeShipHoldCapacity).get_float()));
+	if( HasAttribute(AttrSpecialIndustrialShipHoldCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.insert(std::pair<EVEItemFlags,double>(flagSpecializedIndustrialShipHold,mAttributeMap.GetAttribute(AttrSpecialIndustrialShipHoldCapacity).get_float()));
+	if( HasAttribute(AttrSpecialAmmoHoldCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.insert(std::pair<EVEItemFlags,double>(flagSpecializedAmmoHold,mAttributeMap.GetAttribute(AttrSpecialAmmoHoldCapacity).get_float()));
+
+	_UpdateCargoHoldsUsedVolume();
+
     // allocate the module manager, only the first time:
     if( m_ModuleManager == NULL )
         m_ModuleManager = new ModuleManager(this);
@@ -246,6 +275,50 @@ bool Ship::_Load()
         loadSuccess = false;
 
     return loadSuccess;
+}
+
+void Ship::_UpdateCargoHoldsUsedVolume()
+{
+	if( HasAttribute(AttrCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.find(flagCargoHold)->second = GetStoredVolume(flagCargoHold);
+	if( HasAttribute(AttrDroneCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.find(flagDroneBay)->second = GetStoredVolume(flagDroneBay);
+	if( HasAttribute(AttrSpecialFuelBayCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.find(flagSpecializedFuelBay)->second = GetStoredVolume(flagSpecializedFuelBay);
+	if( HasAttribute(AttrSpecialOreHoldCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.find(flagSpecializedOreHold)->second = GetStoredVolume(flagSpecializedOreHold);
+	if( HasAttribute(AttrSpecialGasHoldCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.find(flagSpecializedGasHold)->second = GetStoredVolume(flagSpecializedGasHold);
+	if( HasAttribute(AttrSpecialMineralHoldCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.find(flagSpecializedMineralHold)->second = GetStoredVolume(flagSpecializedMineralHold);
+	if( HasAttribute(AttrSpecialSalvageHoldCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.find(flagSpecializedSalvageHold)->second = GetStoredVolume(flagSpecializedSalvageHold);
+	if( HasAttribute(AttrSpecialShipHoldCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.find(flagSpecializedShipHold)->second = GetStoredVolume(flagSpecializedShipHold);
+	if( HasAttribute(AttrSpecialSmallShipHoldCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.find(flagSpecializedSmallShipHold)->second = GetStoredVolume(flagSpecializedSmallShipHold);
+	if( HasAttribute(AttrSpecialLargeShipHoldCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.find(flagSpecializedLargeShipHold)->second = GetStoredVolume(flagSpecializedLargeShipHold);
+	if( HasAttribute(AttrSpecialIndustrialShipHoldCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.find(flagSpecializedIndustrialShipHold)->second = GetStoredVolume(flagSpecializedIndustrialShipHold);
+	if( HasAttribute(AttrSpecialAmmoHoldCapacity) )
+		m_cargoHoldsUsedVolumeByFlag.find(flagSpecializedAmmoHold)->second = GetStoredVolume(flagSpecializedAmmoHold);
+}
+
+void Ship::_IncreaseCargoHoldsUsedVolume(EVEItemFlags flag, double volumeToConsume)
+{
+	if( m_cargoHoldsUsedVolumeByFlag.find(flag) != m_cargoHoldsUsedVolumeByFlag.end() )
+		m_cargoHoldsUsedVolumeByFlag.find(flag)->second += volumeToConsume;
+	else
+		throw PyException( MakeCustomError( "ERROR!  Illegal flag '%u' specified!", flag ) );
+}
+
+void Ship::_DecreaseCargoHoldsUsedVolume(EVEItemFlags flag, double volumeToConsume)
+{
+	if( m_cargoHoldsUsedVolumeByFlag.find(flag) != m_cargoHoldsUsedVolumeByFlag.end() )
+		m_cargoHoldsUsedVolumeByFlag.find(flag)->second -= volumeToConsume;
+	else
+		throw PyException( MakeCustomError( "ERROR!  Illegal flag '%u' specified!", flag ) );
 }
 
 void Ship::Delete()
@@ -259,17 +332,145 @@ void Ship::Delete()
 double Ship::GetCapacity(EVEItemFlags flag) const
 {
     switch( flag ) {
-        // the .get_float() part is a evil hack.... as this function should return a EvilNumber.
-        case flagAutoFit:
-        case flagCargoHold:     return GetAttribute(AttrCapacity).get_float();
-        case flagDroneBay:      return GetAttribute(AttrDroneCapacity).get_float();
-        case flagShipHangar:    return GetAttribute(AttrShipMaintenanceBayCapacity).get_float();
-        case flagHangar:        return GetAttribute(AttrCorporateHangarCapacity).get_float();
-        default:                return 0.0;
-    }
+		case flagAutoFit:
+		case flagCargoHold:
+			if( HasAttribute(AttrCapacity) )
+				return GetAttribute(AttrCapacity).get_float();
+			break;
+
+		case flagDroneBay:
+			if( HasAttribute(AttrDroneCapacity) )
+				return GetAttribute(AttrDroneCapacity).get_float();
+			break;
+
+		case flagSpecializedFuelBay:
+			if( HasAttribute(AttrSpecialFuelBayCapacity) )
+				return GetAttribute(AttrSpecialFuelBayCapacity).get_float();
+			break;
+
+		case flagSpecializedOreHold:
+			if( HasAttribute(AttrSpecialOreHoldCapacity) )
+				return GetAttribute(AttrSpecialOreHoldCapacity).get_float();
+			break;
+
+		case flagSpecializedGasHold:
+			if( HasAttribute(AttrSpecialGasHoldCapacity) )
+				return GetAttribute(AttrSpecialGasHoldCapacity).get_float();
+			break;
+
+		case flagSpecializedMineralHold:
+			if( HasAttribute(AttrSpecialMineralHoldCapacity) )
+				return GetAttribute(AttrSpecialMineralHoldCapacity).get_float();
+			break;
+
+		case flagSpecializedSalvageHold:
+			if( HasAttribute(AttrSpecialSalvageHoldCapacity) )
+				return GetAttribute(AttrSpecialSalvageHoldCapacity).get_float();
+			break;
+
+		case flagSpecializedShipHold:
+			if( HasAttribute(AttrSpecialShipHoldCapacity) )
+				return GetAttribute(AttrSpecialShipHoldCapacity).get_float();
+			break;
+
+		case flagSpecializedSmallShipHold:
+			if( HasAttribute(AttrSpecialSmallShipHoldCapacity) )
+				return GetAttribute(AttrSpecialSmallShipHoldCapacity).get_float();
+			break;
+
+		case flagSpecializedLargeShipHold:
+			if( HasAttribute(AttrSpecialLargeShipHoldCapacity) )
+				return GetAttribute(AttrSpecialLargeShipHoldCapacity).get_float();
+			break;
+
+		case flagSpecializedIndustrialShipHold:
+			if( HasAttribute(AttrSpecialIndustrialShipHoldCapacity) )
+				return GetAttribute(AttrSpecialIndustrialShipHoldCapacity).get_float();
+			break;
+
+		case flagSpecializedAmmoHold:
+			if( HasAttribute(AttrSpecialAmmoHoldCapacity) )
+				return GetAttribute(AttrSpecialAmmoHoldCapacity).get_float();
+			break;
+
+        case flagShipHangar:
+			if( HasAttribute(AttrShipMaintenanceBayCapacity) )
+				return GetAttribute(AttrShipMaintenanceBayCapacity).get_float();
+			break;
+
+        case flagHangar:
+			if( HasAttribute(AttrCorporateHangarCapacity) )
+				return GetAttribute(AttrCorporateHangarCapacity).get_float();
+			break;
+
+		default:
+			return 0.0;
+			break;
+	}
+
+	// Handle all missing/unsupported/illegal flag by reporting available capacity of 0.0:
+	return 0.0;
 }
 
-void Ship::ValidateAddItem(EVEItemFlags flag, InventoryItemRef item)
+double Ship::GetRemainingVolumeByFlag(EVEItemFlags flag) const
+{
+	switch( flag ) {
+		case flagAutoFit:
+		case flagCargoHold:
+			return (GetAttribute(AttrCapacity).get_float() - m_cargoHoldsUsedVolumeByFlag.find(flagCargoHold)->second);
+			break;
+
+		case flagDroneBay:
+			return (GetAttribute(AttrDroneCapacity).get_float() - m_cargoHoldsUsedVolumeByFlag.find(flagDroneBay)->second);
+			break;
+
+		case flagSpecializedFuelBay:
+			return (GetAttribute(AttrSpecialFuelBayCapacity).get_float() - m_cargoHoldsUsedVolumeByFlag.find(flagSpecializedFuelBay)->second);
+			break;
+
+		case flagSpecializedOreHold:
+			return (GetAttribute(AttrSpecialOreHoldCapacity).get_float() - m_cargoHoldsUsedVolumeByFlag.find(flagSpecializedOreHold)->second);
+			break;
+
+		case flagSpecializedGasHold:
+			return (GetAttribute(AttrSpecialGasHoldCapacity).get_float() - m_cargoHoldsUsedVolumeByFlag.find(flagSpecializedGasHold)->second);
+			break;
+
+		case flagSpecializedMineralHold:
+			return (GetAttribute(AttrSpecialMineralHoldCapacity).get_float() - m_cargoHoldsUsedVolumeByFlag.find(flagSpecializedMineralHold)->second);
+			break;
+
+		case flagSpecializedSalvageHold:
+			return (GetAttribute(AttrSpecialSalvageHoldCapacity).get_float() - m_cargoHoldsUsedVolumeByFlag.find(flagSpecializedSalvageHold)->second);
+			break;
+
+		case flagSpecializedShipHold:
+			return (GetAttribute(AttrSpecialShipHoldCapacity).get_float() - m_cargoHoldsUsedVolumeByFlag.find(flagSpecializedShipHold)->second);
+			break;
+
+		case flagSpecializedSmallShipHold:
+			return (GetAttribute(AttrSpecialSmallShipHoldCapacity).get_float() - m_cargoHoldsUsedVolumeByFlag.find(flagSpecializedSmallShipHold)->second);
+			break;
+
+		case flagSpecializedLargeShipHold:
+			return (GetAttribute(AttrSpecialLargeShipHoldCapacity).get_float() - m_cargoHoldsUsedVolumeByFlag.find(flagSpecializedLargeShipHold)->second);
+			break;
+
+		case flagSpecializedIndustrialShipHold:
+			return (GetAttribute(AttrSpecialIndustrialShipHoldCapacity).get_float() - m_cargoHoldsUsedVolumeByFlag.find(flagSpecializedIndustrialShipHold)->second);
+			break;
+
+		case flagSpecializedAmmoHold:
+			return (GetAttribute(AttrSpecialAmmoHoldCapacity).get_float() - m_cargoHoldsUsedVolumeByFlag.find(flagSpecializedAmmoHold)->second);
+			break;
+
+		default:
+			return 0.0;
+			break;
+	}
+}
+
+bool Ship::ValidateAddItem(EVEItemFlags flag, InventoryItemRef item)
 {
     CharacterRef character = m_pOperator->GetChar();        // Operator assumed to be Client *
 
@@ -294,43 +495,34 @@ void Ship::ValidateAddItem(EVEItemFlags flag, InventoryItemRef item)
             // We have no corporate hangars
             throw PyException( MakeCustomError( "%s has no corporate hangars.", item->itemName().c_str() ) );
     }
-    else if( flag == flagCargoHold )
-    {
-        //get all items in cargohold
-        EvilNumber capacityUsed(0.0);
-        std::vector<InventoryItemRef> items;
-        m_pOperator->GetShip()->FindByFlag(flag, items);        // Operator assumed to be Client *
-        for(uint32 i = 0; i < items.size(); i++){
-            capacityUsed += (items[i]->GetAttribute(AttrVolume) * items[i]->quantity());
-        }
-        if( capacityUsed + (item->GetAttribute(AttrVolume) * item->quantity()) > m_pOperator->GetShip()->GetAttribute(AttrCapacity) )    // Operator assumed to be Client *
-            throw PyException( MakeCustomError( "Not enough cargo space!") );
-    }
     else if( (flag >= flagLowSlot0)  &&  (flag <= flagHiSlot7) )
     {
-        if( m_pOperator->IsClient() )   // SKIP THIS SKILL CHECK if Operator is NOT Client *
-            if(!Skill::FitModuleSkillCheck(item, character))
+        if( m_pOperator->IsClient() )
+            if(!Skill::FitModuleSkillCheck(item, character))        // SKIP THIS SKILL CHECK if Operator is NOT Client *
                 throw PyException( MakeCustomError( "You do not have the required skills to fit this \n%s", item->itemName().c_str() ) );
         if(!ValidateItemSpecifics(item))
             throw PyException( MakeCustomError( "Your ship cannot equip this module" ) );
-        if( m_ModuleManager->IsSlotOccupied(flag) )
-            throw PyException( MakeUserError( "SlotAlreadyOccupied" ) );
-        if(item->categoryID() == EVEDB::invCategories::Charge) {
-           if( m_ModuleManager->GetModule(flag) != NULL ) {
-               InventoryItemRef module;
-               module = m_ModuleManager->GetModule(flag)->getItem();
-               if(module->GetAttribute(AttrChargeSize) != item->GetAttribute(AttrChargeSize) )
-                   throw PyException( MakeCustomError( "The charge is not the correct size for this module." ) );
-               if(module->GetAttribute(AttrChargeGroup1) != item->groupID())
-                   throw PyException( MakeCustomError( "Incorrect charge type for this module.") );
+        if(item->categoryID() == EVEDB::invCategories::Charge)
+		{
+			if( m_ModuleManager->GetModule(flag) != NULL )
+			{
+				InventoryItemRef module;
+				module = m_ModuleManager->GetModule(flag)->getItem();
+				if(module->GetAttribute(AttrChargeSize) != item->GetAttribute(AttrChargeSize) )
+					throw PyException( MakeCustomError( "The charge is not the correct size for this module." ) );
+				if(module->GetAttribute(AttrChargeGroup1) != item->groupID())
+					throw PyException( MakeCustomError( "Incorrect charge type for this module.") );
 
-               // NOTE: Module Manager will check for actual room to load charges and make stack splits, or reject loading altogether
-            } else
-                throw PyException( MakeCustomError( "Module at flag '%u' does not exist!", flag ) );
-         } else {
-            if( m_ModuleManager->IsSlotOccupied(flag) )
-                throw PyException( MakeUserError( "SlotAlreadyOccupied" ) );
+				// NOTE: Module Manager will check for actual room to load charges and make stack splits, or reject loading altogether
+			}
+			else
+				throw PyException( MakeCustomError( "Module at flag '%u' does not exist!", flag ) );
         }
+		else
+		{
+			if( m_ModuleManager->IsSlotOccupied(flag) )
+				throw PyException( MakeUserError( "SlotAlreadyOccupied" ) );
+		}
     }
     else if( (flag >= flagRigSlot0)  &&  (flag <= flagRigSlot7) )
     {
@@ -348,7 +540,18 @@ void Ship::ValidateAddItem(EVEItemFlags flag, InventoryItemRef item)
             if(!Skill::FitModuleSkillCheck(item, character))        // SKIP THIS SKILL CHECK if Operator is NOT Client *
                 throw PyException( MakeCustomError( "You do not have the required skills to fit this \n%s", item->itemName().c_str() ) );
     }
+    else
+    {
+		// Handle any other flag, legal or not by virtue of GetRemainingVolumeByFlag() and GetCapacity() that handle supported capacity types:
+		// (unsupported or illegal flags report capacity of 0.0, so are automatically rejected)
+        double capacityRemaining(0.0);
+		capacityRemaining = GetRemainingVolumeByFlag(flag);
 
+		if( (capacityRemaining < (item->GetAttribute(AttrVolume).get_float() * (double)item->quantity())) )    // Operator assumed to be Client *
+            throw PyException( MakeCustomError( "Not enough cargo space!<br><br>flag = %u", (uint32)flag) );
+    }
+
+	return true;
 }
 
 PyDict *Ship::ShipGetInfo()
@@ -461,9 +664,81 @@ bool Ship::ValidateBoardShip(ShipRef ship, CharacterRef character)
             return false;
 
     return true;
+/*
+    //Primary Skill
+    if(ship->GetAttribute(AttrRequiredSkill1).get_int() != 0)
+    {
+        requiredSkill = character->GetSkill( ship->GetAttribute(AttrRequiredSkill1).get_int() );
+        if( !requiredSkill )
+            return false;
+
+        if( ship->GetAttribute(AttrRequiredSkill1Level) > requiredSkill->GetAttribute(AttrSkillLevel) )
+            return false;
+    }
+
+    //Secondary Skill
+    if(ship->GetAttribute(AttrRequiredSkill2).get_int() != 0)
+    {
+        requiredSkill = character->GetSkill( ship->GetAttribute(AttrRequiredSkill2).get_int() );
+        if( !requiredSkill )
+            return false;
+
+        if( ship->GetAttribute(AttrRequiredSkill2Level) > requiredSkill->GetAttribute(AttrSkillLevel) )
+            return false;
+    }
+
+    //Tertiary Skill
+    if(ship->GetAttribute(AttrRequiredSkill3).get_int() != 0)
+    {
+        requiredSkill = character->GetSkill( ship->GetAttribute(AttrRequiredSkill3).get_int() );
+        if( !requiredSkill )
+            return false;
+
+        if( ship->GetAttribute(AttrRequiredSkill3Level) > requiredSkill->GetAttribute(AttrSkillLevel) )
+            return false;
+    }
+
+    //Quarternary Skill
+    if(ship->GetAttribute(AttrRequiredSkill4).get_int() != 0)
+    {
+        requiredSkill = character->GetSkill( ship->GetAttribute(AttrRequiredSkill4).get_int() );
+        if( !requiredSkill )
+            return false;
+
+        if( ship->GetAttribute(AttrRequiredSkill4Level) > requiredSkill->GetAttribute(AttrSkillLevel) )
+            return false;
+    }
+
+    //Quinary Skill
+    if(ship->GetAttribute(AttrRequiredSkill5).get_int() != 0)
+    {
+        requiredSkill = character->GetSkill( ship->GetAttribute(AttrRequiredSkill5).get_int() );
+        if( !requiredSkill )
+            return false;
+
+        if( ship->GetAttribute(AttrRequiredSkill5Level) > requiredSkill->GetAttribute(AttrSkillLevel) )
+            return false;
+    }
+
+    //Senary Skill
+    if(ship->GetAttribute(AttrRequiredSkill6).get_int() != 0)
+    {
+        requiredSkill = character->GetSkill( ship->GetAttribute(AttrRequiredSkill6).get_int() );
+        if( !requiredSkill )
+            return false;
+
+        if( ship->GetAttribute(AttrRequiredSkill6Level) > requiredSkill->GetAttribute(AttrSkillLevel) )
+            return false;
+    }
+
+    return true;
+*/
 }
 
-void Ship::SaveShip() {
+void Ship::SaveShip()
+{
+    sLog.Debug( "Ship::SaveShip()", "Saving all 'entity' info and attribute info to DB for ship %s (%u)...", itemName().c_str(), itemID() );
+
     SaveItem();                         // Save all attributes and item info
     m_ModuleManager->SaveModules();     // Save all attributes and item info for all modules fitted to this ship
 }
@@ -485,25 +760,63 @@ bool Ship::ValidateItemSpecifics(InventoryItemRef equip) {
 	if( canFitShipGroup1 != 0 || canFitShipGroup2 != 0 || canFitShipGroup3 != 0 || canFitShipGroup4 != 0 )
 		if( canFitShipGroup1 != groupID && canFitShipGroup2 != groupID && canFitShipGroup3 != groupID && canFitShipGroup4 != groupID )
 			return false;
+	/*
+    if( canFitShipGroup1 != 0 )
+        if( canFitShipGroup1 != groupID )
+            return false;
+
+    if( canFitShipGroup2 != 0 )
+        if( canFitShipGroup2 != groupID )
+            return false;
+
+    if( canFitShipGroup3 != 0 )
+        if( canFitShipGroup3 != groupID )
+            return false;
+
+    if( canFitShipGroup4 != 0 )
+        if( canFitShipGroup4 != groupID )
+            return false;
+	*/
+
     if( canFitShipType1 != 0 || canFitShipType2 != 0 || canFitShipType3 != 0 || canFitShipType4 != 0 )
         if( canFitShipType1 != typeID && canFitShipType2 != typeID && canFitShipType3 != typeID && canFitShipType4 != typeID )
             return false;
+	/*
+    if( canFitShipType1 != 0 )
+        if( canFitShipType1 != typeID )
+            return false;
+
+    if( canFitShipType2 != 0 )
+        if( canFitShipType2 != typeID )
+            return false;
+
+    if( canFitShipType3 != 0 )
+        if( canFitShipType3 != typeID )
+            return false;
+
+    if( canFitShipType4 != 0 )
+        if( canFitShipType4 != typeID )
+            return false;
+	*/
     return true;
+
 }
 
 /* Begin new Module Manager Interface */
-InventoryItemRef Ship::GetModule(EVEItemFlags flag) {
-   if( m_ModuleManager->GetModule(flag) != NULL )
-       return (m_ModuleManager->GetModule(flag))->getItem();
-   else
-       return InventoryItemRef();
+InventoryItemRef Ship::GetModule(EVEItemFlags flag)
+{
+	if( m_ModuleManager->GetModule(flag) != NULL )
+		return (m_ModuleManager->GetModule(flag))->getItem();
+	else
+		return InventoryItemRef();
 }
 
-InventoryItemRef Ship::GetModule(uint32 itemID) {
-   if( m_ModuleManager->GetModule(itemID) != NULL )
-       return (m_ModuleManager->GetModule(itemID))->getItem();
-   else
-       return InventoryItemRef();
+InventoryItemRef Ship::GetModule(uint32 itemID)
+{
+	if( m_ModuleManager->GetModule(itemID) != NULL )
+		return (m_ModuleManager->GetModule(itemID))->getItem();
+	else
+		return InventoryItemRef();
 }
 
 uint32 Ship::FindAvailableModuleSlot( InventoryItemRef item )
@@ -544,73 +857,100 @@ uint32 Ship::FindAvailableModuleSlot( InventoryItemRef item )
     return slotFound;
 }
 
-uint32 Ship::AddItem(EVEItemFlags flag, InventoryItemRef item) {
+uint32 Ship::AddItem(EVEItemFlags flag, InventoryItemRef item)
+{
     ValidateAddItem( flag, item );
 
     //it's a new module, make sure it's state starts at offline so that it is added correctly
-    if( item->categoryID() != EVEDB::invCategories::Charge )
+    if( item->categoryID() == EVEDB::invCategories::Module )
         item->PutOffline();
 
-    switch( item->categoryID() ) {
-        case EVEDB::invCategories::Charge: {
-                std::vector<InventoryItemRef> chargeList;
-                chargeList.push_back(item);
-                m_ModuleManager->LoadCharge(chargeList, flag);
-                InventoryItemRef loadedChargeOnModule = m_ModuleManager->GetLoadedChargeOnModule(flag);
-                if( loadedChargeOnModule.get() ) {
-                   return loadedChargeOnModule->itemID();
-               } else
-                   return 0;
-           }
-           break;
+	switch( item->categoryID() )
+	{
+		case EVEDB::invCategories::Charge:
+			{
+				m_ModuleManager->LoadCharge(item, flag);
+				InventoryItemRef loadedChargeOnModule = m_ModuleManager->GetLoadedChargeOnModule(flag);
+				if( loadedChargeOnModule )
+				{
+					return loadedChargeOnModule->itemID();
+				}
+				else
+					return 0;
+			}
+			break;
 
-        case EVEDB::invCategories::Module:
-            if( m_ModuleManager->FitModule(item, flag) )
-                item->Move(itemID(), flag);
-            break;
+		case EVEDB::invCategories::Module:
+			if( m_ModuleManager->FitModule(item, flag) )
+				item->Move(itemID(), flag);
+			break;
 
-        default:
-            sLog.Error( "Ship::AddItem(flag,item)", "ERROR! Function called with item '%s' (id: %u) of category neither Charge nor Module!", item->itemName().c_str(), item->itemID() );
-    }
+		// The default case handles ANY other items added to ship and assumes they go into one of the valid cargo holds on this ship:
+		default:
+			//sLog.Error( "Ship::AddItem(flag,item)", "ERROR! Function called with item '%s' (id: %u) of category neither Charge nor Module!", item->itemName().c_str(), item->itemID() );
+			_IncreaseCargoHoldsUsedVolume( item->flag(), (item->GetAttribute(AttrVolume).get_float() * item->quantity()) );
+			item->Move(itemID(), flag);
+			break;
+	}
 
-    return 0;
+	return 0;
 }
 
-uint32 Ship::LoadCharge( EVEItemFlags flag, std::vector<InventoryItemRef> chargeList)
+void Ship::RemoveItem(InventoryItemRef item, uint32 inventoryID, EVEItemFlags flag)
 {
-    m_ModuleManager->LoadCharge(chargeList, flag);
-    InventoryItemRef loadedChargeOnModule = m_ModuleManager->GetLoadedChargeOnModule(flag);
-    if( loadedChargeOnModule.get() != NULL )
-        return loadedChargeOnModule->itemID();
-    return 0;
-}
-
-void Ship::RemoveItem(InventoryItemRef item, uint32 inventoryID, EVEItemFlags flag) {
-    //coming from ship, we need to deactivate it and remove mass if it isn't a charge
-    if( item->categoryID() != EVEDB::invCategories::Charge ) {
+    // If item IS a module and it's being removed from a slot:
+	if( (item->categoryID() == EVEDB::invCategories::Module) && ((item->flag() >= flagLowSlot0)  &&  (item->flag() <= flagHiSlot7)) )
+	{
         m_pOperator->GetShip()->Deactivate( item->itemID(), "online" );
         // m_pOperator->GetShip()->Set_mass( m_pOperator->GetShip()->mass() - item->massAddition() );
         //m_pOperator->GetShip()->SetAttribute(AttrMass,  m_pOperator->GetShip()->GetAttribute(AttrMass) - item->GetAttribute(AttrMassAddition) );
         m_pOperator->GetShip()->UnloadModule( item->itemID() );
     }
 
-    // if item being removed IS a charge, it needs to be removed via Module Manager so modules know charge is removed
-    if( item->categoryID() == EVEDB::invCategories::Charge ) {
-        m_ModuleManager->UnloadCharge(item->flag());
-    }
+	// If item IS a rig and it's being removed from a slot:
+	if( (item->categoryID() == EVEDB::invCategories::Module) && ((item->flag() >= flagRigSlot0)  &&  (item->flag() <= flagRigSlot7)) )
+	{
+		// Don't know what to do when removing a Rig... yet ;)
+	}
 
-    //Move New item to its new location
-    m_pOperator->MoveItem(item->itemID(), inventoryID, flag);
+	// If item IS a rig and it's being removed from a slot:
+	if( (item->categoryID() == EVEDB::invCategories::Subsystem) && ((item->flag() >= flagSubSystem0)  &&  (item->flag() <= flagSubSystem7)) )
+	{
+		// Don't know what to do when removing a Subsystem... yet ;)
+	}
+
+	// if item being removed IS a charge, it needs to be removed via Module Manager so modules know charge is removed:
+	if( item->categoryID() == EVEDB::invCategories::Charge )
+	{
+		m_ModuleManager->UnloadCharge(item->flag());
+	}
+
+	if( item->flag() == flag )
+		// Item's already been moved, let's return
+		return;
+
+    // Move New item to its new location:
+	if( !( ((item->flag() >= flagLowSlot0)  &&  (item->flag() <= flagHiSlot7)) || ((item->flag() >= flagRigSlot0)  &&  (item->flag() <= flagRigSlot7))
+		|| ((item->flag() >= flagSubSystem0)  &&  (item->flag() <= flagSubSystem7)) ) )
+	{
+		_DecreaseCargoHoldsUsedVolume( item->flag(), (item->GetAttribute(AttrVolume).get_float() * item->quantity()) );
+		m_pOperator->MoveItem(item->itemID(), inventoryID, flag);
+	}
+	else
+	{
+		m_pOperator->MoveItem(item->itemID(), inventoryID, flag);
+	}
 }
 
-void Ship::UpdateModules() {
-    // List of callees to put this function into context as to what it should be doing:
-    // Client::BoardShip()              - put modules online that are recorded with attributeID 2 as being online / skill check all modules and if any fail, keep those OFFLINE
-    // InventoryBound::_ExecAdd()       - things have been added or removed, recheck all modules for... some reason
-    // Client::MoveItem()               - something has been moved into or out of the ship, recheck all modules for... some reason
+void Ship::UpdateModules()
+{
+	// List of callees to put this function into context as to what it should be doing:
+	// Client::BoardShip()				- put modules online that are recorded with attributeID 2 as being online / skill check all modules and if any fail, keep those OFFLINE
+	// InventoryBound::_ExecAdd()		- things have been added or removed, recheck all modules for... some reason
+	// Client::MoveItem()				- something has been moved into or out of the ship, recheck all modules for... some reason
 
-    //sLog.Error( "Ship::UpdateModules()", "We are currently not checking for modules that need to go online, or skill checking character for any modules of a newly boarded ship, or updating module states based on things being moved into or off the ship!" );
-    //sLog.Warning( "Ship::UpdateModules()", "This should really be a simple call to a function ModuleManager::UpdateModules() and the code put inside there." );
+	sLog.Error( "Ship::UpdateModules()", "We are currently not checking for modules that need to go online, or skill checking character for any modules of a newly boarded ship, or updating module states based on things being moved into or off the ship!" );
+	sLog.Error( "Ship::UpdateModules()", "This should really be a simple call to a function ModuleManager::UpdateModules() and the code put inside there." );
 }
 
 void Ship::UnloadModule(uint32 itemID)
@@ -656,7 +996,7 @@ void Ship::Overload()
 void Ship::CancelOverloading()
 {
 
-	}
+}
 
 void Ship::RemoveRig( InventoryItemRef item, uint32 inventoryID )
 {
@@ -673,44 +1013,30 @@ void Ship::Process()
 {
     m_ModuleManager->Process();
 
-    // Check to see if there is at least one update interval.
-    if(!m_UpdateTimer.Check(true))
-        return;
-    // Yep, perform updates.
-    // Get capacitor and shield information.
-    double cap = GetAttribute(AttrCharge).get_float();
-    double capRate = GetAttribute(AttrRechargeRate).get_float();
-    double capMax = GetAttribute(AttrCapacitorCapacity).get_float();
-    double shield = GetAttribute(AttrShieldCharge).get_float();
-    double shieldRate = GetAttribute(AttrShieldRechargeRate).get_float();
-    double shieldMax = GetAttribute(AttrShieldCapacity).get_float();
+	// Do Automatic Shield and Capacitor Recharge:
+	if( !IsStation(locationID()) )
+	{
+		if( m_processTimer.Check() )
+		{
+			// shield
+			if( GetAttribute(AttrShieldCharge) < GetAttribute(AttrShieldCapacity) )
+			{
+				EvilNumber newCharge = GetAttribute(AttrShieldCharge) + ((EvilNumber(m_processTimerTick/1000.0)) * GetAttribute(AttrShieldCapacity)/(GetAttribute(AttrShieldRechargeRate)/1000.0));
+				if( newCharge > GetAttribute(AttrShieldCapacity) )
+					newCharge = GetAttribute(AttrShieldCapacity);
+				SetAttribute(AttrShieldCharge, newCharge);
+			}
 
-    // Get the elapsed interval.
-    double interval = m_UpdateTimer.GetTimerTime() / 1000.0;
-    double capChange = 0;
-    double shieldChange = 0;
-
-    // We had an update interval so we need to run this loop at least once.
-    do
-    {
-        // update one interval of time.
-        double capDelta = InventoryItem::CalculateRechargeRate( capMax, capRate, cap + capChange );
-        double shieldDelta = InventoryItem::CalculateRechargeRate( shieldMax, shieldRate, shield + shieldChange );
-        capChange += capDelta * interval;
-        shieldChange += shieldDelta * interval;
-    }
-
-    while(m_UpdateTimer.Check(true));
-    // check the limits, allow final 0.05 charge to instantly finish to prevent lots of small increments.
-    if(cap + capChange > capMax - 0.05)
-        capChange = capMax - cap;
-    if(shield + shieldChange > shieldMax - 0.05)
-        shieldChange = shieldMax - shield;
-    // Save the updated values.
-    if(capChange > 0)
-      SetAttribute(AttrCharge, cap + capChange);
-    if(shieldChange > 0)
-      SetAttribute(AttrShieldCharge, shield + shieldChange);
+			// capacitor
+			if( GetAttribute(AttrCharge) < GetAttribute(AttrCapacitorCapacity) )
+			{
+				EvilNumber newCharge = GetAttribute(AttrCharge) + ((EvilNumber(m_processTimerTick/1000.0)) * GetAttribute(AttrCapacitorCapacity)/(GetAttribute(AttrRechargeRate)/1000.0));
+				if( newCharge > GetAttribute(AttrCapacitorCapacity) )
+					newCharge = GetAttribute(AttrCapacitorCapacity);
+				SetAttribute(AttrCharge, newCharge);
+			}
+		}
+	}
 }
 
 void Ship::OnlineAll()
@@ -728,12 +1054,77 @@ void Ship::DeactivateAllModules()
     m_ModuleManager->DeactivateAllModules();
 }
 
-std::vector<GenericModule *> Ship::GetStackedItems(uint32 groupID, ModulePowerLevel level)
+std::vector<GenericModule *> Ship::GetStackedItems(uint32 typeID, ModulePowerLevel level)
 {
-    return m_ModuleManager->GetStackedItems(groupID, level);
+    return m_ModuleManager->GetStackedItems(typeID, level);
 }
 
 /* End new Module Manager Interface */
+
+void Ship::SetShipShields(double shieldChargeFraction)
+{
+	EvilNumber newShieldCharge = 0.0;
+
+	if( shieldChargeFraction > 1.0 )
+		shieldChargeFraction = 1.0;
+	if( shieldChargeFraction < 0.0 )
+		shieldChargeFraction = 0.0;
+
+	newShieldCharge = GetAttribute(AttrShieldCapacity) * shieldChargeFraction;
+	if( (newShieldCharge + 0.5) > GetAttribute(AttrShieldCapacity) )
+		newShieldCharge = GetAttribute(AttrShieldCapacity);
+
+	SetAttribute(AttrShieldCharge, shieldChargeFraction);
+}
+
+void Ship::SetShipArmor(double armorHealthFraction)
+{
+	EvilNumber newArmorDamage = 0.0;
+
+	if( armorHealthFraction > 1.0 )
+		armorHealthFraction = 1.0;
+	if( armorHealthFraction < 0.0 )
+		armorHealthFraction = 0.0;
+
+	newArmorDamage = GetAttribute(AttrArmorHP) * (1.0 - armorHealthFraction);
+	if( (newArmorDamage - 0.5) < 0.0 )
+		newArmorDamage = 0.0;
+
+	SetAttribute(AttrArmorDamage, newArmorDamage);
+}
+
+void Ship::SetShipHull(double hullHealthFraction)
+{
+	EvilNumber newHullDamage = 0.0;
+
+	if( hullHealthFraction > 1.0 )
+		hullHealthFraction = 1.0;
+	if( hullHealthFraction < 0.0 )
+		hullHealthFraction = 0.0;
+
+	newHullDamage = GetAttribute(AttrHp) * (1.0 - hullHealthFraction);
+	if( (newHullDamage - 0.5) > 0.0 )
+		newHullDamage = 0.0;
+
+	SetAttribute(AttrDamage, newHullDamage);
+}
+
+void Ship::SetShipCapacitorLevel(double capacitorChargeFraction)
+{
+	EvilNumber newCapacitorCharge = 0.0;
+
+	if( capacitorChargeFraction > 1.0 )
+		capacitorChargeFraction = 1.0;
+	if( capacitorChargeFraction < 0.0 )
+		capacitorChargeFraction = 0.0;
+
+	newCapacitorCharge = GetAttribute(AttrCapacitorCapacity) * capacitorChargeFraction;
+	if( (newCapacitorCharge + 0.5) > GetAttribute(AttrCapacitorCapacity) )
+		newCapacitorCharge = GetAttribute(AttrCapacitorCapacity);
+
+	SetAttribute(AttrCharge, newCapacitorCharge);
+}
+
 
 using namespace Destiny;
 

@@ -62,7 +62,7 @@ public:
         PyCallable_REG_CALL(DogmaIMBound, CancelOverloading)
 		PyCallable_REG_CALL(DogmaIMBound, SetModuleOnline)
 		PyCallable_REG_CALL(DogmaIMBound, TakeModuleOffline)
-        PyCallable_REG_CALL(DogmaIMBound, LoadAmmoToBank)
+		PyCallable_REG_CALL(DogmaIMBound, LoadAmmoToBank)
         PyCallable_REG_CALL(DogmaIMBound, AddTarget)
         PyCallable_REG_CALL(DogmaIMBound, RemoveTarget)
         PyCallable_REG_CALL(DogmaIMBound, ClearTargets)
@@ -89,7 +89,7 @@ public:
     PyCallable_DECL_CALL(CancelOverloading)
 	PyCallable_DECL_CALL(SetModuleOnline)
 	PyCallable_DECL_CALL(TakeModuleOffline)
-    PyCallable_DECL_CALL(LoadAmmoToBank)
+	PyCallable_DECL_CALL(LoadAmmoToBank)
     PyCallable_DECL_CALL(AddTarget)
     PyCallable_DECL_CALL(RemoveTarget)
     PyCallable_DECL_CALL(ClearTargets)
@@ -244,61 +244,52 @@ PyResult DogmaIMBound::Handle_TakeModuleOffline( PyCallArgs& call ) {
 }
 
 PyResult DogmaIMBound::Handle_LoadAmmoToBank( PyCallArgs& call ) {
-   Call_Dogma_LoadAmmoToBank args;
+	Call_Dogma_LoadAmmoToBank args;
 
-   if( !args.Decode( &call.tuple ) ) {
+	if( !args.Decode( &call.tuple ) )
+    {
         codelog( SERVICE__ERROR, "Unable to decode arguments from '%s'", call.client->GetName() );
         return NULL;
     }
 
-   // NOTES:
-   // args.chargeList will contain one or more entries, each of which is an itemID of a charge or stack of charges
-   // presumably, this list allows the player to select more than one stack of exact same ammo and drag whole selection
-   // onto the module to be loaded into it; then what can be loaded is, and a single stack of the remainder quantity is
-   // created and returned to the inventory the original selection of charges was pulled from.
-   // -- this still must be fully confirmed by testing on hybrid or projectile turrets or missile batteries
+	// NOTES:
+	// args.chargeList will contain one or more entries, each of which is an itemID of a charge or stack of charges
+	// presumably, this list allows the player to select more than one stack of exact same ammo and drag whole selection
+	// onto the module to be loaded into it; then what can be loaded is, and a single stack of the remainder quantity is
+	// created and returned to the inventory the original selection of charges was pulled from.
+	// -- this still must be fully confirmed by testing on hybrid or projectile turrets or missile batteries
 
-   // WARNING!  Initial Implementation ONLY handles the FIRST entry in the args.chargeList,
-   // which is basically supporting only single charge stacks applied to module!
+	// WARNING!  Initial Implementation ONLY handles the FIRST entry in the args.chargeList,
+	// which is basically supporting only single charge stacks applied to module!
 
-   // Get Reference to Ship, Module, and Charge
-   ShipRef shipRef = call.client->GetShip();
-   InventoryItemRef moduleRef = shipRef->GetModule(args.moduleItemID);
-   if( !moduleRef ) {
-       sLog.Error("DogmaIMBound::Handle_LoadAmmoToBank()", "ERROR: cannot find module into which charge should be loaded!  How did we get here!?!?!" );
-       return NULL;
-   }
-   EVEItemFlags moduleFlag = moduleRef->flag();
-   InventoryItemRef chargeRef;
+	// Get Reference to Ship, Module, and Charge
+	ShipRef shipRef = call.client->GetShip();
+	InventoryItemRef moduleRef = shipRef->GetModule(args.moduleItemID);
+	if( !moduleRef )
+	{
+		sLog.Error("DogmaIMBound::Handle_LoadAmmoToBank()", "ERROR: cannot find module into which charge should be loaded!  How did we get here!?!?!" );
+		return NULL;
+	}
+	EVEItemFlags moduleFlag = moduleRef->flag();
+	InventoryItemRef chargeRef;
 
-    // to-do: this no longer works as the first charge to load creates a loading cycle that prevents further loading.
-    //        need to implement a multi load function in module manager and pass in a list of charges.
+	if( !(args.chargeList.empty()) )
+		chargeRef = m_manager->item_factory.GetItem(args.chargeList.at(0));
 
-    // loop through the list of charges.
-    uint32 loadedChargeID = 0;
-    std::vector<int32>::iterator itr = args.chargeList.begin();
-    std::vector<InventoryItemRef> chargeList;
-    while( itr != args.chargeList.end())
-    {
-        chargeRef = m_manager->item_factory.GetItem(*itr);
-        itr++;
-        if(chargeRef.get() == NULL) continue;
-        // add the reference to the list.
-        chargeList.push_back(chargeRef);
-    }
-
-    // Move Charge(s) into Ship's Inventory and change the Charge's flag to match flag of Module
-   loadedChargeID = shipRef->LoadCharge( moduleFlag, chargeList );
+	// Move Charge into Ship's Inventory and change the Charge's flag to match flag of Module
+	uint32 loadedChargeID = shipRef->AddItem( moduleFlag, chargeRef );
+	//call.client->MoveItem(chargeRef->itemID(), call.client->GetShipID(), moduleFlag);
 
     //Create new item id return result
-   if( loadedChargeID ) {
-       Call_SingleIntegerArg result;
-       result.arg = loadedChargeID;    //chargeRef->itemID();
-       //Return new item result
-       return result.Encode();
-   }
+	if( loadedChargeID )
+	{
+		Call_SingleIntegerArg result;
+		result.arg = loadedChargeID;	//chargeRef->itemID();
+		//Return new item result
+		return result.Encode();
+	}
 
-   return NULL;
+	return NULL;
 }
 
 PyResult DogmaIMBound::Handle_Activate( PyCallArgs& call )
@@ -564,7 +555,7 @@ PyResult DogmaIMBound::Handle_GetAllInfo( PyCallArgs& call )
 
     //Contains a dict of the ship and its modules
 
-    if(call.client->GetShip().get() == NULL) {
+    if(!call.client->GetShip()) {
         codelog(SERVICE__ERROR, "Unable to build ship status for ship %u", call.client->GetShipID());
         return NULL;
     }

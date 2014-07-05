@@ -34,70 +34,33 @@ class ActiveModuleProcessingComponent
 {
 public:
 
-    ActiveModuleProcessingComponent(InventoryItemRef item, ActiveModule * mod, ShipRef ship);
+    ActiveModuleProcessingComponent(InventoryItemRef item, ActiveModule * mod, ShipRef ship, ModifyShipAttributesComponent * shipAttrMod);
     ~ActiveModuleProcessingComponent();
 
-    /**
-     * Check the timer and see if a cycle has been completed.
-     * Start a new cycle if the module has not been stopped.
-     */
 	void Process();
 
-    /**
-     * Activates a module cycle timer and triggers StartCycle()
-     * @param buttonEffect the effect id for the ships module button.
-     */
-	void ActivateCycle(uint32 effectID) { ActivateCycle(effectID, InventoryItemRef()); };
-    /**
-     * Activates a module cycle timer and triggers StartCycle()
-     * @param buttonEffect the effect id for the ships module button.
-     * @param charge the charge currently loaded into the module.
-     */
-	void ActivateCycle(uint32 effectID, InventoryItemRef charge);
-    /**
-     * Flags the cycle to stop at completion of current cycle.
-     */
+	void ActivateCycle();
     void DeactivateCycle();
+	void AbortCycle();
 
-private:
-    /**
-     * Begin a new cycle.
-     */
-    bool BeginCycle();
-    /**
-     * A cycle has completed and a new cycle might start.
-     */
+    bool ShouldProcessActiveCycle();
+
     void ProcessActiveCycle();
-    
-    void StartButton();
-    void EndButton();
+	void ProcessDeactivateCycle();
 
-public:
-    /**
-     * Gets the cycle time remaining.
-     * @return the remaining cycle time in ms.
-     */
 	double GetRemainingCycleTimeMS();
-    /**
-     * Get if the module is busy.
-     * @return true if the module is busy.
-     */
-    bool IsBusy() { return m_ButtonCycle; };
 
 private:
     //internal storage and record keeping
     bool m_Stop;
 	Timer m_timer;
 
-    bool m_ButtonCycle;
-    EvilNumber m_CycleTime;
-    MEffect *m_Effect;
-	InventoryItemRef m_Charge;
 
     //internal access to owner
 	InventoryItemRef m_Item;
     ActiveModule *m_Mod;
     ShipRef m_Ship;
+    ModifyShipAttributesComponent * m_ShipAttrModComp;
 
 };
 

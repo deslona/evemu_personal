@@ -365,6 +365,7 @@
   <elementDef name="Call_GetQuotes">
       <tupleInline>
           <listInt name="itemIDs" />
+          <int name="locationID" />
 	   <int name="activeShipID" />
       </tupleInline>
   </elementDef>

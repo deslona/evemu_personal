@@ -170,7 +170,7 @@ PyRep *ObjCacheDB::Generate_CharNewExtraCareers()
 PyRep *ObjCacheDB::Generate_CharNewExtraSpecialitySkills()
 {
     DBQueryResult res;
-    const char *q = "SELECT specialityID, skillTypeID, levels FROM specialitySkills";
+    const char *q = "SELECT specialityID, skillTypeID, level FROM specialitySkills";
     if (sDatabase.RunQuery(res, q) == false)
     {
         _log(SERVICE__ERROR, "Error in query for cached object 'charNewExtraCreationInfo.specialityskills': %s", res.error.c_str());
@@ -182,7 +182,7 @@ PyRep *ObjCacheDB::Generate_CharNewExtraSpecialitySkills()
 PyRep *ObjCacheDB::Generate_CharNewExtraCareerSkills()
 {
     DBQueryResult res;
-    const char *q = "SELECT careerID, skillTypeID, levels FROM careerSkills";
+    const char *q = "SELECT careerID, skillTypeID, level FROM careerSkills";
     if (sDatabase.RunQuery(res, q) == false)
     {
         _log(SERVICE__ERROR, "Error in query for cached object 'charNewExtraCreationInfo.careerskills': %s", res.error.c_str());
@@ -659,7 +659,7 @@ PyRep *ObjCacheDB::Generate_invShipTypes()
     return DBResultToCRowset(res);
 }
 
-PyRep *ObjCacheDB::Generate_cacheLocations()
+PyRep *ObjCacheDB::Generate_cacheLocations()  //  TODO  -allan
 {
   /**  need to generate the db table before we can generate the cache.
   still need a way to update cache when location data is updated....update db with new 'location' item when created?
@@ -677,7 +677,11 @@ INSERT INTO `cacheLocations`(`locationID`, `locationName`, `x`, `y`, `z`)
          WHERE g.categoryID IN (0, 2, 3, 6, 22, 23)
          */
     DBQueryResult res;
-    const char *q = "SELECT locationID, locationName, x, y, z FROM cacheLocations";
+    //const char *q = "SELECT locationID, locationName, x, y, z FROM cacheLocations";
+    const char *q = "SELECT e.itemID, e.itemName, e.x, e.y, e.z FROM entity AS e"
+        "  LEFT JOIN invTypes AS t ON t.typeID = e.typeID"
+        "  LEFT JOIN invGroups AS g ON g.groupID = t.groupID"
+        " WHERE g.categoryID IN (0, 2, 3, 6, 22, 23)";
     if(sDatabase.RunQuery(res, q)==false)
     {
         _log(SERVICE__ERROR, "Error in query for cached object 'config.BulkData.locations': %s", res.error.c_str());
@@ -782,10 +786,30 @@ PyRep *ObjCacheDB::Generate_eveBulkDataUnits()
     return DBResultToCRowset(res);
 }
 
-PyRep *ObjCacheDB::Generate_cacheOwners()
+PyRep *ObjCacheDB::Generate_cacheOwners()  //  TODO  -allan
 {
+  /**  need to generate the db table before we can generate the cache.
+  still need a way to update cache when owner data is updated....update db with new 'owner' item when created?
+
+       use this query to generate cacheOwners table...
+
+INSERT INTO cacheOwners(ownerID, ownerName, `typeID`)
+        SELECT
+           e.itemID,
+           e.itemName,
+           e.typeID
+         FROM entity AS e
+          LEFT JOIN invTypes AS t ON t.typeID = e.typeID
+          LEFT JOIN invGroups AS g ON g.groupID = t.groupID
+         WHERE g.categoryID IN (0, 1, 11 )
+         */
+
     DBQueryResult res;
-    const char *q = "SELECT ownerID, ownerName, typeID FROM cacheOwners";
+    //const char *q = "SELECT ownerID, ownerName, typeID FROM cacheOwners";
+    const char *q = "SELECT e.itemID, e.itemName, e.typeID FROM entity AS e"
+         "  LEFT JOIN invTypes AS t ON t.typeID = e.typeID"
+         "  LEFT JOIN invGroups AS g ON g.groupID = t.groupID"
+         " WHERE g.categoryID IN (0, 1, 11 )";
     if(sDatabase.RunQuery(res, q)==false)
     {
         _log(SERVICE__ERROR, "Error in query for cached object 'config.BulkData.owners': %s", res.error.c_str());

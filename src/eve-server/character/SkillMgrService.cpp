@@ -100,7 +100,7 @@ PyResult SkillMgrBound::Handle_CharStopTrainingSkill(PyCallArgs &call) {
     ch->ClearSkillQueue();
     ch->UpdateSkillQueue();
 
-    return NULL;
+    return ch->GetSkillQueue();
  }
 
 PyResult SkillMgrBound::Handle_GetEndOfTraining(PyCallArgs &call) {

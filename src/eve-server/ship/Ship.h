@@ -35,6 +35,8 @@
 
 class ShipOperatorInterface;
 
+#define SHIP_PROCESS_TICK_MS	5000
+
 /**
  * Basic container for raw ship type data.
  */
@@ -187,11 +189,12 @@ public:
      */
     void Delete();
 
-    double GetCapacity(EVEItemFlags flag) const;
     /*
      * _ExecAdd validation interface:
      */
-    void ValidateAddItem(EVEItemFlags flag, InventoryItemRef item);
+    double GetCapacity(EVEItemFlags flag) const;
+	double GetRemainingVolumeByFlag(EVEItemFlags flag) const;
+    bool ValidateAddItem(EVEItemFlags flag, InventoryItemRef item);
     /*
      * Checks for conflicts between ship and fitting
      */
@@ -208,18 +211,23 @@ public:
     PyDict *ShipGetInfo();
     PyDict *ShipGetState();
 
+    /*
+     * Validates boarding ship
+     */
     bool ValidateBoardShip(ShipRef ship, CharacterRef who);
 
+    /*
+     * Saves the ship state
+     */
     void SaveShip();
 
     /* begin new module manager interface */
-    InventoryItemRef GetModule(EVEItemFlags flag);
-    InventoryItemRef GetModule(uint32 itemID);
+	InventoryItemRef GetModule(EVEItemFlags flag);
+	InventoryItemRef GetModule(uint32 itemID);
     uint32 FindAvailableModuleSlot( InventoryItemRef item );
     EvilNumber GetMaxTurrentHardpoints() { return GetAttribute(AttrTurretSlotsLeft); }
     EvilNumber GetMaxLauncherHardpoints() { return GetAttribute(AttrLauncherSlotsLeft); }
     uint32 AddItem( EVEItemFlags flag, InventoryItemRef item);
-    uint32 LoadCharge( EVEItemFlags flag, std::vector<InventoryItemRef> chargeList);
     void RemoveItem( InventoryItemRef item, uint32 inventoryID, EVEItemFlags flag );
     void UpdateModules();
     void UnloadModule(uint32 itemID);
@@ -237,10 +245,16 @@ public:
     void DeactivateAllModules();
     void OnlineAll();
     ShipOperatorInterface * GetOperator() { return m_pOperator; }
-    std::vector<GenericModule *> GetStackedItems(uint32 groupID, ModulePowerLevel level);
+    std::vector<GenericModule *> GetStackedItems(uint32 typeID, ModulePowerLevel level);
+
+	// Tactical Interface:
+	void SetShipShields(double shieldChargeFraction);
+	void SetShipArmor(double armorHealthFraction);
+	void SetShipHull(double hullHealthFraction);
+	void SetShipCapacitorLevel(double capacitorChargeFraction);
 
     // External Methods For use by hostile entities directing effects to this entity:
-    int32 ApplyRemoteEffect() { assert(true); }     // DO NOT CALL THIS YET!!!  This function needs to call down to ModuleManager::ApplyRemoteEffect with the proper argument list.
+    int32 ApplyRemoteEffect() { assert(true); }     // DO NOT CALL THIS YET!!!  This function needs to call down to ModuleManager::RemoveRemoteEffect with the proper argument list.
     int32 RemoveRemoteEffect() { assert(true); }    // DO NOT CALL THIS YET!!!  This function needs to call down to ModuleManager::RemoveRemoteEffect with the proper argument list.
 
 protected:
@@ -296,14 +310,19 @@ protected:
 
     void AddItem(InventoryItemRef item);
 
-private:
+	void _UpdateCargoHoldsUsedVolume();
+	void _IncreaseCargoHoldsUsedVolume(EVEItemFlags flag, double volumeToConsume);	// To release cargo space, make 'volumeToConsume' negative
+	void _DecreaseCargoHoldsUsedVolume(EVEItemFlags flag, double volumeToConsume);	// To release cargo space, make 'volumeToConsume' negative
+
+	const uint32 m_processTimerTick;
+    Timer m_processTimer;
+
     // Access to the pilot object, which could be Client, NPC, or other type,
     // so access is through an interface object.
     ShipOperatorInterface * m_pOperator;    // We own this
 
     //the ship's module manager.  We own this
     ModuleManager * m_ModuleManager;
-    Timer m_UpdateTimer;
 };
 
 /**
@@ -383,6 +402,14 @@ protected:
     PyServiceMgr &m_services;    //we do not own this
     ShipRef _shipRef;   // We don't own this
 
+    /* Used to calculate the damages on NPCs
+     * I don't know why, npc->Set_shieldCharge does not work
+     * calling npc->shieldCharge() return the complete shield
+     * So we get the values on creation and use then instead.
+    */
+    double m_shieldCharge;
+    double m_armorDamage;
+    double m_hullDamage;
 };
 
 #endif /* !__SHIP__H__INCL__ */

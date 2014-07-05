@@ -28,7 +28,7 @@
 #include "config/ConfigDB.h"
 
 PyRep *ConfigDB::GetMultiOwnersEx(const std::vector<int32> &entityIDs) {
-#   pragma message( "we need to deal with corporations!" )
+//#   pragma message( "we need to deal with corporations!" )
     //we only get called for items which are not already sent in the
     // eveStaticOwners cachable object.
     /*
@@ -345,10 +345,10 @@ PyRep *ConfigDB::GetCelestialStatistic(uint32 celestialID) {
     DBResultRow row;
 
     if (!sDatabase.RunQuery(res,
-        "SELECT "
-        "   groupID "
-        " FROM mapDenormalize "
-        " WHERE itemID = %u ", celestialID))
+        "SELECT"
+        "   groupID"
+        " FROM eveNames"
+        " WHERE itemID = %u", celestialID))
     {
         codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return new PyInt(0);
@@ -364,7 +364,7 @@ PyRep *ConfigDB::GetCelestialStatistic(uint32 celestialID) {
 
     switch (groupID) {
     case EVEDB::invGroups::Sun:
-            query = "SELECT "
+            query = "SELECT"
                     "   temperature,"
                     "   spectralClass,"
                     "   luminosity,"
@@ -427,19 +427,27 @@ PyRep *ConfigDB::GetCelestialStatistic(uint32 celestialID) {
     return DBResultToCRowset(res);
 }
 
-PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID) {    // updated to show only dynamic celestial items.  -allan 30June
+PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID) {
+  // updated to show only dynamic celestial items.  -allan 30June
+  //  need to remove all items except stations, or figure out how to give client items in space
 
     DBQueryResult result;
-
+/**
+  /*<DBRow object [7, 2016, 40176433, u'Halaima II', 30002781, 40176430, False, 68268179028.0, 8474470920.0, 20992190960.0]>,
+        "SELECT "
+        "   groupID, typeID, itemID, itemName, solarSystemID AS locationID, IFNULL(orbitID, 0) AS orbitID,"
+        "   x, y, z"
+        " FROM mapDenormalize"
+        */
     if (!sDatabase.RunQuery(result,
         "SELECT"
+        "   t.groupID,"
+        "   e.typeID,"
         "   e.itemID,"
         "   e.itemName,"
-        "   e.typeID,"
-        "   t.groupID,"
-        "   IFNULL(c.corporationID, e.ownerID) AS ownerID,"
         "   e.locationID,"
-        "   e.flag,"
+        //"   IFNULL(orbitID, 0) AS orbitID,"
+        //"   IFNULL(c.corporationID, e.ownerID) AS ownerID,"
         "   CAST(e.x AS UNSIGNED INTEGER) AS x,"
         "   CAST(e.y AS UNSIGNED INTEGER) AS y,"
         "   CAST(e.z AS UNSIGNED INTEGER) AS z"
@@ -447,7 +455,7 @@ PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID) {    // updated to s
         "  LEFT JOIN invTypes AS t ON t.typeID = e.typeID"
         "  LEFT JOIN invGroups AS g ON g.groupID = t.groupID"
         "  LEFT JOIN character_ AS c ON c.characterID = e.ownerID"
-        "  LEFT JOIN corporation AS co ON co.corporationID = c.corporationID"
+        //"  LEFT JOIN corporation AS co ON co.corporationID = c.corporationID"
         " WHERE e.locationID = %u"
         " AND g.categoryID NOT IN (%d, %d)",
         solarSystemID,

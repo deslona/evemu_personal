@@ -28,11 +28,16 @@
 #include "ship/modules/propulsion_modules/Afterburner.h"
 
 Afterburner::Afterburner( InventoryItemRef item, ShipRef ship )
-:ActiveModule(item, ship)
 {
-    // to-do: find the effect id and pass the correct value.
-    EVEEffectID effectID = EVEEffectID::effectSpeedBoost;
-	m_ActiveModuleProc = new ActiveModuleProcessingComponent(item, this, ship);
+	//ActiveModule(item,ship);
+    m_Item = item;
+    m_Ship = ship;
+    m_Effects = new ModuleEffects(m_Item->typeID());
+    m_ShipAttrComp = new ModifyShipAttributesComponent(this, ship);
+	m_ActiveModuleProc = new ActiveModuleProcessingComponent(item, this, ship ,m_ShipAttrComp);
+
+//	m_chargeRef = InventoryItemRef();		// Ensure ref is NULL
+//	m_chargeLoaded = false;
 }
 
 Afterburner::~Afterburner()
@@ -77,7 +82,7 @@ void Afterburner::DestroyRig()
 
 void Afterburner::Activate(SystemEntity * targetEntity)
 {
-	m_ActiveModuleProc->ActivateCycle(effectSpeedBoost );
+	m_ActiveModuleProc->ActivateCycle();
 
 	m_Ship->SetAttribute(AttrCharge, 134.999996046585);
 	m_Ship->SetAttribute(AttrMaxVelocity, 387);
@@ -124,4 +129,8 @@ void Afterburner::Deactivate()
 	updates.push_back(mass.Encode());
 
 	m_Ship->GetOperator()->GetDestiny()->SendDestinyUpdate(updates, true);
+}
+
+void Afterburner::_ShowCycle()
+{
 }

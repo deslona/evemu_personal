@@ -86,11 +86,8 @@ uint32 Skill::_Spawn(ItemFactory &factory, ItemData &data)
     return InventoryItem::_Spawn( factory, data );
 }
 
-EvilNumber Skill::GetSPForLevel( EvilNumber level )
-{
-    EvilNumber needSP = EVIL_SKILL_BASE_POINTS * GetAttribute(AttrSkillTimeConstant) * EvilNumber::pow(2, (2.5*(level -1)));
-        sLog.Debug( "Skill::GetSPForLevel()", " Need %f SP", needSP.get_float() );
-    return needSP;
+EvilNumber Skill::GetSPForLevel( EvilNumber level ) {
+    return EVIL_SKILL_BASE_POINTS * GetAttribute(AttrSkillTimeConstant) * EvilNumber::pow(2, (2.5*(level -1)));
 }
 
 bool Skill::SkillPrereqsComplete(Character &ch)

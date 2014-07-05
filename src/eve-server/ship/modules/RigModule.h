@@ -26,10 +26,10 @@
 #ifndef RIG_MODULE_H
 #define RIG_MODULE_H
 
-#include "ship/modules/Modules.h"
+#include "ship/modules/PassiveModules.h"
 
 class RigModule
-: public GenericModule
+: public PassiveModule
 {
 public:
     RigModule(InventoryItemRef item, ShipRef ship);

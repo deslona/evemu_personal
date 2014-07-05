@@ -34,7 +34,6 @@
 #include "station/Station.h"
 #include "system/Celestial.h"
 #include "system/Container.h"
-#include "AttributeModifier.h"
 
 //const uint32 SKILL_BASE_POINTS = 250;
 const EvilNumber EVIL_SKILL_BASE_POINTS(250);
@@ -281,6 +280,9 @@ bool InventoryItem::_Load()
     mAttributeMap.Load();
 	mDefaultAttributeMap.Load();
 
+	// fill basic cargo hold data:
+	m_cargoHoldsUsedVolumeByFlag.insert(std::pair<EVEItemFlags,double>(flagCargoHold,mAttributeMap.GetAttribute(AttrCapacity).get_float()));
+
     // update inventory
     Inventory *inventory = m_factory.GetInventory( locationID(), false );
     if( inventory != NULL )
@@ -315,10 +317,14 @@ InventoryItemRef InventoryItem::Spawn(ItemFactory &factory, ItemData &data)
         ///////////////////////////////////////
         case EVEDB::invCategories::Entity: {
 			// Spawn generic item for Entities at this time:
-			uint32 itemID = InventoryItem::_SpawnEntity( factory, data );
+			// (commented lines for _SpawnEntity and LoadEntity can be used alternatively to prevent Entities from being created and saved to the DB,
+			//  however, this may be causing the weird and bad targetting of NPC ships when they enter the bubble and your ship is already in it)
+			//uint32 itemID = InventoryItem::_SpawnEntity( factory, data );		// Use this to prevent Asteroids from being stored in DB
+			uint32 itemID = InventoryItem::_Spawn( factory, data );
 			if( itemID == 0 )
 				return InventoryItemRef();
-			InventoryItemRef itemRef = InventoryItem::LoadEntity( factory, itemID, data );
+			//InventoryItemRef itemRef = InventoryItem::LoadEntity( factory, itemID, data );		// Use this to prevent Asteroids from being stored in DB
+			InventoryItemRef itemRef = InventoryItem::Load( factory, itemID );
 			return itemRef;
 		}
 
@@ -412,7 +418,7 @@ InventoryItemRef InventoryItem::Spawn(ItemFactory &factory, ItemData &data)
         }
 
         ///////////////////////////////////////
-        // Module:
+        // Charge:
         ///////////////////////////////////////
         case EVEDB::invCategories::Charge:
 		{
@@ -521,18 +527,23 @@ InventoryItemRef InventoryItem::Spawn(ItemFactory &factory, ItemData &data)
         case EVEDB::invCategories::Asteroid:
         {
             // Spawn generic item:
+			// (commented lines for _SpawnEntity and LoadEntity can be used alternatively to prevent asteroids from being created and saved to the DB,
+			//  however, initial testing of this throws a client exception when attempting to show brackets for these asteroid space objects when using
+			//  these alternative functions.  more investigation into that is required before they can be used with Asteroids)
             uint32 itemID = InventoryItem::_Spawn( factory, data );
+            //uint32 itemID = InventoryItem::_SpawnEntity( factory, data );		// Use this to prevent Asteroids from being stored in DB
             if( itemID == 0 )
                 return InventoryItemRef();
 
             InventoryItemRef itemRef = InventoryItem::Load( factory, itemID );
+            //InventoryItemRef itemRef = InventoryItem::LoadEntity( factory, itemID, data );		// Use this to prevent Asteroids from being stored in DB
 
             // THESE SHOULD BE MOVED INTO AN Asteroid::Spawn() function that does not exist yet
             // Create default dynamic attributes in the AttributeMap:
             itemRef.get()->SetAttribute(AttrRadius, 500.0);       // Radius
             itemRef.get()->SetAttribute(AttrMass,   1000000.0);    // Mass
-            itemRef.get()->SetAttribute(AttrVolume, 8000.0);       // Volume
-            itemRef.get()->SetAttribute(AttrQuantity, 1000.0);      // Quantity
+			itemRef.get()->SetAttribute(AttrVolume, itemRef.get()->type().attributes.volume());       // Volume
+            itemRef.get()->SetAttribute(AttrQuantity, 5000.0);      // Quantity
             itemRef.get()->SaveAttributes();
 
             return itemRef;
@@ -690,15 +701,14 @@ PyPackedRow* InventoryItem::GetItemStatusRow() const
 
 void InventoryItem::GetItemStatusRow( PyPackedRow* into ) const
 {
-    EvilNumber attrib;
     into->SetField( "instanceID",    new PyLong( itemID() ) );
-    into->SetField( "online",        new PyBool( (mAttributeMap.HasAttribute(AttrIsOnline, attrib) ? attrib.get_int() : 0) ) );
-    into->SetField( "damage",        new PyFloat( (mAttributeMap.HasAttribute(AttrDamage, attrib) ? attrib.get_float() : 0) ) );
-    into->SetField( "charge",        new PyFloat( (mAttributeMap.HasAttribute(AttrCharge, attrib) ? attrib.get_float() : 0) ) );
-    into->SetField( "skillPoints",   new PyInt( (mAttributeMap.HasAttribute(AttrSkillPoints, attrib) ? attrib.get_int() : 0) ) );
-    into->SetField( "armorDamage",   new PyFloat( (mAttributeMap.HasAttribute(AttrArmorDamageAmount, attrib) ? attrib.get_float() : 0.0) ) );
-    into->SetField( "shieldCharge",  new PyFloat( (mAttributeMap.HasAttribute(AttrShieldCharge, attrib) ? attrib.get_float() : 0.0) ) );
-    into->SetField( "incapacitated", new PyBool( (mAttributeMap.HasAttribute(AttrIsIncapacitated, attrib) ? attrib.get_int() : 0) ) );
+	into->SetField( "online",        new PyBool( (mAttributeMap.HasAttribute(AttrIsOnline) ? GetAttribute(AttrIsOnline).get_int() : 0) ) );
+    into->SetField( "damage",        new PyFloat( (mAttributeMap.HasAttribute(AttrDamage) ? GetAttribute(AttrDamage).get_float() : 0) ) );
+    into->SetField( "charge",        new PyFloat( (mAttributeMap.HasAttribute(AttrCharge) ? GetAttribute(AttrCharge).get_float() : 0) ) );
+    into->SetField( "skillPoints",   new PyInt( (mAttributeMap.HasAttribute(AttrSkillPoints) ? GetAttribute(AttrSkillPoints).get_int() : 0) ) );
+    into->SetField( "armorDamage",   new PyFloat( (mAttributeMap.HasAttribute(AttrArmorDamageAmount) ? GetAttribute(AttrArmorDamageAmount).get_float() : 0.0) ) );
+    into->SetField( "shieldCharge",  new PyFloat( (mAttributeMap.HasAttribute(AttrShieldCharge) ? GetAttribute(AttrShieldCharge).get_float() : 0.0) ) );
+    into->SetField( "incapacitated", new PyBool( (mAttributeMap.HasAttribute(AttrIsIncapacitated) ? GetAttribute(AttrIsIncapacitated).get_int() : 0) ) );
 }
 
 PyPackedRow* InventoryItem::GetItemRow() const
@@ -909,7 +919,6 @@ InventoryItemRef InventoryItem::Split(int32 qty_to_take, bool notify) {
     if(!AlterQuantity(-qty_to_take, notify)) {
         _log(ITEM__ERROR, "%s (%u): Failed to remove quantity %d during split.", itemName().c_str(), itemID(), qty_to_take);
         return InventoryItemRef();
-
     }
 
     ItemData idata(
@@ -1211,29 +1220,29 @@ bool InventoryItem::SetAttribute( uint32 attributeID, uint32 num, bool notify /*
 	return status;
 }
 
+EvilNumber InventoryItem::GetAttribute( uint32 attributeID )
+{
+    return mAttributeMap.GetAttribute(attributeID);
+}
+
 EvilNumber InventoryItem::GetAttribute( const uint32 attributeID ) const
 {
      return mAttributeMap.GetAttribute(attributeID);
 }
 
-EvilNumber InventoryItem::GetAttribute( const uint32 attributeID , const EvilNumber &defaultValue ) const
+EvilNumber InventoryItem::GetDefaultAttribute( uint32 attributeID )
 {
-     return mAttributeMap.GetAttribute(attributeID, defaultValue);
+    return mDefaultAttributeMap.GetAttribute(attributeID);
 }
 
 EvilNumber InventoryItem::GetDefaultAttribute( const uint32 attributeID ) const
 {
-     return mDefaultAttributeMap.GetAttribute(attributeID, 0);
+     return mDefaultAttributeMap.GetAttribute(attributeID);
 }
 
-bool InventoryItem::HasAttribute(const uint32 attributeID) const
+bool InventoryItem::HasAttribute(uint32 attributeID) const
 {
     return mAttributeMap.HasAttribute(attributeID);
-}
-
-bool InventoryItem::HasAttribute(const uint32 attributeID, EvilNumber &value) const
-{
-    return mAttributeMap.HasAttribute(attributeID, value);
 }
 
 bool InventoryItem::SaveAttributes()
@@ -1243,65 +1252,5 @@ bool InventoryItem::SaveAttributes()
 
 bool InventoryItem::ResetAttribute(uint32 attrID, bool notify)
 {
-    bool success = mAttributeMap.ResetAttribute(attrID, false);
-    EvilNumber nVal = mAttributeMap.GetAttribute(attrID, EvilNumber(0));
-    // modify the value by attribute modifiers applied by modules and enemy's.
-    double amount = 0;
-    AttributeModifierSource::FactorList factors;
-    AttributeModifierSource::FactorList stackedfactors;
-    std::vector<AttributeModifierSource *>::iterator itr = m_attributeModifiers.begin();
-    for(;itr != m_attributeModifiers.end(); itr++)
-    {
-        AttributeModifierSource *src = *itr;
-        if(src == NULL)
-            continue;
-        src->GetModification(attrID, amount, factors, stackedfactors);
-    }
-    double value = AttributeModifierSource::FinalizeModification(nVal.get_float(), amount, factors, stackedfactors);
-    if(nVal.get_type() == EVIL_NUMBER_TYPE::evil_number_int)
-        nVal = EvilNumber((int64)value);
-    else
-        nVal = EvilNumber(value);
-    return mAttributeMap.SetAttribute(attrID, nVal, notify);
-}
-
-void InventoryItem::AddAttributeModifier(AttributeModifierSource *modifier)
-{
-    if(modifier == NULL)
-        return;
-    if(std::find(m_attributeModifiers.begin(), m_attributeModifiers.end(), modifier) == m_attributeModifiers.end())
-    {
-        m_attributeModifiers.push_back(modifier);
-        modifier->UpdateModifiers(this, true);
-    }
-}
-
-void InventoryItem::RemoveAttributeModifier(AttributeModifierSource *modifier)
-{
-    std::vector<AttributeModifierSource *>::iterator itr = std::find(m_attributeModifiers.begin(), m_attributeModifiers.end(), modifier);
-    if(itr != m_attributeModifiers.end())
-    {
-        AttributeModifierSource *src = *itr;
-        m_attributeModifiers.erase(itr);
-        src->UpdateModifiers(this, true);
-    }
-}
-
-double InventoryItem::CalculateRechargeRate(double Capacity, double RechargeTimeMS, double Current)
-{
-    // prevent divide by zero.
-    RechargeTimeMS = RechargeTimeMS < 1 ? 1 : RechargeTimeMS;
-    Current = Current < 1 ? 1 : Current;
-    double Cmax = Capacity < 1 ? 1 : Capacity;
-    // tau = "cap recharge time" / 5.0
-    double tau = RechargeTimeMS / 5000.0;
-    // (2*Cmax) / tau
-    double Cmax2_tau = (Cmax * 2) / tau;
-    double C = Current;
-    // C / Cmax
-    double C_Cmax = C / Cmax;
-    // sqrt( C / Cmax )
-    double sC_Cmax = sqrt(C_Cmax);
-    // charge rate in Gj / sec
-    return Cmax2_tau * (sC_Cmax - C_Cmax);
+    return mAttributeMap.ResetAttribute(attrID, notify);
 }

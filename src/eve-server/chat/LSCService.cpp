@@ -464,14 +464,14 @@ PyResult LSCService::Handle_JoinChannels(PyCallArgs &call) {
         uint32 channelID = *curs;
 
         // Skip joining Help\Rookie and Help\Help channels when the character is no longer a rookie:
-                if( isRookie || !( channelID == 1 || channelID == 2 ) )
+        if( isRookie || !( channelID == 1 || channelID == 2 ) )
         {
             if( m_channels.find( channelID ) == m_channels.end() )
                 channel = CreateChannel( channelID );
             else
                 channel = m_channels[ channelID ];
 
-            if( !channel->IsJoined( charID ) )
+            if( (!channel->IsJoined( charID )) && (channelID != call.client->GetCharacterID()) )
             {
                 ChannelJoinReply chjr;
 
@@ -489,10 +489,8 @@ PyResult LSCService::Handle_JoinChannels(PyCallArgs &call) {
                 if (!(m_db.IsChannelSubscribedByThisChar(charID, channel->GetChannelID())))
                     m_db.WriteNewChannelSubscriptionToDatabase( charID, channel->GetChannelID(),
                         call.client->GetCorporationID(), call.client->GetAllianceID(),
-                        2, 0 );     // the "extra" field is hard-coded
-                                                                // to '0' for now since I don't
-                                                                // know what it's used for
-
+                        2, 0 );
+                        // the "extra" field is hard-coded to '0' for now since I don't know what it's used for
                 ml->AddItem( chjr.Encode() );
             }
         }

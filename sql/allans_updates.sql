@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS `character_` (
   KEY `FK_CHARACTER__CHRCAREERSPECIALITIES` (`careerSpecialityID`),
   KEY `FK_CHARACTER__CHRSCHOOLS` (`schoolID`),
   KEY `characterID` (`characterID`,`accountID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8  COMMENT="Version 3";;
 
 
 /* Table structure for table `chrPausedSkillQueue` */

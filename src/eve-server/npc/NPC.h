@@ -80,16 +80,17 @@ public:
     virtual SystemManager *System() const { return(m_system); }
 	virtual NPCAIMgr * AI() const { return(m_AI); }
 
+	void ForcedSetSpawner(SpawnEntry * spawner) { m_spawner = spawner; }
+    void ForcedSetPosition(const GPoint &pt);
+
+
     virtual bool ApplyDamage(Damage &d);
     virtual void MakeDamageState(DoDestinyDamageState &into) const;
 
-	void ForcedSetSpawner(SpawnEntry * spawner) { m_spawner = spawner; }
-    void ForcedSetPosition(const GPoint &pt);
     void UseShieldRecharge();
     void UseArmorRepairer();
 
 	void SaveNPC();
-
     /*
 
 ATTR(248, entityLootValueMin, 0, int, false)

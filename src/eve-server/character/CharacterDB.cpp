@@ -186,7 +186,6 @@ PyRep *CharacterDB::GetCharSelectInfo(uint32 characterID) {
     uint32 unprocessedNotifications = 0;
     uint32 daysLeft = 14;
     uint32 userType = 23;
-    //uint64 skillQueueEndTime = ( Win32TimeNow() + (5*Win32Time_Hour) + (25*Win32Time_Minute) );
     uint64 allianceMemberStartDate = Win32TimeNow() - 15*Win32Time_Day;
     uint64 startDate = Win32TimeNow() - 24*Win32Time_Day;
 
@@ -1023,4 +1022,231 @@ double CharacterDB::GetCharRawStandingFromNPC(uint32 characterID, uint32 itemID)
     DBResultRow row;
     res.GetRow(row);
     return row.GetDouble(0);
+}
+
+bool CharacterDB::LoadSkillQueue(uint32 characterID, SkillQueue &into) {
+    DBQueryResult res;
+
+    if( !sDatabase.RunQuery( res,
+        "SELECT"
+        "  typeID, level"
+        " FROM chrSkillQueue"
+        " WHERE characterID = %u"
+        " ORDER BY orderIndex ASC",
+        characterID ) )
+    {
+        _log(DATABASE__ERROR, "Failed to query skill queue of character %u: %s.", characterID, res.error.c_str());
+        return false;
+    }
+
+    DBResultRow row;
+    while( res.GetRow( row ) )
+    {
+        QueuedSkill qs;
+        qs.typeID = row.GetUInt( 0 );
+        qs.level = row.GetUInt( 1 );
+
+        into.push_back( qs );
+    }
+
+    return true;
+}
+
+bool CharacterDB::LoadPausedSkillQueue(uint32 characterID, SkillQueue &into) {
+    DBQueryResult res;
+
+    if( !sDatabase.RunQuery( res,
+        "SELECT"
+        "  typeID, level"
+        " FROM chrPausedSkillQueue"
+        " WHERE characterID = %u"
+        " ORDER BY orderIndex ASC",
+        characterID ) )
+    {
+        _log(DATABASE__ERROR, "Failed to query skill queue of character %u: %s.", characterID, res.error.c_str());
+        return false;
+    }
+
+    DBResultRow row;
+    while( res.GetRow( row ) )
+    {
+        QueuedSkill qs;
+        qs.typeID = row.GetUInt( 0 );
+        qs.level = row.GetUInt( 1 );
+
+        into.push_back( qs );
+    }
+
+    // now, delete paused queue because subsquent pressess of 'apply' button will add paused queue again, and again, etc...
+    DBerror err;
+    if( !sDatabase.RunQuery( err,
+        "DELETE FROM chrPausedSkillQueue"
+        " WHERE characterID = %u",
+        characterID ) )
+    {
+        _log(DATABASE__ERROR, "Failed to delete skill queue of character %u: %s.", characterID, err.c_str());
+        return false;
+    }
+
+    return true;
+}
+
+bool CharacterDB::SaveSkillQueue(uint32 characterID, SkillQueue &queue) {
+    DBerror err;
+
+    if( !sDatabase.RunQuery( err,
+        "DELETE FROM chrSkillQueue"
+        " WHERE characterID = %u",
+        characterID ) )
+    {
+        _log(DATABASE__ERROR, "Failed to delete skill queue of character %u: %s.", characterID, err.c_str());
+        return false;
+    }
+
+    if( queue.empty() )
+        // nothing else to do
+        return true;
+
+    // now build insert query:
+    std::string query;
+
+    for(size_t i = 0; i < queue.size(); i++)
+    {
+        const QueuedSkill &qs = queue[ i ];
+
+        char buf[ 64 ];
+        snprintf( buf, 64, "(%u, %lu, %u, %u)", characterID, (unsigned long)i, qs.typeID, qs.level );
+
+        if( i != 0 )
+            query += ',';
+        query += buf;
+    }
+
+    if( !sDatabase.RunQuery( err,
+        "INSERT"
+        " INTO chrSkillQueue (characterID, orderIndex, typeID, level)"
+        " VALUES %s",
+        query.c_str() ) )
+    {
+        _log(DATABASE__ERROR, "Failed to insert skill queue of character %u: %s.", characterID, err.c_str());
+        return false;
+    }
+
+    return true;
+}
+
+bool CharacterDB::SavePausedSkillQueue(uint32 characterID, SkillQueue &queue) {
+    DBerror err;
+
+    if( !sDatabase.RunQuery( err,
+        "DELETE FROM chrPausedSkillQueue"
+        " WHERE characterID = %u",
+        characterID ) )
+    {
+        _log(DATABASE__ERROR, "Failed to delete skill queue of character %u: %s.", characterID, err.c_str());
+        return false;
+    }
+
+    if( queue.empty() )
+        // nothing else to do
+        return true;
+
+    std::string query;
+
+    for(size_t i = 0; i < queue.size(); i++)
+    {
+        const QueuedSkill &qs = queue[ i ];
+
+        char buf[ 64 ];
+        snprintf( buf, 64, "(%u, %lu, %u, %u)", characterID, (unsigned long)i, qs.typeID, qs.level );
+
+        if( i != 0 )
+            query += ',';
+        query += buf;
+    }
+
+    if( !sDatabase.RunQuery( err,
+        "INSERT"
+        " INTO chrPausedSkillQueue (characterID, orderIndex, typeID, level)"
+        " VALUES %s",
+        query.c_str() ) )
+    {
+        _log(DATABASE__ERROR, "Failed to insert paused skill queue of character %u: %s.", characterID, err.c_str());
+        return false;
+    }
+
+    return true;
+}
+
+void CharacterDB::SaveSkillHistory(int eventID, double logDate, uint32 characterID, uint32 skillTypeID, int skillLevel, double relativePoints, double absolutePoints) {
+    DBerror err;
+    if( !sDatabase.RunQuery( err,
+        "INSERT INTO chrSkillHistory (eventTypeID, logDate, characterID, skillTypeID, skillLevel, relativePoints, absolutePoints)"
+        " VALUES (%u, %f, %u, %u, %u, %f, %f)", eventID, logDate, characterID, skillTypeID, skillLevel, relativePoints, absolutePoints ))
+            _log(DATABASE__ERROR, "Failed to set chrSkillHistory for character %u: %s", characterID, err.c_str());
+}
+
+PyObject* CharacterDB::GetSkillHistory(uint32 characterID) {
+    // eventTypeIDs:
+    // 34 - SkillClonePenalty
+    // 36 - SkillTrainingStarted
+    // 37 - SkillTrainingComplete
+    // 38 - SkillTrainingCanceled
+    // 39 - GMGiveSkill
+    // 307 - SkillPointsApplied
+
+    DBQueryResult res;
+    if(!sDatabase.RunQuery(res,
+        "SELECT logDate, eventTypeID, skillTypeID, relativePoints AS absolutePoints"
+        " FROM chrSkillHistory"
+        " WHERE characterID = %d"
+        " ORDER BY logDate DESC"
+        " LIMIT 100",
+        characterID )) {
+        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        return NULL;
+    }
+
+    return(DBResultToRowset(res));
+}
+
+EvilNumber CharacterDB::GetLoginTime(uint32 characterID) {
+    //  logged as Win32TimeNow();
+    DBQueryResult res;
+    sDatabase.RunQuery(res, "SELECT logonDateTime FROM character_ WHERE characterID = %u", characterID );
+
+    DBResultRow row;
+    EvilNumber loginTime = 0;
+    if(res.GetRow(row)) {
+        uint64 logonDateTime = row.GetUInt64(0);
+        if (logonDateTime > 0 ) loginTime = ((Win32TimeNow() - logonDateTime) / 1000000000) * 2;
+    }
+    return loginTime;
+}
+
+void CharacterDB::UpdateLoginTime(uint32 characterID) {
+        // updated logonDateTime to now....last check was then to now, so remove that time and reset
+        DBerror err;
+        if( !sDatabase.RunQuery( err, "UPDATE character_ SET logonDateTime = %" PRIu64 " WHERE characterID = %u ", Win32TimeNow(), characterID )) {
+            codelog(SERVICE__ERROR, "Character::_GetLogonMinutes - Error in query: %s", err.c_str());
+        }
+}
+
+bool CharacterDB::isOffline(uint32 characterID) {
+    DBQueryResult res;
+    sDatabase.RunQuery(res, "SELECT Online FROM character_ WHERE characterID = %u", characterID );
+
+    DBResultRow row;
+    if(res.GetRow(row))
+      return false;
+    else
+      return true;
+}
+
+void CharacterDB::addOwnerCache(uint32 ownerID, std::string ownerName, uint32 typeID) {
+    DBerror err;
+    sDatabase.RunQuery(err,
+                       "INSERT INTO cacheOwners(ownerID, ownerName, typeID)"
+                       " VALUES (%u, %s, %u)",
+                       ownerID, ownerName.c_str(), typeID);
 }

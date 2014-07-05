@@ -130,3 +130,19 @@ INSERT INTO eveStaticOwners (ownerID, ownerName, typeID)
 INSERT INTO eveStaticOwners (ownerID, ownerName, typeID)
  SELECT corporationID, corporationName, 2 AS typeID
  FROM corporationStatic;
+
+
+INSERT INTO cacheLocations(locationID, locationName, x, y, z)
+ SELECT e.itemID, e.itemName, e.x, e.y, e.z
+ FROM entity AS e
+ LEFT JOIN invTypes AS t ON t.typeID = e.typeID
+ LEFT JOIN invGroups AS g ON g.groupID = t.groupID
+ WHERE g.categoryID IN (0, 2, 3, 6, 22, 23);
+
+
+INSERT INTO cacheOwners(ownerID, ownerName, `typeID`)
+ SELECT e.itemID, e.itemName, e.typeID
+ FROM entity AS e
+ LEFT JOIN invTypes AS t ON t.typeID = e.typeID
+ LEFT JOIN invGroups AS g ON g.groupID = t.groupID
+ WHERE g.categoryID IN (0, 1, 11 );

@@ -56,7 +56,8 @@ enum ModuleStates
     MOD_ACTIVATED = 4,
     MOD_OVERLOADED = 8,
     MOD_GANG = 16,
-	MOD_FLEET = 32
+	MOD_FLEET = 32,
+	MOD_DEACTIVATING = 64
 };
 
 enum ChargeStates
@@ -72,10 +73,9 @@ enum ChargeStates
 enum ModuleEffectAppliedBehaviors
 {
     EFFECT_PERSISTENT = 1300,   // means the effect is active AT ALL TIMES; used ONLY for skill, ship, subsystem effects
-    EFFECT_ONLINE = 14,         // means the effect takes effect on the target (see below) upon entering the ONLINE state
-    EFFECT_ACTIVE = 12,         // used only for ACTIVE modules operating in non-Overloaded mode
-    EFFECT_OVERLOAD = 8,        // used only for ACTIVE modules operating in Overloaded mode
-    EFFECT_PASSIVE = 2          // used only for ACTIVE modules when not active
+    EFFECT_ONLINE,              // means the effect takes effect on the target (see below) upon entering the ONLINE state
+    EFFECT_ACTIVE,              // used only for ACTIVE modules operating in non-Overloaded mode
+    EFFECT_OVERLOAD             // used only for ACTIVE modules operating in Overloaded mode
 };
 
 // These are the target types to which module and other types' effects are applied when activated:

@@ -28,76 +28,62 @@
 
 #include "ship/modules/ActiveModules.h"
 
-ActiveModule::ActiveModule(InventoryItemRef item, ShipRef ship)
-: GenericModule(item, ship)
+ActiveModule::ActiveModule()
 {
-    m_ActiveModuleProc = new ActiveModuleProcessingComponent(item, this, ship);
+	m_chargeRef = InventoryItemRef();		// Ensure ref is NULL
+	m_chargeLoaded = false;
+}
 
-	m_ChargeRef = InventoryItemRef();		// Ensure ref is NULL
-    m_targetEntity = NULL;
-    m_Charge_State = ChargeStates::MOD_UNLOADED;
-    m_RequiresCharge = false;
-    // load cycle for most charges is zero.
-    m_LoadCycleTime = 0;
+ActiveModule::ActiveModule(InventoryItemRef item, ShipRef ship)
+{
+    m_Item = item;
+    m_Ship = ship;
+    m_Effects = new ModuleEffects(m_Item->typeID());
+    m_ShipAttrComp = new ModifyShipAttributesComponent(this, ship);
+
+	m_chargeRef = InventoryItemRef();		// Ensure ref is NULL
+	m_chargeLoaded = false;
 }
 
 ActiveModule::~ActiveModule()
 {
     //delete members
-    delete m_ActiveModuleProc;
+    delete m_Effects;
+    delete m_ShipAttrComp;
 
     //null ptrs
-    m_ActiveModuleProc = NULL;
-}
-
-void ActiveModule::Process()
-{
-    m_ActiveModuleProc->Process();
+    m_Effects = NULL;
+    m_ShipAttrComp = NULL;
 }
 
 void ActiveModule::Offline()
 {
-    Deactivate();
-    GenericModule::Offline();
+    m_Item->PutOffline();
+}
+
+void ActiveModule::Online()
+{
+    m_Item->PutOnline();
 }
 
 void ActiveModule::Activate(SystemEntity * targetEntity)
 {
-	// This may be handled by the Module class itself (eg. Afterburner.cpp)
-    // but many modules may just need to run.
-    m_ActiveModuleProc->ActivateCycle(-1);
+	//This will be handled by the Module class itself (eg. Afterburner.cpp)
 }
 
 void ActiveModule::Deactivate()
 {
-    m_ActiveModuleProc->DeactivateCycle();
+	//This will be handled by the Module class itself (eg. Afterburner.cpp)
 }
 
 void ActiveModule::Load(InventoryItemRef charge)
 {
-    // check if the crystal takes damage.
-    if (charge->GetAttribute(AttrCrystalsGetDamaged, 0) == 1 && charge->quantity() == 1)
-    {
-        // make charge a singleton as it can be damaged and can no longer be stacked.
-        charge->ChangeSingleton(true, true);
-    }
-
-    m_targetEntity = NULL;
-    m_Charge_State = ChargeStates::MOD_LOADING;
-    m_ActiveModuleProc->ActivateCycle( -1, charge);
-	m_ChargeRef = InventoryItemRef();
+	m_chargeRef = charge;
+	m_chargeLoaded = true;
 }
 
 void ActiveModule::Unload()
 {
-    m_Charge_State = ChargeStates::MOD_UNLOADED;
-	m_ChargeRef = InventoryItemRef();		// Ensure ref is NULL
-}
-
-void ActiveModule::EndLoading(InventoryItemRef charge)
-{
-	m_ChargeRef = charge;
-    m_Charge_State = ChargeStates::MOD_LOADED;
-    if(m_ChargeRef.get() != NULL)
-        m_ChargeRef->Move(m_Ship->itemID(), flag());
+	m_chargeRef = InventoryItemRef();		// Ensure ref is NULL
+	m_chargeLoaded = false;
 }

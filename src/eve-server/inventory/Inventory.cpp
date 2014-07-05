@@ -309,6 +309,15 @@ InventoryItemRef Inventory::GetByTypeFlag(uint32 typeID, EVEItemFlags flag) cons
     return InventoryItemRef();
 }
 
+void Inventory::GetInventoryList(std::map<uint32, InventoryItemRef> &inventory)
+{
+    std::map<uint32, InventoryItemRef>::const_iterator cur, end;
+    cur = mContents.begin();
+    end = mContents.end();
+    for(; cur != end; cur++)
+        inventory.insert(std::pair<uint32, InventoryItemRef>(cur->first,cur->second));
+}
+
 uint32 Inventory::FindByFlag(EVEItemFlags _flag, std::vector<InventoryItemRef> &items) const
 {
     std::map<uint32, InventoryItemRef>::const_iterator cur, end;

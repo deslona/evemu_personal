@@ -20,28 +20,30 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        avianrr
+    Author:        Luck
 */
 
-#ifndef REPAIRMODULE_H
-#define	REPAIRMODULE_H
+#ifndef PASSIVE_MODULES_H
+#define PASSIVE_MODULES_H
 
-#include "ship/modules/ActiveModules.h"
+#include "ship/modules/Modules.h"
+#include "ship/modules/components/ModifyShipAttributesComponent.h"
 
-class RepairModule : public ActiveModule
+class PassiveModule : public GenericModule
 {
 public:
-    RepairModule(InventoryItemRef item, ShipRef ship);
-    
-private:
-    /**
-     * Called when the cycle completes.
-     * This is where repair/mining modules should do there actions.
-     * @note mining modules should also gather there minerals when deactivated and then not again when the cycle ends.
-     */
-	virtual void EndCycle();
+    PassiveModule(InventoryItemRef item, ShipRef ship);
+    ~PassiveModule();
+
+    void Offline();
+    void Online();
+
+protected:
+    ModifyShipAttributesComponent * m_ShipAttrComp;
+
+    //inheritance crap
+    PassiveModule() { }
 
 };
 
-#endif	/* REPAIRMODULE_H */
-
+#endif
