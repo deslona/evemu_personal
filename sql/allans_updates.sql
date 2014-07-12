@@ -49,6 +49,31 @@ CREATE TABLE IF NOT EXISTS `character_` (
   KEY `characterID` (`characterID`,`accountID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8  COMMENT="Version 3";;
 
+/* Table structure for table `mapDynamicData` */
+
+CREATE TABLE IF NOT EXISTS `mapDynamicData` (
+  `solarSystemID` int(10) NOT NULL,
+  `moduleCnt` int(10) NOT NULL DEFAULT '0',
+  `structureCnt` int(10) NOT NULL DEFAULT '0',
+  `jumpsHour` int(10) NOT NULL DEFAULT '0',
+  `killsHour` int(10) NOT NULL DEFAULT '0',
+  `kills24Hours` int(10) NOT NULL DEFAULT '0',
+  `pilotsDocked` int(10) NOT NULL DEFAULT '0',
+  `pilotsInSpace` int(10) NOT NULL DEFAULT '0',
+  `podKillsHour` int(10) NOT NULL DEFAULT '0',
+  `podKills24Hour` int(10) NOT NULL DEFAULT '0',
+  `factionKills` int(11) NOT NULL DEFAULT '0',
+  `factionKills24Hour` int(11) NOT NULL DEFAULT '0',
+  `jumpsDateTime` bigint(20) DEFAULT NULL,
+  `killsDateTime` bigint(20) DEFAULT NULL,
+  `kills24DateTime` bigint(20) DEFAULT NULL,
+  `podDateTime` bigint(20) DEFAULT NULL,
+  `pod24DateTime` bigint(20) DEFAULT NULL,
+  `factionDateTime` bigint(20) DEFAULT NULL,
+  `faction24DateTime` bigint(20) DEFAULT NULL,
+  `pilotsDateTime` bigint(20) DEFAULT NULL,
+  UNIQUE KEY `solarSystemID` (`solarSystemID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 /* Table structure for table `chrPausedSkillQueue` */
 
@@ -61,6 +86,19 @@ CREATE TABLE IF NOT EXISTS `chrPausedSkillQueue` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Data for the table `chrPausedSkillQueue` */
+
+/* Table structure for table `bounties` */
+
+CREATE TABLE IF NOT EXISTS `bounties` (
+  `characterID` int(10) NOT NULL,
+  `ownerID` int(10) NOT NULL,
+  `bounty` bigint(20) NOT NULL,
+  `timePlaced` bigint(20) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`timePlaced`),
+  KEY `characterID` (`characterID`),
+  KEY `ownerID` (`ownerID`),
+  KEY `timePlaced` (`timePlaced`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
 
 /* Table structure for table `mapOreBySystemSecurityClass` */
 

@@ -77,6 +77,7 @@ StationSvcService::StationSvcService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(StationSvcService, GetStationItemBits)
     PyCallable_REG_CALL(StationSvcService, GetSolarSystem)
     PyCallable_REG_CALL(StationSvcService, GetStation)
+    PyCallable_REG_CALL(StationSvcService, GetAllianceSystems)
 }
 
 StationSvcService::~StationSvcService() {
@@ -125,4 +126,10 @@ PyResult StationSvcService::Handle_GetStation(PyCallArgs &call) {
     }
 
     return m_db.DoGetStation(arg.arg);
+}
+
+PyResult StationSvcService::Handle_GetAllianceSystems(PyCallArgs &call) {
+  sLog.Log( "StationSvcService::Handle_GetAllianceSystems()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+    return NULL;
 }

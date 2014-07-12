@@ -633,106 +633,23 @@ void Ship::AddItem(InventoryItemRef item)
     }
 }
 
-bool Ship::ValidateBoardShip(ShipRef ship, CharacterRef character)
-{
-
+bool Ship::ValidateBoardShip(ShipRef ship, CharacterRef character) {
     SkillRef requiredSkill;
-    uint32 skillTypeID = 0;
+    EvilNumber skillTypeID;
 
-    if( (skillTypeID = static_cast<uint32>(ship->GetAttribute(AttrRequiredSkill1).get_int())) != 0)
-        if( !(character->HasSkillTrainedToLevel( skillTypeID, static_cast<uint32>(ship->GetAttribute(AttrRequiredSkill1Level).get_int()) )) )
-            return false;
-
-    if( (skillTypeID = static_cast<uint32>(ship->GetAttribute(AttrRequiredSkill2).get_int())) != 0)
-        if( !(character->HasSkillTrainedToLevel( skillTypeID, static_cast<uint32>(ship->GetAttribute(AttrRequiredSkill2Level).get_int() ))) )
-            return false;
-
-    if( (skillTypeID = static_cast<uint32>(ship->GetAttribute(AttrRequiredSkill3).get_int())) != 0)
-        if( !(character->HasSkillTrainedToLevel( skillTypeID, static_cast<uint32>(ship->GetAttribute(AttrRequiredSkill3Level).get_int() ))) )
-            return false;
-
-    if( (skillTypeID = static_cast<uint32>(ship->GetAttribute(AttrRequiredSkill4).get_int())) != 0)
-        if( !(character->HasSkillTrainedToLevel( skillTypeID, static_cast<uint32>(ship->GetAttribute(AttrRequiredSkill4Level).get_int() ))) )
-            return false;
-
-    if( (skillTypeID = static_cast<uint32>(ship->GetAttribute(AttrRequiredSkill5).get_int())) != 0)
-        if( !(character->HasSkillTrainedToLevel( skillTypeID, static_cast<uint32>(ship->GetAttribute(AttrRequiredSkill5Level).get_int() )) ))
-            return false;
-
-    if( (skillTypeID = static_cast<uint32>(ship->GetAttribute(AttrRequiredSkill6).get_int())) != 0)
-        if( !(character->HasSkillTrainedToLevel( skillTypeID, static_cast<uint32>(ship->GetAttribute(AttrRequiredSkill6Level).get_int() )) ))
-            return false;
-
+    if( ship->HasAttribute(AttrRequiredSkill1, skillTypeID) )
+        if( !(character->HasSkillTrainedToLevel( skillTypeID, ship->GetAttribute(AttrRequiredSkill1Level).get_int()) )) return false;
+    if( ship->HasAttribute(AttrRequiredSkill2, skillTypeID) )
+        if( !(character->HasSkillTrainedToLevel( skillTypeID, ship->GetAttribute(AttrRequiredSkill2Level).get_int() ))) return false;
+    if( ship->HasAttribute(AttrRequiredSkill3, skillTypeID) )
+        if( !(character->HasSkillTrainedToLevel( skillTypeID, ship->GetAttribute(AttrRequiredSkill3Level).get_int() ))) return false;
+    if( ship->HasAttribute(AttrRequiredSkill4, skillTypeID) )
+        if( !(character->HasSkillTrainedToLevel( skillTypeID, ship->GetAttribute(AttrRequiredSkill4Level).get_int() ))) return false;
+    if( ship->HasAttribute(AttrRequiredSkill5, skillTypeID) )
+        if( !(character->HasSkillTrainedToLevel( skillTypeID, ship->GetAttribute(AttrRequiredSkill5Level).get_int() ))) return false;
+    if( ship->HasAttribute(AttrRequiredSkill6, skillTypeID) )
+        if( !(character->HasSkillTrainedToLevel( skillTypeID, ship->GetAttribute(AttrRequiredSkill6Level).get_int() ))) return false;
     return true;
-/*
-    //Primary Skill
-    if(ship->GetAttribute(AttrRequiredSkill1).get_int() != 0)
-    {
-        requiredSkill = character->GetSkill( ship->GetAttribute(AttrRequiredSkill1).get_int() );
-        if( !requiredSkill )
-            return false;
-
-        if( ship->GetAttribute(AttrRequiredSkill1Level) > requiredSkill->GetAttribute(AttrSkillLevel) )
-            return false;
-    }
-
-    //Secondary Skill
-    if(ship->GetAttribute(AttrRequiredSkill2).get_int() != 0)
-    {
-        requiredSkill = character->GetSkill( ship->GetAttribute(AttrRequiredSkill2).get_int() );
-        if( !requiredSkill )
-            return false;
-
-        if( ship->GetAttribute(AttrRequiredSkill2Level) > requiredSkill->GetAttribute(AttrSkillLevel) )
-            return false;
-    }
-
-    //Tertiary Skill
-    if(ship->GetAttribute(AttrRequiredSkill3).get_int() != 0)
-    {
-        requiredSkill = character->GetSkill( ship->GetAttribute(AttrRequiredSkill3).get_int() );
-        if( !requiredSkill )
-            return false;
-
-        if( ship->GetAttribute(AttrRequiredSkill3Level) > requiredSkill->GetAttribute(AttrSkillLevel) )
-            return false;
-    }
-
-    //Quarternary Skill
-    if(ship->GetAttribute(AttrRequiredSkill4).get_int() != 0)
-    {
-        requiredSkill = character->GetSkill( ship->GetAttribute(AttrRequiredSkill4).get_int() );
-        if( !requiredSkill )
-            return false;
-
-        if( ship->GetAttribute(AttrRequiredSkill4Level) > requiredSkill->GetAttribute(AttrSkillLevel) )
-            return false;
-    }
-
-    //Quinary Skill
-    if(ship->GetAttribute(AttrRequiredSkill5).get_int() != 0)
-    {
-        requiredSkill = character->GetSkill( ship->GetAttribute(AttrRequiredSkill5).get_int() );
-        if( !requiredSkill )
-            return false;
-
-        if( ship->GetAttribute(AttrRequiredSkill5Level) > requiredSkill->GetAttribute(AttrSkillLevel) )
-            return false;
-    }
-
-    //Senary Skill
-    if(ship->GetAttribute(AttrRequiredSkill6).get_int() != 0)
-    {
-        requiredSkill = character->GetSkill( ship->GetAttribute(AttrRequiredSkill6).get_int() );
-        if( !requiredSkill )
-            return false;
-
-        if( ship->GetAttribute(AttrRequiredSkill6Level) > requiredSkill->GetAttribute(AttrSkillLevel) )
-            return false;
-    }
-
-    return true;
-*/
 }
 
 void Ship::SaveShip()
@@ -748,58 +665,39 @@ bool Ship::ValidateItemSpecifics(InventoryItemRef equip) {
     //declaring explicitly as int...not sure if this is needed or not
     int groupID = m_pOperator->GetShip()->groupID();
     int typeID = m_pOperator->GetShip()->typeID();
-    EvilNumber canFitShipGroup1 = equip->GetAttribute(AttrCanFitShipGroup1);
-    EvilNumber canFitShipGroup2 = equip->GetAttribute(AttrCanFitShipGroup2);
-    EvilNumber canFitShipGroup3 = equip->GetAttribute(AttrCanFitShipGroup3);
-    EvilNumber canFitShipGroup4 = equip->GetAttribute(AttrCanFitShipGroup4);
-    EvilNumber canFitShipType1 = equip->GetAttribute(AttrCanFitShipType1);
-    EvilNumber canFitShipType2 = equip->GetAttribute(AttrCanFitShipType2);
-    EvilNumber canFitShipType3 = equip->GetAttribute(AttrCanFitShipType3);
-    EvilNumber canFitShipType4 = equip->GetAttribute(AttrCanFitShipType4);
+    EvilNumber canFitShipGroup1, canFitShipGroup2, canFitShipGroup3, canFitShipGroup4;
+    EvilNumber canFitShipType1, canFitShipType2, canFitShipType3, canFitShipType4;
 
-	if( canFitShipGroup1 != 0 || canFitShipGroup2 != 0 || canFitShipGroup3 != 0 || canFitShipGroup4 != 0 )
-		if( canFitShipGroup1 != groupID && canFitShipGroup2 != groupID && canFitShipGroup3 != groupID && canFitShipGroup4 != groupID )
+    // If a ship group restriction is specified the item
+    // must be able to fit to at least one ship group.
+    if( equip->HasAttribute(AttrCanFitShipGroup1, canFitShipGroup1) ||
+        equip->HasAttribute(AttrCanFitShipGroup2, canFitShipGroup2) ||
+        equip->HasAttribute(AttrCanFitShipGroup3, canFitShipGroup3) ||
+        equip->HasAttribute(AttrCanFitShipGroup4, canFitShipGroup4) )
+        if( canFitShipGroup1 != groupID && canFitShipGroup2 != groupID && canFitShipGroup3 != groupID && canFitShipGroup4 != groupID )
 			return false;
-	/*
-    if( canFitShipGroup1 != 0 )
-        if( canFitShipGroup1 != groupID )
-            return false;
-
-    if( canFitShipGroup2 != 0 )
-        if( canFitShipGroup2 != groupID )
-            return false;
-
-    if( canFitShipGroup3 != 0 )
-        if( canFitShipGroup3 != groupID )
-            return false;
-
-    if( canFitShipGroup4 != 0 )
-        if( canFitShipGroup4 != groupID )
-            return false;
-	*/
-
-    if( canFitShipType1 != 0 || canFitShipType2 != 0 || canFitShipType3 != 0 || canFitShipType4 != 0 )
+    // If a ship type restriction is specified the item
+    // must be able to fit to at least one ship type.
+    if( equip->HasAttribute(AttrCanFitShipType1, canFitShipType1) ||
+        equip->HasAttribute(AttrCanFitShipType2, canFitShipType2) ||
+        equip->HasAttribute(AttrCanFitShipType3, canFitShipType3) ||
+        equip->HasAttribute(AttrCanFitShipType4, canFitShipType4) )
         if( canFitShipType1 != typeID && canFitShipType2 != typeID && canFitShipType3 != typeID && canFitShipType4 != typeID )
             return false;
-	/*
-    if( canFitShipType1 != 0 )
-        if( canFitShipType1 != typeID )
-            return false;
-
-    if( canFitShipType2 != 0 )
-        if( canFitShipType2 != typeID )
-            return false;
-
-    if( canFitShipType3 != 0 )
-        if( canFitShipType3 != typeID )
-            return false;
-
-    if( canFitShipType4 != 0 )
-        if( canFitShipType4 != typeID )
-            return false;
-	*/
     return true;
+}
 
+void Ship::Dock()
+{
+ // Heal Shields and Fully Recharge Capacitor:
+ SetShipShields(1.0);
+ SetShipCapacitorLevel(1.0);
+
+ DeactivateAllModules();
+}
+
+void Ship::Undock()
+{
 }
 
 /* Begin new Module Manager Interface */
@@ -919,8 +817,10 @@ void Ship::RemoveItem(InventoryItemRef item, uint32 inventoryID, EVEItemFlags fl
 		// Don't know what to do when removing a Subsystem... yet ;)
 	}
 
-	// if item being removed IS a charge, it needs to be removed via Module Manager so modules know charge is removed:
-	if( item->categoryID() == EVEDB::invCategories::Charge )
+    // if item being removed IS a charge, it needs to be removed via Module Manager so modules know charge is removed,
+    // BUT, only if it is loaded into a module in one of the 3 slot banks, so we also check its flag value:
+    if( (item->categoryID() == EVEDB::invCategories::Charge) && ((item->flag() >= flagLowSlot0) && (item->flag() <= flagHiSlot7)) )
+
 	{
 		m_ModuleManager->UnloadCharge(item->flag());
 	}
@@ -949,8 +849,8 @@ void Ship::UpdateModules()
 	// InventoryBound::_ExecAdd()		- things have been added or removed, recheck all modules for... some reason
 	// Client::MoveItem()				- something has been moved into or out of the ship, recheck all modules for... some reason
 
-	sLog.Error( "Ship::UpdateModules()", "We are currently not checking for modules that need to go online, or skill checking character for any modules of a newly boarded ship, or updating module states based on things being moved into or off the ship!" );
-	sLog.Error( "Ship::UpdateModules()", "This should really be a simple call to a function ModuleManager::UpdateModules() and the code put inside there." );
+	//sLog.Error( "Ship::UpdateModules()", "We are currently not checking for modules that need to go online, or skill checking character for any modules of a newly boarded ship, or updating module states based on things being moved into or off the ship!" );
+	//sLog.Error( "Ship::UpdateModules()", "This should really be a simple call to a function ModuleManager::UpdateModules() and the code put inside there." );
 }
 
 void Ship::UnloadModule(uint32 itemID)
@@ -1074,7 +974,7 @@ void Ship::SetShipShields(double shieldChargeFraction)
 	if( (newShieldCharge + 0.5) > GetAttribute(AttrShieldCapacity) )
 		newShieldCharge = GetAttribute(AttrShieldCapacity);
 
-	SetAttribute(AttrShieldCharge, shieldChargeFraction);
+	SetAttribute(AttrShieldCharge, newShieldCharge);
 }
 
 void Ship::SetShipArmor(double armorHealthFraction)

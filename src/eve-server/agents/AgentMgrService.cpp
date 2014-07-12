@@ -39,8 +39,8 @@
 #include "PyBoundObject.h"
 #include "PyServiceCD.h"
 #include "cache/ObjCacheService.h"
-#include "missions/Agent.h"
-#include "missions/AgentMgrService.h"
+#include "agents/Agent.h"
+#include "agents/AgentMgrService.h"
 
 class AgentMgrBound
 : public PyBoundObject {
@@ -48,7 +48,7 @@ public:
 
     PyCallable_Make_Dispatcher(AgentMgrBound)
 
-    AgentMgrBound(PyServiceMgr *mgr, MissionDB *db, Agent *agt)
+    AgentMgrBound(PyServiceMgr *mgr, AgentDB *db, Agent *agt)
     : PyBoundObject(mgr),
       m_db(db),
       m_dispatch(new Dispatcher(this)),
@@ -79,7 +79,7 @@ public:
     PyCallable_DECL_CALL(GetMissionObjectiveInfo)
 
 protected:
-    MissionDB *const m_db;        //we do not own this
+    AgentDB *const m_db;        //we do not own this
     Dispatcher *const m_dispatch;    //we own this
     Agent *const m_agent;    //we do not own this.
 };
@@ -347,14 +347,14 @@ PyResult AgentMgrService::Handle_GetSolarSystemOfAgent(PyCallArgs &call)
     call.Dump(SERVICE__CALLS);
     */
 
-/**  not working....crashes server
+/**  not working....crashes server */
     DBQueryResult res;
 
     uint32 AgentID = call.tuple->GetItem(0)->AsInt()->value();
 
     if(!sDatabase.RunQuery(res,
         " SELECT"
-        "  a.locationID,"
+        "  a.agentID,"
         "  s.solarSystemID"
         " FROM agtAgents AS a"
         "  LEFT JOIN staStations AS s ON s.stationID = a.locationID"
@@ -362,21 +362,21 @@ PyResult AgentMgrService::Handle_GetSolarSystemOfAgent(PyCallArgs &call)
     {
         _log(DATABASE__ERROR, "Failed to query for Agent = %u", AgentID);
     }
-    //return (DBResultToRowset(res));
+
     DBResultRow row;
     if(!res.GetRow(row)) {
         _log(DATABASE__ERROR, "SystemID of Agent %u not found.", AgentID);
         return NULL;
-    }
-
+    } else return (DBResultToRowset(res));
+/*
     PyTuple *t = new PyTuple(1);
     t->items[0] = new PyInt( row.GetUInt(1) );
 
     return t;
     */
 
-        throw(PyException(MakeCustomError("Agent Finder is not avalible at this time.")));
-    return NULL;
+        //throw(PyException(MakeCustomError("Agent Finder is not avalible at this time.")));
+    //return NULL;
 }
 
 PyResult AgentMgrService::Handle_GetCareerAgents(PyCallArgs &call)

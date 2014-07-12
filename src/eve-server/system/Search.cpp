@@ -105,7 +105,7 @@ PyResult Search::Handle_Query( PyCallArgs& call )   //called from people/places 
 }
 
 PyResult Search::Handle_QuickQuery( PyCallArgs& call )  //called from starmap  and contracts......and the fuckin mail search...
-{/*
+{/*         QuickQuery(query, groupIDList, hideNPC=hideNPC, onlyAltName=onlyAltName)
 05:56:52 L search::Handle_QuickQuery(): size=2, 0=WString(rens*), 1=List()
 05:56:52 [SvcCall]   Call Arguments:
 05:56:52 [SvcCall]       Tuple: 2 elements

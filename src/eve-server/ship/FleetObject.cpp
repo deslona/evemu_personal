@@ -20,47 +20,35 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Allan
 */
 
+//work in progress
 
-#ifndef __AGENTMGR_SERVICE_H_INCL__
-#define __AGENTMGR_SERVICE_H_INCL__
+#include "eve-server.h"
 
-#include "missions/MissionDB.h"
-#include "PyService.h"
+#include "PyServiceCD.h"
+#include "ship/FleetObject.h"
 
-class Agent;
+PyCallable_Make_InnerDispatcher(FleetObjectHandler)
 
-class AgentMgrService : public PyService
+FleetObjectHandler::FleetObjectHandler(PyServiceMgr *mgr)
+: PyService(mgr, "fleetObjectHandler"),
+  m_dispatch(new Dispatcher(this))
 {
-public:
-    AgentMgrService(PyServiceMgr *mgr);
-    virtual ~AgentMgrService();
+    _SetCallDispatcher(m_dispatch);
 
-protected:
-    class Dispatcher;
-    Dispatcher *const m_dispatch;
+    PyCallable_REG_CALL(FleetObjectHandler, CreateFleet);
+}
 
-    MissionDB m_db;
+FleetObjectHandler::~FleetObjectHandler()
+{
+    delete m_dispatch;
+}
 
-    //for now this lives here, might want to move eventually.
-    std::map<uint32, Agent *> m_agents;    //we own these
-    Agent *_GetAgent(uint32 agentID);
+PyResult FleetObjectHandler::Handle_CreateFleet(PyCallArgs &call) {
+    sLog.Log("FleetObjectHandler", "Handle_CreateFleet() size=%u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
 
-    PyCallable_DECL_CALL(GetAgents)
-    PyCallable_DECL_CALL(GetMyJournalDetails)
-    PyCallable_DECL_CALL(GetMyEpicJournalDetails)
-    PyCallable_DECL_CALL(GetSolarSystemOfAgent)
-    PyCallable_DECL_CALL(GetCareerAgents)
-
-    //overloaded in order to support bound objects:
-    virtual PyBoundObject *_CreateBoundObject(Client *c, const PyRep *bind_args);
-};
-
-
-
-
-#endif
-
-
+    return NULL;
+}

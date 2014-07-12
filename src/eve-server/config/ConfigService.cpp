@@ -51,6 +51,7 @@ ConfigService::ConfigService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(ConfigService, GetCelestialStatistic)
     PyCallable_REG_CALL(ConfigService, GetDynamicCelestials)
     PyCallable_REG_CALL(ConfigService, GetMapLandmarks)
+    PyCallable_REG_CALL(ConfigService, SetMapLandmarks)
 }
 
 ConfigService::~ConfigService() {
@@ -411,5 +412,22 @@ PyResult ConfigService::Handle_GetDynamicCelestials(PyCallArgs &call) {
 
 PyResult ConfigService::Handle_GetMapLandmarks(PyCallArgs &call) {
     return m_db.GetMapLandmarks();
+}
+
+PyResult ConfigService::Handle_SetMapLandmarks(PyCallArgs &call) {
+  /**
+            x, y, z = landmark.translation
+            data = (landmark.landmarkID,
+             x / STARMAP_SCALE,
+             y / STARMAP_SCALE,
+             z / STARMAP_SCALE,
+             landmark.GetRadius())
+
+        sm.RemoteSvc('config').SetMapLandmarks(landmarkData)
+             */
+  sLog.Log( "MapService::Handle_SetMapLandmarks()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+        return NULL;
 }
 

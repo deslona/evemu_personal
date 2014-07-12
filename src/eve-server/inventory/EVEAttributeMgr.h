@@ -247,18 +247,6 @@ protected:
     bool m_notify;
 };
 
-// small map that does the magic of item attributes..
-//class EvilNumber;
-
-/**
- * @brief rewrite of the item attribute system.
- *
- * @author Captnoord.
- * @date Juni 2010
- * @note keeping track of the base value of the attribute is not implemented.
- * Besides the fact in increases memory concumption its unclear how to design it
- * at this moment.
- */
 class AttributeMap
 {
 public:
@@ -278,7 +266,7 @@ public:
      * @param[in] item reference to the InventoryItem for which attributes will be managed
      * @param[in] bDefaultMap boolean indicating whether this attribute map uses 'entity_default_attributes' table or 'entity_attributes' table
      */
-    AttributeMap(InventoryItem & item, bool bDefaultMap);
+    AttributeMap(InventoryItem & item, bool);
 
 	/**
      * @brief set the attribute with @num
@@ -291,7 +279,7 @@ public:
      * @retval true  The attribute has successfully been set and queued.
      * @retval false The attribute change has not been queued but has not been changed.
      */
-    bool SetAttribute(uint32 attributeId, EvilNumber &num, bool nofity = true);
+    bool SetAttribute(uint32 , EvilNumber &num, bool nofity = true);
 
     /**
 * GetAttribute
@@ -302,7 +290,7 @@ public:
 *
 * @note this function should be used very infrequently and only for specific reasons
 */
-    EvilNumber GetAttribute(const uint32 attributeId) const;
+    EvilNumber GetAttribute(const uint32 ) const;
     /**
 * GetAttribute
 * Retrieves the attribute of the entity.
@@ -314,7 +302,7 @@ public:
 *
 * @note this function should be used very infrequently and only for specific reasons
 */
-    EvilNumber GetAttribute(const uint32 attributeID, const EvilNumber &defaultValue) const;
+    EvilNumber GetAttribute(const uint32 , const uint32 defaultValue) const;
 
     /**
 * HasAttribute
@@ -324,7 +312,7 @@ public:
 *
 * @note this function should be used very infrequently and only for specific reasons
 */
-    bool HasAttribute(const uint32 attributeID) const;
+    bool HasAttribute(const uint32 ) const;
 
     /**
 * HasAttribute
@@ -336,7 +324,7 @@ public:
 *
 * @note this function should be used very infrequently and only for specific reasons
 */
-    bool HasAttribute(const uint32 attributeID, EvilNumber &value) const;
+    bool HasAttribute(const uint32, EvilNumber &value) const;
 
 
     /** ATM we don't load or save as we assume that all attribute modifiers are calculated on the fly

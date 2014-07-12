@@ -75,7 +75,6 @@ MissionMgrService::~MissionMgrService() {
     delete m_dispatch;
 }
 
-
 /*
 PyBoundObject *MissionMgrService::_CreateBoundObject(Client *c, PyTuple *bind_args) {
     _log(CLIENT__MESSAGE, "MissionMgrService bind request for:");
@@ -83,7 +82,6 @@ PyBoundObject *MissionMgrService::_CreateBoundObject(Client *c, PyTuple *bind_ar
 
     return(new MissionMgrBound(m_manager, &m_db));
 }*/
-
 
 PyResult MissionMgrService::Handle_GetMyCourierMissions( PyCallArgs& call )
 {
@@ -93,32 +91,3 @@ PyResult MissionMgrService::Handle_GetMyCourierMissions( PyCallArgs& call )
 
     return NULL;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

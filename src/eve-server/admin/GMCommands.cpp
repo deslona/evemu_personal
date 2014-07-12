@@ -955,19 +955,19 @@ PyResult Command_giveallskills( Client* who, CommandDB* db, PyServiceMgr* servic
         skill_end = skillList.end();
 
         SkillRef skill;
-        uint32 skillID = 0;
+        EvilNumber skillID = 0;
 
         for( ; skill_cur != skill_end; skill_cur++ ) {
             skillID = *skill_cur;
             if( character->HasSkillTrainedToLevel( skillID, level ) ) {
                 return new PyNone();
-            } else if( character->HasSkill( skillID ) ) {
+            } else if( character->HasSkill( skillID.get_int() ) ) {
                 skill = character->GetSkill( skillID );
                 EvilNumber tmp = EVIL_SKILL_BASE_POINTS * skill->GetAttribute(AttrSkillTimeConstant) * EvilNumber::pow(2, (2.5*(level -     1)));
                 skill->SetAttribute(AttrSkillLevel, level);
                 skill->SetAttribute(AttrSkillPoints, tmp);
             } else {    // Character DOES NOT have this skill
-                ItemData idata( skillID, ownerID, ownerID, flagSkill, 1 );
+                ItemData idata( skillID.get_int(), ownerID, ownerID, flagSkill, 1 );
                 InventoryItemRef item = services->item_factory.SpawnItem( idata );
 
                 if( !item ) {
@@ -982,7 +982,7 @@ PyResult Command_giveallskills( Client* who, CommandDB* db, PyServiceMgr* servic
             }
             //  save gm skill gift in history  -allan
             // 39 - GMSkillGift
-            character->SaveSkillHistory(39, EvilTimeNow().get_float(), ownerID, skillID, level,
+            character->SaveSkillHistory(39, EvilTimeNow().get_float(), ownerID, skillID.get_int(), level,
                                         skill->GetAttribute( AttrSkillPoints ).get_float(),
                                         character->GetTotalSP().get_float());
         }
@@ -1001,7 +1001,7 @@ PyResult Command_giveskills( Client* who, CommandDB* db, PyServiceMgr* services,
 }
 
 PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args ) {
-    uint32 skillID;
+    EvilNumber skillID;
     int level;
     CharacterRef character;
     uint32 ownerID = 0;
@@ -1015,14 +1015,12 @@ PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, 
             character = who->GetChar();
         } else if( !args.isNumber( 1 ) ) {
             throw PyException( MakeCustomError( "The use of string based Character names for this command is not yet supported!  Use 'me' instead or the entityID of the character to which you wish to give skills." ) );
-            /*
             const char *name = args.arg( 1 ).c_str();
             Client *target = services->entity_list.FindCharacter( name );
             if(target == NULL)
                 throw PyException( MakeCustomError( "Cannot find Character by the name of %s", name ) );
             ownerID = target->GetCharacterID();
             character = target->GetChar();
-            */
         } else
             throw PyException( MakeCustomError( "Argument 1 must be Character ID or Character Name ") );
 
@@ -1043,7 +1041,7 @@ PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, 
         SkillRef skill;
         uint8 skillLevel;
 
-        if( character->HasSkill( skillID ) ) {
+        if( character->HasSkill( skillID.get_int() ) ) {
             skill = character->GetSkill( skillID );
             skillLevel = skill->GetAttribute(AttrSkillLevel).get_int();
             if( skillLevel >= level ) {
@@ -1054,7 +1052,7 @@ PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, 
                 skill->SetAttribute(AttrSkillPoints, tmp);
             }
         } else {    // Character DOES NOT have this skill
-            ItemData idata( skillID, ownerID, ownerID, flagSkill, 1 );
+            ItemData idata( skillID.get_int(), ownerID, ownerID, flagSkill, 1 );
             InventoryItemRef item = services->item_factory.SpawnItem( idata );
 
             if( !item ) {
@@ -1082,7 +1080,7 @@ PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, 
 
         //  save gm skill gift in history  -allan
         // 39 - GMSkillGift
-        character->SaveSkillHistory(39, EvilTimeNow().get_float(), ownerID, skillID, level,
+        character->SaveSkillHistory(39, EvilTimeNow().get_float(), ownerID, skillID.get_int(), level,
                                     skill->GetAttribute(AttrSkillPoints).get_float(), character->GetTotalSP().get_float());
 
         return new PyString ( "Skill Gifting Complete" );

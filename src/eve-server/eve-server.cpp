@@ -43,6 +43,9 @@
 #include "admin/DevToolsProviderService.h"
 #include "admin/PetitionerService.h"
 #include "admin/SlashService.h"
+// agent services
+#include "agents/Agent.h"
+#include "agents/AgentMgrService.h"
 // apiserver services
 #include "apiserver/APIServer.h"
 // calendar services
@@ -102,16 +105,18 @@
 // mining services
 #include "mining/ReprocessingService.h"
 // missions services
-#include "missions/AgentMgrService.h"
 #include "missions/DungeonExplorationMgrService.h"
 #include "missions/MissionMgrService.h"
+// planet services
+#include "planet/Planet.h"
+#include "planet/PlanetMgr.h"
 // pos services
-#include "pos/PlanetMgr.h"
 #include "pos/PosMgrService.h"
 // scanning services
 #include "scanning/ScanMgrService.h"
 // ship services
 #include "ship/BeyonceService.h"
+#include "ship/FleetObject.h"
 #include "ship/FleetProxy.h"
 #include "ship/InsuranceService.h"
 #include "ship/RepairService.h"
@@ -127,12 +132,14 @@
 #include "station/JumpCloneService.h"
 #include "station/StationService.h"
 #include "station/StationSvcService.h"
+#include "station/Trade.h"
 // system services
 #include "system/BookmarkService.h"
 #include "system/DungeonService.h"
 #include "system/KeeperService.h"
 #include "system/Search.h"
 #include "system/ScenarioService.h"
+#include "system/WormholeMgr.h"
 #include "system/WrecksAndLoot.h"
 
 static void SetupSignals();
@@ -289,6 +296,7 @@ int main( int argc, char* argv[] )
     services.RegisterService(new DungeonService(&services));
     services.RegisterService(new FactionWarMgrService(&services));
     services.RegisterService(new FactoryService(&services));
+    services.RegisterService(new FleetObjectHandler(&services));
     services.RegisterService(new FleetProxyService(&services));
     services.RegisterService(new HoloscreenMgrService(&services));
     services.RegisterService(new IndexManager(&services));
@@ -315,6 +323,7 @@ int main( int argc, char* argv[] )
     services.RegisterService(new PetitionerService(&services));
     services.RegisterService(new PhotoUploadService(&services));
     services.RegisterService(new PlanetMgrService(&services));
+    services.RegisterService(new planetORB(&services));
     services.RegisterService(new PosMgrService(&services));
     services.RegisterService(new RamProxyService(&services));
     services.RegisterService(new RepairService(&services));
@@ -328,11 +337,13 @@ int main( int argc, char* argv[] )
     services.RegisterService(new Standing(&services));
     services.RegisterService(new StationService(&services));
     services.RegisterService(new StationSvcService(&services));
+    services.RegisterService(new Trade(&services));
     services.RegisterService(new TutorialService(&services));
     services.RegisterService(new UserService(&services));
     services.RegisterService(new VoiceMgrService(&services));
     services.RegisterService(new VoucherService(&services));
     services.RegisterService(new WarRegistryService(&services));
+    services.RegisterService(new WormHoleSvc(&services));
 
     sLog.Warning("server init", "Priming cached objects.");
     services.cache_service->PrimeCache();

@@ -91,6 +91,7 @@ void SystemBubble::BubblecastDestinyUpdate( PyTuple** payload, const char* desc 
     end = m_dynamicEntities.end();
     for(; cur != end; ++cur)
     {
+        if( !(*cur)->IsClient() || (*cur)->IsNPC() ) continue;      // -allan
         if( NULL == up_dup )
             up_dup = new PyTuple( *up );
 
@@ -119,7 +120,7 @@ void SystemBubble::BubblecastDestinyUpdateExclusive( PyTuple** payload, const ch
     {
 		// Only queue a Destiny update for this bubble if the current SystemEntity is not 'ent':
 		// (this is an update to all SystemEntity objects in the bubble EXCLUDING 'ent')
-		if( (*cur)->GetID() != ent->GetID() )
+		if(( (*cur)->GetID() != ent->GetID() ) && ( (*cur)->IsClient() || (*cur)->IsNPC() ) )    // -allan
 		{
 			if( NULL == up_dup )
 				up_dup = new PyTuple( *up );
@@ -148,6 +149,7 @@ void SystemBubble::BubblecastDestinyEvent( PyTuple** payload, const char* desc )
     end = m_dynamicEntities.end();
     for(; cur != end; ++cur)
     {
+        if( !(*cur)->IsClient() || (*cur)->IsNPC() ) continue;      // -allan
         if( NULL == up_dup )
             up_dup = new PyTuple( *up );
 
@@ -194,7 +196,7 @@ void SystemBubble::Add(SystemEntity *ent, bool notify) {
     }
     //if they are already in this bubble, do not continue.
     if(m_entities.find(ent->GetID()) != m_entities.end()) {
-        _log(DESTINY__BUBBLE_TRACE, "Tried to add entity %u to bubble %p, but it is already in here.", ent->GetID(), this);
+       // _log(DESTINY__BUBBLE_TRACE, "Tried to add entity %u to bubble %p, but it is already in here.", ent->GetID(), this);
         return;
     }
     //regardless, if this entity is a Client and it is NOT cloaked,
@@ -242,6 +244,7 @@ void SystemBubble::Remove(SystemEntity *ent, bool notify) {
 }
 
 void SystemBubble::AddExclusive(SystemEntity *ent, bool notify) {
+    sLog.Log("SystemBubble::AddExclusive", "Fuction Called ");
     //notify before addition so we do not include ourself.
     //if(notify) {
     //    _SendAddBalls(ent);
@@ -254,7 +257,7 @@ void SystemBubble::AddExclusive(SystemEntity *ent, bool notify) {
     //regardless, notify everybody else in the bubble of the add.
     _BubblecastAddBall(ent);
 
-    //_log(DESTINY__BUBBLE_DEBUG, "Adding entity %u at (%.2f,%.2f,%.2f) to bubble %u at (%.2f,%.2f,%.2f) with radius %.2f", ent->GetID(), ent->GetPosition().x, ent->GetPosition().y, ent->GetPosition().z, this->GetBubbleID(), m_center.x, m_center.y, m_center.z, m_radius);
+    _log(DESTINY__BUBBLE_DEBUG, "SystemBubble::AddExclusive - Adding entity %u at (%.2f,%.2f,%.2f) to bubble %u at (%.2f,%.2f,%.2f) with radius %.2f", ent->GetID(), ent->GetPosition().x, ent->GetPosition().y, ent->GetPosition().z, this->GetBubbleID(), m_center.x, m_center.y, m_center.z, m_radius);
     //m_entities[ent->GetID()] = ent;
     //ent->m_bubble = this;
     //if(ent->IsStaticEntity() == false) {
@@ -272,7 +275,7 @@ void SystemBubble::RemoveExclusive(SystemEntity *ent, bool notify) {
     if( ent->m_bubble == NULL )
         return;     // Get outta here in case this was called again
 
-    //_log(DESTINY__BUBBLE_DEBUG, "Removing entity %u at (%.2f,%.2f,%.2f) from bubble %u at (%.2f,%.2f,%.2f) with radius %.2f", ent->GetID(), ent->GetPosition().x, ent->GetPosition().y, ent->GetPosition().z, this->GetBubbleID(), m_center.x, m_center.y, m_center.z, m_radius);
+    _log(DESTINY__BUBBLE_DEBUG, "SystemBubble::RemoveExclusive - Removing entity %u at (%.2f,%.2f,%.2f) from bubble %u at (%.2f,%.2f,%.2f) with radius %.2f", ent->GetID(), ent->GetPosition().x, ent->GetPosition().y, ent->GetPosition().z, this->GetBubbleID(), m_center.x, m_center.y, m_center.z, m_radius);
     //ent->m_bubble = NULL;
     //m_entities.erase(ent->GetID());
     //m_dynamicEntities.erase(ent);
@@ -382,8 +385,7 @@ void SystemBubble::_SendAddBalls( SystemEntity* to_who )
     _log( DESTINY__TRACE, "Add Balls:" );
     addballs.Dump( DESTINY__TRACE, "    " );
     _log( DESTINY__TRACE, "    Ball Binary:" );
-    _hex( DESTINY__TRACE, &( addballs.destiny_binary->content() )[0],
-                          addballs.destiny_binary->content().size() );
+    //_hex( DESTINY__TRACE, &( addballs.destiny_binary->content() )[0], addballs.destiny_binary->content().size() );
 
     _log( DESTINY__TRACE, "    Ball Decoded:" );
     Destiny::DumpUpdate( DESTINY__TRACE, &( addballs.destiny_binary->content() )[0],

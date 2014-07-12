@@ -120,7 +120,9 @@ CharMgrService::CharMgrService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(CharMgrService, GetPublicInfo)
     PyCallable_REG_CALL(CharMgrService, GetPublicInfo3)
     PyCallable_REG_CALL(CharMgrService, GetTopBounties)
+    PyCallable_REG_CALL(CharMgrService, AddToBounty)
     PyCallable_REG_CALL(CharMgrService, GetOwnerNoteLabels)
+    PyCallable_REG_CALL(CharMgrService, AddOwnerNote)
     PyCallable_REG_CALL(CharMgrService, GetContactList)
     PyCallable_REG_CALL(CharMgrService, GetCloneTypeID)
     PyCallable_REG_CALL(CharMgrService, GetHomeStation)
@@ -183,6 +185,15 @@ PyResult CharMgrService::Handle_GetContactList(PyCallArgs &call) {
     PyObject *keyVal = new PyObject( "util.KeyVal", dict);
 
     return keyVal;
+}
+
+PyResult CharMgrService::Handle_AddOwnerNote( PyCallArgs& call )
+{
+  uint8 size = call.tuple->size();
+  sLog.Log( "CharMgrService::Handle_AddOwnerNote()", "size=%u ", size );
+  call.Dump(SERVICE__CALLS);
+
+  return NULL;
 }
 
 PyResult CharMgrService::Handle_GetOwnerNoteLabels(PyCallArgs &call)
@@ -252,18 +263,35 @@ PyResult CharMgrService::Handle_GetPublicInfo3(PyCallArgs &call) {
     return result;
 }
 
+PyResult CharMgrService::Handle_AddToBounty( PyCallArgs& call )
+{/**
+23:02:28 [SvcCall] Service charMgr: calling AddToBounty
+23:02:28 [SvcCallTrace]   Call Arguments:
+23:02:28 [SvcCallTrace]       Tuple: 2 elements
+23:02:28 [SvcCallTrace]         [ 0] Integer field: 140000524       <- char to put bounty on
+23:02:28 [SvcCallTrace]         [ 1] Integer field: 5000            <- amount of bounty
+23:02:28 [SvcCallTrace]   Call Named Arguments:
+23:02:28 [SvcCallTrace]     Argument 'machoVersion':
+23:02:28 [SvcCallTrace]         Integer field: 1
+*/
+  sLog.Log( "CharMgrService::Handle_AddToBounty()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    Call_TwoIntegerArgs args;
+    if( !args.Decode( &call.tuple ) )  {
+        codelog( SERVICE__ERROR, "Unable to decode arguments for CharMgrService::Handle_AddToBounty from '%s'", call.client->GetName() );
+        return NULL;
+    }
+
+    //AddBounty(uint32 charID, uint32 ownerID, uint32 amount)
+    m_db.AddBounty(args.arg1, call.client->GetCharacterID(), args.arg2);
+
+    return new PyNone;
+}
+
 //02:17:26 L CharMgrService::Handle_GetTopBounties(): size= 0
-PyResult CharMgrService::Handle_GetTopBounties( PyCallArgs& call )
-{
-    util_Rowset rs;
-    rs.lines = new PyList;
-
-    rs.header.push_back( "characterID" );
-    rs.header.push_back( "ownerName" );
-    rs.header.push_back( "bounty" );
-    rs.header.push_back( "online" );
-
-    return rs.Encode();
+PyResult CharMgrService::Handle_GetTopBounties( PyCallArgs& call ) {
+    return(m_db.GetTopBounties());
 }
 
 PyResult CharMgrService::Handle_GetCloneTypeID( PyCallArgs& call )

@@ -52,9 +52,10 @@ MapService::MapService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(MapService, GetIncursionGlobalReport)
     PyCallable_REG_CALL(MapService, GetSystemsInIncursions)
     PyCallable_REG_CALL(MapService, GetSystemsInIncursionsGM)
-    PyCallable_REG_CALL(MapService, GetAllianceSystems)    // wrong place
     PyCallable_REG_CALL(MapService, GetVictoryPoints)
+    PyCallable_REG_CALL(MapService, GetMyExtraMapInfo)
     PyCallable_REG_CALL(MapService, GetMyExtraMapInfoAgents)  //ColorStarsByMyAgents
+    PyCallable_REG_CALL(MapService, GetAllianceJumpBridges)
 
 }
 
@@ -142,19 +143,14 @@ PyResult MapService::Handle_GetSolarSystemVisits(PyCallArgs &call)
 PyResult MapService::Handle_GetHistory(PyCallArgs &call) {
     uint32 int1 = call.tuple->GetItem(0)->AsInt()->value();
     uint32 int2 = call.tuple->GetItem(1)->AsInt()->value();
-      //sLog.Log( "MapService::Handle_GetHistory()", "size= %u, 0 = Interger (%u), 1 = Interger (%u)", call.tuple->size(), int1, int2 );
+      sLog.Log( "MapService::Handle_GetHistory()", "size= %u, type: (%u), timeframe: (%u)", call.tuple->size(), int1, int2 );
 
     return (m_db.GetDynamicData(int1, int2));
 }
 
 //02:38:07 L MapService::Handle_GetBeaconCount(): size= 0
-PyResult MapService::Handle_GetBeaconCount(PyCallArgs &call)
-{
-    /**
-    ColorStarsByCynosuralFields
-    */
-
-    return (m_db.GetDynamicData(10, 0));
+PyResult MapService::Handle_GetBeaconCount(PyCallArgs &call) {
+    return (m_db.GetDynamicData(2, 24));
 }
 
 //02:51:49 L MapService::Handle_GetStationCount(): size= 0
@@ -166,6 +162,10 @@ PyResult MapService::Handle_GetStationCount(PyCallArgs &call)
   ColorStarsByStationCount
   - not real sure how to do this one.....see MapDB.cpp
   ValueError: need more than 1 value to unpack
+        starmap.stationCountCache = sm.RemoteSvc('map').GetStationCount()
+    history = starmap.stationCountCache
+    maxCount = 0
+    for solarSystemID, amount in history:
   */
     return (m_db.GetStationCount());
 }
@@ -205,9 +205,8 @@ PyResult MapService::Handle_GetRecentSovActivity(PyCallArgs &call)
 //   DED Agent Site Report
 PyResult MapService::Handle_GetDeadspaceAgentsMap(PyCallArgs &call)
 {/*
-23:25:52 [SvcCall]   Call Arguments:
-23:25:52 [SvcCall]       Tuple: 1 elements
-23:25:52 [SvcCall]         [ 0] String: 'EN'
+        dungeons = sm.RemoteSvc('map').GetDeadspaceAgentsMap(eve.session.languageID)
+        solarSystemID, dungeonID, difficulty, dungeonName = dungeons
   sLog.Log( "MapService::Handle_GetDeadspaceAgentsMap()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
 */
@@ -222,10 +221,8 @@ PyResult MapService::Handle_GetDeadspaceAgentsMap(PyCallArgs &call)
 //22:37:54 L MapService::Handle_GetDeadspaceComplexMap(): size= 1
 PyResult MapService::Handle_GetDeadspaceComplexMap(PyCallArgs &call)
 {/*
-23:25:52 [SvcCall]   Call Arguments:
-23:25:52 [SvcCall]       Tuple: 1 elements
-23:25:52 [SvcCall]         [ 0] String: 'EN'
-
+        dungeons = sm.RemoteSvc('map').GetDeadspaceComplexMap(eve.session.languageID)
+        solarSystemID, dungeonID, difficulty, dungeonName = dungeons
   sLog.Log( "MapService::Handle_GetDeadspaceComplexMap()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
 */
@@ -244,8 +241,11 @@ PyResult MapService::Handle_GetIncursionGlobalReport(PyCallArgs &call)
     return NULL;
 }
 
-PyResult MapService::Handle_GetSystemsInIncursions(PyCallArgs &call)
-{
+PyResult MapService::Handle_GetSystemsInIncursions(PyCallArgs &call) {
+  /**  solarSystemID, sceneType
+                    sceneType = staging, vanguard
+
+  */
   sLog.Log( "MapService::Handle_GetSystemsInIncursions()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
 
@@ -253,8 +253,11 @@ PyResult MapService::Handle_GetSystemsInIncursions(PyCallArgs &call)
 }
 
 //20:38:53 L MapService::Handle_GetSystemsInIncursionsGM(): size= 0
-PyResult MapService::Handle_GetSystemsInIncursionsGM(PyCallArgs &call)
-{
+PyResult MapService::Handle_GetSystemsInIncursionsGM(PyCallArgs &call) {
+  /**  solarSystemID, sceneType
+                    sceneType = staging, vanguard, assault, headquarters
+
+  */
     call.Dump(SERVICE__CALLS);
     return NULL;
 }
@@ -270,7 +273,8 @@ PyResult MapService::Handle_GetAllianceSystems(PyCallArgs &call)
 //   factional warfare shit
 //https://wiki.eveonline.com/en/wiki/Victory_Points_and_Command_Bunker
 PyResult MapService::Handle_GetVictoryPoints(PyCallArgs &call)
-{
+{/**           factionID, viewmode, solarsystemid, threshold, current in oldhistory.iteritems():
+                 */
   sLog.Log( "MapService::Handle_GetVictoryPoints()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
 
@@ -281,26 +285,31 @@ PyResult MapService::Handle_GetVictoryPoints(PyCallArgs &call)
 PyResult MapService::Handle_GetMyExtraMapInfoAgents(PyCallArgs &call)  //ColorStarsByMyAgents
 {
      /**
-/client/script/ui/shared/maps/starmapsvc.py(2318) SetStarColorMode
-/client/script/ui/shared/maps/starmodehandler.py(896) ColorStarsByMyAgents
-     ColorStarsByMyAgents  -AttributeError: 'NoneType' object has no attribute 'Index'
-
-     --  this one will have to work in multiple steps....
-     1 - get calling char standing for each faction
-     2 - query agents from DB
-     3 - check char standing against needed standing for agent
-     4 - drop agents with standing > char standing
-     5 - list and return agents and systemID
+    standingInfo = sm.RemoteSvc('map').GetMyExtraMapInfoAgents().Index('fromID')
+              fromID, (to)factionID, (to)corporationID, (to)agentID
      */
+  sLog.Log( "MapService::Handle_GetMyExtraMapInfoAgents()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
 
-    uint8 none = 0;
+    return NULL;
+}
 
-    PyTuple* res = NULL;
-    PyTuple* tuple0 = new PyTuple( 1 );
+PyResult MapService::Handle_GetMyExtraMapInfo(PyCallArgs &call)
+{
+     /**       ColorStarsByCorpMembers
+              locationID, characterID
+     */
+  sLog.Log( "MapService::Handle_GetMyExtraMapInfo()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
 
-    tuple0->items[ 0 ] = new PyInt( none );
+    return NULL;
+}
+PyResult MapService::Handle_GetAllianceJumpBridges(PyCallArgs &call)
+{
+     /**
+                 toLocID, fromLocID  */
+  sLog.Log( "MapService::Handle_GetAllianceJumpBridges()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
 
-    res = tuple0;
-
-    return res;
+    return NULL;
 }

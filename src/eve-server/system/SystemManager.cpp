@@ -593,7 +593,8 @@ bool SystemManager::_LoadSystemDynamics() {
     for(; cur != end; cur++) {
         SystemEntity *se = DynamicEntityFactory::BuildEntity(*this, m_services.item_factory, *cur);
         if(se == NULL) {
-            codelog(SERVICE__ERROR, "Failed to create entity for item %u (type %u)", cur->itemID, cur->typeID);
+            if( cur->ownerID == 1 )     // only error if ship entity is NOT owned and in space.
+                codelog(SERVICE__ERROR, "Failed to create entity for item %u (type %u)", cur->itemID, cur->typeID);
             continue;
         }
         //TODO: use proper log type.
@@ -779,15 +780,6 @@ SystemEntity *SystemManager::get(uint32 entityID) const {
     return(res->second);
 }
 
-/* maybe this is the reason why warping sucks... */
-//in m/s
-double SystemManager::GetWarpSpeed() const {
-    //right now, warp speed is hard coded to 6 AU/s
-    _log(COMMON__WARNING, "SystemManager::GetWarpSpeed is hard coded to 6 AU right now!");
-    return(6.0f * ONE_AU_IN_METERS);
-    //  will need to get ship warp speed from db
-}
-
 void SystemManager::MakeSetState(const SystemBubble *bubble, DoDestiny_SetState &ss) const
 {
     Buffer* stateBuffer = new Buffer;
@@ -813,7 +805,7 @@ void SystemManager::MakeSetState(const SystemBubble *bubble, DoDestiny_SetState 
         {
             if( !cur->second->IsVisibleSystemWide() )
             {
-                //_log(COMMON__WARNING, "%u is not visible!", cur->first);
+                _log(COMMON__WARNING, "%u is not visible!", cur->first);
                 continue;
             }
 

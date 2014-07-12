@@ -29,7 +29,7 @@
 
 #include "PyBoundObject.h"
 #include "PyServiceCD.h"
-#include "pos/PlanetMgr.h"
+#include "planet/PlanetMgr.h"
 
 class PlanetMgrBound
 : public PyBoundObject
@@ -45,8 +45,8 @@ public:
 
         m_strBoundObjectName = "PlanetMgrBound";
 
-        PyCallable_REG_CALL(PlanetMgrBound, GetPlanetInfo)
-        PyCallable_REG_CALL(PlanetMgrBound, GetPlanetResourceInfo)
+        PyCallable_REG_CALL(PlanetMgrBound, GetPlanetInfo);
+        PyCallable_REG_CALL(PlanetMgrBound, GetPlanetResourceInfo);
     }
     virtual ~PlanetMgrBound() { delete m_dispatch; }
     virtual void Release() {
@@ -69,8 +69,8 @@ PlanetMgrService::PlanetMgrService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(PlanetMgrService, GetPlanetsForChar)
-    PyCallable_REG_CALL(PlanetMgrService, GetMyLaunchesDetails)
+    PyCallable_REG_CALL(PlanetMgrService, GetPlanetsForChar);
+    PyCallable_REG_CALL(PlanetMgrService, GetMyLaunchesDetails);
 }
 
 PlanetMgrService::~PlanetMgrService() {

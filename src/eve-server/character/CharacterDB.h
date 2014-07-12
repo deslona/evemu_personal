@@ -182,6 +182,10 @@ public:
 
     void addOwnerCache(uint32, std::string, uint32);
 
+    PyRep* GetBounty(uint32, uint32);
+    PyRep* GetTopBounties();
+    void AddBounty(uint32, uint32, uint32);
+
 private:
     /**
      * djb2 algorithm taken from http://www.cse.yorku.ca/~oz/hash.html slightly modified

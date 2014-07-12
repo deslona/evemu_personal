@@ -162,7 +162,7 @@ bool CharacterDB::ValidateCharName(const char *name)
 }
 
 PyRep *CharacterDB::GetCharSelectInfo(uint32 characterID) {
-  /**  this shows char on select screen....make call to "SkillQueueEndTime" from here for 'current' data, if applicable...  -allan 31Mar14*/
+  /**  this shows char on select screen....added "SkillQueueEndTime" from here for 'current' data, if applicable...  -allan 31Mar14*/
     DBQueryResult res;
 
     uint32 worldSpaceID = 0;
@@ -239,6 +239,10 @@ PyRep *CharacterDB::GetCharSelectInfo(uint32 characterID) {
 }
 
 PyObject *CharacterDB::GetCharPublicInfo(uint32 characterID) {
+    if(characterID < 140000000) {
+        sLog.Error("CharacterDB::GetCharPublicInfo()", "Character %u is NPC.", characterID);
+        return NULL;
+    }
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
@@ -469,8 +473,7 @@ bool CharacterDB::GetCharHomeStation(uint32 characterID, uint32 &stationID) {
 	}
 
 	DBResultRow row;
-    res.GetRow(row);
-    stationID = row.GetUInt(0);
+    if(res.GetRow(row)) stationID = row.GetUInt(0);
 	return true;
 }
 
@@ -1237,10 +1240,7 @@ bool CharacterDB::isOffline(uint32 characterID) {
     sDatabase.RunQuery(res, "SELECT Online FROM character_ WHERE characterID = %u", characterID );
 
     DBResultRow row;
-    if(res.GetRow(row))
-      return false;
-    else
-      return true;
+    if(res.GetRow(row)) return false; else return true;
 }
 
 void CharacterDB::addOwnerCache(uint32 ownerID, std::string ownerName, uint32 typeID) {
@@ -1249,4 +1249,24 @@ void CharacterDB::addOwnerCache(uint32 ownerID, std::string ownerName, uint32 ty
                        "INSERT INTO cacheOwners(ownerID, ownerName, typeID)"
                        " VALUES (%u, %s, %u)",
                        ownerID, ownerName.c_str(), typeID);
+}
+
+PyRep* CharacterDB::GetBounty(uint32 charID, uint32 ownerID) {
+    DBQueryResult res;
+    sDatabase.RunQuery(res, "SELECT characterID, ownerID, bounty FROM bounties");
+    return(DBResultToRowset(res));
+}
+
+PyRep* CharacterDB::GetTopBounties() {
+    DBQueryResult res;
+    sDatabase.RunQuery(res, "SELECT characterID, ownerID, bounty FROM bounties ORDER BY bounty DESC LIMIT 10");
+    return(DBResultToRowset(res));
+}
+
+void CharacterDB::AddBounty(uint32 charID, uint32 ownerID, uint32 amount) {
+    DBerror err;
+    sDatabase.RunQuery(err,
+        "INSERT INTO bounties(characterID, ownerID, bounty, timePlaced)"
+        " VALUES (%u, %u, %u, %" PRIu64 ")",
+        charID, ownerID, amount, Win32TimeNow() );
 }

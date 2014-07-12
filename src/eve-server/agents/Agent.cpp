@@ -25,8 +25,8 @@
 
 #include "eve-server.h"
 
-#include "missions/Agent.h"
-#include "MissionDB.h"
+#include "agents/Agent.h"
+#include "agents/AgentDB.h"
 
 Agent::Agent(uint32 id)
 : m_agentID(id), m_locationID(0)
@@ -42,7 +42,7 @@ Agent::~Agent() {
     }
 }
 
-bool Agent::Load(MissionDB *from) {
+bool Agent::Load(AgentDB *from) {
     return from->LoadAgentLocation(m_agentID, m_locationID, m_locationType, m_solarSystemID);
     //return true;
 }

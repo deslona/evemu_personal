@@ -987,33 +987,33 @@ void ModuleEffects::_populate(uint32 typeID)
 						break;
 				}
 
-				if( isDefault > 0 )
-					m_defaultEffect = mEffectPtr;
+				// Just in case our 'mEffectPtr' gets deleted above for certain cases, let's not proceed further lest we crash!
+                if( mEffectPtr != NULL ) {
+                    if( isDefault > 0 ) m_defaultEffect = mEffectPtr;
 
-				// This switch is assuming that all entries in 'dgmEffectsInfo' for this effectID are applied during the same module state,
-				// which should really be the case anyway, for every effectID, so we just check the list of attributes
-				// that are modified by this effect for which module state during which the effect is active:
-				switch( mEffectPtr->GetModuleStateWhenEffectApplied() )
-				{
-					case EFFECT_ONLINE:
-						m_OnlineEffects.insert(std::pair<uint32, MEffect *>(effectID,mEffectPtr));
-						break;
-					case EFFECT_ACTIVE:
-						m_ActiveEffects.insert(std::pair<uint32, MEffect *>(effectID,mEffectPtr));
-						break;
-					case EFFECT_OVERLOAD:
-						m_OverloadEffects.insert(std::pair<uint32, MEffect *>(effectID,mEffectPtr));
-						break;
-					default:
-						sLog.Error("ModuleEffects::_populate()", "Illegal value '%u' obtained from the 'effectAppliedInState' field of the 'dgmEffectsInfo' table", mEffectPtr->GetModuleStateWhenEffectApplied());
-						break;
-				}
-			}
+                    // This switch is assuming that all entries in 'dgmEffectsInfo' for this effectID are applied during the same module state,
+                    // which should really be the case anyway, for every effectID, so we just check the list of attributes
+                    // that are modified by this effect for which module state during which the effect is active:
+                    switch( mEffectPtr->GetModuleStateWhenEffectApplied() ) {
+                        case EFFECT_ONLINE:
+                            m_OnlineEffects.insert(std::pair<uint32, MEffect *>(effectID,mEffectPtr));
+                            break;
+                        case EFFECT_ACTIVE:
+                            m_ActiveEffects.insert(std::pair<uint32, MEffect *>(effectID,mEffectPtr));\
+                            break;
+                        case EFFECT_OVERLOAD:
+                            m_OverloadEffects.insert(std::pair<uint32, MEffect *>(effectID,mEffectPtr));
+                            break;
+                        default:
+                            sLog.Error("ModuleEffects::_populate()", "Illegal value '%u' obtained from the 'effectAppliedInState' field of the 'dgmEffectsInfo' table", mEffectPtr->GetModuleStateWhenEffectApplied());\
+                            break;
+                    }
+			    }
+            }
         }
     }
 
     //cleanup
     delete res;
-	delete &effectsList;
     res = NULL;
 }

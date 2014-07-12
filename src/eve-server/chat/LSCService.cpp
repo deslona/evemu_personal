@@ -117,6 +117,7 @@ LSCChannel *LSCService::CreateChannel(uint32 channelID) {
     else if ((channelID >= 1000000) && (channelID < 2000000)) { type = LSCChannel::corp; name = "System Channels\\Corp"; motd = m_db.GetCorporationName(channelID); }
     // player-created corporations
     else if ((channelID >= 2000000) && (channelID < 3000000)) { type = LSCChannel::corp; name = "System Channels\\Corp"; motd = m_db.GetCorporationName(channelID); }
+    //else if (channelID > 140000000) return NULL;
     // Only the Help\Rookie and Help\Help channels have channelIDs < 1000000:
     else { type = LSCChannel::normal; m_db.GetChannelInfo(channelID, name, motd); }
 

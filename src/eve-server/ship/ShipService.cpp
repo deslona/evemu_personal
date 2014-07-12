@@ -60,6 +60,7 @@ public:
         PyCallable_REG_CALL(ShipBound, LeaveShip)
         PyCallable_REG_CALL(ShipBound, ActivateShip)
         PyCallable_REG_CALL(ShipBound, GetShipConfiguration)
+        PyCallable_REG_CALL(ShipBound, SelfDestruct)
     }
 
     virtual ~ShipBound() {delete m_dispatch;}
@@ -79,6 +80,7 @@ public:
     PyCallable_DECL_CALL(LeaveShip)
     PyCallable_DECL_CALL(ActivateShip)
     PyCallable_DECL_CALL(GetShipConfiguration)
+    PyCallable_DECL_CALL(SelfDestruct)
 
 protected:
     ShipDB& m_db;
@@ -236,7 +238,7 @@ PyResult ShipBound::Handle_Board(PyCallArgs &call) {
                 oldShipRef->Delete();
             }
 
-            // Update bubble manager for this client's character's ship:
+            // Update bubble manager for this client character's ship:
             //call.client->MoveToLocation( call.client->GetLocationID(), GPoint(0.0,0.0,0.0) );
             call.client->GetShip()->Move( call.client->GetLocationID(), (EVEItemFlags)flagHangar, true );
             ////call.client->services().item_factory.GetShip( call.client->GetShipID() )->Relocate( GPoint(0.0,0.0,0.0) );
@@ -253,6 +255,8 @@ PyResult ShipBound::Handle_Board(PyCallArgs &call) {
 }
 
 PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
+    call.Dump(DESTINY__DEBUG);
+	call.client->SendNotifyMsg("Undock not fully implemented! - Work In Progress");
     Call_IntBoolArg args;
     if(!args.Decode(&call.tuple)) {
         codelog(SERVICE__ERROR, "Failed to decode arguments");
@@ -270,7 +274,8 @@ PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
         return NULL;
     }
 
-    sLog.Warning( "ShipBound::Handle_Undock()", "!!! Undock not fully implemented!");
+    //sLog.Warning( "ShipBound::Handle_Undock()", "Undock not fully implemented! - Work In Progress");
+    sLog.Warning( "ShipBound::Handle_Undock()", "dock position: %f,%f,%f - orientation: %f,%f,%f", dockPosition.x, dockPosition.y, dockPosition.z, dockOrientation.x, dockOrientation.y, dockOrientation.z);
 
     //send an OnItemChange notification
     // tuple:
@@ -303,17 +308,21 @@ PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
             dockOrientation.z// * (-1.0)      // This sign reversal is needed to correct staStationTypes z coordinate on dockOrientation due to CCP unification of coordinate systems
         );
 
+	// add ship to existing station bubble		-allan  11July14
+	//call.client->System()->bubbles.UpdateBubble( call.client, true );
+    //SystemManager *sm = call.client->System();
+    //SystemEntity *se = sm->get( call.client->GetCharacterID() );
+	//BubbleManager bm;
+	//bm.Add(se, true, false);
+
     //move away from dock
     //call.client->Destiny()->AlignTo( dest, true );
     //call.client->Destiny()->SetSpeedFraction( 1.0, true );
 
-    //prevent client from stopping ship automatically stopping - this is sloppy
-
     //revert custom info, for testing.
-    //call.client->GetShip()->SetCustomInfo(NULL);
+    call.client->GetShip()->SetCustomInfo(NULL);
 
     call.client->OnCharNoLongerInStation();
-    //should get a stationSvc.GetSolarSystem(solarsystemID)
 
     // THIS IS A HACK AS WE DONT KNOW WHY THE CLIENT CALLS STOP AT UNDOCK
     // SO SAVE THE UNDOCK ALIGN-TO POINT AND TELL CLIENT WE JUST UNDOCKED
@@ -417,7 +426,7 @@ PyResult ShipBound::Handle_AssembleShip(PyCallArgs &call) {
         for(uint32 index=0; index<subSystemList.size(); index++)
         {
             subSystemItem = m_manager->item_factory.GetItem( subSystemList.at( index ) );
-            subSystemItem->MoveInto( *ship, (EVEItemFlags)(subSystemItem->GetAttribute(AttrSubSystemSlot).get_int()), true );
+            subSystemItem->MoveInto( *ship, (EVEItemFlags)(subSystemItem->GetAttribute(AttrSubSystemSlot, 0).get_int()), true );
         }
     }
 
@@ -1003,10 +1012,12 @@ PyResult ShipBound::Handle_Eject(PyCallArgs &call) {
     uint32 oldShipItemID = call.client->GetShipID();
     GPoint capsulePosition = call.client->GetPosition();
 
+    // get radius once for efficiency.
+    double attrRadius = call.client->GetShip()->GetAttribute(AttrRadius).get_float();
     //set capsule position 500m off from old ship:
-    capsulePosition.x += call.client->GetShip()->GetAttribute(AttrRadius).get_float() + 100.0;
-    capsulePosition.y += call.client->GetShip()->GetAttribute(AttrRadius).get_float() + 100.0;
-    capsulePosition.z += call.client->GetShip()->GetAttribute(AttrRadius).get_float() - 100.0;
+    capsulePosition.x += attrRadius + 100.0;
+    capsulePosition.y += attrRadius + 100.0;
+    capsulePosition.z += attrRadius - 100.0;
 
     //spawn capsule (inside ship, flagCapsule, singleton)
     ItemData idata(
@@ -1166,6 +1177,16 @@ PyResult ShipBound::Handle_GetShipConfiguration(PyCallArgs &call) {
   sLog.Log( "ShipBound::Handle_GetShipConfiguration()", "size=%u", call.tuple->size());
     call.Dump(SERVICE__CALLS);
 */
+    PyRep *result = NULL;
+    return result;
+}
+PyResult ShipBound::Handle_SelfDestruct(PyCallArgs &call) {
+  /*
+*/
+
+  sLog.Log( "ShipBound::Handle_SelfDestruct()", "size=%u", call.tuple->size());
+    call.Dump(SERVICE__CALLS);
+
     PyRep *result = NULL;
     return result;
 }

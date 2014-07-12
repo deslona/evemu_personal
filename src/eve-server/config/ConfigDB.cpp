@@ -428,41 +428,37 @@ PyRep *ConfigDB::GetCelestialStatistic(uint32 celestialID) {
 }
 
 PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID) {
-  // updated to show only dynamic celestial items.  -allan 30June
-  //  need to remove all items except stations, or figure out how to give client items in space
+  /**  this return broke the rclick in space menu.  disable for now  9July14*/
+  // updated to show only POS.  -allan 9Jul14
+  //  need to remove all items except stations
 
     DBQueryResult result;
 /**
   /*<DBRow object [7, 2016, 40176433, u'Halaima II', 30002781, 40176430, False, 68268179028.0, 8474470920.0, 20992190960.0]>,
         "SELECT "
         "   groupID, typeID, itemID, itemName, solarSystemID AS locationID, IFNULL(orbitID, 0) AS orbitID,"
+        **THEN SOMETHING ELSE (BOOLEAN)**
         "   x, y, z"
-        " FROM mapDenormalize"
+        " FROM entity"  // this is to push ONLY player owned stations (from what i can tell in client code)
         */
     if (!sDatabase.RunQuery(result,
         "SELECT"
-        "   t.groupID,"
-        "   e.typeID,"
+        "   g.groupID,"
+        "   t.typeID,"
         "   e.itemID,"
         "   e.itemName,"
         "   e.locationID,"
-        //"   IFNULL(orbitID, 0) AS orbitID,"
-        //"   IFNULL(c.corporationID, e.ownerID) AS ownerID,"
-        "   CAST(e.x AS UNSIGNED INTEGER) AS x,"
-        "   CAST(e.y AS UNSIGNED INTEGER) AS y,"
-        "   CAST(e.z AS UNSIGNED INTEGER) AS z"
+        "   0 AS orbitID,"   // field doesnt exist on those tables....not sure if this is needed or not.  hack for now.
+        "   False,"     //i still dont know what this is.....
+        "   e.x, e.y, e.z"
+        //"   CAST(e.z AS UNSIGNED INTEGER) AS z"
         " FROM entity AS e"
         "  LEFT JOIN invTypes AS t ON t.typeID = e.typeID"
         "  LEFT JOIN invGroups AS g ON g.groupID = t.groupID"
-        "  LEFT JOIN character_ AS c ON c.characterID = e.ownerID"
-        //"  LEFT JOIN corporation AS co ON co.corporationID = c.corporationID"
         " WHERE e.locationID = %u"
-        " AND g.categoryID NOT IN (%d, %d)",
-        solarSystemID,
-        //excluded categories:
-        //celestials: 0 3
-        EVEDB::invCategories::_System , EVEDB::invCategories::Station
-        )) {
+        " AND g.categoryID = %d"
+        " AND e.itemID > 140000000",
+        solarSystemID, EVEDB::invCategories::Station )) {
             codelog(DATABASE__ERROR, "GetDynamicCelestials Error in query: %s", result.error.c_str());
             return new PyInt(0);
     }
@@ -500,12 +496,6 @@ PyObject *ConfigDB::GetMapOffices(uint32 solarSystemID) {
     return DBResultToRowset(res);
 }
 
-//                                      system            1           0           0           0?              1?
-//                                      region            0           1           0           0?              0?
-//                                      constellation     0           0           1           0?              0?
-//00:47:18 W ConfigDB::GetMapConnections: DB query:9,        B1:1, B2:0, B3:0, I2:0, I3:1
-//02:10:35 W ConfigDB::GetMapConnections: DB query:10000065, B1:0, B2:1, B3:0, I2:0, I3:1
-//23:54:52 W ConfigDB::GetMapConnections: DB query:20000367, B1:0, B2:0, B3:1, I2:0, I3:0
 PyObject *ConfigDB::GetMapConnections(uint32 id, bool sol, bool reg, bool con, uint16 cel, uint16 _c) {
   sLog.Warning ("ConfigDB::GetMapConnections", "DB query:%u, B1:%u, B2:%u, B3:%u, I2:%u, I3:%u", id, sol, reg, con, cel, _c);
 
@@ -537,7 +527,6 @@ PyObject *ConfigDB::GetMapLandmarks() {    // working 29June14
           "   0 AS landmarkNameID,"
           "   x, y, z,"
           "   radius,"
-          "   importance"
           " FROM mapLandmarks" ))
       {
           codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());

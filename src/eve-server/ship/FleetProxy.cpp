@@ -39,6 +39,11 @@ FleetProxyService::FleetProxyService(PyServiceMgr *mgr)
     _SetCallDispatcher(m_dispatch);
 
     PyCallable_REG_CALL(FleetProxyService, GetAvailableFleets);
+    PyCallable_REG_CALL(FleetProxyService, ApplyToJoinFleet);
+    PyCallable_REG_CALL(FleetProxyService, AddFleetFinderAdvert);
+    PyCallable_REG_CALL(FleetProxyService, RemoveFleetFinderAdvert);
+    PyCallable_REG_CALL(FleetProxyService, GetMyFleetFinderAdvert);
+    PyCallable_REG_CALL(FleetProxyService, UpdateAdvertInfo);
 }
 
 FleetProxyService::~FleetProxyService()
@@ -48,7 +53,52 @@ FleetProxyService::~FleetProxyService()
 
 PyResult FleetProxyService::Handle_GetAvailableFleets(PyCallArgs &call) {
 
-    sLog.Debug("Server", "Called GetAvailableFleets Stub.");
+    sLog.Log("FleetProxyService", "Handle_GetAvailableFleets() size=%u", call.tuple->size() );
+
+    return NULL;
+}
+
+PyResult FleetProxyService::Handle_ApplyToJoinFleet(PyCallArgs &call) {
+  /**
+        ret = sm.ProxySvc('fleetProxy').ApplyToJoinFleet(fleetID)
+        */
+
+    sLog.Log("FleetProxyService", "Handle_ApplyToJoinFleet() size=%u", call.tuple->size() );
+
+    return NULL;
+}
+
+PyResult FleetProxyService::Handle_AddFleetFinderAdvert(PyCallArgs &call) {
+ /**
+        sm.ProxySvc('fleetProxy').AddFleetFinderAdvert(info)
+        */
+
+    sLog.Log("FleetProxyService", "Handle_AddFleetFinderAdvert() size=%u", call.tuple->size() );
+
+    return NULL;
+}
+
+PyResult FleetProxyService::Handle_RemoveFleetFinderAdvert(PyCallArgs &call) {
+
+    sLog.Log("FleetProxyService", "Handle_RemoveFleetFinderAdvert() size=%u", call.tuple->size() );
+
+    return NULL;
+}
+
+PyResult FleetProxyService::Handle_GetMyFleetFinderAdvert(PyCallArgs &call) {
+
+    sLog.Log("FleetProxyService", "Handle_GetMyFleetFinderAdvert() size=%u", call.tuple->size() );
+
+    return NULL;
+}
+
+
+PyResult FleetProxyService::Handle_UpdateAdvertInfo(PyCallArgs &call) {
+  /**
+                sm.ProxySvc('fleetProxy').UpdateAdvertInfo(numMembers)
+                */
+
+    sLog.Log("FleetProxyService", "Handle_UpdateAdvertInfo() size=%u", call.tuple->size() );
 
     return NULL;
 }

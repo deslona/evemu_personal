@@ -771,7 +771,7 @@ ModuleManager::ModuleManager(Ship *const ship)
                                     (uint32)ship->GetAttribute(AttrMedSlots).get_int(),
                                     (uint32)ship->GetAttribute(AttrHiSlots).get_int(),
                                     (uint32)ship->GetAttribute(AttrRigSlots).get_int(),
-                                    (uint32)ship->GetAttribute(AttrSubSystemSlot).get_int(),
+                                    (uint32)ship->GetAttribute(AttrSubSystemSlot, 0).get_int(),
                                     (uint32)ship->GetAttribute(AttrTurretSlotsLeft).get_int(),
                                     (uint32)ship->GetAttribute(AttrLauncherSlotsLeft).get_int(),
                                     this);
@@ -787,10 +787,10 @@ ModuleManager::ModuleManager(Ship *const ship)
 
 	m_pLog = new Basic_Log( sConfig.files.logDir, logsubdirectory, logfilename );
 
-	m_pLog->InitializeLogging( sConfig.files.logDir, logsubdirectory, logfilename );
+	//m_pLog->InitializeLogging( sConfig.files.logDir, logsubdirectory, logfilename );
 
     // Load modules, rigs and subsystems from Ship's inventory into ModuleContainer:
-	m_pLog->Log("ModuleManager", "Loading modules...");
+	//m_pLog->Log("ModuleManager", "Loading modules...");
     uint32 flagIndex;
     for(flagIndex=flagLowSlot0; flagIndex<=flagLowSlot7; flagIndex++)
     {
@@ -962,7 +962,7 @@ ModuleManager::ModuleManager(Ship *const ship)
 		}
     }
 
-	m_pLog->Log("ModuleManager", "Module loading complete!");
+	//m_pLog->Log("ModuleManager", "Module loading complete!");
 
     //modifier maps, we own these
     m_LocalSubsystemModifierMaps = new ModifierMaps;

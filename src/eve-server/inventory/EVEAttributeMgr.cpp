@@ -66,16 +66,9 @@ void EVEAttributeMgr::EncodeAttributes(std::map<int32, PyRep *> &into) const {
     }
 }
 
-PyRep *EVEAttributeMgr::_PyGet(const real_t &v)
-{
-    if(_IsInt(v) == true)
-    {
-        return new PyInt(static_cast<int32>(v));
-    }
-    else
-    {
-        return new PyFloat(v);
-    }
+PyRep *EVEAttributeMgr::_PyGet(const real_t &v) {
+    if(_IsInt(v) == true) return new PyInt(static_cast<int32>(v));
+    else return new PyFloat(v);
 }
 
 void EVEAttributeMgr::_LoadPersistent() {
@@ -392,103 +385,6 @@ bool AttributeMap::SetAttribute( uint32 attributeId, EvilNumber &num, bool nofit
     return true;
 }
 
-EvilNumber AttributeMap::GetAttribute( const uint32 attributeId ) const
-{
-    AttrMapConstItr itr = mAttributes.find(attributeId);
-    if (itr != mAttributes.end()) {
-        return itr->second;
-    }
-    else
-    {
-        switch( attributeId )
-        {
-            case AttrRequiredSkill2:
-            case AttrRequiredSkill3:
-            case AttrRequiredSkill4:
-            case AttrRequiredSkill5:
-            case AttrRequiredSkill6:
-            case AttrCanFitShipGroup1:
-            case AttrCanFitShipGroup2:
-            case AttrCanFitShipGroup3:
-            case AttrCanFitShipGroup4:
-            case AttrCanFitShipType1:
-            case AttrCanFitShipType2:
-            case AttrCanFitShipType3:
-            case AttrCanFitShipType4:
-            case AttrSubSystemSlot:
-            case AttrReprocessingSkillType:
-                // DO NOT OUTPUT AN ERROR ON THESE MISSING ATTRIBUTES SINCE THEY ARE COMMONLY "MISSING" FROM MANY ITEMS
-                break;
-
-            default:
-                sLog.Error("AttributeMap::GetAttribute()", "unable to find attribute: %u for item %u, '%s' of type %u", attributeId, mItem.itemID(), mItem.itemName().c_str(), mItem.typeID());
-                break;
-        }
-
-        return EvilNumber(0);
-    }
-}
-
-EvilNumber AttributeMap::GetAttribute( const uint32 attributeId, const EvilNumber &defaultValue ) const
-{
-	// IDENTICAL CODE to AttributeMap::GetAttribute( const uint32 attributeId ) const defined directly above
-    AttrMapConstItr itr = mAttributes.find(attributeId);
-    if (itr != mAttributes.end()) {
-        return itr->second;
-    }
-    else
-    {
-        // ONLY output ERROR message for a "missing" attributeID if it is not in the list of commonly "not found" attributes:
-        switch( attributeId )
-        {
-            case AttrRequiredSkill2:
-            case AttrRequiredSkill3:
-            case AttrRequiredSkill4:
-            case AttrRequiredSkill5:
-            case AttrRequiredSkill6:
-            case AttrCanFitShipGroup1:
-            case AttrCanFitShipGroup2:
-            case AttrCanFitShipGroup3:
-            case AttrCanFitShipGroup4:
-            case AttrCanFitShipType1:
-            case AttrCanFitShipType2:
-            case AttrCanFitShipType3:
-            case AttrCanFitShipType4:
-            case AttrSubSystemSlot:
-            case AttrReprocessingSkillType:
-                // DO NOT OUTPUT AN ERROR ON THESE MISSING ATTRIBUTES SINCE THEY ARE COMMONLY "MISSING" FROM MANY ITEMS
-                break;
-
-            default:
-                sLog.Error("AttributeMap::GetAttribute()", "unable to find attribute: %u for item %u, '%s' of type %u", attributeId, mItem.itemID(), mItem.itemName().c_str(), mItem.typeID());
-                break;
-        }
-
-        return EvilNumber(0);
-    }
-}
-
-bool AttributeMap::HasAttribute(const uint32 attributeID) const
-{
-    AttrMapConstItr itr = mAttributes.find(attributeID);
-    if (itr != mAttributes.end())
-        return true;
-    else
-        return false;
-}
-
-bool AttributeMap::HasAttribute(const uint32 attributeID, EvilNumber &value) const
-{
-    AttrMapConstItr itr = mAttributes.find(attributeID);
-    if (itr != mAttributes.end())
-    {
-        value = itr->second;
-        return true;
-    }
-    else
-        return false;
-}
-
 bool AttributeMap::Change( uint32 attributeID, EvilNumber& old_val, EvilNumber& new_val )
 {
    Notify_OnModuleAttributeChange modChange;
@@ -615,66 +511,6 @@ bool AttributeMap::Load()
     }
 
     return true;
-
-/*
-    /// EXISTING AttributeMap::Load() function
-    DBQueryResult res;
-
-    if(!sDatabase.RunQuery(res,"SELECT * FROM entity_attributes WHERE itemID='%u'", mItem.itemID())) {
-        sLog.Error("AttributeMap", "Error in db load query: %s", res.error.c_str());
-        return false;
-    }
-
-    DBResultRow row;
-
-    int amount = res.GetRowCount();
-
-    // Right now, assume that we need to load all attributes with default values from dgmTypeAttributes table
-    // IF AND ONLY IF the number of attributes pulled from the entity_attributes table for this item is ZERO:
-    if( amount > 0 )
-    {
-        // This item was found in the 'entity_attributes' table, so load all attributes found there
-        // into the Attribute Map for this item:
-        for (int i = 0; i < amount; i++)
-        {
-            res.GetRow(row);
-            EvilNumber attr_value;
-            uint32 attributeID = row.GetUInt(1);
-            if ( !row.IsNull(2) )
-                attr_value = row.GetInt64(2);
-            else if( !row.IsNull(3) )
-                attr_value = row.GetDouble(3);
-            else
-                sLog.Error( "AttributeMap::Load()", "Both valueInt and valueFloat fields of this (itemID,attributeID) = (%u,%u) are NULL.", row.GetInt(0), attributeID );
-
-            SetAttribute(attributeID, attr_value, false);
-            //Add(attributeID, attr_value);
-        }
-    }
-    else
-    {
-        // This item was NOT found in the 'entity_attributes' table, so let's assume that
-        // this item was just created.
-        // 1) Get complete list of attributes with default values from dgmTypeAttributes table using the item's typeID:
-        DgmTypeAttributeSet *attr_set = sDgmTypeAttrMgr.GetDmgTypeAttributeSet( mItem.typeID() );
-        if (attr_set == NULL)
-            return false;
-
-        DgmTypeAttributeSet::AttrSetItr itr = attr_set->attributeset.begin();
-
-        // Store all these attributes to the item's AttributeMap
-        for (; itr != attr_set->attributeset.end(); itr++)
-        {
-            SetAttribute((*itr)->attributeID, (*itr)->number, false);
-            //Add((*itr)->attributeID, (*itr)->number);
-        }
-
-        // 2) Save these newly created and loaded attributes to the 'entity_attributes' table
-        SaveAttributes();
-    }
-
-    return true;
-*/
 }
 
 bool AttributeMap::SaveIntAttribute(uint32 attributeID, int64 value)
@@ -809,8 +645,7 @@ bool AttributeMap::Save()
 }
 
 
-bool AttributeMap::SaveAttributes()
-{
+bool AttributeMap::SaveAttributes() {
     return Save();
 }
 
@@ -852,15 +687,37 @@ bool AttributeMap::Delete()
     return true;
 }
 
-AttributeMap::AttrMapItr AttributeMap::begin()
-{
+AttributeMap::AttrMapItr AttributeMap::begin() {
     return mAttributes.begin();
 }
 
-AttributeMap::AttrMapItr AttributeMap::end()
-{
+AttributeMap::AttrMapItr AttributeMap::end() {
     return mAttributes.end();
 }
+
+EvilNumber AttributeMap::GetAttribute( const uint32 attributeId ) const {
+    AttrMapConstItr itr = mAttributes.find(attributeId);
+    if (itr != mAttributes.end()) return itr->second; else return 0;
+}
+
+EvilNumber AttributeMap::GetAttribute( const uint32 attributeId, const uint32 defaultValue ) const {
+    AttrMapConstItr itr = mAttributes.find(attributeId);
+    if (itr != mAttributes.end()) return itr->second; else return defaultValue;
+}
+
+bool AttributeMap::HasAttribute(const uint32 attributeID) const {
+    AttrMapConstItr itr = mAttributes.find(attributeID);
+    if (itr != mAttributes.end()) return true; else return false;
+}
+
+bool AttributeMap::HasAttribute(const uint32 attributeID, EvilNumber &value) const {
+    AttrMapConstItr itr = mAttributes.find(attributeID);
+    if (itr != mAttributes.end()) {
+        value = itr->second;
+        return true;
+    } else return false;
+}
+
 /************************************************************************/
 /* End of new attribute system                                          */
 /************************************************************************/

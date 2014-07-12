@@ -360,7 +360,7 @@ public:
      * @param[in] skillTypeID ID of skill type to be checked.
      * @return True if character has the skill, false if doesn't.
      */
-    bool HasSkill(uint32 skillTypeID) const;
+    bool HasSkill(uint32) const;
     /**
      * Checks whether the character has the skill, and if so, if it has been trained to the level specified.
      *
@@ -368,15 +368,14 @@ public:
      * @param[in] skillLevel Level of the skill to be checked to see if it is trained already to at least this level
      * @return True if character has the skill AND that skill has been trained to at least the level specified, False otherwise
      */
-    bool HasSkillTrainedToLevel(uint32 skillTypeID, uint32 skillLevel) const;
+    bool HasSkillTrainedToLevel(EvilNumber skillTypeID, uint32 skillLevel) const;
     /**
      * Returns skill.
      *
      * @param[in] skillTypeID ID of skill type to be returned.
-     * @param[in] newref Whether new reference should be returned.
      * @return Pointer to Skill object; NULL if skill was not found.
      */
-    SkillRef GetSkill(uint32 skillTypeID) const;
+    SkillRef GetSkill(EvilNumber) const;
     /**
      * Gets level of skill that is trained.
      *
@@ -386,7 +385,7 @@ public:
      * @return value 0..5 - the level of skill trained, or, if it was not injected,
      *  0 if zeroForNotInjected.is true, -1 otherwise
      */
-     int GetSkillLevel(uint32 skillTypeID, bool zeroForNotInjected=true) const;
+     int GetSkillLevel(uint32, bool zeroForNotInjected=true) const;
     /**
      * Returns skill currently in training.
      *
@@ -544,6 +543,10 @@ public:
     void                    AddFactionKillToDynamicData(uint32 solarSystemID);
 
     bool                    isOffline(uint32);
+
+void PopulateConnections();
+void Populate2(uint16 count, uint32 fromreg, uint32 fromcon, uint32 fromsol);
+void Populate3(uint32 fromreg, uint32 fromcon, uint32 fromsol, uint32 tosol, uint32 tocon, uint32 toreg, uint16 count);
 
 protected:
     Character(

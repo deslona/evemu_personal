@@ -61,7 +61,6 @@ public:
 
     uint32 GetID() const { return(m_systemID); }
     const std::string &GetName() const { return(m_systemName); }
-    double GetWarpSpeed() const;
 
     bool BootSystem();
 
@@ -120,10 +119,4 @@ protected:
     std::map<uint32, SystemEntity *> m_entities;    //we own these, but they are also referenced in m_bubbles
 };
 
-
-
-
-
 #endif
-
-

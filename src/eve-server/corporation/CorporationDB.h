@@ -53,6 +53,7 @@ public:
     PyObject *ListStationCorps(uint32 station_id);
     PyObject *ListStationOwners(uint32 station_id);
 
+    PyRep *GetCorpInfo(uint32);
     PyDict *ListAllCorpInfo();
     PyObject *ListNPCDivisions();
     bool ListAllCorpFactions(std::map<uint32, uint32> &into);
@@ -96,10 +97,4 @@ public:
 protected:
 };
 
-
-
-
-
 #endif
-
-

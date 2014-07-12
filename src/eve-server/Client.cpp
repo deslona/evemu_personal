@@ -411,8 +411,8 @@ bool Client::UpdateLocation() {
 
             // This is NOT a login, so we always enter a system stopped.
             m_destiny->Halt(false);
-            //set position.
-            m_destiny->SetPosition(GetShip()->position(), false);
+            //set position.    -this *may* set coords to 0
+            //m_destiny->SetPosition(GetShip()->position(), false);
         }
     }
 
@@ -421,10 +421,12 @@ bool Client::UpdateLocation() {
 
 void Client::MoveToLocation( uint32 location, const GPoint& pt )
 {
-    if( GetLocationID() == location )
+    if( GetLocationID() == location )		// still in current system....This is a warp or simple movement
     {
-        // This is a warp or simple movement
         MoveToPosition( pt );
+		//_UpdateSession( GetChar() );
+		//UpdateLocation();
+		//_SendSessionChange();
         return;
     }
 

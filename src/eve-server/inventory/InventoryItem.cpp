@@ -210,9 +210,9 @@ RefPtr<_Ty> InventoryItem::_LoadItem(ItemFactory &factory, uint32 itemID,
                 return CargoContainerRef( new CargoContainer( factory, itemID, type, data ) );
             else
 				if( (type.groupID() >= EVEDB::invGroups::Asteroid_Angel_Cartel_Frigate
-							&& type.groupID() <= EVEDB::invGroups::Deadspace_Serpentis_Frigate) 
+							&& type.groupID() <= EVEDB::invGroups::Deadspace_Serpentis_Frigate)
 							|| (type.groupID() >= 755 /* Asteroid Rogue Drone BattleCruiser */
-							&& type.groupID() <= 761 /* Asteroid Rogue Drone Swarm */) 
+							&& type.groupID() <= 761 /* Asteroid Rogue Drone Swarm */)
 							|| (type.groupID() >= 789 /* Asteroid Angel Cartel Commander Frigate */
 							&& type.groupID() <= 814 /* Asteroid Serpentis Commander Frigate */)
 							|| (type.groupID() >= 843 /* Asteroid Rogue Drone Commander BattleCruiser */
@@ -699,17 +699,19 @@ PyPackedRow* InventoryItem::GetItemStatusRow() const
     return row;
 }
 
-void InventoryItem::GetItemStatusRow( PyPackedRow* into ) const
-{
+
+void InventoryItem::GetItemStatusRow( PyPackedRow* into ) const {
+    EvilNumber attrib;
     into->SetField( "instanceID",    new PyLong( itemID() ) );
-	into->SetField( "online",        new PyBool( (mAttributeMap.HasAttribute(AttrIsOnline) ? GetAttribute(AttrIsOnline).get_int() : 0) ) );
-    into->SetField( "damage",        new PyFloat( (mAttributeMap.HasAttribute(AttrDamage) ? GetAttribute(AttrDamage).get_float() : 0) ) );
-    into->SetField( "charge",        new PyFloat( (mAttributeMap.HasAttribute(AttrCharge) ? GetAttribute(AttrCharge).get_float() : 0) ) );
-    into->SetField( "skillPoints",   new PyInt( (mAttributeMap.HasAttribute(AttrSkillPoints) ? GetAttribute(AttrSkillPoints).get_int() : 0) ) );
-    into->SetField( "armorDamage",   new PyFloat( (mAttributeMap.HasAttribute(AttrArmorDamageAmount) ? GetAttribute(AttrArmorDamageAmount).get_float() : 0.0) ) );
-    into->SetField( "shieldCharge",  new PyFloat( (mAttributeMap.HasAttribute(AttrShieldCharge) ? GetAttribute(AttrShieldCharge).get_float() : 0.0) ) );
-    into->SetField( "incapacitated", new PyBool( (mAttributeMap.HasAttribute(AttrIsIncapacitated) ? GetAttribute(AttrIsIncapacitated).get_int() : 0) ) );
+    into->SetField( "online",        new PyBool( (mAttributeMap.HasAttribute(AttrIsOnline, attrib) ? attrib.get_int() : 0) ) );
+    into->SetField( "damage",        new PyFloat( (mAttributeMap.HasAttribute(AttrDamage, attrib) ? attrib.get_float() : 0) ) );
+    into->SetField( "charge",        new PyFloat( (mAttributeMap.HasAttribute(AttrCharge, attrib) ? attrib.get_float() : 0) ) );
+    into->SetField( "skillPoints",   new PyInt( (mAttributeMap.HasAttribute(AttrSkillPoints, attrib) ? attrib.get_int() : 0) ) );
+    into->SetField( "armorDamage",   new PyFloat( (mAttributeMap.HasAttribute(AttrArmorDamageAmount, attrib) ? attrib.get_float() : 0.0) ) );
+    into->SetField( "shieldCharge",  new PyFloat( (mAttributeMap.HasAttribute(AttrShieldCharge, attrib) ? attrib.get_float() : 0.0) ) );
+    into->SetField( "incapacitated", new PyBool( (mAttributeMap.HasAttribute(AttrIsIncapacitated, attrib) ? attrib.get_int() : 0) ) );
 }
+
 
 PyPackedRow* InventoryItem::GetItemRow() const
 {
@@ -898,12 +900,12 @@ bool InventoryItem::SetQuantity(uint32 qty_new, bool notify) {
 bool InventoryItem::SetFlag(EVEItemFlags new_flag, bool notify) {
     EVEItemFlags old_flag = m_flag;
     m_flag = new_flag;
-    
+
     SaveItem();
-    
+
     if(notify) {
         std::map<int32, PyRep *> changes;
-	
+
 	//send the notify to the new owner.
 	changes[ixFlag] = new PyInt(new_flag);
 	SendItemChange(m_ownerID, changes); //changes is consumed
@@ -1087,7 +1089,7 @@ void InventoryItem::SetOnline(bool online) {
 	environment->AddItem(new PyNone);
 	environment->AddItem(new PyNone);
 	environment->AddItem(new PyInt(ogf.effectID));
-	
+
 	ogf.environment = environment;
 	ogf.startTime = ogf.when;
 	ogf.duration = 10000;
@@ -1220,37 +1222,30 @@ bool InventoryItem::SetAttribute( uint32 attributeID, uint32 num, bool notify /*
 	return status;
 }
 
-EvilNumber InventoryItem::GetAttribute( uint32 attributeID )
-{
-    return mAttributeMap.GetAttribute(attributeID);
-}
-
-EvilNumber InventoryItem::GetAttribute( const uint32 attributeID ) const
-{
+EvilNumber InventoryItem::GetAttribute( const uint32 attributeID ) const {
      return mAttributeMap.GetAttribute(attributeID);
 }
 
-EvilNumber InventoryItem::GetDefaultAttribute( uint32 attributeID )
-{
-    return mDefaultAttributeMap.GetAttribute(attributeID);
-}
-
-EvilNumber InventoryItem::GetDefaultAttribute( const uint32 attributeID ) const
-{
+EvilNumber InventoryItem::GetDefaultAttribute( const uint32 attributeID ) const {
      return mDefaultAttributeMap.GetAttribute(attributeID);
 }
 
-bool InventoryItem::HasAttribute(uint32 attributeID) const
-{
+EvilNumber InventoryItem::GetAttribute( const uint32 attributeID, const uint32 defaultValue ) const {
+     return mAttributeMap.GetAttribute(attributeID, defaultValue);
+}
+
+bool InventoryItem::HasAttribute(const uint32 attributeID) const {
     return mAttributeMap.HasAttribute(attributeID);
 }
 
-bool InventoryItem::SaveAttributes()
-{
+bool InventoryItem::HasAttribute(const uint32 attributeID, EvilNumber &value) const {
+    return mAttributeMap.HasAttribute(attributeID, value);
+}
+
+bool InventoryItem::SaveAttributes() {
 	return (mAttributeMap.SaveAttributes() && mDefaultAttributeMap.SaveAttributes());
 }
 
-bool InventoryItem::ResetAttribute(uint32 attrID, bool notify)
-{
+bool InventoryItem::ResetAttribute(uint32 attrID, bool notify) {
     return mAttributeMap.ResetAttribute(attrID, notify);
 }

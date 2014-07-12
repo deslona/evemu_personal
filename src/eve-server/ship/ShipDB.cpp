@@ -117,7 +117,7 @@ PyResult ShipDB::GetInsuranceContractsByOwnerID(uint32 ownerID) {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return new PyNone;
     }
-/*
+
     DBResultRow row;
     if(!res.GetRow(row)) return NULL;
 
@@ -128,8 +128,8 @@ PyResult ShipDB::GetInsuranceContractsByOwnerID(uint32 ownerID) {
     rsp.fraction = row.GetUInt( 3 );
 
     return(rsp.Encode());
-*/
-    return(DBResultToRowset(res));      // this gives "Assertion `DBTYPE_ERROR != result' failed." when there are active contracts.
+
+    //return(DBResultToRowset(res));      // this gives "Assertion `DBTYPE_ERROR != result' failed." when there are active contracts.
 }
 
 bool ShipDB::InsertInsuranceByShipID(uint32 shipID, double fraction) {

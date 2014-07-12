@@ -80,7 +80,7 @@ public:
     /**
      *Performs check on fitting items
      */
-    static bool FitModuleSkillCheck(InventoryItemRef item, CharacterRef character);
+    static bool FitModuleSkillCheck(InventoryItemRef item, CharacterRef ch);
 
 protected:
     Skill(
@@ -130,9 +130,6 @@ class Certificate
 : public InventoryItem
 {
     friend class InventoryItem;
-    public:
-    protected:
-    private:
 };
 
 #endif /* !__SKILL__H__INCL__ */

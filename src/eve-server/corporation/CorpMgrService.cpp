@@ -37,7 +37,11 @@ CorpMgrService::CorpMgrService(PyServiceMgr *mgr)
     _SetCallDispatcher(m_dispatch);
 
     PyCallable_REG_CALL(CorpMgrService, GetPublicInfo)
+    PyCallable_REG_CALL(CorpMgrService, GetCorporations)
     PyCallable_REG_CALL(CorpMgrService, GetAssetInventory)
+    PyCallable_REG_CALL(CorpMgrService, GetCorporationStations)
+    PyCallable_REG_CALL(CorpMgrService, GetCorporationIDForCharacter)
+    PyCallable_REG_CALL(CorpMgrService, GetAssetInventoryForLocation)
 }
 
 CorpMgrService::~CorpMgrService() {
@@ -52,7 +56,34 @@ PyResult CorpMgrService::Handle_GetPublicInfo(PyCallArgs &call) {
         return NULL;
     }
 
-    return m_db.GetCorporation(corpID.arg);
+    //if(corpID.arg < 1001000)    //is NPCCorp
+    //    return m_db.GetCorpInfo(corpID.arg);
+    //else
+        return m_db.GetCorporation(corpID.arg);
+}
+
+PyResult CorpMgrService::Handle_GetCorporations(PyCallArgs &call) {
+/**
+    def Startup(self, declaredByID, againstID, containerid):
+        ceoID = None
+        if declaredByID is not None and againstID is not None:
+            aggressorIDs = [declaredByID, againstID]
+            aggressorIDs.remove(eve.session.corpid)
+            corporation = sm.RemoteSvc('corpmgr').GetCorporations(aggressorIDs[0])
+            ceoID = corporation.ceoID
+        stationsBtn = uiutil.GetChild(self, 'StationsBtn')
+        uicls.Container(stationsBtn).OnClick = self.SelectStation
+        stationsBtn.state = uiconst.UI_NORMAL
+        res = PVPTrade.Startup(self, ceoID, containerid)
+        stationsBtn.parent.width = stationsBtn.width * 3
+        return res
+*/
+
+  uint32 size = call.tuple->size();
+  sLog.Log( "CorpMgrService::Handle_GetCorporations()", "size= %u", size );
+  call.Dump(SERVICE__CALLS);
+
+    return NULL;
 }
 
 
@@ -72,19 +103,40 @@ PyResult CorpMgrService::Handle_GetAssetInventory(PyCallArgs &call) {
 
 
 
+PyResult CorpMgrService::Handle_GetCorporationStations(PyCallArgs &call) {
+  /**           this is called from trademgr.py
+        stations = sm.RemoteSvc('corpmgr').GetCorporationStations()
+        for station in stations:
+            if station.itemID in self.shell.GetStationIDs():
+                continue
+            stationListing.append([localization.GetByLabel('UI/PVPTrade/StationInSolarsystem', station=station.itemID, solarsystem=station.locationID), station.itemID, station.typeID])
+*/
 
+  uint32 size = call.tuple->size();
+  sLog.Log( "CorpMgrService::Handle_GetCorporationStations()", "size= %u", size );
+  call.Dump(SERVICE__CALLS);
 
+    return NULL;
+}
 
+PyResult CorpMgrService::Handle_GetCorporationIDForCharacter(PyCallArgs &call) {
+/**        returns corpID for given charID  */
 
+  uint32 size = call.tuple->size();
+  sLog.Log( "CorpMgrService::Handle_GetCorporationIDForCharacter()", "size= %u", size );
+  call.Dump(SERVICE__CALLS);
 
+    return NULL;
+}
 
+PyResult CorpMgrService::Handle_GetAssetInventoryForLocation(PyCallArgs &call) {
+/**
+    items = sm.RemoteSvc('corpmgr').GetAssetInventoryForLocation(eve.session.corpid, stationID, which)
+    */
 
+  uint32 size = call.tuple->size();
+  sLog.Log( "CorpMgrService::Handle_GetAssetInventoryForLocation()", "size= %u", size );
+  call.Dump(SERVICE__CALLS);
 
-
-
-
-
-
-
-
-
+    return NULL;
+}

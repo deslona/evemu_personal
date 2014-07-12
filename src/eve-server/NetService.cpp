@@ -174,25 +174,13 @@ PyResult NetService::Handle_GetTime(PyCallArgs &call) {
     return(new PyLong(Win32TimeNow()));
 }
 
-//21:26:54 L NetService::Handle_GetClusterSessionStatistics(): size= 0
 PyResult NetService::Handle_GetClusterSessionStatistics(PyCallArgs &call) {
-     /**
-     ColorStarsByNumPilots
-
-     this really should be a dynamic system call to systementity service or whatever it is to get systems with clients
-     */
+     /**     ColorStarsByNumPilots
+      * sol, sta, statDivisor = sm.ProxySvc('machoNet').GetClusterSessionStatistics()
+      * this really should be a dynamic system call to systementity service or whatever it is to get systems with clients
+      */
     DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT solarSystemID, pilotsDocked, pilotsInSpace FROM mapDynamicData WHERE pilotsDocked != 0 OR pilotsInSpace != 0" );
+    //sDatabase.RunQuery(res, "SELECT sol, sta, statDivisor FROM mapDynamicData );
 
-    /*
-    DBResultRow row;
-    res.GetRow(row);
-    PyTuple* result = new PyTuple( 2 );
-    result->SetItem( 0, row.GetUInt(0));
-    result->SetItem( 1, row.GetUInt(1));
-    return result;
-    */
     return DBResultToRowset(res);
-    //return(DBResultToTupleSet(res));
-    //return(DBResultToIndexRowset(res, "solarSystemID"));
 }

@@ -171,8 +171,6 @@ CorpRegistryService::~CorpRegistryService() {
     delete m_dispatch;
 }
 
-
-
 PyBoundObject* CorpRegistryService::_CreateBoundObject( Client* c, const PyRep* bind_args )
 {
     _log( CLIENT__MESSAGE, "CorpRegistryService bind request for:" );
@@ -187,18 +185,14 @@ PyResult CorpRegistryBound::Handle_GetEveOwners(PyCallArgs &call) {
 }
 
 PyResult CorpRegistryBound::Handle_GetInfoWindowDataForChar( PyCallArgs& call )
-{
-    //takes characterID
-
+{    //takes characterID
     sLog.Debug( "CorpRegistryBound", "Called GetInfoWindowDataForChar stub." );
 
     return new PyNone;
 }
 
 PyResult CorpRegistryBound::Handle_GetLockedItemLocations( PyCallArgs& call )
-{
-    //takes characterID
-
+{    //takes characterID
     sLog.Debug( "CorpRegistryBound", "Called GetLockedItemLocations stub." );
 
     //this returns an empty list for me on live.
@@ -208,16 +202,15 @@ PyResult CorpRegistryBound::Handle_GetLockedItemLocations( PyCallArgs& call )
 PyResult CorpRegistryBound::Handle_GetCorporation(PyCallArgs &call) {
     return(m_db.GetCorporation(call.client->GetCorporationID()));
 }
+
 PyResult CorpRegistryBound::Handle_GetCorporations(PyCallArgs &call) {
     Call_SingleIntegerArg arg;
     if (!arg.Decode(&call.tuple)) {
         codelog(SERVICE__ERROR, "Bad incoming params.");
         return NULL;
     }
-
     return(m_db.GetCorporation(arg.arg));
 }
-
 
 PyResult CorpRegistryBound::Handle_AddCorporation(PyCallArgs &call) {
     Call_AddCorporation args;

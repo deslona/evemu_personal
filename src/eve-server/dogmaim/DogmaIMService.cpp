@@ -331,11 +331,11 @@ PyResult DogmaIMBound::Handle_Activate( PyCallArgs& call )
                     case 649:
                         //call.client->Destiny()->SendContainerUnanchor( call.client->services().item_factory.GetCargoContainer( itemID ) );
                         break;
-                    case 1022:
-                        //call.client->Destiny()->SendStructureUnanchor( call.client->services().item_factory.GetStructure( itemID ) );
-                        break;
                     case 650:
                         //call.client->Destiny()->SendContainerAnchor( call.client->services().item_factory.GetCargoContainer( itemID ) );
+                        break;
+                    case 1022:
+                        //call.client->Destiny()->SendStructureUnanchor( call.client->services().item_factory.GetStructure( itemID ) );
                         break;
                     case 1023:
                         //call.client->Destiny()->SendStructureAnchor( call.client->services().item_factory.GetStructure( itemID ) );

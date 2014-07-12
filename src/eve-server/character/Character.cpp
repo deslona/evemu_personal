@@ -525,60 +525,41 @@ bool Character::HasSkill(uint32 skillTypeID) const {
     return GetSkill(skillTypeID);
 }
 
-bool Character::HasSkillTrainedToLevel(uint32 skillTypeID, uint32 skillLevel) const {
+bool Character::HasSkillTrainedToLevel(EvilNumber skillTypeID, uint32 skillLevel) const {
     SkillRef requiredSkill;
-
     // First, check for existence of skill trained or in training:
     requiredSkill = GetSkill( skillTypeID );
-    if( !requiredSkill )
-        return false;
-
+    if( !requiredSkill ) return false;
     // Second, check for required minimum level of skill, note it must already be trained to this level:
-    if( requiredSkill->GetAttribute(AttrSkillLevel) < skillLevel )
-        return false;
-
+    if( requiredSkill->GetAttribute(AttrSkillLevel) < skillLevel ) return false;
     return true;
 }
 
-bool Character::HasCertificate( uint32 certificateID ) const
-{
+bool Character::HasCertificate( uint32 certificateID ) const {
     uint32 i = 0;
-    for( i = 0; i < m_certificates.size(); i++ )
-    {
-        if( m_certificates.at( i ).certificateID == certificateID )
-            return true;
+    for( i = 0; i < m_certificates.size(); i++ ) {
+        if( m_certificates.at( i ).certificateID == certificateID ) return true;
     }
-
     return false;
 }
 
-SkillRef Character::GetSkill(uint32 skillTypeID) const
-{
-    InventoryItemRef skill = GetByTypeFlag( skillTypeID, flagSkill );
-    if( !skill )
-        skill = GetByTypeFlag( skillTypeID, flagSkillInTraining );
-
+SkillRef Character::GetSkill(EvilNumber skillTypeID) const {
+    InventoryItemRef skill = GetByTypeFlag( skillTypeID.get_int(), flagSkill );
+    if( !skill ) skill = GetByTypeFlag( skillTypeID.get_int(), flagSkillInTraining );
     return SkillRef::StaticCast( skill );
 }
 
 int Character::GetSkillLevel(uint32 skillTypeID, bool zeroForNotInjected) const {
     SkillRef requiredSkill;
-
     // First, check for existence of skill trained or in training:
     requiredSkill = GetSkill( skillTypeID );
-
-    if( !requiredSkill )
-        return zeroForNotInjected ? 0 : -1;
+    if( !requiredSkill ) return zeroForNotInjected ? 0 : -1;
     return requiredSkill->GetAttribute(AttrSkillLevel).get_int() ;
 }
 
-SkillRef Character::GetSkillInTraining() const
-{
+SkillRef Character::GetSkillInTraining() const {
     InventoryItemRef item;
-    if (!FindSingleByFlag(flagSkillInTraining, item)){
-        sLog.Debug("Character","  Unable to find skill in training");
-    }
-
+    if (!FindSingleByFlag(flagSkillInTraining, item)) sLog.Debug("Character","  Unable to find skill in training");
     return SkillRef::StaticCast( item );
 }
 
@@ -727,20 +708,20 @@ void Character::UpdateSkillQueue() {
     SkillRef currentTraining = GetSkillInTraining();
     EvilNumber timeEndTrain = 0;
     if( currentTraining ) {
-	timeEndTrain = currentTraining->GetAttribute(AttrExpiryTime);
+	    timeEndTrain = currentTraining->GetAttribute(AttrExpiryTime);
         if( m_skillQueue.empty()        // either queue is empty
             || currentTraining->typeID() != m_skillQueue.front().typeID ) {     //or skill with different typeID is in training ...
             if ( timeEndTrain != 0 && timeEndTrain > EvilTimeNow() ) {         // stop training:
-                EvilNumber nextLevelSP = currentTraining->GetSPForLevel(currentTraining->GetAttribute(AttrSkillLevel) + 1);
-                EvilNumber skillPointsTrained = nextLevelSP - (((timeEndTrain - EvilTimeNow()) / EvilTime_Minute) * GetSPPerMin(currentTraining));
+                EvilNumber level = (currentTraining->GetAttribute(AttrSkillLevel) + 1);  // current level incremented to level being trained
+                EvilNumber nextLevelSP = currentTraining->GetSPForLevel(level);
+                EvilNumber skillPointsTrained = (nextLevelSP - (((timeEndTrain - EvilTimeNow()) / EvilTime_Minute) * GetSPPerMin(currentTraining)));
 
                 currentTraining->SetAttribute(AttrSkillPoints, skillPointsTrained);
 
                 //  save cancelled skill training in history  -allan
                 // eventID:38 - SkillTrainingCanceled
-                EvilNumber level = currentTraining->GetAttribute(AttrSkillLevel) + 1;  // current level incremented to level being trained
                 SaveSkillHistory(38, EvilTimeNow().get_float(), itemID(), currentTraining->typeID(), level.get_int(), skillPointsTrained.get_float(), GetTotalSP().get_float() );
-                    sLog.Error( "skillHistory", "training cancelled, skill: %u, level: %d", currentTraining->typeID(), level.get_int() );
+                sLog.Error( "skillHistory", "training cancelled, skill: %u, level: %d", currentTraining->typeID(), level.get_int() );
             }
             currentTraining->SaveItem();        // Save changes to this skill before removing it from training:
             currentTraining->SetAttribute(AttrExpiryTime, 0);
@@ -757,21 +738,19 @@ void Character::UpdateSkillQueue() {
                 c->UpdateSkillTraining();
             }
             // nothing currently in training
-            currentTraining = SkillRef();
+            currentTraining = GetSkill( 0 );
+            //update skill queue
+            GetSkillQueue();
         }
     }
 
-    while( !m_skillQueue.empty() ) {        // skills in queue to be trained
-        if( !currentTraining ) {    //nothing being trained
+    while( !m_skillQueue.empty() ) {                        // skills in queue to be trained
+        if( !currentTraining ) {                            //nothing being trained
             uint32 skillID = m_skillQueue.front().typeID;   //....get first skill in list
             currentTraining = GetSkill( skillID );
             if( !currentTraining ) {
                 _log( ITEM__ERROR, "%s (%u): Skill %u to train was not found.", itemName().c_str(), itemID(), skillID );
-                //currentTraining->SetAttribute(AttrExpiryTime, 0);
-                //currentTraining->MoveInto( *this, flagSkill );
-                //currentTraining->SaveItem();
                 m_skillQueue.erase( m_skillQueue.begin() );
-                currentTraining = SkillRef();
                 break;
             }
 
@@ -779,24 +758,26 @@ void Character::UpdateSkillQueue() {
                 currentTraining->SetAttribute(AttrExpiryTime, 0);
                 currentTraining->MoveInto( *this, flagSkill, true );
                 currentTraining->SaveItem();
+                m_skillQueue.erase( m_skillQueue.begin() );
                 break;
             }
 
-            EvilNumber SPToNextLevel = currentTraining->GetSPForLevel(currentTraining->GetAttribute(AttrSkillLevel) + 1);
+            EvilNumber level = (currentTraining->GetAttribute(AttrSkillLevel) + 1);  // current level incremented to level being trained
+            EvilNumber SPToNextLevel = currentTraining->GetSPForLevel(level);
             EvilNumber CurrentSP = currentTraining->GetAttribute(AttrSkillPoints);
-            SPToNextLevel = SPToNextLevel.get_float() - CurrentSP.get_float();
-            EvilNumber timeTraining = EvilTimeNow() + ((EvilTime_Minute * SPToNextLevel) / GetSPPerMin(currentTraining));
+            SPToNextLevel = (SPToNextLevel.get_float() - CurrentSP.get_float());
+            EvilNumber timeTraining = (EvilTimeNow() + ((EvilTime_Minute * SPToNextLevel) / GetSPPerMin(currentTraining)));
 
             currentTraining->MoveInto( *this, flagSkillInTraining );
             currentTraining->SetAttribute(AttrExpiryTime, timeTraining.get_float());
 
             //  save start skill training in history  -allan
             // eventID:36 - SkillTrainingStarted
-            EvilNumber level = currentTraining->GetAttribute(AttrSkillLevel) + 1;  // current level incremented to level being trained
             SaveSkillHistory(36, EvilTimeNow().get_float(), itemID(), skillID, level.get_int(), CurrentSP.get_float(), GetTotalSP().get_float() );
-                sLog.Warning( "skillHistory", "training started, skill: %u, level: %d", skillID, level.get_int() );
+            sLog.Warning( "skillHistory", "training started, skill: %u, level: %d", skillID, level.get_int() );
 
             currentTraining->SaveItem();
+            GetSkillQueue();   //update skill queue
 
             if( c ) {
                 OnSkillStartTraining osst;
@@ -813,20 +794,17 @@ void Character::UpdateSkillQueue() {
         /**  NOTE:  This needs a periodic (persistant) check, not just for chars ingame.  API will need CURRENT skilltraining  */
         if( currentTraining->GetAttribute(AttrExpiryTime) <= EvilTimeNow() ) {
             // training has been finished
-            currentTraining->SetAttribute(AttrSkillLevel, currentTraining->GetAttribute(AttrSkillLevel) + 1 );
-            currentTraining->SetAttribute(AttrSkillPoints, currentTraining->GetSPForLevel( currentTraining->GetAttribute(AttrSkillLevel) ), true);
+            EvilNumber level = (currentTraining->GetAttribute(AttrSkillLevel) + 1);
+            currentTraining->SetAttribute(AttrSkillLevel, level );
+            currentTraining->SetAttribute(AttrSkillPoints, currentTraining->GetSPForLevel( level ), true);
 
             //  save finished skill in history  -allan
             // eventID:37 - SkillTrainingComplete
             uint32 skillID = m_skillQueue.front().typeID;
             EvilNumber completeTime = currentTraining->GetAttribute(AttrExpiryTime).get_float();
             if ( completeTime < 1 ) completeTime = EvilTimeNow();
-            SaveSkillHistory(37, completeTime.get_float(), itemID(), skillID, currentTraining->GetAttribute(AttrSkillLevel).get_int(), currentTraining->GetAttribute(AttrSkillPoints).get_float(), GetTotalSP().get_float() );
-            sLog.Success( "skillHistory", "training complete, skill: %u, level: %d", skillID, currentTraining->GetAttribute(AttrSkillLevel).get_int() );
-
-            currentTraining->SetAttribute(AttrExpiryTime, 0);
-            currentTraining->MoveInto( *this, flagSkill, true );
-			currentTraining->SaveItem();
+            SaveSkillHistory(37, completeTime.get_float(), itemID(), skillID, level.get_int(), currentTraining->GetAttribute(AttrSkillPoints).get_float(), GetTotalSP().get_float() );
+            sLog.Success( "skillHistory", "training complete, skill: %u, level: %d", skillID, level.get_int() );
 
             if( c ) {
                 OnSkillTrained ost;
@@ -837,10 +815,16 @@ void Character::UpdateSkillQueue() {
                 PySafeDecRef( tmp );
             }
 
+            currentTraining->SetAttribute(AttrExpiryTime, 0);
+            currentTraining->MoveInto( *this, flagSkill, true );
+			currentTraining->SaveItem();
+            currentTraining = GetSkill( 0 );
+
             // erase first element in skill queue
             m_skillQueue.erase( m_skillQueue.begin() );
+            GetSkillQueue();   //update skill queue
 
-            //  set training time for next skill in queue to begin when previous skill finished.....hackish persistance  -allan 7Apr14
+            //  start training time the next skill in queue when previous skill finished.....hackish persistance  -allan 7Apr14
             //  first, check for skills in queue...
             if ( m_skillQueue.empty() ) break;       // nothing else in queue... training done, so exit function.
 
@@ -851,24 +835,23 @@ void Character::UpdateSkillQueue() {
                 currentTraining->SetAttribute(AttrExpiryTime, 0);
                 currentTraining->MoveInto( *this, flagSkill, true );
                 currentTraining->SaveItem();
+                currentTraining = SkillRef();
                 break;
             }
 
-            EvilNumber SPToNextLevel = currentTraining->GetSPForLevel(currentTraining->GetAttribute(AttrSkillLevel) + 1);
+            level = (currentTraining->GetAttribute(AttrSkillLevel) + 1);
+            EvilNumber SPToNextLevel = currentTraining->GetSPForLevel(level);
             EvilNumber CurrentSP = currentTraining->GetAttribute(AttrSkillPoints);
-            SPToNextLevel = SPToNextLevel.get_float() - CurrentSP.get_float();
-            EvilNumber timeTraining = (EvilTime_Minute * SPToNextLevel) / GetSPPerMin(currentTraining) ;
-            timeTraining += completeTime + (EvilTime_Second * 5);
+            SPToNextLevel -= CurrentSP.get_float();
+            EvilNumber timeTraining = (completeTime + (EvilTime_Minute * SPToNextLevel) / GetSPPerMin(currentTraining));
 
             currentTraining->MoveInto( *this, flagSkillInTraining );
             currentTraining->SetAttribute(AttrExpiryTime, timeTraining.get_float());
 
             //  save start skill training in history  -allan
             // eventID:36 - SkillTrainingStarted
-            EvilNumber level = currentTraining->GetAttribute(AttrSkillLevel) + 1;
-            completeTime += (EvilTime_Second * 5);
-            SaveSkillHistory(36, completeTime.get_float(), itemID(), skillID, level.get_int(), CurrentSP.get_float(), GetTotalSP().get_float() );
-                sLog.Warning( "skillHistory", "persistant training started, skill: %u, level: %d", skillID, level.get_int() );
+            SaveSkillHistory(36, timeTraining.get_float(), itemID(), skillID, level.get_int(), CurrentSP.get_float(), GetTotalSP().get_float() );
+            sLog.Warning( "skillHistory", "persistant training started, skill: %u, level: %d", skillID, level.get_int() );
 
             if( c ) {
                 OnSkillStartTraining osst;
@@ -884,12 +867,13 @@ void Character::UpdateSkillQueue() {
     }
 
     if ( !m_skillQueue.empty() && currentTraining ) {
-        _CalculateTotalSPTrained();      // Re-Calculate total SP trained and store in internal variable:
-        _GetLogonMinutes();              // Update Character's Online Time (LogonMinutes)
-        SaveSkillQueue();                // Save character skill data:
+        _CalculateTotalSPTrained();              // Re-Calculate total SP trained and store in internal variable:
+        _GetLogonMinutes();                      // Update Character's Online Time (LogonMinutes)
+        SaveSkillQueue();                        // Save character skill data:
         UpdateSkillQueueEndTime(m_skillQueue);   // and Queue end time:
     } else ClearSkillQueue();
 
+    GetSkillQueue();                         //update skill queue on client
 }
 
 //  this still needs work...in progress...see commented code for using <map> flatSkillQueue
@@ -1285,6 +1269,9 @@ void Character::AddJumpToDynamicData(uint32 solarSystemID, bool add) {
 //   however, showing pilots in system on the webpage will need the db.  *shrugs*
 //    updated to show both docked and inspace....duh.   25April
 //    changed....added another arg to accept chars on login.
+/**  will need to rewrite based on client data from ui/shared/maps/starmodehandler.py(427) ColorStarsByNumPilots
+ *   very odd formula (first look) for tracking systems and players.
+ */
 void Character::AddPilotToDynamicData(uint32 solarSystemID, bool docked, bool login) {
     DBQueryResult res;
     sDatabase.RunQuery(res, "SELECT pilotsDocked, pilotsInSpace FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
@@ -1322,8 +1309,7 @@ void Character::AddKillToDynamicData(uint32 solarSystemID) {  /**killsHour, kill
     sDatabase.RunQuery(res, "SELECT killsHour, kills24Hours FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
 
     DBResultRow row;
-    uint16 killsHour;
-    uint16 kills24Hours;
+    uint16 killsHour, kills24Hours;
     if(res.GetRow(row)) {
         killsHour = row.GetUInt(0);
         kills24Hours = row.GetUInt(1);
@@ -1371,19 +1357,25 @@ void Character::AddPodKillToDynamicData(uint32 solarSystemID) {   /**podKillsHou
 
 void Character::AddFactionKillToDynamicData(uint32 solarSystemID) {     /**factionKills*/
     DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT factionKills FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
+    sDatabase.RunQuery(res, "SELECT factionKills, factionKills24Hour FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
 
     DBResultRow row;
-    uint16 factionKills;
-    if(res.GetRow(row)) factionKills = row.GetUInt(0); else factionKills = 0;
+    uint16 factionKills,factionKills24Hour;
+    if(res.GetRow(row)) {
+        factionKills = row.GetUInt(0);
+        factionKills24Hour = row.GetUInt(1);
+    } else {
+        factionKills = 0;
+        factionKills24Hour = 0;
+    }
     factionKills ++;
+    factionKills24Hour ++;
 
     DBerror err;
     if(!sDatabase.RunQuery(err,
-        "UPDATE mapDynamicData SET factionKills = %u WHERE solarSystemID = %u",
-        factionKills, solarSystemID )) {
-            sLog.Error("Character::AddFactionKillToDynamicData","%u: Query Failed: %s", itemID(), err.c_str() );
+        "UPDATE mapDynamicData SET factionKills = %u, factionKills24Hour = %u, factionDateTime = %" PRIu64 ", faction24DateTime = %" PRIu64 " WHERE solarSystemID = %u",
+        factionKills, factionKills24Hour, Win32TimeNow(), Win32TimeNow(), solarSystemID )) {
+            sLog.Error("Character::AddKillToDynamicData","%u: Query Failed: %s", itemID(), err.c_str() );
             return;
     }
-    //sLog.Log("Character::AddFactionKillToDynamicData","%s (%u): Query saved as solSys=%u, factionKills=%u", itemName().c_str(), itemID(), solarSystemID, factionKills );
 }

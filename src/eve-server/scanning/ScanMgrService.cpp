@@ -74,3 +74,18 @@ AttributeError: 'NoneType' object has no attribute 'RequestScans'
 
     return res;
 }
+
+/**
+        return sm.RemoteSvc('scanMgr').GetSystemScanMgr().ConeScan(scanangle, scanRange, x, y, z)
+
+            sm.RemoteSvc('scanMgr').GetSystemScanMgr().ReconnectToLostProbes()
+
+        successProbeIDs = sm.RemoteSvc('scanMgr').GetSystemScanMgr().RecoverProbes(probeIDs)
+
+        scanMan = sm.RemoteSvc('scanMgr').GetSystemScanMgr()
+        scanMan.RequestScans(probes)
+
+            scanMan = sm.RemoteSvc('scanMgr').GetSystemScanMgr()
+            scanMan.DestroyProbe(probeID)
+
+            */

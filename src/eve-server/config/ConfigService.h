@@ -57,6 +57,7 @@ protected:
     PyCallable_DECL_CALL(GetCelestialStatistic)
     PyCallable_DECL_CALL(GetDynamicCelestials)
     PyCallable_DECL_CALL(GetMapLandmarks)
+    PyCallable_DECL_CALL(SetMapLandmarks)
 
 };
 

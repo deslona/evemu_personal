@@ -81,11 +81,11 @@ PyObject *MapDB::GetStationServiceInfo() {
 }
 
 PyObject *MapDB::GetStationCount() {
-    //DBQueryResult res;
-/**     stations are listed as unique StationID's.  will have to get, combine, then count for each system....*sigh*
-    if(!sDatabase.RunQuery(res, "SELECT solarSystemID, COUNT(stationID) FROM staStations" )) {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
-        return NULL;
+/**
+        starmap.stationCountCache = sm.RemoteSvc('map').GetStationCount()
+    history = starmap.stationCountCache
+    maxCount = 0
+    for solarSystemID, amount in history:
     }
     */
 
@@ -129,47 +129,37 @@ PyObject *MapDB::GetSolSystemVisits(uint32 charID)
 ///  added killsHour, factionKills, podKillsHour  24Mar14
 ///  NOTE: DB has fields for timing the *Hour and *24Hour parts. need to write checks for that when everything else starts working.
 PyObject *MapDB::GetDynamicData(uint32 int1, uint32 int2) {
-  /*   object#  0 = # returns expected    1 = type of info requested
-//02:52:13 L MapService::Handle_GetHistory(): size= 2, 0 = Integer (1), 1 = Integer (1)     -ColorStarsByJumps1Hour
-    ColorStarsByJumps1Hour  -AttributeError: 'int' object has no attribute 'value1'
-
-//02:52:14 L MapService::Handle_GetHistory(): size= 2, 0 = Integer (3), 1 = Integer (1)     -ColorStarsByKills
-//02:52:11 L MapService::Handle_GetHistory(): size= 2, 0 = Integer (3), 1 = Integer (24)
-//  -ColorStarsByFactionKills - ColorStarsByKills - GetKillLast24H
-    GetKillsLast24H  -AttributeError: 'int' object has no attribute 'solarSystemID'
-    ColorStarsByKills  -AttributeError: 'int' object has no attribute 'value1'
-    ColorStarsByFactionKills  -AttributeError: 'int' object has no attribute 'value2'
-//21:20:25 L MapService::Handle_GetHistory(): size= 2, 0 = Interger (5), 1 = Interger (24)  -ColorStarsByKills (factionKills?)
-22:30:32 L MapService::Handle_GetHistory(): size= 2, 0 = Interger (5), 1 = Interger (1)
-
+  /*   object#  0 = type   1 = timeframe
 solarSystemID
-beaconCount
-cynoFields
-jumpsHour
-killsHour
-kills24Hours
+moduleCnt
+structureCnt
 pilotsDocked
 pilotsInSpace
+jumpsHour
+killsHour
+kills24Hour
+factionKills
+factionKills24Hour
 podKillsHour
 podKills24Hour
-factionKills
+pilotsDateTime
+jumpsDateTime
+killsDateTime
+kills24DateTime
+podDateTime
+pod24DateTime
+factionDateTime
+faction24DateTime
     */
     DBQueryResult res;
-    if( (int1 == 1) && (int2 == 1) ) {
-      sDatabase.RunQuery(res, "SELECT solarSystemID, jumpsHour AS value1 FROM mapDynamicData" );
-    } else if (int1 == 3) {
-      if (int2 == 1) {
-        sDatabase.RunQuery(res, "SELECT solarSystemID, KillsHour AS value1, factionKills AS value2, podKillsHour AS value3 FROM mapDynamicData" );
-      } else if (int2 == 24) {
-          sDatabase.RunQuery(res, "SELECT solarSystemID, kills24Hours AS value1, factionKills AS value2, kills24Hours AS value3 FROM mapDynamicData" );
+    if( (int1 == 1) && (int2 == 1) ) sDatabase.RunQuery(res, "SELECT solarSystemID, jumpsHour AS value1 FROM mapDynamicData" );
+    else if (int1 == 2) sDatabase.RunQuery(res, "SELECT solarSystemID, moduleCnt, structureCnt FROM mapDynamicData" );
+    else if (int1 == 3) {
+      if (int2 == 1) sDatabase.RunQuery(res, "SELECT solarSystemID, killsHour AS value1, factionKills AS value2, podKillsHour AS value3 FROM mapDynamicData" );
+      else if (int2 == 24) sDatabase.RunQuery(res, "SELECT solarSystemID, kills24Hour AS value1, factionKills24Hour AS value2, podKills24Hour AS value3 FROM mapDynamicData" );
       }
-    } else if (int1 == 5) {
-          sDatabase.RunQuery(res, "SELECT solarSystemID, killsHour AS value1, factionKills AS value2, kills24Hours AS value3, podKillsHour AS value4, podKills24Hour AS value5 FROM mapDynamicData" );
-    } else if (int1 == 10) {
-          sDatabase.RunQuery(res, "SELECT solarSystemID, beaconCount FROM mapDynamicData WHERE beaconCount != 0" );
-    } else {
-       return NULL;
-    }
+    else if (int1 == 5) sDatabase.RunQuery(res, "SELECT solarSystemID, killsHour AS value1, factionKills AS value2, kills24Hour AS value3, factionKills24Hour AS value4, podKills24Hour AS value5 FROM mapDynamicData" );
+    else return NULL;
 
     return DBResultToRowset(res);
 }

@@ -57,9 +57,11 @@ protected:
     PyCallable_DECL_CALL(GetStationCount)
     PyCallable_DECL_CALL(GetAllianceSystems)
     PyCallable_DECL_CALL(GetMapLandmarks)
+    PyCallable_DECL_CALL(GetMyExtraMapInfo)
     PyCallable_DECL_CALL(GetMyExtraMapInfoAgents)  //ColorStarsByMyAgents
     PyCallable_DECL_CALL(GetHistory)
     PyCallable_DECL_CALL(GetVictoryPoints)
+    PyCallable_DECL_CALL(GetAllianceJumpBridges)
 
 };
 

@@ -39,7 +39,7 @@ protected:
     class Dispatcher;
     Dispatcher *const m_dispatch;
 
-    MissionDB m_db;
+    //MissionDB m_db;
 
     PyCallable_DECL_CALL(GetMyCourierMissions)
 
@@ -47,10 +47,4 @@ protected:
     //virtual PyBoundObject *_CreateBoundObject(Client *c, const PyRep *bind_args);
 };
 
-
-
-
-
 #endif
-
-

@@ -39,6 +39,11 @@ protected:
     Dispatcher *const m_dispatch;
 
     PyCallable_DECL_CALL(GetAvailableFleets)
+    PyCallable_DECL_CALL(AddFleetFinderAdvert)
+    PyCallable_DECL_CALL(RemoveFleetFinderAdvert)
+    PyCallable_DECL_CALL(ApplyToJoinFleet)
+    PyCallable_DECL_CALL(GetMyFleetFinderAdvert)
+    PyCallable_DECL_CALL(UpdateAdvertInfo)
 };
 
 #endif

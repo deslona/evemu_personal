@@ -34,7 +34,7 @@ SearchDB::SearchDB() { }
 
 PyObject *SearchDB::Query(std::string string, int32 searchID, uint32 charID) {
    sLog.Warning("SearchDB::Query", "Search : String = %s, ID = %u", string.c_str(), searchID );
-    std::string query = "";
+    const char* query = "";
 
     switch (searchID) {
       case 1:           //  agent
@@ -100,18 +100,18 @@ PyObject *SearchDB::Query(std::string string, int32 searchID, uint32 charID) {
                     " WHERE stationName LIKE '%s' ";
             break;
       default:
-            codelog(SERVICE__ERROR, "Invalid query '%s' on search %u for %u", query.c_str(), searchID, charID);
+            codelog(SERVICE__ERROR, "Invalid query '%s' on search %u for %u", query, searchID, charID);
             return NULL;
     }
 
     DBQueryResult res;
-    if (!sDatabase.RunQuery(res, query.c_str(), string.c_str() )) {
+    if (!sDatabase.RunQuery(res, query, string.c_str() )) {
         codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
 
     DBResultRow row;
-    if(res.GetRow(row)) return(DBResultToRowset(res)); else { sLog.Error("SearchDB::Query", "res = NULL : query = %s : string = %s", query.c_str(), string.c_str() ); return NULL; }
+    if(res.GetRow(row)) return(DBResultToRowset(res)); else { sLog.Error("SearchDB::Query", "res = NULL : query = %s : string = %s", query, string.c_str() ); return NULL; }
 
     //return DBResultToRowset(res);
 }

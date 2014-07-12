@@ -25,7 +25,7 @@
 #ifndef __AGENT_H_INCL__
 #define __AGENT_H_INCL__
 
-class MissionDB;
+class AgentDB;
 class Agent;
 
 typedef enum {
@@ -101,7 +101,7 @@ public:
 };
 
 
-class MissionDB;
+class AgentDB;
 
 class ClientJournal {
 public:
@@ -109,7 +109,7 @@ public:
     ~ClientJournal();
     PyRep *MakeJournalDetails();
 
-    bool Load(MissionDB *from);
+    bool Load(AgentDB *from);
 
     std::vector<AgentMission *> missions;    //we own these
     std::vector<AgentOffer *> offers;        //we own these
@@ -121,7 +121,7 @@ public:
     AgentMissionSet();
     ~AgentMissionSet();
 
-    bool Load(MissionDB *from);
+    bool Load(AgentDB *from);
 
     std::vector<const AgentMissionSpec *> missions;    //we own these
     std::vector<const AgentOfferSpec *> offers;        //we own these
@@ -144,7 +144,7 @@ public:
     Agent(uint32 id);
     ~Agent();
 
-    bool Load(MissionDB *from);
+    bool Load(AgentDB *from);
 
     uint32 GetLoyaltyPoints(Client *who);
     void DoAction(Client *who, uint32 actionID, std::string &say, std::map<uint32, std::string> &choices);

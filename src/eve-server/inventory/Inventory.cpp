@@ -178,17 +178,12 @@ bool Inventory::LoadContents(ItemFactory &factory) {
             characterID = factory.GetUsingClient()->GetCharacterID();
             corporationID = factory.GetUsingClient()->GetCorporationID();
             locationID = factory.GetUsingClient()->GetLocationID();
-        } //else
-          //  sLog.Error( "Inventory::LoadContents()", "Failed to resolve pointer to Client object currently using the ItemFactory." );
-        if( (into.ownerID == characterID) || (characterID == 0) || (into.ownerID == corporationID) || (into.locationID == locationID) || (factory.GetUsingClient() == NULL) ) {
+        } else      //  the char this item belongs to is not online....dont load it, dont throw error.  -allan
+            continue;
+        if( (into.ownerID == characterID) || (characterID == 0) || (into.ownerID == corporationID) || (into.locationID == locationID) ) {
             // Continue to GetItem() if the client calling this is owned by the character that owns this item
             // --OR--
             // The characterID == 0, which means this is attempting to load the character of this client for the first time.
-            // --OR--
-            // The pointer to the client object currently "using" the ItemFactory is NULL, meaning no client is using it at the moment.
-            if( factory.GetUsingClient() == NULL )
-                sLog.Error( "Inventory::LoadContents()", "WARNING! Loading Contents for item %u contained in %u while ItemFactory::GetUsingClient() returned NULL!", *cur, inventoryID() );
-
             InventoryItemRef i = factory.GetItem( *cur );
             if( !i ) {
                 sLog.Error("Inventory::LoadContents()", "Failed to load item %u contained in %u. Skipping.", *cur, inventoryID() );

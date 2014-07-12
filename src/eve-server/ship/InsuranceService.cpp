@@ -48,7 +48,6 @@ public:
 
         PyCallable_REG_CALL(InsuranceBound, GetContracts)
         PyCallable_REG_CALL(InsuranceBound, GetInsurancePrice)
-        //PyCallable_REG_CALL(InsuranceBound, InsureShip)
 
         m_strBoundObjectName = "InsuranceBound";
     }
@@ -61,7 +60,6 @@ public:
 
     PyCallable_DECL_CALL(GetContracts)
     PyCallable_DECL_CALL(GetInsurancePrice)
-    //PyCallable_DECL_CALL(InsureShip)
 
 protected:
     ShipDB* m_db;
@@ -77,9 +75,8 @@ InsuranceService::InsuranceService(PyServiceMgr *mgr)
     _SetCallDispatcher(m_dispatch);
 
     PyCallable_REG_CALL(InsuranceService, GetContractForShip)
-    //PyCallable_REG_CALL(InsuranceService, GetInsurancePrice)
-    //PyCallable_REG_CALL(InsuranceService, GetContracts)
     PyCallable_REG_CALL(InsuranceService, InsureShip)
+    PyCallable_REG_CALL(InsuranceService, GetInsurancePrice)
 }
 
 InsuranceService::~InsuranceService() {
@@ -112,6 +109,24 @@ PyResult InsuranceBound::Handle_GetInsurancePrice( PyCallArgs& call ) {
     return new PyFloat(type->basePrice());
 }
 
+PyResult InsuranceBound::Handle_GetContracts( PyCallArgs& call ) {
+    return m_db->GetInsuranceContractsByOwnerID(call.client->GetCharacterID());
+}
+
+
+
+PyResult InsuranceService::Handle_GetInsurancePrice( PyCallArgs& call ) {
+    sLog.Log("InsuranceService", "Handle_GetInsurancePrice() size=%u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+    uint32 typeID = call.tuple->GetItem(0)->AsInt()->value();
+
+    const ItemType *type = m_manager->item_factory.GetType(typeID);
+    if(!type)
+        return new PyNone;
+
+    return new PyFloat(type->basePrice());
+}
+
 PyResult InsuranceService::Handle_GetContractForShip( PyCallArgs& call ) {
     /*
     Call Arguments:
@@ -120,20 +135,6 @@ PyResult InsuranceService::Handle_GetContractForShip( PyCallArgs& call ) {
     */
 
     return m_db.GetInsuranceInfoByShipID(call.tuple->GetItem(0)->AsInt()->value());
-}
-
-//20:04:11 L InsuranceBound::Handle_GetContracts(): size= 0
-//20:04:11 L InsuranceBound::Handle_GetContracts(): size= 1
-PyResult InsuranceBound::Handle_GetContracts( PyCallArgs& call ) {
-  /*
-00:41:46 L InsuranceBound::Handle_GetContracts(): size=0
-00:41:46 [Debug]   Call Arguments:
-00:41:46 [Debug]       Tuple: Empty
-*/
-
-    //uint32 ownerID = ;
-
-    return m_db->GetInsuranceContractsByOwnerID(call.client->GetCharacterID());
 }
 
 PyResult InsuranceService::Handle_InsureShip( PyCallArgs& call ) {
@@ -179,12 +180,16 @@ PyResult InsuranceService::Handle_InsureShip( PyCallArgs& call ) {
     }
 
     DBResultRow row;
-    result.GetRow(row);
-    uint32 shipType = row.GetUInt( 0 );   //EVEDB::invGroups::Rookie_ship
-    if(( shipType == 588) || ( shipType == 596 ) || ( shipType == 601 ) || ( shipType == 606 )) {
-        call.client->SendInfoModalMsg("You cannot insure Rookie ships.");
+    if(result.GetRow(row)) {
+        uint32 shipType = row.GetUInt( 0 );   //EVEDB::invGroups::Rookie_ship
+        if(( shipType == 588) || ( shipType == 596 ) || ( shipType == 601 ) || ( shipType == 606 )) {
+            call.client->SendInfoModalMsg("You cannot insure Rookie ships.");
+            return new PyNone;
+        }
+    } else {
+        call.client->SendErrorMsg("Error Searching shipType in DB.");
         return new PyNone;
-    } /** end rookie ship check  */
+    }/** end rookie ship check  */
 
     double payment = call.tuple->GetItem(1)->AsFloat()->value();
     uint32 unknown = call.tuple->GetItem(2)->AsInt()->value();
@@ -224,12 +229,15 @@ PyResult InsuranceService::Handle_InsureShip( PyCallArgs& call ) {
 /**
   *  this is commented out because i cannot get the insurance contract sent back to the client correctly, so it's not showing
   *  in the insurance window.  the return usually crashes the server when using DBResultToRowset
-
-    // add new insurance
-    m_db->InsertInsuranceByShipID(shipID, fraction);
-
 */
+    // add new insurance
+    bool add = m_db.InsertInsuranceByShipID(shipID, fraction);
+    if(add) return new PyNone;
+    else {
+        call.client->SendErrorMsg("Failed to install new insurance contract.");
+        return new PyNone;
+    }
+
     // TODO:  send mail detailing insurance coverage and length of coverage
 
-    return new PyNone;
 }

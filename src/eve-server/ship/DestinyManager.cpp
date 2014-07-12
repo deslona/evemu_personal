@@ -108,7 +108,7 @@ void DestinyManager::SendDestinyUpdate( std::vector<PyTuple*>& updates, std::vec
 {
     if( self_only )
     {
-        _log( DESTINY__TRACE, "[%u] Sending destiny update (%lu, %lu) to self (%u).", GetStamp(), updates.size(), events.size(), m_self->GetID() );
+        _log( DESTINY__TRACE, "DestinyManager::SendDestinyUpdate - [%u] Sending destiny update (%lu, %lu) to self (%u).", GetStamp(), updates.size(), events.size(), m_self->GetID() );
 
         std::vector<PyTuple*>::iterator cur, end;
         cur = updates.begin();
@@ -131,15 +131,15 @@ void DestinyManager::SendDestinyUpdate( std::vector<PyTuple*>& updates, std::vec
         }
         events.clear();
     }
-    else if( NULL != m_self->Bubble() )
+    else if( m_self->Bubble() != NULL )
     {
-        _log( DESTINY__TRACE, "[%u] Broadcasting destiny update (%lu, %lu)", GetStamp(), updates.size(), events.size() );
+        _log( DESTINY__TRACE, "DestinyManager::SendDestinyUpdate - [%u] Broadcasting destiny update (u:%lu, e:%lu)", GetStamp(), updates.size(), events.size() );
 
         m_self->Bubble()->BubblecastDestiny( updates, events, "destiny" );
     }
     else
     {
-        _log( DESTINY__ERROR, "[%u] Cannot broadcast destiny update (%lu, %lu); entity (%u) is not in any bubble.", GetStamp(), updates.size(), events.size(), m_self->GetID() );
+        _log( DESTINY__ERROR, "DestinyManager::SendDestinyUpdate - [%u] Cannot broadcast destiny update (%lu, %lu); entity (%u) is not in any bubble.", GetStamp(), updates.size(), events.size(), m_self->GetID() );
     }
 }
 
@@ -148,20 +148,27 @@ void DestinyManager::_UpdateDerrived() {
     m_velocityAdjuster = exp(- (SPACE_FRICTION * TIC_DURATION_IN_SECONDS) / (m_mass * m_shipAgility));
     m_accelerationFactor = (SPACE_FRICTION*m_maxVelocity) / (m_mass * m_shipAgility);
 
-    _log(PHYSICS__TRACE, "Entity %u has derrived: maxVelocity=%f, velocityAdjuster=%f, accelerationFactor=%f",
+    uint32 testID = m_self->GetID();
+    if(( testID == 140000096 ) || ( testID == 140002407 )) {
+    _log(PHYSICS__TRACE, "DestinyManager::_UpdateDerrived - Entity %u has derrived: maxVelocity=%f, velocityAdjuster=%f, accelerationFactor=%f",
         m_self->GetID(), m_maxVelocity, m_velocityAdjuster, m_accelerationFactor);
+}
 }
 
 void DestinyManager::ProcessTic() {
-
-    _log(PHYSICS__TRACEPOS, "[%d] Entity %u starts at (%.3f, %.3f, %.3f) with velocity (%f, %f, %f)=%.1f in mode %s",
+  /*
+    uint32 testID = m_self->GetID();
+    if(( testID == 140000096 ) || ( testID == 140002407 ))
+    {
+        _log(PHYSICS__TRACEPOS, "DestinyManager::ProcessTic - [%d] Entity %u starts at (%.3f, %.3f, %.3f) with velocity (%f, %f, %f)=%.1f in mode %s",
         GetStamp(),
         m_self->GetID(),
         m_position.x, m_position.y, m_position.z,
         m_velocity.x, m_velocity.y, m_velocity.z,
         m_velocity.length(),
         DSTBALL_modeNames[State]);
-
+    }
+*/
     switch(State) {
 
     case DSTBALL_GOTO:
@@ -174,7 +181,7 @@ void DestinyManager::ProcessTic() {
             _Follow();
         } else {
             //nobody to follow?
-            _log(PHYSICS__TRACE, "Entity %u has nothing to follow. Stopping.",
+            _log(PHYSICS__TRACE, "DestinyManager::ProcessTic - Entity %u has nothing to follow. Stopping.",
                 m_self->GetID() );
             Stop();
         }
@@ -348,7 +355,7 @@ void DestinyManager::_Move() {
     } else {*/
         vector_to_goal /= sqrt(distance_to_goal2); //normalize  yeilds unitless
     //}
-    _log(PHYSICS__TRACEPOS, "Accel Magnitude = %.13f", m_accelerationFactor);
+    _log(PHYSICS__TRACEPOS, "DestinyManager::_Move - Entity %u: Accel Magnitude = %.13f",m_self->GetID(), m_accelerationFactor);
     GVector calc_acceleration = vector_to_goal * m_accelerationFactor;    //fric*m/(s*agi*kg) = m/s^2
 
     // Check to see if we have a pending docking operation and attempt to dock if so:
@@ -359,7 +366,7 @@ void DestinyManager::_Move() {
 }
 
 void DestinyManager::_MoveAccel(const GVector &calc_acceleration) {
-    _log(PHYSICS__TRACEPOS, "Entity %u: Goal Point (%.1f, %.1f, %.1f) with accel (%f, %f, %f)",
+    _log(PHYSICS__TRACEPOS, "DestinyManager::_MoveAccel - Entity %u: Goal Point (%.1f, %.1f, %.1f) with accel (%f, %f, %f)",
         m_self->GetID(),
         m_targetPoint.x, m_targetPoint.y, m_targetPoint.z,
         calc_acceleration.x, calc_acceleration.y, calc_acceleration.z);
@@ -444,7 +451,7 @@ void DestinyManager::_MoveAccel(const GVector &calc_acceleration) {
 
 void DestinyManager::_InitWarp() {
 
-    _log(PHYSICS__TRACE, " Entity %u starting warp to (%f, %f, %f) at distance %.2f",
+    _log(PHYSICS__TRACE, "DestinyManager::_InitWarp():Calculate - Entity %u starting warp to (%f, %f, %f) at distance %.2f",
         m_self->GetID(),
         m_targetPoint.x, m_targetPoint.y, m_targetPoint.z, m_targetDistance);
 
@@ -462,14 +469,20 @@ void DestinyManager::_InitWarp() {
     double warp_distance = warp_vector.length();
 
     m_targetPoint = stop_point;
-    _log(PHYSICS__TRACE, " Entity %u has new warp target of (%f, %f, %f) which is at distance %f",
+    _log(PHYSICS__TRACE, "DestinyManager::_InitWarp():Calculate - Entity %u has new warp target of (%f, %f, %f) which is at distance %f",
         m_self->GetID(),
         m_targetPoint.x, m_targetPoint.y, m_targetPoint.z,
         warp_distance);
 
     //the client clears massive during warp, presumably so you
     //do not run into things while warping.
-//#   pragma message( "TODO: set massive to false!" )
+//#   pragma message( "TODO: set massive to false!" )      ---trying
+    std::vector<PyTuple *> updates;
+    DoDestiny_SetBallMassive sbmassive;
+    sbmassive.entityID = m_self->GetID();
+    sbmassive.is_massive = 0;
+    updates.push_back(sbmassive.Encode());
+    SendDestinyUpdate(updates, true);    //consumed
 
     //double warp_speed = m_system->GetWarpSpeed();
     double warp_speed = 0.0;
@@ -489,9 +502,8 @@ void DestinyManager::_InitWarp() {
 		warpSpeedMultiplier = 3.0;
 	}
     else
-        sLog.Error( "DestinyManager::_InitWarp():", "'m_self' was not found to be either a Client object nor an NPC object." );
+        sLog.Error( "DestinyManager::_InitWarp():Calculate", "'m_self' was not found to be either a Client object nor an NPC object." );
 
-    //warp_speed = (double)(m_self->CastToClient()->GetShip()->GetAttribute(AttrWarpSpeedMultiplier).get_float()) * ONE_AU_IN_METERS;
     warp_speed = baseWarpSpeed * ((double)BASE_WARP_SPEED) * warpSpeedMultiplier * ((double)ONE_AU_IN_METERS);
 
 	m_warpNumerator = 2.0f;
@@ -501,10 +513,9 @@ void DestinyManager::_InitWarp() {
 
     if(1.5*warp_distance < warp_speed) {//not positive on this conditional
         warp_speed = 1.5*warp_distance;
-        _log(PHYSICS__TRACEPOS, "Adjusting warp speed to %f for short warp.", warp_speed);
-    } else {
-        _log(PHYSICS__TRACEPOS, "Warp speed in system %u is %f", m_system->GetID(), warp_speed);
-    }
+        _log(PHYSICS__TRACEPOS, "DestinyManager::_InitWarp():Calculate - Adjusting warp speed to %f for short warp.", warp_speed);
+    } else
+        _log(PHYSICS__TRACEPOS, "DestinyManager::_InitWarp():Calculate - Warp speed in system %u is %f", m_system->GetID(), warp_speed);
 
     const double log_warp_speed_over_three__ = log(warp_speed / 3.0f);
 
@@ -515,9 +526,9 @@ void DestinyManager::_InitWarp() {
     warp_slow_time += warp_distance * 3.0f;
     warp_slow_time /= warp_speed * 3.0f;    //v40 ~9.1105
 
-    sLog.Debug( "DestinyManager::_InitWarp():", "Warp will accelerate for %f s, then slow down at %f s", warp_acceleration_time, warp_slow_time);
+    _log(PHYSICS__TRACEPOS, "DestinyManager::_InitWarp():Calculate - Warp will accelerate for %f s, then slow down at %f s", warp_acceleration_time, warp_slow_time);
 
-    sLog.Debug( "DestinyManager::_InitWarp():", "Opposite warp direction is (%.13f, %.13f, %.13f)",
+    _log(PHYSICS__TRACEPOS, "DestinyManager::_InitWarp():Calculate - Opposite warp direction is (%.13f, %.13f, %.13f)",
         vector_from_goal.x, vector_from_goal.y, vector_from_goal.z);
 
     delete m_warpState;
@@ -539,7 +550,7 @@ void DestinyManager::_Warp() {
         return;
     }
     const double seconds_into_warp = (GetStamp() - m_warpState->start_stamp) * TIC_DURATION_IN_SECONDS;
-    _log(PHYSICS__TRACEPOS, "Seconds into warp %.1f", seconds_into_warp);
+    _log(PHYSICS__TRACEPOS, "Entity %u: Seconds into warp %.1f", m_self->GetID(), seconds_into_warp);
 
 
     /*
@@ -566,15 +577,15 @@ void DestinyManager::_Warp() {
         velocity_magnitude = warp_progress * 3.0;
 
         // Remove ship from bubble only when distance traveled takes the ship beyond the bubble's radius
-        m_system->bubbles.UpdateBubble(m_self,true,true);   // use optional 3rd param to indicate ship is warping so as to not add to new bubbles while accelerating into warp
+        m_system->bubbles.UpdateBubble(m_self,true,true);   // use optional 3rd param to indicate ship is warping so as to not add to or create new bubble while accelerating into warp.
 
-        sLog.Debug( "DestinyManager::_Warp():", "Entity %u: Warp Accelerating: velocity %f m/s with %f m left to go.",
+        _log(PHYSICS__TRACEPOS, "DestinyManager::_Warp():Accelerate - Entity %u: Warp Accelerating: velocity %f m/s with %f m left to go.",
             m_self->GetID(),
             velocity_magnitude, dist_remaining);
 
     } else if(seconds_into_warp < m_warpState->slow_time) {
         //dont simplify this, the roundoff error caused by all the extra
-        // multiply/divide crap they is major enough as to cause problems
+        // multiply/divide crap then is major enough as to cause problems
         double delta_t = (m_warpState->acceleration_time * 3.0f) - ((seconds_into_warp * 3.0f)+1.0f);
         double delta_s = (m_warpState->speed * delta_t)/(-3.0f);
         dist_remaining = m_warpState->total_distance - delta_s;
@@ -588,7 +599,7 @@ void DestinyManager::_Warp() {
     //        m_self->Bubble()->Remove(m_self);
     //    }
 
-        sLog.Debug( "DestinyManager::_Warp():", "Entity %u: Warp Cruising: velocity %f m/s with %f m left to go.",
+        _log(PHYSICS__TRACEPOS, "DestinyManager::_Warp():Cruise - Entity %u: Warp Cruising: velocity %f m/s with %f m left to go.",
             m_self->GetID(),
             velocity_magnitude, dist_remaining);
     } else {
@@ -609,7 +620,7 @@ void DestinyManager::_Warp() {
         //dist_remaining = m_warpState->total_distance - (velocity_magnitude * exp(-1.0 * seconds_into_warp) + (m_warpState->slow_time * m_warpState->speed));
         dist_remaining = velocity_magnitude * 10;// / 2.5;//m_warpDecelerateFactor;
 
-        sLog.Debug( "DestinyManager::_Warp():", "Entity %u: Warp Slowing: velocity %f m/s with %f m left to go.",
+        _log(PHYSICS__TRACEPOS, "DestinyManager::_Warp():Slow - Entity %u: Warp Slowing: velocity %f m/s with %f m left to go.",
             m_self->GetID(),
             velocity_magnitude, dist_remaining);
 
@@ -622,7 +633,7 @@ void DestinyManager::_Warp() {
 
             // HACK: broadcast our position every tic once inside radius of destination bubble
             // This temporarily fixes the warp-in bug that led to incorrect position of ship at end of warp
-            //SetPosition( GetPosition(), true, false, true );
+            SetPosition( GetPosition(), true, false, true );
         }
 
         //note, this should actually be checked AFTER we change new_velocity.
@@ -645,15 +656,15 @@ void DestinyManager::_Warp() {
     m_velocity = m_warpState->normvec_them_to_us * (-velocity_magnitude);
 
     if(stop) {
-        sLog.Debug( "DestinyManager::_Warp():", "Entity %u: Warp completed. Exit velocity %f m/s with %f m left to go.",
+        _log(PHYSICS__TRACEPOS, "DestinyManager::_Warp():Complete - Entity %u: Warp completed. Exit velocity %f m/s with %f m left to go.",
             m_self->GetID(),
             velocity_magnitude, dist_remaining);
         //they re-calculated the velocity, but it was exactly the same..
         // our calc may only be accurate to 6 decimals for some reason..
         delete m_warpState;
         m_warpState = NULL;
-        //put ourself back into a bubble.
-        //m_system->bubbles.UpdateBubble(m_self);
+        //put ourself back into a bubble....need to check existing bubbles and add ourself to it   -allan
+        m_system->bubbles.UpdateBubble(m_self, true, false, true);
         Stop(false);    //no updates, client is doing this too.
 		// Set our position one final time - BAND-AID for WARP-IN bug!  Remove once that is fixed!  This will make it VERY apparent a desync happened!
 		//SetPosition( GetPosition(), true );
@@ -910,7 +921,7 @@ void DestinyManager::Halt(bool update) {
         du.fraction = 0.0;
 
         updates.push_back(du.Encode());
-        }
+        }/*
         {
         DoDestiny_SetBallVelocity du;
         du.entityID = m_self->GetID();
@@ -919,7 +930,7 @@ void DestinyManager::Halt(bool update) {
         du.z = 0.0;
 
         updates.push_back(du.Encode());
-        }
+        }*/
 
         SendDestinyUpdate(updates, false);
     }
@@ -1054,8 +1065,7 @@ void DestinyManager::SetShipCapabilities(InventoryItemRef ship)
     m_shipInertia = Inertia;
 //    m_maxShipAcceleration = maxShipAcceleration;
 
-    _log(PHYSICS__TRACE, "Entity %u is using ship attributes: Radius=%f, Mass=%f, maxVelocity=%f, agility=%f, inertia=%f",
-        m_self->GetID(), m_radius, m_mass, m_maxShipVelocity, m_shipAgility, m_shipInertia);
+    _log(PHYSICS__TRACE, "DestinyManager::SetShipCapabilities - Entity %u is using ship attributes: Radius=%f, Mass=%f, maxVelocity=%f, agility=%f, inertia=%f", m_self->GetID(), m_radius, m_mass, m_maxShipVelocity, m_shipAgility, m_shipInertia);
 
     _UpdateDerrived();
 }
@@ -1063,8 +1073,11 @@ void DestinyManager::SetShipCapabilities(InventoryItemRef ship)
 void DestinyManager::SetPosition(const GPoint &pt, bool update, bool isWarping, bool isPostWarp) {
     //m_body->setPosition( pt );
     m_position = pt;
-    _log(PHYSICS__TRACE, "Entity %u set its position to (%.1f, %.1f, %.1f)",
+  uint32 testID = m_self->GetID();
+    if(( testID == 140000096 ) || ( testID == 140002407 )) {
+    _log(PHYSICS__TRACE, "DestinyManager::SetPosition - Entity %u set its position to (%.1f, %.1f, %.1f)",
         m_self->GetID(), m_position.x, m_position.y, m_position.z );
+}
 
     if(update) {
         DoDestiny_SetBallPosition du;
@@ -1128,7 +1141,7 @@ void DestinyManager::AlignTo(const GPoint &direction, bool update) {
         SendSingleDestinyUpdate(&tmp);    //consumed
     }
 
-    sLog.Debug( "DestinyManager::GotoDirection()", "SystemEntity '%s' vectoring to (%f,%f,%f) at velocity %f",
+    _log(PHYSICS__TRACE, "DestinyManager::AlignTo()", "SystemEntity '%s' vectoring to (%f,%f,%f) at velocity %f",
                 m_self->GetName(), direction.x, direction.y, direction.z, m_maxVelocity );
 }
 
@@ -1149,7 +1162,7 @@ void DestinyManager::GotoDirection(const GPoint &direction, bool update) {
 	if( m_self->IsClient() )
 		m_self->CastToClient()->SetPendingDockOperation( false );
 
-    sLog.Debug( "DestinyManager::GotoDirection()", "SystemEntity '%s' vectoring to (%f,%f,%f) at velocity %f",
+    _log(PHYSICS__TRACE, "DestinyManager::GotoDirection()", "SystemEntity '%s' vectoring to (%f,%f,%f) at velocity %f",
                 m_self->GetName(), direction.x, direction.y, direction.z, m_maxVelocity );
 
     if(update) {
@@ -1183,12 +1196,12 @@ PyResult DestinyManager::AttemptDockOperation()
 
     // Leave stationOrigin alone, so that docking perimeter is a sphere centered on the station's center coordinate, not the undock point
     //// Calculate 1000m out from docking bay along dock orientation vector away from station:
-    //stationOrigin.x += stationDockPoint.x;
-    //stationOrigin.y += stationDockPoint.y;
-    //stationOrigin.z += stationDockPoint.z;
-    //stationOrigin.x += 1000 * stationDockOrientation.x;
-    //stationOrigin.y += 1000 * stationDockOrientation.y;
-    //stationOrigin.z += 1000 * stationDockOrientation.z;
+    stationOrigin.x += stationDockPoint.x;
+    stationOrigin.y += stationDockPoint.y;
+    stationOrigin.z += stationDockPoint.z;
+    stationOrigin.x += 1000 * stationDockOrientation.x;
+    stationOrigin.y += 1000 * stationDockOrientation.y;
+    stationOrigin.z += 1000 * stationDockOrientation.z;
 
     OnDockingAccepted da;
     da.end_x = stationOrigin.x;
@@ -1206,12 +1219,13 @@ PyResult DestinyManager::AttemptDockOperation()
 
     // WARNING: DO NOT uncomment the following line as it for some reason causes HEAP corruption to occur on auto-docking
     //if( !(who->GetPendingDockOperation()) )
-        GotoDirection( direction, true );   // Turn ship and move toward docking point
+        //GotoDirection( direction, true );   // Turn ship and move toward docking point
 
     // Verify range to station is within docking perimeter of 500 meters:
     // (there is something WRONG with this as it will become true even when the client says ship is still about 14km from station)
     if( (rangeToStation - station->GetRadius()) > 1500 )
     {
+        GotoDirection( direction, true );   // Turn ship and move toward docking point
         // WARNING: DO NOT uncomment the following line as it for some reason causes HEAP corruption to occur on auto-docking
         //who->SetPendingDockOperation( true );   // Set client object into state that a Docking operation is pending
         return NULL;                            // so that DestinyManager can track when it needs to auto-dock
@@ -1249,9 +1263,8 @@ PyResult DestinyManager::AttemptDockOperation()
     //clear all targets
     who->targets.ClearAllTargets();
 
-	//Heal Shields and Fully Recharge Capacitor:
-	who->GetShip()->SetShipShields(1.0);
-	who->GetShip()->SetShipCapacitorLevel(1.0);
+    //inform ship object that it is docking:
+    who->GetShip()->Dock();
 
     //Check if player is in pod, in which case they get a rookie ship for free
     if( who->GetShip()->typeID() == itemTypeCapsule )

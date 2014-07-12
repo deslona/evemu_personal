@@ -127,59 +127,28 @@ PyResult CorporationService::Handle_GetFactionInfo(PyCallArgs &call) {
 }
 
 PyResult CorporationService::Handle_GetCorpInfo(PyCallArgs &call) {
-  /*
-18:22:36 L CorporationService::Handle_GetCorpInfo(): size= 1
-18:22:36 [SvcCall]   Call Arguments:
-18:22:36 [SvcCall]       Tuple: 1 elements
-18:22:36 [SvcCall]         [ 0] Integer field: 1000084
-18:22:36 [SvcCall]   Call Named Arguments:
-18:22:36 [SvcCall]     Argument 'machoVersion':
-18:22:36 [SvcCall]         Integer field: 1
-18:22:36 [SvcCallTrace] Call GetCorpInfo returned:
-18:22:36 [SvcCallTrace]       (None)
-*/
-      sLog.Log( "CorporationService::Handle_GetCorpInfo()", "size= %u", call.tuple->size() );
-  call.Dump(SERVICE__CALLS);
-
-    return NULL;
-}
-
-
-PyResult CorporationService::Handle_GetNPCDivisions(PyCallArgs &call) {
-  /*
-22:34:34 L CorporationService::Handle_GetNPCDivisions(): size= 0
-22:34:34 [SvcCall]   Call Arguments:
-22:34:34 [SvcCall]       Tuple: Empty
-22:34:34 [SvcCall]   Call Named Arguments:
-22:34:34 [SvcCall]     Argument 'machoVersion':
-22:34:34 [SvcCall]         Integer field: 1
-      sLog.Log( "CorporationService::Handle_GetNPCDivisions()", "size= %u", call.tuple->size() );
-  call.Dump(SERVICE__CALLS);
-  */
-    PyRep *result = m_db.ListNPCDivisions();
-
-    return (result);
-}
-
-PyResult CorporationService::Handle_GetEmploymentRecord(PyCallArgs &call) {
-  /*
-22:37:40 [SvcCall] Service corporationSvc: calling GetEmploymentRecord
-22:37:40 L CorporationService::Handle_GetEmploymentRecord(): size= 1
-22:37:40 [SvcCall]   Call Arguments:
-22:37:40 [SvcCall]       Tuple: 1 elements
-22:37:40 [SvcCall]         [ 0] Integer field: 140000000
-22:37:40 [SvcCall]   Call Named Arguments:
-22:37:40 [SvcCall]     Argument 'machoVersion':
-22:37:40 [SvcCall]         Integer field: 1
-*/
     Call_SingleIntegerArg args;
     if (!args.Decode(&call.tuple)) {
         codelog(SERVICE__ERROR, "Bad arguments");
         return (NULL);
     }
+    PyRep * answer = m_db.GetCorpInfo(args.arg);
+    return (answer);
+}
 
+
+PyResult CorporationService::Handle_GetNPCDivisions(PyCallArgs &call) {
+    PyRep *result = m_db.ListNPCDivisions();
+    return (result);
+}
+
+PyResult CorporationService::Handle_GetEmploymentRecord(PyCallArgs &call) {
+    Call_SingleIntegerArg args;
+    if (!args.Decode(&call.tuple)) {
+        codelog(SERVICE__ERROR, "Bad arguments");
+        return (NULL);
+    }
     PyRep * answer = m_db.GetEmploymentRecord(args.arg);
-
     return (answer);
 }
 
@@ -190,11 +159,9 @@ PyResult CorporationService::Handle_GetMedalsReceived(PyCallArgs &call) {
         codelog(SERVICE__ERROR, "Bad arguments");
         return (NULL);
     }
-
     PyTuple *t = new PyTuple(2);
     t->items[0] = m_db.GetMedalsReceived(arg.arg);
     t->items[1] = new PyList;
-
     return t;
 }
 

@@ -63,7 +63,7 @@ void BubbleManager::Process() {
             for(; cur != end; ++cur) {
                 if((*cur)->IsEmpty()) {
                     // Remove this bubble now that it is empty of ALL system entities
-                    sLog.Debug( "BubbleManager::Process()", "Bubble %u is empty and is therefore being deleted from the system right now.", (*cur)->GetBubbleID() );
+                    _log(DESTINY__BUBBLE_DEBUG, "BubbleManager::Process() Bubble %u is empty and is therefore being deleted from the system right now.", (*cur)->GetBubbleID() );
                     m_bubbles.erase(cur);
                     cur = m_bubbles.begin();
                     end = m_bubbles.end();
@@ -78,7 +78,7 @@ void BubbleManager::Process() {
             cur = wanderers.begin();
             end = wanderers.end();
             for(; cur != end; cur++) {
-                sLog.Debug( "BubbleManager::Process()", "SystemEntity '%s' being added to a bubble.", (*cur)->GetName() );
+                _log(DESTINY__BUBBLE_TRACE, "BubbleManager::Process() SystemEntity '%s' being added to a bubble.", (*cur)->GetName() );
                 Add(*cur, true);
             }
         }
@@ -98,15 +98,19 @@ void BubbleManager::UpdateBubble(SystemEntity *ent, bool notify, bool isWarping,
             return;
         }
         _log(DESTINY__BUBBLE_DEBUG, "Entity %u at (%.2f,%.2f,%.2f) is no longer located in bubble %u at (%.2f,%.2f,%.2f) with radius %.2f", ent->GetID(), ent->GetPosition().x, ent->GetPosition().y, ent->GetPosition().z, b->GetBubbleID(), b->m_center.x, b->m_center.y, b->m_center.z, b->m_radius);
-        //_log(DESTINY__BUBBLE_TRACE, "Entity %u is no longer located in bubble %u", ent->GetID(), b->GetBubbleID());
         b->Remove(ent, notify);
         sLog.Debug( "BubbleManager::UpdateBubble()", "SystemEntity '%s' being removed from Bubble %u", ent->GetName(), b->GetBubbleID() );
     }
-    else
-        sLog.Debug( "BubbleManager::UpdateBubble()", "SystemEntity '%s' not currently in ANY Bubble!!!", ent->GetName() );
-
-    if( !isWarping )
-        Add(ent, notify, isPostWarp);
+    else if(isWarping) //entity is in warp, therefore no bubble needed while warping....
+	    return;
+	else
+	{
+        _log(DESTINY__BUBBLE_DEBUG, "BubbleManager::UpdateBubble() SystemEntity '%s' not currently in ANY Bubble, but SHOULD be!", ent->GetName() );
+		//   search for bubble in system @ players postion and try to add.
+		//  this is one reason things get 'jumpy'.    major problem - fix now.
+        if( !isWarping )
+            Add(ent, notify, isPostWarp);
+	}
 }
 
 void BubbleManager::Add(SystemEntity *ent, bool notify, bool isPostWarp) {
@@ -131,7 +135,7 @@ void BubbleManager::Add(SystemEntity *ent, bool notify, bool isPostWarp) {
 
     if(in_bubble != NULL) {
         in_bubble->Add(ent, notify);
-        sLog.Debug( "BubbleManager::Add()", "SystemEntity '%s' being added to existing Bubble %u", ent->GetName(), in_bubble->GetBubbleID() );
+        _log(DESTINY__BUBBLE_TRACE, "BubbleManager::Add() SystemEntity '%s' being added to existing Bubble %u", ent->GetName(), in_bubble->GetBubbleID() );
         return;
     }
 //    // this System Entity is not in any existing bubble, so let's make a new bubble
@@ -144,7 +148,7 @@ void BubbleManager::Add(SystemEntity *ent, bool notify, bool isPostWarp) {
 
     in_bubble = new SystemBubble(newBubbleCenter, BUBBLE_RADIUS_METERS);
     sLog.Debug( "BubbleManager::Add()", "SystemEntity '%s' being added to NEW Bubble %u", ent->GetName(), in_bubble->GetBubbleID() );
-    //TODO: think about bubble colission. should we merge them?
+    //TODO: think about bubble collision. should we merge them?
     m_bubbles.push_back(in_bubble);
     in_bubble->Add(ent, notify);
 }

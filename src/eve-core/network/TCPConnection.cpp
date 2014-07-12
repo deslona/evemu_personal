@@ -264,6 +264,7 @@ bool TCPConnection::Process()
             }
 
             // All we had to do is connect, and it succeeded
+            sLog.Success( "TCPConnection", "TCP connectection from %s.", GetAddress().c_str() );
             return true;
         }
 
