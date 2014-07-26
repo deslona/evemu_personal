@@ -62,7 +62,8 @@ public:
         PyCallable_REG_CALL(BeyonceBound, CmdWarpToStuffAutopilot)
 
         if(c->Destiny() != NULL)
-            c->Destiny()->SendSetState(c->Bubble());
+		    if(c->Bubble() != NULL)		//  client in station...no bubble
+                c->Destiny()->SendSetState(c->Bubble());
     }
     virtual ~BeyonceBound() {delete m_dispatch;}
     virtual void Release() {
@@ -206,6 +207,8 @@ PyResult BeyonceBound::Handle_CmdSetSpeedFraction(PyCallArgs &call) {
  * @author Xanarox
 */
 PyResult BeyonceBound::Handle_CmdAlignTo(PyCallArgs &call) {
+    sLog.Log( "BeyonceBound", "Handle_CmdAlignTo" );
+  call.Dump(SERVICE__CALLS);
     CallAlignTo arg;
     if(!arg.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "%s: failed to decode args", call.client->GetName());
@@ -237,6 +240,8 @@ PyResult BeyonceBound::Handle_CmdAlignTo(PyCallArgs &call) {
 }
 
 PyResult BeyonceBound::Handle_CmdGotoDirection(PyCallArgs &call) {
+    sLog.Log( "BeyonceBound", "Handle_CmdGotoDirection" );
+  call.Dump(SERVICE__CALLS);
     Call_PointArg arg;
     if(!arg.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "%s: failed to decode args", call.client->GetName());
@@ -317,6 +322,8 @@ PyResult BeyonceBound::Handle_CmdGotoBookmark(PyCallArgs &call) {
 }
 
 PyResult BeyonceBound::Handle_CmdOrbit(PyCallArgs &call) {
+    sLog.Log( "BeyonceBound", "Handle_CmdOrbit" );
+  call.Dump(SERVICE__CALLS);
     Call_Orbit arg;
     if(!arg.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "%s: failed to decode args", call.client->GetName());
@@ -356,6 +363,16 @@ PyResult BeyonceBound::Handle_CmdOrbit(PyCallArgs &call) {
 }
 
 PyResult BeyonceBound::Handle_CmdWarpToStuff(PyCallArgs &call) {
+  /**
+21:05:18 L BeyonceBound: Handle_CmdWarpToStuff
+21:05:18 [SvcCall]   Call Arguments:
+21:05:18 [SvcCall]       Tuple: 2 elements
+21:05:18 [SvcCall]         [ 0] String: 'item'
+21:05:18 [SvcCall]         [ 1] Integer field: 50014076
+21:05:18 [SvcCall]   Call Named Arguments:
+21:05:18 [SvcCall]     Argument 'machoVersion':
+21:05:18 [SvcCall]         Integer field: 1
+*/
     CallWarpToStuff arg;
     if(!arg.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "%s: failed to decode args", call.client->GetName());
@@ -645,7 +662,6 @@ PyResult BeyonceBound::Handle_CmdStop(PyCallArgs &call) {
             return NULL;
     }
 
-
     destiny->Stop();
 
     return NULL;
@@ -675,7 +691,7 @@ PyResult BeyonceBound::Handle_CmdDock(PyCallArgs &call) {
 }
 
 PyResult BeyonceBound::Handle_CmdStargateJump(PyCallArgs &call) {
-    //Call_TwoIntegerArgs arg;
+    // sends 3 args....fromgateID, togateID, and shipID
     Call_StargateJump arg;
     if(!arg.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "%s: failed to decode args", call.client->GetName());
@@ -683,6 +699,5 @@ PyResult BeyonceBound::Handle_CmdStargateJump(PyCallArgs &call) {
     }
 
     call.client->StargateJump(arg.fromStargateID, arg.toStargateID);
-
     return NULL;
 }

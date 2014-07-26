@@ -126,7 +126,7 @@ bool SystemManager::_LoadSystemCelestials() {
                 stationRef->SetAttribute(AttrDamage,        0.0);                                        // Structure Damage
                 stationRef->SetAttribute(AttrShieldCapacity,20000000.0);                         // Shield Capacity
                 stationRef->SetAttribute(AttrShieldCharge,  stationRef->GetAttribute(AttrShieldCapacity));     // Shield Charge
-                stationRef->SetAttribute(AttrArmorHP,       stationRef->type().attributes.armorHP());   // Armor HP
+                stationRef->SetAttribute(AttrArmorHP,       stationRef->type().attributes.armorHP(), 0);   // Armor HP
                 stationRef->SetAttribute(AttrArmorDamage,   0.0);                                   // Armor Damage
                 stationRef->SetAttribute(AttrMass,          stationRef->type().attributes.mass());         // Mass
                 stationRef->SetAttribute(AttrRadius,        stationRef->type().attributes.radius());     // Radius
@@ -815,6 +815,7 @@ void SystemManager::MakeSetState(const SystemBubble *bubble, DoDestiny_SetState 
     }
 
     //bubble is null??? why???
+	//  because character is in station.  added check to beyonce bound constructor.  -allan  25Jul14
     bubble->GetEntities( visibleEntities );
 
     PySafeDecRef( ss.slims );

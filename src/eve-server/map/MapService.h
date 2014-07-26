@@ -62,6 +62,7 @@ protected:
     PyCallable_DECL_CALL(GetHistory)
     PyCallable_DECL_CALL(GetVictoryPoints)
     PyCallable_DECL_CALL(GetAllianceJumpBridges)
+    PyCallable_DECL_CALL(GetLinkableJumpArrays)
 
 };
 

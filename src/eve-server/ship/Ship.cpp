@@ -689,15 +689,15 @@ bool Ship::ValidateItemSpecifics(InventoryItemRef equip) {
 
 void Ship::Dock()
 {
- // Heal Shields and Fully Recharge Capacitor:
- SetShipShields(1.0);
- SetShipCapacitorLevel(1.0);
-
  DeactivateAllModules();
 }
 
 void Ship::Undock()
 {
+ // Heal Shields and Fully Recharge Capacitor:
+ SetShipShields(1.0);
+ SetShipCapacitorLevel(1.0);
+
 }
 
 /* Begin new Module Manager Interface */

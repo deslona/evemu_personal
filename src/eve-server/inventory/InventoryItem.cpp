@@ -776,6 +776,7 @@ bool InventoryItem::Populate( Rsp_CommonGetInfo_Entry& result )
         es.env_shipID = locationID();
         es.env_target = locationID();   //this is what they do.
         es.env_other = new PyNone;
+        es.env_area = new PyNone;
         es.env_effectID = effectOnline;
         es.startTime = Win32TimeNow() - Win32Time_Hour; //act like it happened an hour ago
         es.duration = INT_MAX;

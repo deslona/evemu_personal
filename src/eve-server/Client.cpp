@@ -47,6 +47,8 @@ Client::Client(PyServiceMgr &services, EVETCPConnection** con)
 //  m_destinyTimer(1000, true), //accurate timing is essential
 //  m_lastDestinyTime(Timer::GetTimeSeconds()),
   m_moveState(msIdle),
+  m_fromGate(0),
+  m_toGate(0),
   m_moveTimer(500),
   m_movePoint(0, 0, 0),
   m_timeEndTrain(0),
@@ -145,6 +147,10 @@ void Client::Process() {
         case msJump:
             _ExecuteJump();
             break;
+		//used to move closer to gate (not within jump distance)
+		case msMove:
+		    StargateJump(m_fromGate, m_toGate);
+			break;
         }
     }
 
@@ -343,8 +349,8 @@ void Client::ChannelLeft(LSCChannel *chan) {
 }
 
 bool Client::EnterSystem(bool login) {
-
     if(m_system != NULL && m_system->GetID() != GetSystemID()) {
+        sLog.Warning( "Client::EnterSystem()", "m_system = %u, m_system->GetID() = %u", m_system, m_system->GetID() );
         //we have different m_system
         m_system->RemoveClient(this);
         m_system = NULL;
@@ -352,10 +358,9 @@ bool Client::EnterSystem(bool login) {
         delete m_destiny;
         m_destiny = NULL;
     }
-
     if(m_system == NULL) {
-        //m_system is NULL, we need new system
-        //find our system manager and register ourself with it.
+        sLog.Warning( "Client::EnterSystem()", "m_system == NULL, GetSystemID() = %u, mLocation = %u", GetSystemID(), GetLocationID() );
+        //m_system is NULL, so find our new system's manager and register ourself with it.
         m_system = m_services.entity_list.FindOrBootSystem(GetSystemID());
         if(m_system == NULL) {
             sLog.Error("Client", "Failed to boot system %u for char %s (%u)", GetSystemID(), GetName(), GetCharacterID());
@@ -363,8 +368,9 @@ bool Client::EnterSystem(bool login) {
             return false;
         }
         m_system->AddClient(this);
-    }
+	}
 
+/**   ON HOLD FOR NOW...... needs rework based on new client data
     //  add char to Dynamic Data    updated for docked/inspace   -allan 28April14
     GetChar()->chkDynamicSystemID(GetSystemID());
     if(login) {
@@ -373,8 +379,8 @@ bool Client::EnterSystem(bool login) {
         else
             GetChar()->AddPilotToDynamicData(GetSystemID(), true, true);
     } else
-        GetChar()->AddPilotToDynamicData(GetSystemID(), false, true);
-
+        GetChar()->AddPilotToDynamicData(GetSystemID(), false, false);
+*/
     return true;
 }
 
@@ -386,8 +392,8 @@ bool Client::UpdateLocation() {
 
         //remove ourselves from any bubble
         //m_system->bubbles.Remove(this, false);
-        m_system->RemoveClient(this);
-        m_system = NULL;
+		m_system->RemoveClient(this);
+		m_system = NULL;
 
         OnCharNowInStation();
     } else if(IsSolarSystem(GetLocationID())) {
@@ -406,32 +412,61 @@ bool Client::UpdateLocation() {
             m_destiny->SetPosition( warpFromPoint, true );
             WarpTo( warpToPoint, 0.0 );        // Warp ship from the random login point to the position saved on last disconnect
         }
-        else */
-        {
+        else {*/
 
             // This is NOT a login, so we always enter a system stopped.
             m_destiny->Halt(false);
-            //set position.    -this *may* set coords to 0
-            //m_destiny->SetPosition(GetShip()->position(), false);
-        }
+            //set position.
+            //m_destiny->SetPosition(this->GetPosition(), false);
     }
-
     return true;
+}
+
+void Client::UndockFromStation( uint32 stationID, uint32 systemID, uint32 constellationID, uint32 regionID, GPoint dockPosition )
+{   // made specific for undocking instead of 'generic' move function below
+    OnCharNoLongerInStation();       //character notification messages wrapper
+	//register with system manager...should also update bubble manager to add client to station's bubble.
+    EnterSystem( false );
+
+    // need CURRENT station position.  station has an ORBIT...so it moves.  duh
+	//   this is based on a system manager, which we dont have until we run Client::EnterSystem()
+    SystemManager *sm = m_system;
+	SystemEntity *station = sm->get(stationID);
+    GPoint stationOrigin = station->GetPosition();
+    //  set true dockPosition based on current stationOrigin, NOT pulling initial data from DB
+	dockPosition.x += stationOrigin.x;
+	dockPosition.y += stationOrigin.y;
+	dockPosition.z += stationOrigin.z;
+
+	// tell ship its' undocking, which only sets shields and cap to full for now  (which was moved from aknor's original commit)
+	GetShip()->Undock();
+	//remove ship from station inv, add to system inv, and inform client.
+    GetShip()->Move( systemID, flagAutoFit, true );
+    //set character location to current system, and save.
+    GetChar()->SetLocation( 0, systemID, constellationID, regionID );
+	//set ship.m_position and save
+    GetShip()->Relocate( dockPosition );
+    //update char session with new values  ...this should change mlocation (GetLocationID()) also.   it does not.  23Jul
+	//need mlocation set to sol system before adding destiny manager and updating with new position.
+    _UpdateSession( GetChar() );
+    //we are in a system, so we need a destiny manager
+    m_destiny = new DestinyManager(this, m_system);
+    //ship should never be NULL.
+    m_destiny->SetShipCapabilities( GetShip() );
+	m_destiny->SetPosition(dockPosition);		//may not need....test.....not sure   24Jul
+	//update client and set session change
+	//TODO: implement and set session change timer .....client knows already.  session change timer = 10s
+    _SendSessionChange();
 }
 
 void Client::MoveToLocation( uint32 location, const GPoint& pt )
 {
-    if( GetLocationID() == location )		// still in current system....This is a warp or simple movement
+    if( GetLocationID() == location )
     {
+        // This is a warp or simple movement
         MoveToPosition( pt );
-		//_UpdateSession( GetChar() );
-		//UpdateLocation();
-		//_SendSessionChange();
         return;
     }
-
-    if( IsStation( GetLocationID() ) )
-        OnCharNoLongerInStation();
 
     uint32 stationID, solarSystemID, constellationID, regionID;
     if( IsStation( location ) )
@@ -480,6 +515,7 @@ void Client::MoveToLocation( uint32 location, const GPoint& pt )
 
     _SendSessionChange();
 }
+
 
 void Client::MoveToPosition(const GPoint &pt) {
     if(m_destiny == NULL)
@@ -583,7 +619,6 @@ void Client::_UpdateSession( const CharacterConstRef& character )
     if (IsInSpace())
         mSession.SetInt("shipid", GetShipID());
 }
-
 
 void Client::_UpdateSession2( uint32 characterID )
 {
@@ -1012,12 +1047,45 @@ void Client::WarpTo(const GPoint &to, double distance) {
 
 void Client::StargateJump(uint32 fromGate, uint32 toGate) {
     if(m_moveState != msIdle || m_moveTimer.Enabled()) {
-        sLog.Log("Client","%s: StargateJump called when a move is already pending. Ignoring.", GetName());
+        sLog.Error("Client","%s: StargateJump called when a jump is already pending. Ignoring.", GetName());
         return;
     }
 
-    //TODO: verify that they are actually close to 'fromGate'
-    //TODO: verify that 'fromGate' actually jumps to 'toGate'
+    // verify that they are actually close to 'fromGate'  -allan 24Jul14
+	// this is based on a system manager for current system.
+	//   system->stargate->position, then verify client is within jump distance of stargate, else move closer.
+    SystemManager *sm = m_system;
+	SystemEntity *stargate = sm->get(fromGate);
+    GPoint stargateOrigin = stargate->GetPosition();
+	const GPoint &shipPosition = GetPosition();
+
+    OnDockingAccepted da;
+    da.start_x = shipPosition.x;
+    da.start_y = shipPosition.y;
+    da.start_z = shipPosition.z;
+    da.end_x = stargateOrigin.x;
+    da.end_y = stargateOrigin.y;
+    da.end_z = stargateOrigin.z;
+
+    GPoint start(da.start_x, da.start_y, da.start_z);
+    GPoint end(da.end_x, da.end_y, da.end_z);
+    GVector direction(start, end);
+    double rangeTostargate = direction.length();
+
+    // Verify range to stargate is within docking perimeter of 1500 meters:
+    if( (rangeTostargate - stargate->GetRadius()) > 1500 )
+    {
+	    SendNotifyMsg("Not within Gate Activation Distance.  Moving closer.  Please Stand By.");
+        m_destiny->GotoDirection( direction, true );   // Turn ship and move toward stargate.
+		m_fromGate = fromGate;
+		m_toGate = toGate;
+        //delay the jump until closer to gate
+        _postMove(msMove, 4000);
+        return;
+    }
+
+	m_fromGate = 0;
+	m_toGate = 0;
 
     uint32 solarSystemID, constellationID, regionID;
     GPoint position;
@@ -1034,12 +1102,6 @@ void Client::StargateJump(uint32 fromGate, uint32 toGate) {
     m_moveSystemID = solarSystemID;
     m_movePoint = position;
     m_movePoint.MakeRandomPointOnSphere( 10000 );   // Make Jump-In point a random spot on a 10km radius sphere about the stargate
-
-    m_destiny->SendJumpOut(fromGate);
-    //TODO: send 'effects.GateActivity' on 'toGate' at the same time
-
-    //delay the move so they can see the JumpOut animation
-    _postMove(msJump, 5000);
 
     // add jump and pilot to mapDynamicData for showing in StarMap (F10)    -allan 06Mar14
     // this is the code for removing pilot from previous system
@@ -1060,6 +1122,13 @@ void Client::StargateJump(uint32 fromGate, uint32 toGate) {
 
     // used for showing Visited Systems in StarMap(F10)  -allan 30Jan14
     GetChar()->VisitSystem(solarSystemID);
+
+    m_destiny->SendGateActivity(fromGate);
+    //TODO: send 'effects.GateActivity' on 'toGate' at the same time  ... done.  to test   18Jul14
+    m_destiny->SendGateActivity(toGate);
+
+    //delay the move so they can see the JumpOut animation
+    _postMove(msJump, 5000);
 }
 
 void Client::SetDockingPoint(GPoint &dockPoint)
@@ -1161,10 +1230,10 @@ bool Client::SelectCharacter( uint32 char_id )
 
     UpdateLocation();
 
-    // update skill queue
-    GetChar()->UpdateSkillQueue();
+    // update skill queue.....this can cancel out skill training when there is no destiny manager for client yet.
+    //GetChar()->UpdateSkillQueue();
     //  this will set training end time, then we wait for the process tick which will check this then update skillqueue
-    //UpdateSkillTraining();
+    UpdateSkillTraining();
 
     //johnsus - characterOnline mod
     m_services.serviceDB().SetCharacterOnlineStatus( GetCharacterID(), true );

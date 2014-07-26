@@ -56,6 +56,7 @@ MapService::MapService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(MapService, GetMyExtraMapInfo)
     PyCallable_REG_CALL(MapService, GetMyExtraMapInfoAgents)  //ColorStarsByMyAgents
     PyCallable_REG_CALL(MapService, GetAllianceJumpBridges)
+    PyCallable_REG_CALL(MapService, GetLinkableJumpArrays)
 
 }
 
@@ -309,6 +310,16 @@ PyResult MapService::Handle_GetAllianceJumpBridges(PyCallArgs &call)
      /**
                  toLocID, fromLocID  */
   sLog.Log( "MapService::Handle_GetAllianceJumpBridges()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    return NULL;
+}
+
+PyResult MapService::Handle_GetLinkableJumpArrays(PyCallArgs &call)
+{
+     /**   sends nothing (no args)
+             solarSystemID, structureID   */
+  sLog.Log( "MapService::Handle_GetLinkableJumpArrays()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
 
     return NULL;

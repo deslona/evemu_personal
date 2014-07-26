@@ -43,9 +43,8 @@ protected:
     PosMgrDB m_db;
 
     PyCallable_DECL_CALL(GetControlTowerFuelRequirements)
-    PyCallable_DECL_CALL(GetMoonForTower)
-    PyCallable_DECL_CALL(SetTowerPassword)
-    PyCallable_DECL_CALL(SetShipPassword)
+    PyCallable_DECL_CALL(InstallJumpBridgeLink)
+    PyCallable_DECL_CALL(UninstallJumpBridgeLink)
     //PyCallable_DECL_CALL()
 
     //overloaded in order to support bound objects:

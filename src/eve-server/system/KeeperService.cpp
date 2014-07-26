@@ -28,6 +28,7 @@
 #include "PyBoundObject.h"
 #include "PyServiceCD.h"
 #include "system/KeeperService.h"
+#include "system/SystemManager.h"
 
 class KeeperBound
 : public PyBoundObject
@@ -72,6 +73,7 @@ KeeperService::KeeperService(PyServiceMgr *mgr)
     _SetCallDispatcher(m_dispatch);
 
     PyCallable_REG_CALL(KeeperService, GetLevelEditor)
+    PyCallable_REG_CALL(KeeperService, ActivateAccelerationGate)
 }
 
 KeeperService::~KeeperService() {
@@ -87,6 +89,8 @@ PyBoundObject *KeeperService::_CreateBoundObject(Client *c, const PyRep *bind_ar
 
 
 PyResult KeeperService::Handle_GetLevelEditor(PyCallArgs &call) {
+    sLog.Log( "KeeperService", "Handle_GetLevelEditor" );
+  call.Dump(SERVICE__CALLS);
     PyRep *result = NULL;
 
     KeeperBound *ib = new KeeperBound(m_manager, &m_db);
@@ -95,29 +99,32 @@ PyResult KeeperService::Handle_GetLevelEditor(PyCallArgs &call) {
     return result;
 }
 
+/**  Hard-coded to random location....just to play with right now.
+		will need to edit later to implement in missions/etc  */
+PyResult KeeperService::Handle_ActivateAccelerationGate(PyCallArgs &call) {
+    PyRep *result = NULL;
 
+        Call_SingleIntegerArg args;
 
+    if( !args.Decode( &call.tuple ) )
+    {
+                sLog.Error( "KeeperService::Handle_ActivateAccelerationGate(): failed to decode arguments for character '%s' !", call.client->GetName() );
+        return NULL;
+    }
 
+        Client * who = call.client;
 
+        //who->Destiny()->SendSpecialEffect10(args.arg, who->GetShip(), 0, "effects.WarpGateEffect", 0, 1, 0);
+        double distance = 10 * ONE_AU_IN_METERS;
+        GPoint currentPosition(who->GetPosition());
+        GPoint deltaPosition;
+        deltaPosition.x = MakeRandomFloat(-1.0, 1.0) * distance;
+        deltaPosition.y = MakeRandomFloat(-1.0, 1.0) * distance;
+        deltaPosition.z = MakeRandomFloat(-2.0, 2.0) * ONE_AU_IN_METERS;
+        GPoint warpToPoint(currentPosition+deltaPosition);              // Make a warp-in point variable
+        GVector vectorToDestination(currentPosition, warpToPoint);
+        double distanceToDestination = vectorToDestination.length();
+    who->WarpTo( warpToPoint, distanceToDestination );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return result;
+}

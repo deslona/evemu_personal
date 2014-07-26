@@ -466,16 +466,15 @@ bool AttributeMap::ResetAttribute(uint32 attrID, bool notify)
 }
 
 bool AttributeMap::Load()
-{
-    /* First, we load default attributes values using existing attribute system */
+{    /* First, we load default attributes values using existing attribute system */
     DgmTypeAttributeSet *attr_set = sDgmTypeAttrMgr.GetDmgTypeAttributeSet( mItem.typeID() );
-    if (attr_set == NULL)
-        return false;
+    if (attr_set != NULL)
+    {
+        DgmTypeAttributeSet::AttrSetItr itr = attr_set->attributeset.begin();
 
-    DgmTypeAttributeSet::AttrSetItr itr = attr_set->attributeset.begin();
-
-    for (; itr != attr_set->attributeset.end(); itr++)
-        SetAttribute((*itr)->attributeID, (*itr)->number, false);
+        for (; itr != attr_set->attributeset.end(); itr++)
+            SetAttribute((*itr)->attributeID, (*itr)->number, false);
+    }
 
     /* Then we load the saved attributes from the db, if there are any yet, and overwrite the defaults */
     DBQueryResult res;
@@ -583,67 +582,56 @@ bool AttributeMap::SaveFloatAttribute(uint32 attributeID, double value)
     return true;
 }
 
-/* hmmm only save 'state' related attributes... and calculate the rest on the fly....*/
-/* we should save skills */
-bool AttributeMap::Save()
-{
-	bool success = false;
-
+bool AttributeMap::Save() {
     /* if nothing changed... it means this action has been successful we return true... */
     if (mChanged == false)
         return true;
 
+    std::ostringstream Inserts;
+    // start the insert into command.
+    Inserts << "INSERT INTO ";
+    // set the appropriate table name.
+    if(mDefault)
+        Inserts << "entity_default_attributes";
+    else
+        Inserts << "entity_attributes";
+    Inserts << " (itemID, attributeID, valueInt, valueFloat) ";
+    bool first = true;
     AttrMapItr itr = mAttributes.begin();
     AttrMapItr itr_end = mAttributes.end();
-    for (; itr != itr_end; itr++)
-    {
+    for (; itr != itr_end; itr++) {
+        // if this is the first row specify the VALUES keyword
+        if(first == true) {
+            Inserts << "VALUES";
+            first = false;
+        } else        // otherwise coma separate the values.
+            Inserts << ", ";
+        // itemID and attributeID keys.
+        Inserts << "(" << mItem.itemID() << ", " << itr->first << ", ";
+        // the value to set.
         if ( itr->second.get_type() == evil_number_int ) {
-
-            DBerror err;
-
-			if(mDefault)
-			{
-				success = sDatabase.RunQuery(err,
-					"REPLACE INTO entity_default_attributes (itemID, attributeID, valueInt, valueFloat) VALUES (%u, %u, %" PRId64 ", NULL)",
-					mItem.itemID(), itr->first, itr->second.get_int());
-			}
-			else
-			{
-				success = sDatabase.RunQuery(err,
-					"REPLACE INTO entity_attributes (itemID, attributeID, valueInt, valueFloat) VALUES (%u, %u, %" PRId64 ", NULL)",
-					mItem.itemID(), itr->first, itr->second.get_int());
-			}
-
-            if (!success)
-                sLog.Error("AttributeMap", "unable to save attribute");
-
-        } else if (itr->second.get_type() == evil_number_float ) {
-
-            DBerror err;
-
-			if(mDefault)
-			{
-				success = sDatabase.RunQuery(err,
-					"REPLACE INTO entity_default_attributes (itemID, attributeID, valueInt, valueFloat) VALUES (%u, %u, NULL, %f)",
-					mItem.itemID(), itr->first, itr->second.get_float());
-			}
-			else
-			{
-				success = sDatabase.RunQuery(err,
-					"REPLACE INTO entity_attributes (itemID, attributeID, valueInt, valueFloat) VALUES (%u, %u, NULL, %f)",
-					mItem.itemID(), itr->first, itr->second.get_float());
-			}
-
-            if (!success)
-                sLog.Error("AttributeMap", "unable to save attribute");
+            Inserts << itr->second.get_int() << ", NULL)";
+        } else {
+            Inserts << " NULL, " << itr->second.get_float() << ")";
         }
     }
 
+    // did we get at least 1 insert?
+    if(first != true) {
+        // finish creating the command.
+        Inserts << "ON DUPLICATE KEY UPDATE ";
+        Inserts << "valueInt=VALUES(valueInt), ";
+        Inserts << "valueFloat=VALUES(valueFloat)";
+        // execute the command.
+        DBerror err;
+        if (!sDatabase.RunQuery(err, Inserts.str().c_str())) {
+            sLog.Error("AttributeMap", "unable to save attributes");
+            return false;
+        }
+    }
     mChanged = false;
-
     return true;
 }
-
 
 bool AttributeMap::SaveAttributes() {
     return Save();

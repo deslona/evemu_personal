@@ -114,6 +114,32 @@ PyRep* CharacterDB::DeleteCharacter(uint32 accountID, uint32 charID)
         // valid request; this means we may use charID safely here
         sDatabase.RunQuery(error, "DELETE FROM entity WHERE ownerID = %u", charID);
 
+		//  just a small list of possible locations to delete char references from....
+		/**
+		6 matches in avatar_colors
+		15 matches in avatar_modifiers
+		13 matches in avatar_sculpts
+		1 match in avatars
+		0 matches in bookmarkFolders
+		0 matches in bookmarkVouchers
+		1 match in bookmarks
+		0 matches in bounties
+		1 match in cacheOwners
+		4 matches in channelChars
+		0 matches in chrApplications
+		1 match in chrCertificates
+		1 match in chrEmployment
+		31 matches in chrSkillHistory
+		0 matches in chrSkillQueue
+		0 matches in chrOwnerNote
+		0 matches in chrPausedSkillQueue
+		1 match in entity
+		61 matches in entity_attributes
+		0 matches in entity_attributesStatic
+		60 matches in entity_default_attributes
+		0 matches in ramJobs
+		*/
+
         // indicates 'no error' to the client
         return NULL;
     }

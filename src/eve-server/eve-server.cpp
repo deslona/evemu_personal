@@ -157,32 +157,18 @@ int main( int argc, char* argv[] )
     // Under Visual Studio setup memory leak detection
     _CrtSetDbgFlag( _CRTDBG_LEAK_CHECK_DF | _CrtSetDbgFlag( _CRTDBG_REPORT_FLAG ) );
 #endif /* defined( HAVE_CRTDBG_H ) && !defined( NDEBUG ) */
-/**
-    printf("Copyright (C) 2006-2011 EVEmu Team. http://evemu.org/\n");
-    printf("This program is free software; you can redistribute it and/or modify it under\n");
-    printf("the terms of the GNU Lesser General Public License as published by the Free \n");
-    printf("Software Foundation; either version 2 of the License, or (at your option) any\n");
-    printf("later version.\n");
-    printf("\n");
-    printf("This program is distributed in the hope that it will be useful, but WITHOUT\n");
-    printf("ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS\n");
-    printf("FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more\n");
-    printf("details.\n");
-    printf("\n");
-*/
     // Load server configuration
     if( !sConfig.ParseFile( CONFIG_FILE ) )
     {
         printf("ERROR: Loading server configuration '%s' failed.", CONFIG_FILE );
-        //sLog.Error( "server init", "Loading server configuration '%s' failed.", CONFIG_FILE );
         std::cout << std::endl << "press any key to exit...";  std::cin.get();
         return 1;
     }
 
     sLog.InitializeLogging(sConfig.files.logDir);
     sLog.Log("server init", "Loading server...");
-    sLog.Log("SERVER VERSION", "EVEmu 0.7.30-allan" );
-    sLog.Log("BUILD DATE", "5 July 2014");
+    sLog.Log("SERVER VERSION", "EVEmu 0.7.37-allan" );
+    sLog.Log("BUILD DATE", "18 July 2014");
     sLog.Log("SOURCE", "get at " EVEMU_REPOSITORY );
     sLog.Log("SERVER INIT", "\n"
         "\tSupported Client: %s\n"

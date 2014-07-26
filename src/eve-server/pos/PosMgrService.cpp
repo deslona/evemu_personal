@@ -75,7 +75,8 @@ PosMgrService::PosMgrService(PyServiceMgr *mgr)
     _SetCallDispatcher(m_dispatch);
 
     PyCallable_REG_CALL(PosMgrService, GetControlTowerFuelRequirements)
-    //PyCallable_REG_CALL(PosMgrService, )
+    PyCallable_REG_CALL(PosMgrService, InstallJumpBridgeLink)
+    PyCallable_REG_CALL(PosMgrService, UninstallJumpBridgeLink)
 }
 
 PosMgrService::~PosMgrService() {
@@ -151,3 +152,66 @@ PyResult PosMgrService::Handle_GetControlTowerFuelRequirements(PyCallArgs &call)
 
     return m_db.GetControlTowerFuelRequirements();
 }
+
+PyResult PosMgrService::Handle_InstallJumpBridgeLink(PyCallArgs &call) {
+  /**
+    def BridgePortals(self, localItemID, remoteSolarSystemID, remoteItemID):
+        posLocation = util.Moniker('posMgr', session.solarsystemid)
+        posLocation.InstallJumpBridgeLink(localItemID, remoteSolarSystemID, remoteItemID)
+
+  */
+  sLog.Log( "PosMgrService::Handle_InstallJumpBridgeLink()", "size=%u", call.tuple->size());
+    call.Dump(SERVICE__CALLS);
+
+    return m_db.GetControlTowerFuelRequirements();
+}
+
+PyResult PosMgrService::Handle_UninstallJumpBridgeLink(PyCallArgs &call) {
+  /**
+    def UnbridgePortal(self, itemID):
+        posLocation = util.Moniker('posMgr', session.solarsystemid)
+        posLocation.UninstallJumpBridgeLink(itemID)
+
+  */
+  sLog.Log( "PosMgrService::Handle_UninstallJumpBridgeLink()", "size=%u", call.tuple->size());
+    call.Dump(SERVICE__CALLS);
+
+    return m_db.GetControlTowerFuelRequirements();
+}
+
+/*
+                state = slimItem.orbitalState
+                if state in (entities.STATE_UNANCHORING,
+                 entities.STATE_ONLINING,
+                 entities.STATE_ANCHORING,
+                 entities.STATE_OPERATING,
+                 entities.STATE_OFFLINING,
+                 entities.STATE_SHIELD_REINFORCE):
+                    stateText = pos.DISPLAY_NAMES[pos.Entity2DB(state)]
+                    gm.append(('End orbital state change (%s)' % stateText, self.CompleteOrbitalStateChange, (itemID,)))
+                elif state == entities.STATE_ANCHORED:
+                    upgradeType = sm.GetService('godma').GetTypeAttribute2(slimItem.typeID, const.attributeConstructionType)
+                    if upgradeType is not None:
+                        gm.append(('Upgrade to %s' % cfg.invtypes.Get(upgradeType).typeName, self.GMUpgradeOrbital, (itemID,)))
+                gm.append(('GM: Take Control', self.TakeOrbitalOwnership, (itemID, slimItem.planetID)))
+                */
+
+/*
+    def GetGMStructureStateMenu(self, itemID = None, slimItem = None, charID = None, invItem = None, mapItem = None):
+        subMenu = []
+        if hasattr(slimItem, 'posState') and slimItem.posState is not None:
+            currentState = slimItem.posState
+            if currentState not in pos.ONLINE_STABLE_STATES:
+                if currentState == pos.STRUCTURE_ANCHORED:
+                    subMenu.append(('Online', sm.RemoteSvc('slash').SlashCmd, ('/pos online ' + str(itemID),)))
+                    subMenu.append(('Unanchor', sm.RemoteSvc('slash').SlashCmd, ('/pos unanchor ' + str(itemID),)))
+                elif currentState == pos.STRUCTURE_UNANCHORED:
+                    subMenu.append(('Anchor', sm.RemoteSvc('slash').SlashCmd, ('/pos anchor ' + str(itemID),)))
+            else:
+                if getattr(slimItem, 'posTimestamp', None) is not None:
+                    subMenu.append(('Complete State', sm.RemoteSvc('slash').SlashCmd, ('/sov complete ' + str(itemID),)))
+                subMenu.append(('Offline', sm.RemoteSvc('slash').SlashCmd, ('/pos offline ' + str(itemID),)))
+        if hasattr(slimItem, 'structureState') and slimItem.structureState != None and slimItem.structureState in [pos.STRUCTURE_SHIELD_REINFORCE, pos.STRUCTURE_ARMOR_REINFORCE]:
+            subMenu.append(('Complete State', sm.RemoteSvc('slash').SlashCmd, ('/sov complete ' + str(itemID),)))
+        return subMenu
+*/

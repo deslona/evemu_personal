@@ -128,7 +128,7 @@ public:
     // character data
     CharacterRef GetChar() const                    { return m_char; }
     ShipRef GetShip() const                         { return ShipRef::StaticCast( Item() ); }
-    bool InPod() const                                { return GetShip()->typeID() == 670; }
+    bool InPod() const                              { return GetShip()->typeID() == 670; }
 
     bool IsInSpace() const                          { return ( GetStationID() == 0 ); }
     double x() const                                { return GetPosition().x; }    //this is terribly inefficient.
@@ -136,7 +136,7 @@ public:
     double z() const                                { return GetPosition().z; }    //this is terribly inefficient.
 
     uint32 GetAllianceID() const                    { return GetChar() ? GetChar()->allianceID() : 0; }
-    uint32 GetWarFactionID() const                    { return GetChar() ? GetChar()->warFactionID() : 0; }
+    uint32 GetWarFactionID() const                  { return GetChar() ? GetChar()->warFactionID() : 0; }
     double GetBounty() const                        { return GetChar() ? GetChar()->bounty() : 0.0; }
     double GetSecurityRating() const                { return GetChar() ? GetChar()->securityRating() : 0.0; }
     double GetBalance() const                       { return GetChar() ? GetChar()->balance() : 0.0; }
@@ -145,6 +145,7 @@ public:
     bool AddBalance(double amount);
 
     void BoardShip(ShipRef new_ship);
+    void UndockFromStation( uint32, uint32, uint32, uint32, GPoint );
     void MoveToLocation(uint32 location, const GPoint &pt);
     void MoveToPosition(const GPoint &pt);
     void MoveItem(uint32 itemID, uint32 location, EVEItemFlags flag);
@@ -176,13 +177,11 @@ public:
     // THESE FUNCTIONS ARE HACKS AS WE DONT KNOW WHY THE CLIENT CALLS STOP AT UNDOCK
     void SetJustUndocking(bool justUndocking)
     {
-        if( m_justUndockedCount == 0 )
+        if( m_justUndockedCount == 0 ) {
             m_justUndockedCount = 1;
-        else
-            m_justUndockedCount--;
-
-        if( m_justUndockedCount == 1 )
             m_justUndocked = justUndocking;
+		} else
+            m_justUndockedCount--;
     }
     bool GetJustUndocking() { return m_justUndocked; };
     void SetUndockAlignToPoint(GPoint &dest);
@@ -203,8 +202,7 @@ public:
     void EnableKennyTranslator() { bKennyfied = true; };
     void DisableKennyTranslator() { bKennyfied = false; };
 
-    /** character notification messages
-      */
+    /** character notification messages  */
     void OnCharNoLongerInStation();
     void OnCharNowInStation();
 
@@ -262,7 +260,8 @@ protected:
     //this whole move system is a piece of crap:
     typedef enum {
         msIdle,
-        msJump
+        msJump,
+        msMove
     } _MoveState;
     void _postMove(_MoveState type, uint32 wait_ms=500);
     _MoveState m_moveState;
@@ -270,6 +269,8 @@ protected:
     uint32 m_moveSystemID;
     GPoint m_movePoint;
     uint32 m_dockStationID;
+	uint32 m_fromGate;
+	uint32 m_toGate;
     void _ExecuteJump();
     bool m_needToDock;
 

@@ -27,8 +27,9 @@
 #ifndef __SHIP_SERVICE_H_INCL__
 #define __SHIP_SERVICE_H_INCL__
 
-#include "ship/ShipDB.h"
 #include "PyService.h"
+
+#include "ship/ShipDB.h"
 
 class ShipService
 : public PyService

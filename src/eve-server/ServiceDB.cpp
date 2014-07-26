@@ -327,9 +327,15 @@ bool ServiceDB::GetStationInfo(uint32 stationID, uint32 *systemID, uint32 *const
         );
     if(dockPosition != NULL)
         *dockPosition = GPoint(
+        /*    i need offset for dockPosition, and this is best way to get it....cannot use position of station from DB, as station moves.
+		         this change **SHOULD NOT** affect anything but undocking   -allan  23Jul14
             row.GetDouble(3) + row.GetDouble(6),
             row.GetDouble(4) + row.GetDouble(7),
             row.GetDouble(5) + row.GetDouble(8)
+            */
+            row.GetDouble(6),
+            row.GetDouble(7),
+            row.GetDouble(8)
         );
     if(dockOrientation != NULL) {
         *dockOrientation = GVector(
@@ -337,7 +343,7 @@ bool ServiceDB::GetStationInfo(uint32 stationID, uint32 *systemID, uint32 *const
             row.GetDouble(10),
             row.GetDouble(11)
         );
-        // as it's direction, it should be normalized
+        // as it's a direction, it should be normalized
         //dockOrientation->normalize();
     }
 

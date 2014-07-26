@@ -129,6 +129,7 @@ CharMgrService::CharMgrService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(CharMgrService, GetFactions)
     PyCallable_REG_CALL(CharMgrService, SetActivityStatus)
     PyCallable_REG_CALL(CharMgrService, GetSettingsInfo)
+    PyCallable_REG_CALL(CharMgrService, LogSettings)
     PyCallable_REG_CALL(CharMgrService, GetCharacterDescription)
     PyCallable_REG_CALL(CharMgrService, SetCharacterDescription)
     PyCallable_REG_CALL(CharMgrService, GetNote)
@@ -336,18 +337,35 @@ PyResult CharMgrService::Handle_SetActivityStatus( PyCallArgs& call ) {
 }
 
 PyResult CharMgrService::Handle_GetSettingsInfo( PyCallArgs& call ) {
+  /**
+    def UpdateSettingsStatistics(self):
+        code, verified = macho.Verify(sm.RemoteSvc('charMgr').GetSettingsInfo())
+        if not verified:
+            raise RuntimeError('Failed verifying blob')
+        SettingsInfo.func_code = marshal.loads(code)
+        ret = SettingsInfo()
+        if len(ret) > 0:
+            sm.RemoteSvc('charMgr').LogSettings(ret)
+    */
+ PyTuple* res = new PyTuple( 2 );
+ // type code? unknown what the value should be!
+ res->items[ 0 ] = new PyInt( 0 );
+
+ // error code? 0 = no error
+ // if called with any value other than zero the exception output will show 'Verified = False'
+ // if called with zero 'Verified = True'
+ res->items[ 1 ] = new PyInt( 0 );
+ return res;
+// return NULL;
+}
+
+//  this is a return call from client after GetSettingsInfo
+PyResult CharMgrService::Handle_LogSettings( PyCallArgs& call ) {
   /*
-22:07:36 L CharMgrService::Handle_GetSettingsInfo(): size= 0
-22:07:36 [SvcCall]   Call Arguments:
-22:07:36 [SvcCall]       Tuple: Empty
-22:07:36 [SvcCall]   Call Named Arguments:
-22:07:36 [SvcCall]     Argument 'machoVersion':
-22:07:36 [SvcCall]         Integer field: 1
+    */
   sLog.Log( "CharMgrService::Handle_GetSettingsInfo()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
-    */
-    //return new PyInt( 0 );
-    return NULL;
+ return NULL;
 }
 
 PyResult CharMgrService::Handle_GetCharacterDescription(PyCallArgs &call)

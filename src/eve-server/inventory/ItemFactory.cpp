@@ -59,6 +59,7 @@ ItemFactory::~ItemFactory() {
 				sLog.Warning( "Saving Items", " %3.2f%%", (current_percent_items_saved * 100.0) );
 			}
         }
+		sLog.Warning( "Saving Items", " Items Saved / Total Items Currently in DB. - %u/%u", items_saved, total_item_count );
 		sLog.Success( "Saving Items", " COMPLETE!" );
     }
     // types

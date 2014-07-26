@@ -27,6 +27,7 @@
 
 #include "PyBoundObject.h"
 #include "PyServiceCD.h"
+
 #include "pos/Structure.h"
 #include "ship/DestinyManager.h"
 #include "ship/ShipService.h"
@@ -255,8 +256,15 @@ PyResult ShipBound::Handle_Board(PyCallArgs &call) {
 }
 
 PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
-    call.Dump(DESTINY__DEBUG);
-	call.client->SendNotifyMsg("Undock not fully implemented! - Work In Progress");
+  /**
+21:44:59 [Debug]   Call Arguments:
+21:44:59 [Debug]       Tuple: 2 elements
+21:44:59 [Debug]         [ 0] Integer field: 140000096		<- shipID
+21:44:59 [Debug]         [ 1] Boolean field: false    		<- unknown
+21:44:59 [Debug]   Call Named Arguments:
+21:44:59 [Debug]     Argument 'onlineModules':
+21:44:59 [Debug]         Dictionary: Empty
+*/
     Call_IntBoolArg args;
     if(!args.Decode(&call.tuple)) {
         codelog(SERVICE__ERROR, "Failed to decode arguments");
@@ -264,40 +272,19 @@ PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
         return NULL;
     }
 
-    //int ignoreContraband = args.arg;
+    uint32 stationID = call.client->GetLocationID();
 
     GPoint dockPosition;
     GVector dockOrientation;
-    if(!m_db.GetStationInfo(call.client->GetLocationID(), NULL, NULL, NULL, NULL, &dockPosition, &dockOrientation)) {
-        _log(SERVICE__ERROR, "%s: Failed to query location of station %u for undock.", call.client->GetName(), call.client->GetLocationID());
+	uint32 systemID, constellationID, regionID;
+    if(!m_db.GetStationInfo(stationID, &systemID, &constellationID, &regionID, NULL, &dockPosition, &dockOrientation)) {
+        _log(SERVICE__ERROR, "%s: Failed to query location of station %u for undock.", call.client->GetName(), stationID);
         //TODO: throw exception
         return NULL;
     }
 
-    //sLog.Warning( "ShipBound::Handle_Undock()", "Undock not fully implemented! - Work In Progress");
-    sLog.Warning( "ShipBound::Handle_Undock()", "dock position: %f,%f,%f - orientation: %f,%f,%f", dockPosition.x, dockPosition.y, dockPosition.z, dockOrientation.x, dockOrientation.y, dockOrientation.z);
-
-    //send an OnItemChange notification
-    // tuple:
-    //  util.Row for item,
-    //      customInfo=Undocking:(insert station ID)
-    //  dict:
-    //      3->(insert station ID)
-    //      4->4
-    /*
-    PyTuple *tmp = new PyTuple;
-        util.Row
-
-    call.client->SendNotification("OnItemChange", "charid", &tmp, false);
-    */
-
-    //Update the custom info field.
-    char ci[256];
-    snprintf(ci, sizeof(ci), "Undocking:%u", call.client->GetLocationID());
-    call.client->GetShip()->SetCustomInfo(ci);
-
     //do session change...
-    call.client->MoveToLocation(call.client->GetSystemID(), dockPosition);
+	call.client->UndockFromStation( stationID, systemID, constellationID, regionID, dockPosition );
 
     //calculate undock movement
     GPoint dest =
@@ -305,34 +292,19 @@ PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
         (
             dockOrientation.x,
             dockOrientation.y,
-            dockOrientation.z// * (-1.0)      // This sign reversal is needed to correct staStationTypes z coordinate on dockOrientation due to CCP unification of coordinate systems
+            dockOrientation.z// * (-1.0)
         );
 
-	// add ship to existing station bubble		-allan  11July14
-	//call.client->System()->bubbles.UpdateBubble( call.client, true );
-    //SystemManager *sm = call.client->System();
-    //SystemEntity *se = sm->get( call.client->GetCharacterID() );
-	//BubbleManager bm;
-	//bm.Add(se, true, false);
-
     //move away from dock
+    call.client->Destiny()->SetSpeedFraction( 2.0, true );
     //call.client->Destiny()->AlignTo( dest, true );
-    //call.client->Destiny()->SetSpeedFraction( 1.0, true );
-
-    //revert custom info, for testing.
-    call.client->GetShip()->SetCustomInfo(NULL);
-
-    call.client->OnCharNoLongerInStation();
+    call.client->Destiny()->GotoDirection( dest, true );
 
     // THIS IS A HACK AS WE DONT KNOW WHY THE CLIENT CALLS STOP AT UNDOCK
     // SO SAVE THE UNDOCK ALIGN-TO POINT AND TELL CLIENT WE JUST UNDOCKED
-    call.client->SetUndockAlignToPoint( dest );
-    call.client->SetJustUndocking( true );
+    //call.client->SetUndockAlignToPoint( dest );
+    //call.client->SetJustUndocking( true );
     // --- END HACK ---
-
-    //  add to active pilots in space count in DB   -allan 28April14
-    call.client->GetChar()->chkDynamicSystemID(call.client->GetSystemID());
-    call.client->GetChar()->AddPilotToDynamicData(call.client->GetSystemID(), false, false);
 
     return NULL;
 }
