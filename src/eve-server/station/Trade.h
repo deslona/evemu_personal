@@ -40,7 +40,7 @@ protected:
     class Dispatcher;
     Dispatcher *const m_dispatch;
 
-    PyCallable_DECL_CALL(InitiateTrade)
+    PyCallable_DECL_CALL(InitiateTrade);
 };
 
 #endif

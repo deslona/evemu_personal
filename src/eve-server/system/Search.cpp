@@ -39,8 +39,8 @@ Search::Search(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(Search, Query)
-    PyCallable_REG_CALL(Search, QuickQuery)
+    PyCallable_REG_CALL(Search, Query);
+    PyCallable_REG_CALL(Search, QuickQuery);
 }
 
 Search::~Search() {

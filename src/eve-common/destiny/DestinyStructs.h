@@ -63,7 +63,7 @@ typedef enum {
     DSTBALL_ORBIT       = 4,
     DSTBALL_MISSILE     = 5,
     DSTBALL_MUSHROOM    = 6,    //Expanding gravity wall
-    DSTBALL_BOID        = 7,    //Swarm like behavior
+    DSTBALL_BOID        = 7,    //Swarm like behavior  (sentient drones)
     DSTBALL_TROLL       = 8,    //used for ejected cans. Free ball that will become fixed after a while.
     DSTBALL_MINIBALL    = 9,
     DSTBALL_FIELD       = 10,    //Force field ball

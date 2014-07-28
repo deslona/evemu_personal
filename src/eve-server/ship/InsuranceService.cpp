@@ -46,8 +46,8 @@ public:
       m_dispatch(new Dispatcher(this)) {
         _SetCallDispatcher(m_dispatch);
 
-        PyCallable_REG_CALL(InsuranceBound, GetContracts)
-        PyCallable_REG_CALL(InsuranceBound, GetInsurancePrice)
+        PyCallable_REG_CALL(InsuranceBound, GetContracts);
+        PyCallable_REG_CALL(InsuranceBound, GetInsurancePrice);
 
         m_strBoundObjectName = "InsuranceBound";
     }
@@ -58,8 +58,8 @@ public:
         delete this;
     }
 
-    PyCallable_DECL_CALL(GetContracts)
-    PyCallable_DECL_CALL(GetInsurancePrice)
+    PyCallable_DECL_CALL(GetContracts);
+    PyCallable_DECL_CALL(GetInsurancePrice);
 
 protected:
     ShipDB* m_db;
@@ -74,9 +74,9 @@ InsuranceService::InsuranceService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(InsuranceService, GetContractForShip)
-    PyCallable_REG_CALL(InsuranceService, InsureShip)
-    PyCallable_REG_CALL(InsuranceService, GetInsurancePrice)
+    PyCallable_REG_CALL(InsuranceService, GetContractForShip);
+    PyCallable_REG_CALL(InsuranceService, InsureShip);
+    PyCallable_REG_CALL(InsuranceService, GetInsurancePrice);
 }
 
 InsuranceService::~InsuranceService() {

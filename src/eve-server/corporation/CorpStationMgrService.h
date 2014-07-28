@@ -44,10 +44,11 @@ protected:
 
     CorporationDB m_db;
 
+    PyCallable_DECL_CALL(GetStationServiceStates);
+
     //overloaded in order to support bound objects:
     virtual PyBoundObject *_CreateBoundObject(Client *c, const PyRep *bind_args);
 
-    //PyCallable_DECL_CALL(MachoBindObject)
 };
 
 

@@ -39,8 +39,8 @@ protected:
     class Dispatcher;
     Dispatcher *const m_dispatch;
 
-    PyCallable_DECL_CALL(GetResponsesForCharacter)
-    PyCallable_DECL_CALL(calendarProxy)
+    PyCallable_DECL_CALL(GetResponsesForCharacter);
+    PyCallable_DECL_CALL(calendarProxy);
 };
 
 #endif

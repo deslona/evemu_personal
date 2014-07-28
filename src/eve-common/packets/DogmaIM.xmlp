@@ -21,11 +21,12 @@
 
   <elementDef name="Call_Dogma_LoadAmmoToBank">
     <tupleInline>
-      <int name="shipItemID" />
-      <int name="moduleItemID" />
+      <int name="shipID" />
+      <int name="masterID" />
       <int name="chargeTypeID" />
-      <listInt name="chargeList" />
-      <int name="locationID" />
+      <listInt name="itemIDs" />
+      <int name="chargeLocationID" />
+      <int name="qty" />
       <none />
     </tupleInline>
   </elementDef>

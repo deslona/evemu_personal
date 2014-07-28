@@ -69,9 +69,9 @@ PetitionerService::PetitionerService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(PetitionerService, GetCategories)
-    PyCallable_REG_CALL(PetitionerService, GetCategoryHierarchicalInfo)
-    PyCallable_REG_CALL(PetitionerService, GetUnreadMessages)
+    PyCallable_REG_CALL(PetitionerService, GetCategories);
+    PyCallable_REG_CALL(PetitionerService, GetCategoryHierarchicalInfo);
+    PyCallable_REG_CALL(PetitionerService, GetUnreadMessages);
 }
 
 PetitionerService::~PetitionerService() {

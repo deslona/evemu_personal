@@ -44,8 +44,8 @@ public:
 
         m_strBoundObjectName = "AggressionMgrBound";
 
-        PyCallable_REG_CALL(AggressionMgrBound, GetCriminalTimeStamps)
-        PyCallable_REG_CALL(AggressionMgrBound, CheckLootRightExceptions)
+        PyCallable_REG_CALL(AggressionMgrBound, GetCriminalTimeStamps);
+        PyCallable_REG_CALL(AggressionMgrBound, CheckLootRightExceptions);
     }
 
     virtual ~AggressionMgrBound()
@@ -60,8 +60,8 @@ public:
     }
 
 protected:
-    PyCallable_DECL_CALL(GetCriminalTimeStamps)
-    PyCallable_DECL_CALL(CheckLootRightExceptions)
+    PyCallable_DECL_CALL(GetCriminalTimeStamps);
+    PyCallable_DECL_CALL(CheckLootRightExceptions);
 
     Dispatcher *const m_dispatch;
 };

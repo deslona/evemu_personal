@@ -42,22 +42,22 @@ protected:
 
     ConfigDB m_db;
 
-    PyCallable_DECL_CALL(GetMultiOwnersEx)
-    PyCallable_DECL_CALL(GetMultiLocationsEx)
-    PyCallable_DECL_CALL(GetMultiAllianceShortNamesEx)
-    PyCallable_DECL_CALL(GetMultiCorpTickerNamesEx)
-    PyCallable_DECL_CALL(GetUnits)
-    PyCallable_DECL_CALL(GetMapObjects)
-    PyCallable_DECL_CALL(GetMapOffices)
-    PyCallable_DECL_CALL(GetMap)
-    PyCallable_DECL_CALL(GetMapConnections)
-    PyCallable_DECL_CALL(GetMultiGraphicsEx)
-    PyCallable_DECL_CALL(GetMultiInvTypesEx)
-    PyCallable_DECL_CALL(GetStationSolarSystemsByOwner)
-    PyCallable_DECL_CALL(GetCelestialStatistic)
-    PyCallable_DECL_CALL(GetDynamicCelestials)
-    PyCallable_DECL_CALL(GetMapLandmarks)
-    PyCallable_DECL_CALL(SetMapLandmarks)
+    PyCallable_DECL_CALL(GetMultiOwnersEx);
+    PyCallable_DECL_CALL(GetMultiLocationsEx);
+    PyCallable_DECL_CALL(GetMultiAllianceShortNamesEx);
+    PyCallable_DECL_CALL(GetMultiCorpTickerNamesEx);
+    PyCallable_DECL_CALL(GetUnits);
+    PyCallable_DECL_CALL(GetMapObjects);
+    PyCallable_DECL_CALL(GetMapOffices);
+    PyCallable_DECL_CALL(GetMap);
+    PyCallable_DECL_CALL(GetMapConnections);
+    PyCallable_DECL_CALL(GetMultiGraphicsEx);
+    PyCallable_DECL_CALL(GetMultiInvTypesEx);
+    PyCallable_DECL_CALL(GetStationSolarSystemsByOwner);
+    PyCallable_DECL_CALL(GetCelestialStatistic);
+    PyCallable_DECL_CALL(GetDynamicCelestials);
+    PyCallable_DECL_CALL(GetMapLandmarks);
+    PyCallable_DECL_CALL(SetMapLandmarks);
 
 };
 

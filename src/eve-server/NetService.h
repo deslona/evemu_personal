@@ -38,15 +38,10 @@ protected:
     class Dispatcher;
     Dispatcher *const m_dispatch;
 
-    PyCallable_DECL_CALL(GetInitVals)
-    PyCallable_DECL_CALL(GetTime)
-    PyCallable_DECL_CALL(GetClusterSessionStatistics)
+    PyCallable_DECL_CALL(GetInitVals);
+    PyCallable_DECL_CALL(GetTime);
+    PyCallable_DECL_CALL(GetClusterSessionStatistics);
 
 };
 
-
-
-
 #endif
-
-

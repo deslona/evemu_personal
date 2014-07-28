@@ -33,17 +33,17 @@ PyObjectEx *AgentDB::GetAgents() {
     if(!sDatabase.RunQuery(res,
         "SELECT"
         "    agt.agentID,"
-        //"    agt.agentTypeID,"
-        //"    agt.divisionID,"
-        //"    agt.level,"
-        //"    agt.quality,"
+        "    agt.agentTypeID,"
+        "    agt.divisionID,"
+        "    agt.level,"
+        "    agt.quality,"
         "    agt.corporationID,"
-        "    chr.stationID"
-        //"    chr.gender,"
-        //"    bl.bloodlineID"
+        "    chr.stationID,"
+        "    chr.gender,"
+        "    bl.bloodlineID"
         " FROM agtAgents AS agt"
         " LEFT JOIN characterStatic AS chr ON chr.characterID = agt.agentID"
-        //" LEFT JOIN bloodlineTypes AS bl ON bl.bloodlineID = agt.agentTypeID"
+        " LEFT JOIN bloodlineTypes AS bl ON bl.bloodlineID = agt.agentTypeID"
     ))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
@@ -62,7 +62,6 @@ bool AgentDB::LoadAgentLocation(uint32 agentID, uint32 &locationID, uint32 &loca
         "   itm.typeID "
         " FROM agtAgents AS agt"
         " LEFT JOIN characterStatic AS chr ON chr.characterID = agt.agentID"
-        //" LEFT JOIN character_ AS chr ON chr.characterID = agt.agentID"
         " LEFT JOIN invItems AS itm ON itm.itemID = agt.locationID"
         " WHERE agt.agentID=%d", agentID
     ))
@@ -77,6 +76,30 @@ bool AgentDB::LoadAgentLocation(uint32 agentID, uint32 &locationID, uint32 &loca
     solarSystemID = row.GetUInt(1);
     locationType = row.GetUInt(2);
     return true;
+}
+
+PyRep *AgentDB::GetAgentSolarSystem(uint32 AgentID){
+    DBQueryResult res;
+    if(!sDatabase.RunQuery(res,
+        " SELECT"
+        "  s.solarSystemID"
+        " FROM agtAgents AS a"
+        "  LEFT JOIN staStations AS s ON s.stationID = a.locationID"
+        " WHERE a.agentID = %u",AgentID)) {
+        _log(DATABASE__ERROR, "Failed to query for Agent = %u", AgentID);
+    }
+
+    DBResultRow row;
+    if(!res.GetRow(row)) {
+        _log(DATABASE__ERROR, "SystemID of Agent %u not found.", AgentID);
+        return NULL;
+    }
+
+    PyRep *result = NULL;
+    PyTuple *t = new PyTuple(1);
+    t->items[0] = new PyList(row.GetUInt(0));
+    result = t;
+    return result;
 }
 
 #ifdef NOT_DONE

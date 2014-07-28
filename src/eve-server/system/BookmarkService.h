@@ -53,14 +53,14 @@ protected:
 
     BookmarkDB m_db;
 
-    PyCallable_DECL_CALL(GetBookmarks)
-    PyCallable_DECL_CALL(BookmarkLocation)
-    PyCallable_DECL_CALL(DeleteBookmarks)
-    PyCallable_DECL_CALL(UpdateBookmark)
-    PyCallable_DECL_CALL(CreateFolder)
-    PyCallable_DECL_CALL(UpdateFolder)
-    PyCallable_DECL_CALL(DeleteFolder)
-    PyCallable_DECL_CALL(MoveBookmarksToFolder)
+    PyCallable_DECL_CALL(GetBookmarks);
+    PyCallable_DECL_CALL(BookmarkLocation);
+    PyCallable_DECL_CALL(DeleteBookmarks);
+    PyCallable_DECL_CALL(UpdateBookmark);
+    PyCallable_DECL_CALL(CreateFolder);
+    PyCallable_DECL_CALL(UpdateFolder);
+    PyCallable_DECL_CALL(DeleteFolder);
+    PyCallable_DECL_CALL(MoveBookmarksToFolder);
 };
 
 #endif

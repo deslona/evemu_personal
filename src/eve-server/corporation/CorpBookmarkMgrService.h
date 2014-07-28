@@ -41,8 +41,8 @@ protected:
 
     CorporationDB m_db;
 
-    PyCallable_DECL_CALL(GetBookmarks)
-    PyCallable_DECL_CALL(UpdatePlayerBookmark)
+    PyCallable_DECL_CALL(GetBookmarks);
+    PyCallable_DECL_CALL(UpdatePlayerBookmark);
 };
 
 #endif

@@ -45,10 +45,10 @@ public:
 
         m_strBoundObjectName = "KeeperBound";
 
-//        PyCallable_REG_CALL(KeeperBound, EditDungeon)
-//        PyCallable_REG_CALL(KeeperBound, PlayDungeon)
-//        PyCallable_REG_CALL(KeeperBound, Reset)
-//        PyCallable_REG_CALL(KeeperBound, GotoRoom) //(int room)
+//        PyCallable_REG_CALL(KeeperBound, EditDungeon);
+//        PyCallable_REG_CALL(KeeperBound, PlayDungeon);
+//        PyCallable_REG_CALL(KeeperBound, Reset);
+//        PyCallable_REG_CALL(KeeperBound, GotoRoom); //(int room)
     }
     virtual ~KeeperBound() { delete m_dispatch; }
     virtual void Release() {
@@ -72,8 +72,8 @@ KeeperService::KeeperService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(KeeperService, GetLevelEditor)
-    PyCallable_REG_CALL(KeeperService, ActivateAccelerationGate)
+    PyCallable_REG_CALL(KeeperService, GetLevelEditor);
+    PyCallable_REG_CALL(KeeperService, ActivateAccelerationGate);
 }
 
 KeeperService::~KeeperService() {
@@ -114,7 +114,7 @@ PyResult KeeperService::Handle_ActivateAccelerationGate(PyCallArgs &call) {
 
         Client * who = call.client;
 
-        //who->Destiny()->SendSpecialEffect10(args.arg, who->GetShip(), 0, "effects.WarpGateEffect", 0, 1, 0);
+        who->Destiny()->SendSpecialEffect10(args.arg, who->GetShip(), 0, "effects.WarpGateEffect", 0, 1, 0);
         double distance = 10 * ONE_AU_IN_METERS;
         GPoint currentPosition(who->GetPosition());
         GPoint deltaPosition;

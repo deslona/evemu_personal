@@ -38,13 +38,31 @@ protected:
     class Dispatcher;
     Dispatcher *const m_dispatch;
 
-    PyCallable_DECL_CALL(ForceLeaveFleet)
-    PyCallable_DECL_CALL(AddToWatchlist)
-    PyCallable_DECL_CALL(RemoveFromWatchlist)
-    PyCallable_DECL_CALL(RegisterForDamageUpdates)
-    PyCallable_DECL_CALL(GetActiveStatus)
-    PyCallable_DECL_CALL(BroadcastToBubble)
-    PyCallable_DECL_CALL(BroadcastToSystem)
+    PyCallable_DECL_CALL(ForceLeaveFleet);
+    PyCallable_DECL_CALL(AddToWatchlist);
+    PyCallable_DECL_CALL(RemoveFromWatchlist);
+    PyCallable_DECL_CALL(RegisterForDamageUpdates);
+    PyCallable_DECL_CALL(GetActiveStatus);
+    PyCallable_DECL_CALL(BroadcastToBubble);
+    PyCallable_DECL_CALL(BroadcastToSystem);
 };
 
 #endif
+
+/*
+fleetGroupingRange = 300
+fleetJobCreator = 2
+fleetJobNone = 0
+fleetJobScout = 1
+fleetLeaderRole = 1
+fleetRoleLeader = 1
+fleetRoleMember = 4
+fleetRoleSquadCmdr = 3
+fleetRoleWingCmdr = 2
+fleetBoosterNone = 0
+fleetBoosterFleet = 1
+fleetBoosterWing = 2
+fleetBoosterSquad = 3
+rejectFleetInviteTimeout = 1
+rejectFleetInviteAlreadyInFleet = 2
+*/

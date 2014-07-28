@@ -36,10 +36,10 @@ LPService::LPService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(LPService, GetLPExchangeRates)
-    PyCallable_REG_CALL(LPService, GetLPForCharacterCorp)
-    PyCallable_REG_CALL(LPService, GetLPsForCharacter)
-    PyCallable_REG_CALL(LPService, GetAvailableOffersFromCorp)
+    PyCallable_REG_CALL(LPService, GetLPExchangeRates);
+    PyCallable_REG_CALL(LPService, GetLPForCharacterCorp);
+    PyCallable_REG_CALL(LPService, GetLPsForCharacter);
+    PyCallable_REG_CALL(LPService, GetAvailableOffersFromCorp);
 }
 
 LPService::~LPService()

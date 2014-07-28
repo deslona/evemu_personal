@@ -37,14 +37,14 @@ CertificateMgrService::CertificateMgrService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(CertificateMgrService, GetMyCertificates)
-    PyCallable_REG_CALL(CertificateMgrService, GetCertificateCategories)
-    PyCallable_REG_CALL(CertificateMgrService, GetAllShipCertificateRecommendations)
-    PyCallable_REG_CALL(CertificateMgrService, GetCertificateClasses)
-    PyCallable_REG_CALL(CertificateMgrService, GrantCertificate)
-    PyCallable_REG_CALL(CertificateMgrService, BatchCertificateGrant)
-    PyCallable_REG_CALL(CertificateMgrService, BatchCertificateUpdate)
-    PyCallable_REG_CALL(CertificateMgrService, GetCertificatesByCharacter)
+    PyCallable_REG_CALL(CertificateMgrService, GetMyCertificates);
+    PyCallable_REG_CALL(CertificateMgrService, GetCertificateCategories);
+    PyCallable_REG_CALL(CertificateMgrService, GetAllShipCertificateRecommendations);
+    PyCallable_REG_CALL(CertificateMgrService, GetCertificateClasses);
+    PyCallable_REG_CALL(CertificateMgrService, GrantCertificate);
+    PyCallable_REG_CALL(CertificateMgrService, BatchCertificateGrant);
+    PyCallable_REG_CALL(CertificateMgrService, BatchCertificateUpdate);
+    PyCallable_REG_CALL(CertificateMgrService, GetCertificatesByCharacter);
 }
 
 CertificateMgrService::~CertificateMgrService()

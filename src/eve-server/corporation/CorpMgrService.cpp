@@ -36,12 +36,12 @@ CorpMgrService::CorpMgrService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(CorpMgrService, GetPublicInfo)
-    PyCallable_REG_CALL(CorpMgrService, GetCorporations)
-    PyCallable_REG_CALL(CorpMgrService, GetAssetInventory)
-    PyCallable_REG_CALL(CorpMgrService, GetCorporationStations)
-    PyCallable_REG_CALL(CorpMgrService, GetCorporationIDForCharacter)
-    PyCallable_REG_CALL(CorpMgrService, GetAssetInventoryForLocation)
+    PyCallable_REG_CALL(CorpMgrService, GetPublicInfo);
+    PyCallable_REG_CALL(CorpMgrService, GetCorporations);
+    PyCallable_REG_CALL(CorpMgrService, GetAssetInventory);
+    PyCallable_REG_CALL(CorpMgrService, GetCorporationStations);
+    PyCallable_REG_CALL(CorpMgrService, GetCorporationIDForCharacter);
+    PyCallable_REG_CALL(CorpMgrService, GetAssetInventoryForLocation);
 }
 
 CorpMgrService::~CorpMgrService() {
@@ -50,6 +50,32 @@ CorpMgrService::~CorpMgrService() {
 
 
 PyResult CorpMgrService::Handle_GetPublicInfo(PyCallArgs &call) {
+  /*
+14:12:47 [SvcCall] Service corpmgr: calling GetPublicInfo
+14:12:47 W Client::BeanCount: BeanCount error reporting and handling is not implemented yet.
+14:12:47 [SvcCall] Service alert: calling BeanCount
+14:12:47 [SvcCall] Service alert: calling SendClientStackTraceAlert
+EXCEPTION #13 logged at  07/27/2014 14:12:47 Unhandled exception in <TaskletExt object at 2f7882f0, abps=1001, ctxt="<NO CONTEXT>^<bound method InfoWindow.LoadData of form.infowindow object at (snip)f3d6090, name=('infowindow', 130509619634265564L), destroyed=False>>">
+Caught at:
+/common/lib/bluepy.py(98) CallWrapper
+Thrown at:
+/common/lib/bluepy.py(86) CallWrapper
+/client/script/ui/services/infosvc.py(3231) LoadData
+/client/script/ui/services/infosvc.py(3296) _LoadInfoWindow
+/client/script/ui/services/infosvc.py(4109) GetNameAndDescription
+        itemID = 1000123
+        typeID = 2
+        invtype = <Instance of class sys.InvType>
+                       typeID:                 2
+                       groupID:                2
+                       typeName:               Corporation
+                       ...
+        capt = u'Corporation'
+        self = form.infowindow object at 0x2f3d6090, name=('infowindow', 130509619634265564L), destroyed=False>
+        label = ''
+        desc = ''
+AttributeError: Rowset instance has no attribute 'corporationID'
+*/
     Call_SingleIntegerArg corpID;
     if (!corpID.Decode(&call.tuple)) {
         codelog(SERVICE__ERROR, "Bad param");

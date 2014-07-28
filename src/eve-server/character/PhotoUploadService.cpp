@@ -37,7 +37,7 @@ PhotoUploadService::PhotoUploadService(PyServiceMgr* mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(PhotoUploadService, Upload)
+    PyCallable_REG_CALL(PhotoUploadService, Upload);
 }
 
 PhotoUploadService::~PhotoUploadService()

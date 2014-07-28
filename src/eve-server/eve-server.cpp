@@ -167,8 +167,8 @@ int main( int argc, char* argv[] )
 
     sLog.InitializeLogging(sConfig.files.logDir);
     sLog.Log("server init", "Loading server...");
-    sLog.Log("SERVER VERSION", "EVEmu 0.7.37-allan" );
-    sLog.Log("BUILD DATE", "18 July 2014");
+    sLog.Log("SERVER VERSION", "EVEmu 0.7.38-allan" );
+    sLog.Log("BUILD DATE", "27 July 2014");
     sLog.Log("SOURCE", "get at " EVEMU_REPOSITORY );
     sLog.Log("SERVER INIT", "\n"
         "\tSupported Client: %s\n"

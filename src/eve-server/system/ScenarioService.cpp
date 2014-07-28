@@ -68,7 +68,7 @@ ScenarioService::ScenarioService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(ScenarioService, ResetD)
+    PyCallable_REG_CALL(ScenarioService, ResetD);
 }
 
 ScenarioService::~ScenarioService() {
@@ -91,28 +91,3 @@ PyResult ScenarioService::Handle_ResetD( PyCallArgs& call )
 
     return new PyNone;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

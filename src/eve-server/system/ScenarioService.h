@@ -42,7 +42,7 @@ protected:
 
     SystemDB m_db;
 
-    PyCallable_DECL_CALL(ResetD)
+    PyCallable_DECL_CALL(ResetD);
     //PlayDungeon(dungeonVID, selectedRoom)
     //EditRoom(dungeonVID, selectedRoom)
     //GotoRoom(selectedRoom)
@@ -63,10 +63,4 @@ protected:
     //virtual PyBoundObject *_CreateBoundObject(Client *c, const PyRep *bind_args);
 };
 
-
-
-
-
 #endif
-
-

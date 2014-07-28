@@ -36,7 +36,7 @@ Trade::Trade(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(Trade, InitiateTrade)
+    PyCallable_REG_CALL(Trade, InitiateTrade);
     //PyCallable_REG_CALL(Trade, )
 }
 

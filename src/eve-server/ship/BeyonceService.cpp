@@ -48,18 +48,19 @@ public:
 
         m_strBoundObjectName = "BeyonceBound";
 
-        PyCallable_REG_CALL(BeyonceBound, CmdFollowBall)
-        PyCallable_REG_CALL(BeyonceBound, CmdOrbit)
-        PyCallable_REG_CALL(BeyonceBound, CmdAlignTo)
-        PyCallable_REG_CALL(BeyonceBound, CmdGotoDirection)
-        PyCallable_REG_CALL(BeyonceBound, CmdGotoBookmark)
-        PyCallable_REG_CALL(BeyonceBound, CmdSetSpeedFraction)
-        PyCallable_REG_CALL(BeyonceBound, CmdStop)
-        PyCallable_REG_CALL(BeyonceBound, CmdWarpToStuff)
-        PyCallable_REG_CALL(BeyonceBound, CmdDock)
-        PyCallable_REG_CALL(BeyonceBound, CmdStargateJump)
-        PyCallable_REG_CALL(BeyonceBound, UpdateStateRequest)
-        PyCallable_REG_CALL(BeyonceBound, CmdWarpToStuffAutopilot)
+        PyCallable_REG_CALL(BeyonceBound, CmdFollowBall);
+        PyCallable_REG_CALL(BeyonceBound, CmdOrbit);
+        PyCallable_REG_CALL(BeyonceBound, CmdAlignTo);
+        PyCallable_REG_CALL(BeyonceBound, CmdGotoDirection);
+        PyCallable_REG_CALL(BeyonceBound, CmdGotoBookmark);
+        PyCallable_REG_CALL(BeyonceBound, CmdSetSpeedFraction);
+        PyCallable_REG_CALL(BeyonceBound, CmdStop);
+        PyCallable_REG_CALL(BeyonceBound, CmdWarpToStuff);
+        PyCallable_REG_CALL(BeyonceBound, CmdDock);
+        PyCallable_REG_CALL(BeyonceBound, CmdStargateJump);
+        PyCallable_REG_CALL(BeyonceBound, UpdateStateRequest);
+        PyCallable_REG_CALL(BeyonceBound, CmdWarpToStuffAutopilot);
+        PyCallable_REG_CALL(BeyonceBound, CmdAbandonLoot);
 
         if(c->Destiny() != NULL)
 		    if(c->Bubble() != NULL)		//  client in station...no bubble
@@ -71,18 +72,19 @@ public:
         delete this;
     }
 
-    PyCallable_DECL_CALL(CmdFollowBall)
-    PyCallable_DECL_CALL(CmdOrbit)
-    PyCallable_DECL_CALL(CmdAlignTo)
-    PyCallable_DECL_CALL(CmdGotoDirection)
-    PyCallable_DECL_CALL(CmdGotoBookmark)
-    PyCallable_DECL_CALL(CmdSetSpeedFraction)
-    PyCallable_DECL_CALL(CmdStop)
-    PyCallable_DECL_CALL(CmdWarpToStuff)
-    PyCallable_DECL_CALL(CmdDock)
-    PyCallable_DECL_CALL(CmdStargateJump)
-    PyCallable_DECL_CALL(UpdateStateRequest)
-    PyCallable_DECL_CALL(CmdWarpToStuffAutopilot)
+    PyCallable_DECL_CALL(CmdFollowBall);
+    PyCallable_DECL_CALL(CmdOrbit);
+    PyCallable_DECL_CALL(CmdAlignTo);
+    PyCallable_DECL_CALL(CmdGotoDirection);
+    PyCallable_DECL_CALL(CmdGotoBookmark);
+    PyCallable_DECL_CALL(CmdSetSpeedFraction);
+    PyCallable_DECL_CALL(CmdStop);
+    PyCallable_DECL_CALL(CmdWarpToStuff);
+    PyCallable_DECL_CALL(CmdDock);
+    PyCallable_DECL_CALL(CmdStargateJump);
+    PyCallable_DECL_CALL(UpdateStateRequest);
+    PyCallable_DECL_CALL(CmdWarpToStuffAutopilot);
+    PyCallable_DECL_CALL(CmdAbandonLoot);
 
 protected:
     Dispatcher *const m_dispatch;
@@ -322,6 +324,9 @@ PyResult BeyonceBound::Handle_CmdGotoBookmark(PyCallArgs &call) {
 }
 
 PyResult BeyonceBound::Handle_CmdOrbit(PyCallArgs &call) {
+  /*
+            bp.CmdOrbit(id, range)
+            */
     sLog.Log( "BeyonceBound", "Handle_CmdOrbit" );
   call.Dump(SERVICE__CALLS);
     Call_Orbit arg;
@@ -668,7 +673,16 @@ PyResult BeyonceBound::Handle_CmdStop(PyCallArgs &call) {
 }
 
 PyResult BeyonceBound::Handle_CmdDock(PyCallArgs &call) {
-    Call_TwoIntegerArgs arg;
+  /**
+14:09:25 L BeyonceBound::Handle_CmdDock(): size= 2
+14:09:25 [SvcCall]   Call Arguments:
+14:09:25 [SvcCall]       Tuple: 2 elements
+14:09:25 [SvcCall]         [ 0] Integer field: 60012124
+14:09:25 [SvcCall]         [ 1] Integer field: 140001323
+  sLog.Log( "BeyonceBound::Handle_CmdDock()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+	*/
+    Call_TwoIntegerArgs arg;  //sends stationID, shipID
     if(!arg.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "%s: failed to decode args", call.client->GetName());
         return NULL;
@@ -698,6 +712,13 @@ PyResult BeyonceBound::Handle_CmdStargateJump(PyCallArgs &call) {
         return NULL;
     }
 
+  sLog.Warning( "BeyonceBound::Handle_CmdStargateJump()", "size= %u", call.tuple->size() );
     call.client->StargateJump(arg.fromStargateID, arg.toStargateID);
+    return NULL;
+}
+
+PyResult BeyonceBound::Handle_CmdAbandonLoot(PyCallArgs &call) {
+  sLog.Log( "BeyonceBound::Handle_CmdAbandonLoot()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
     return NULL;
 }

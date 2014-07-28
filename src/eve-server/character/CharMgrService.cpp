@@ -55,8 +55,8 @@ public:
         delete this;
     }
 
-    PyCallable_DECL_CALL(ListStations)
-    PyCallable_DECL_CALL(ListStationItems)
+    PyCallable_DECL_CALL(ListStations);
+    PyCallable_DECL_CALL(ListStationItems);
 
 protected:
     Dispatcher *const m_dispatch;
@@ -117,30 +117,36 @@ CharMgrService::CharMgrService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(CharMgrService, GetPublicInfo)
-    PyCallable_REG_CALL(CharMgrService, GetPublicInfo3)
-    PyCallable_REG_CALL(CharMgrService, GetTopBounties)
-    PyCallable_REG_CALL(CharMgrService, AddToBounty)
-    PyCallable_REG_CALL(CharMgrService, GetOwnerNoteLabels)
-    PyCallable_REG_CALL(CharMgrService, AddOwnerNote)
-    PyCallable_REG_CALL(CharMgrService, GetContactList)
-    PyCallable_REG_CALL(CharMgrService, GetCloneTypeID)
-    PyCallable_REG_CALL(CharMgrService, GetHomeStation)
-    PyCallable_REG_CALL(CharMgrService, GetFactions)
-    PyCallable_REG_CALL(CharMgrService, SetActivityStatus)
-    PyCallable_REG_CALL(CharMgrService, GetSettingsInfo)
-    PyCallable_REG_CALL(CharMgrService, LogSettings)
-    PyCallable_REG_CALL(CharMgrService, GetCharacterDescription)
-    PyCallable_REG_CALL(CharMgrService, SetCharacterDescription)
-    PyCallable_REG_CALL(CharMgrService, GetNote)
-    PyCallable_REG_CALL(CharMgrService, SetNote)
-    PyCallable_REG_CALL(CharMgrService, AddContact)
-    PyCallable_REG_CALL(CharMgrService, EditContact)
-    PyCallable_REG_CALL(CharMgrService, GetRecentShipKillsAndLosses)
+    PyCallable_REG_CALL(CharMgrService, GetPublicInfo);
+    PyCallable_REG_CALL(CharMgrService, GetPublicInfo3);
+    PyCallable_REG_CALL(CharMgrService, GetTopBounties);
+    PyCallable_REG_CALL(CharMgrService, AddToBounty);
+    PyCallable_REG_CALL(CharMgrService, GetOwnerNoteLabels);
+    PyCallable_REG_CALL(CharMgrService, AddOwnerNote);
+    PyCallable_REG_CALL(CharMgrService, GetContactList);
+    PyCallable_REG_CALL(CharMgrService, GetCloneTypeID);
+    PyCallable_REG_CALL(CharMgrService, GetHomeStation);
+    PyCallable_REG_CALL(CharMgrService, GetFactions);
+    PyCallable_REG_CALL(CharMgrService, SetActivityStatus);
+    PyCallable_REG_CALL(CharMgrService, GetSettingsInfo);
+    PyCallable_REG_CALL(CharMgrService, LogSettings);
+    PyCallable_REG_CALL(CharMgrService, GetCharacterDescription);
+    PyCallable_REG_CALL(CharMgrService, SetCharacterDescription);
+    PyCallable_REG_CALL(CharMgrService, GetNote);
+    PyCallable_REG_CALL(CharMgrService, SetNote);
+    PyCallable_REG_CALL(CharMgrService, AddContact);
+    PyCallable_REG_CALL(CharMgrService, EditContact);
+    PyCallable_REG_CALL(CharMgrService, DeleteContacts);
+    PyCallable_REG_CALL(CharMgrService, GetRecentShipKillsAndLosses);
 
-    //these 2 are for labels in PnP window
-    PyCallable_REG_CALL(CharMgrService, GetLabels)
-    PyCallable_REG_CALL(CharMgrService, CreateLabel)
+    //these 2 are for labels in PnP window;
+    PyCallable_REG_CALL(CharMgrService, GetLabels);
+    PyCallable_REG_CALL(CharMgrService, CreateLabel);
+
+    PyCallable_REG_CALL(CharMgrService, DeleteContacts);
+    PyCallable_REG_CALL(CharMgrService, BlockOwners);
+    PyCallable_REG_CALL(CharMgrService, UnblockOwners);
+    PyCallable_REG_CALL(CharMgrService, EditContactsRelationshipID);
 }
 
 CharMgrService::~CharMgrService() {
@@ -349,7 +355,7 @@ PyResult CharMgrService::Handle_GetSettingsInfo( PyCallArgs& call ) {
     */
  PyTuple* res = new PyTuple( 2 );
  // type code? unknown what the value should be!
- res->items[ 0 ] = new PyInt( 0 );
+ res->items[ 0 ] = new PyString( "unknown" );
 
  // error code? 0 = no error
  // if called with any value other than zero the exception output will show 'Verified = False'
@@ -502,6 +508,54 @@ PyResult CharMgrService::Handle_CreateLabel( PyCallArgs& call )
 {
   uint8 size = call.tuple->size();
   sLog.Log( "CharMgrService::Handle_CreateLabel()", "size=%u ", size );
+  call.Dump(SERVICE__CALLS);
+
+  return NULL;
+}
+
+PyResult CharMgrService::Handle_DeleteContacts( PyCallArgs& call )
+{
+  /*
+ sm.RemoteSvc('charMgr').DeleteContacts([contactIDs])
+ */
+  uint8 size = call.tuple->size();
+  sLog.Log( "CharMgrService::Handle_DeleteContacts()", "size=%u ", size );
+  call.Dump(SERVICE__CALLS);
+
+  return NULL;
+}
+
+PyResult CharMgrService::Handle_BlockOwners( PyCallArgs& call )
+{
+  /*
+        sm.RemoteSvc('charMgr').BlockOwners([ownerID])
+ */
+  uint8 size = call.tuple->size();
+  sLog.Log( "CharMgrService::Handle_BlockOwners()", "size=%u ", size );
+  call.Dump(SERVICE__CALLS);
+
+  return NULL;
+}
+
+PyResult CharMgrService::Handle_UnblockOwners( PyCallArgs& call )
+{
+  /*
+            sm.RemoteSvc('charMgr').UnblockOwners(blocked)
+ */
+  uint8 size = call.tuple->size();
+  sLog.Log( "CharMgrService::Handle_UnblockOwners()", "size=%u ", size );
+  call.Dump(SERVICE__CALLS);
+
+  return NULL;
+}
+
+PyResult CharMgrService::Handle_EditContactsRelationshipID( PyCallArgs& call )
+{
+  /*
+                sm.RemoteSvc('charMgr').EditContactsRelationshipID(contactIDs, relationshipID)
+ */
+  uint8 size = call.tuple->size();
+  sLog.Log( "CharMgrService::Handle_EditContactsRelationshipID()", "size=%u ", size );
   call.Dump(SERVICE__CALLS);
 
   return NULL;

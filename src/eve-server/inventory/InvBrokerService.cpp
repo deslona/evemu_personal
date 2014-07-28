@@ -46,10 +46,10 @@ public:
         m_strBoundObjectName = "InvBrokerBound";
 
 		PyCallable_REG_CALL(InvBrokerBound, GetContainerContents);
-        PyCallable_REG_CALL(InvBrokerBound, GetInventoryFromId)
-        PyCallable_REG_CALL(InvBrokerBound, GetInventory)
-        PyCallable_REG_CALL(InvBrokerBound, SetLabel)
-        PyCallable_REG_CALL(InvBrokerBound, TrashItems)
+        PyCallable_REG_CALL(InvBrokerBound, GetInventoryFromId);
+        PyCallable_REG_CALL(InvBrokerBound, GetInventory);
+        PyCallable_REG_CALL(InvBrokerBound, SetLabel);
+        PyCallable_REG_CALL(InvBrokerBound, TrashItems);
     }
     virtual ~InvBrokerBound()
     {
@@ -61,11 +61,11 @@ public:
         delete this;
     }
 
-	PyCallable_DECL_CALL(GetContainerContents)
-    PyCallable_DECL_CALL(GetInventoryFromId)
-    PyCallable_DECL_CALL(GetInventory)
-    PyCallable_DECL_CALL(SetLabel)
-    PyCallable_DECL_CALL(TrashItems)
+	PyCallable_DECL_CALL(GetContainerContents);
+    PyCallable_DECL_CALL(GetInventoryFromId);
+    PyCallable_DECL_CALL(GetInventory);
+    PyCallable_DECL_CALL(SetLabel);
+    PyCallable_DECL_CALL(TrashItems);
 
 
 protected:
@@ -82,7 +82,7 @@ InvBrokerService::InvBrokerService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(InvBrokerService, GetItemDescriptor)
+    PyCallable_REG_CALL(InvBrokerService, GetItemDescriptor);
 }
 
 PyResult InvBrokerService::Handle_GetItemDescriptor(PyCallArgs &call) {

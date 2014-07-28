@@ -41,7 +41,7 @@ protected:
     Dispatcher *const m_dispatch;
 
     //WormholeDB m_db;
-    PyCallable_DECL_CALL(WormholeJump)
+    PyCallable_DECL_CALL(WormholeJump);
 };
 
 #endif

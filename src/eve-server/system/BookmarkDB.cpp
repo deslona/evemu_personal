@@ -107,7 +107,7 @@ uint32 BookmarkDB::FindBookmarkTypeID(uint32 itemID)
     if (res.GetRow(row))
     {
         // itemID exists in 'entity' table, now let's check to see what group it is:
-        /**
+        /**   if (bookmark.typeID == const.typeSolarSystem)
         3   Region
         4   Constellation
         5   Solar System

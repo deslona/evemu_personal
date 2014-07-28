@@ -42,13 +42,13 @@ protected:
 
     StandingDB m_db;
 
-    PyCallable_DECL_CALL(GetMyKillRights)
-    PyCallable_DECL_CALL(GetNPCNPCStandings)
-    PyCallable_DECL_CALL(GetSecurityRating)
-    PyCallable_DECL_CALL(GetMyStandings)
-    PyCallable_DECL_CALL(GetStandingTransactions)
-    PyCallable_DECL_CALL(GetCharStandings)
-    PyCallable_DECL_CALL(GetCorpStandings)
+    PyCallable_DECL_CALL(GetMyKillRights);
+    PyCallable_DECL_CALL(GetNPCNPCStandings);
+    PyCallable_DECL_CALL(GetSecurityRating);
+    PyCallable_DECL_CALL(GetMyStandings);
+    PyCallable_DECL_CALL(GetStandingTransactions);
+    PyCallable_DECL_CALL(GetCharStandings);
+    PyCallable_DECL_CALL(GetCorpStandings);
 };
 
 #endif

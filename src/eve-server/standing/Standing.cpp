@@ -37,13 +37,13 @@ Standing::Standing(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(Standing, GetMyKillRights)
-    PyCallable_REG_CALL(Standing, GetNPCNPCStandings)
-    PyCallable_REG_CALL(Standing, GetMyStandings)
-    PyCallable_REG_CALL(Standing, GetSecurityRating)
-    PyCallable_REG_CALL(Standing, GetStandingTransactions)
-    PyCallable_REG_CALL(Standing, GetCharStandings)
-    PyCallable_REG_CALL(Standing, GetCorpStandings)
+    PyCallable_REG_CALL(Standing, GetMyKillRights);
+    PyCallable_REG_CALL(Standing, GetNPCNPCStandings);
+    PyCallable_REG_CALL(Standing, GetMyStandings);
+    PyCallable_REG_CALL(Standing, GetSecurityRating);
+    PyCallable_REG_CALL(Standing, GetStandingTransactions);
+    PyCallable_REG_CALL(Standing, GetCharStandings);
+    PyCallable_REG_CALL(Standing, GetCorpStandings);
 
 }
 

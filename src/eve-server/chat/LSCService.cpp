@@ -45,25 +45,25 @@ LSCService::LSCService(PyServiceMgr *mgr, CommandDispatcher* cd)
     _SetCallDispatcher(m_dispatch);
 
     //make sure you edit the header file too
-    PyCallable_REG_CALL(LSCService, GetChannels)
-    PyCallable_REG_CALL(LSCService, GetRookieHelpChannel)
-    PyCallable_REG_CALL(LSCService, JoinChannels)
-    PyCallable_REG_CALL(LSCService, LeaveChannels)
-    PyCallable_REG_CALL(LSCService, LeaveChannel)
-    PyCallable_REG_CALL(LSCService, CreateChannel)
-    PyCallable_REG_CALL(LSCService, Configure)
-    PyCallable_REG_CALL(LSCService, DestroyChannel)
-    PyCallable_REG_CALL(LSCService, GetMembers)
-    PyCallable_REG_CALL(LSCService, GetMember)
-    PyCallable_REG_CALL(LSCService, SendMessage)
-    PyCallable_REG_CALL(LSCService, Invite)
-    PyCallable_REG_CALL(LSCService, AccessControl)
+    PyCallable_REG_CALL(LSCService, GetChannels);
+    PyCallable_REG_CALL(LSCService, GetRookieHelpChannel);
+    PyCallable_REG_CALL(LSCService, JoinChannels);
+    PyCallable_REG_CALL(LSCService, LeaveChannels);
+    PyCallable_REG_CALL(LSCService, LeaveChannel);
+    PyCallable_REG_CALL(LSCService, CreateChannel);
+    PyCallable_REG_CALL(LSCService, Configure);
+    PyCallable_REG_CALL(LSCService, DestroyChannel);
+    PyCallable_REG_CALL(LSCService, GetMembers);
+    PyCallable_REG_CALL(LSCService, GetMember);
+    PyCallable_REG_CALL(LSCService, SendMessage);
+    PyCallable_REG_CALL(LSCService, Invite);
+    PyCallable_REG_CALL(LSCService, AccessControl);
 
-    PyCallable_REG_CALL(LSCService, GetMyMessages)
-    PyCallable_REG_CALL(LSCService, GetMessageDetails)
-    PyCallable_REG_CALL(LSCService, Page)
-    PyCallable_REG_CALL(LSCService, MarkMessagesRead)
-    PyCallable_REG_CALL(LSCService, DeleteMessages)
+    PyCallable_REG_CALL(LSCService, GetMyMessages);
+    PyCallable_REG_CALL(LSCService, GetMessageDetails);
+    PyCallable_REG_CALL(LSCService, Page);
+    PyCallable_REG_CALL(LSCService, MarkMessagesRead);
+    PyCallable_REG_CALL(LSCService, DeleteMessages);
 
     InitiateStaticChannels();
 }

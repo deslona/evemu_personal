@@ -68,9 +68,9 @@ DungeonService::DungeonService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(DungeonService, DEGetFactions)
-    PyCallable_REG_CALL(DungeonService, DEGetDungeons)
-    PyCallable_REG_CALL(DungeonService, DEGetRooms)
+    PyCallable_REG_CALL(DungeonService, DEGetFactions);
+    PyCallable_REG_CALL(DungeonService, DEGetDungeons);
+    PyCallable_REG_CALL(DungeonService, DEGetRooms);
 }
 
 DungeonService::~DungeonService() {

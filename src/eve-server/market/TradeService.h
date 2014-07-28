@@ -40,7 +40,7 @@ protected:
 
     virtual PyBoundObject *_CreateBoundObject(Client *c, const PyRep *bind_args);
 
-    PyCallable_DECL_CALL(InitiateTrade)
+    PyCallable_DECL_CALL(InitiateTrade);
 
 };
 

@@ -42,20 +42,20 @@ protected:
 
     MarketDB m_db;
 
-    PyCallable_DECL_CALL(GetStationAsks)
-    PyCallable_DECL_CALL(GetSystemAsks)
-    PyCallable_DECL_CALL(GetRegionBest)
-    PyCallable_DECL_CALL(GetMarketGroups)
-    PyCallable_DECL_CALL(GetOrders)
-    PyCallable_DECL_CALL(GetOldPriceHistory)
-    PyCallable_DECL_CALL(GetNewPriceHistory)
-    PyCallable_DECL_CALL(PlaceCharOrder)
-    PyCallable_DECL_CALL(GetCharOrders)
-    PyCallable_DECL_CALL(ModifyCharOrder)
-    PyCallable_DECL_CALL(CancelCharOrder)
-    PyCallable_DECL_CALL(CharGetNewTransactions)
-    PyCallable_DECL_CALL(StartupCheck)
-    PyCallable_DECL_CALL(GetCorporationOrders)
+    PyCallable_DECL_CALL(GetStationAsks);
+    PyCallable_DECL_CALL(GetSystemAsks);
+    PyCallable_DECL_CALL(GetRegionBest);
+    PyCallable_DECL_CALL(GetMarketGroups);
+    PyCallable_DECL_CALL(GetOrders);
+    PyCallable_DECL_CALL(GetOldPriceHistory);
+    PyCallable_DECL_CALL(GetNewPriceHistory);
+    PyCallable_DECL_CALL(PlaceCharOrder);
+    PyCallable_DECL_CALL(GetCharOrders);
+    PyCallable_DECL_CALL(ModifyCharOrder);
+    PyCallable_DECL_CALL(CancelCharOrder);
+    PyCallable_DECL_CALL(CharGetNewTransactions);
+    PyCallable_DECL_CALL(StartupCheck);
+    PyCallable_DECL_CALL(GetCorporationOrders);
 
     void _ExecuteBuyOrder(uint32 buy_order_id, uint32 stationID, uint32 quantity, Client *seller, InventoryItemRef item, bool isCorp);
     void _ExecuteSellOrder(uint32 sell_order_id, uint32 stationID, uint32 quantity, Client *buyer, bool isCorp);
@@ -70,10 +70,4 @@ protected:
     //virtual PyBoundObject *_CreateBoundObject(Client *c, const PyRep *bind_args);
 };
 
-
-
-
-
 #endif
-
-

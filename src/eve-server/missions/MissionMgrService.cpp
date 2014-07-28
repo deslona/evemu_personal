@@ -68,7 +68,7 @@ MissionMgrService::MissionMgrService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(MissionMgrService, GetMyCourierMissions)
+    PyCallable_REG_CALL(MissionMgrService, GetMyCourierMissions);
 }
 
 MissionMgrService::~MissionMgrService() {

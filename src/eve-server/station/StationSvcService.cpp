@@ -74,10 +74,10 @@ StationSvcService::StationSvcService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(StationSvcService, GetStationItemBits)
-    PyCallable_REG_CALL(StationSvcService, GetSolarSystem)
-    PyCallable_REG_CALL(StationSvcService, GetStation)
-    PyCallable_REG_CALL(StationSvcService, GetAllianceSystems)
+    PyCallable_REG_CALL(StationSvcService, GetStationItemBits);
+    PyCallable_REG_CALL(StationSvcService, GetSolarSystem);
+    PyCallable_REG_CALL(StationSvcService, GetStation);
+    PyCallable_REG_CALL(StationSvcService, GetAllianceSystems);
 }
 
 StationSvcService::~StationSvcService() {
@@ -119,6 +119,10 @@ PyResult StationSvcService::Handle_GetSolarSystem(PyCallArgs &call) {
 }
 
 PyResult StationSvcService::Handle_GetStation(PyCallArgs &call) {
+  /*
+                stationinfo = sm.RemoteSvc('stationSvc').GetStation(session.stationid)
+                self.BookmarkLocationPopup(session.stationid, stationinfo.stationTypeID, session.solarsystemid2)
+                */
     Call_SingleIntegerArg arg;
     if (!arg.Decode(&call.tuple)) {
         codelog(SERVICE__ERROR, "%s: Bad arguments", call.client->GetName());

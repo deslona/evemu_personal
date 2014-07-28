@@ -37,16 +37,16 @@ RamProxyService::RamProxyService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(RamProxyService, AssemblyLinesGet)
-    PyCallable_REG_CALL(RamProxyService, AssemblyLinesSelect)
-    PyCallable_REG_CALL(RamProxyService, AssemblyLinesSelectPublic)
-    PyCallable_REG_CALL(RamProxyService, AssemblyLinesSelectPrivate)
-    PyCallable_REG_CALL(RamProxyService, GetJobs2)
-    PyCallable_REG_CALL(RamProxyService, InstallJob)
-    PyCallable_REG_CALL(RamProxyService, CompleteJob)
+    PyCallable_REG_CALL(RamProxyService, AssemblyLinesGet);
+    PyCallable_REG_CALL(RamProxyService, AssemblyLinesSelect);
+    PyCallable_REG_CALL(RamProxyService, AssemblyLinesSelectPublic);
+    PyCallable_REG_CALL(RamProxyService, AssemblyLinesSelectPrivate);
+    PyCallable_REG_CALL(RamProxyService, GetJobs2);
+    PyCallable_REG_CALL(RamProxyService, InstallJob);
+    PyCallable_REG_CALL(RamProxyService, CompleteJob);
 
     // unhandled calls
-    PyCallable_REG_CALL(RamProxyService, GetRelevantCharSkills)
+    PyCallable_REG_CALL(RamProxyService, GetRelevantCharSkills);
 }
 
 RamProxyService::~RamProxyService() {

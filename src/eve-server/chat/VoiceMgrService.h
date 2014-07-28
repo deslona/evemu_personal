@@ -33,7 +33,7 @@ public:
     VoiceMgrService(PyServiceMgr *mgr);
     ~VoiceMgrService();
 
-    PyCallable_DECL_CALL(VoiceEnabled)
+    PyCallable_DECL_CALL(VoiceEnabled);
 
 private:
     class Dispatcher;

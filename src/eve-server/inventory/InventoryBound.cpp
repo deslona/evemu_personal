@@ -40,19 +40,19 @@ InventoryBound::InventoryBound( PyServiceMgr *mgr, Inventory &inventory, EVEItem
 
     m_strBoundObjectName = "InventoryBound";
 
-    PyCallable_REG_CALL(InventoryBound, List)
-    PyCallable_REG_CALL(InventoryBound, Add)
-    PyCallable_REG_CALL(InventoryBound, MultiAdd)
-    PyCallable_REG_CALL(InventoryBound, GetItem)
-    PyCallable_REG_CALL(InventoryBound, ListStations)
-    PyCallable_REG_CALL(InventoryBound, ReplaceCharges)
-    PyCallable_REG_CALL(InventoryBound, MultiMerge)
-    PyCallable_REG_CALL(InventoryBound, StackAll)
-    PyCallable_REG_CALL(InventoryBound, StripFitting)
-    PyCallable_REG_CALL(InventoryBound, DestroyFitting)
-    PyCallable_REG_CALL(InventoryBound, SetPassword)
-    PyCallable_REG_CALL(InventoryBound, CreateBookmarkVouchers)
-    PyCallable_REG_CALL(InventoryBound, Voucher)
+    PyCallable_REG_CALL(InventoryBound, List);
+    PyCallable_REG_CALL(InventoryBound, Add);
+    PyCallable_REG_CALL(InventoryBound, MultiAdd);
+    PyCallable_REG_CALL(InventoryBound, GetItem);
+    PyCallable_REG_CALL(InventoryBound, ListStations);
+    PyCallable_REG_CALL(InventoryBound, ReplaceCharges);
+    PyCallable_REG_CALL(InventoryBound, MultiMerge);
+    PyCallable_REG_CALL(InventoryBound, StackAll);
+    PyCallable_REG_CALL(InventoryBound, StripFitting);
+    PyCallable_REG_CALL(InventoryBound, DestroyFitting);
+    PyCallable_REG_CALL(InventoryBound, SetPassword);
+    PyCallable_REG_CALL(InventoryBound, CreateBookmarkVouchers);
+    PyCallable_REG_CALL(InventoryBound, Voucher);
 }
 
 InventoryBound::~InventoryBound()

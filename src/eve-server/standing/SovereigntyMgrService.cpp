@@ -38,7 +38,7 @@ SovereigntyMgrService::SovereigntyMgrService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(SovereigntyMgrService, GetSystemSovereigntyInfo)
+    PyCallable_REG_CALL(SovereigntyMgrService, GetSystemSovereigntyInfo);
 }
 
 SovereigntyMgrService::~SovereigntyMgrService() {
@@ -51,3 +51,6 @@ PyResult SovereigntyMgrService::Handle_GetSystemSovereigntyInfo(PyCallArgs &call
         return NULL;
 
 }
+
+/*sovSvc.CanInstallUpgrade(t.typeID, self.hubID, devIndices=self.devIndices)
+*/

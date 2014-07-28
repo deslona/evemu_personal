@@ -58,20 +58,20 @@ SkillMgrBound::SkillMgrBound(PyServiceMgr *mgr, CharacterDB &db)
 
     m_strBoundObjectName = "SkillMgrBound";
 
-    PyCallable_REG_CALL(SkillMgrBound, InjectSkillIntoBrain)
-    PyCallable_REG_CALL(SkillMgrBound, CharStartTrainingSkillByTypeID)
-    PyCallable_REG_CALL(SkillMgrBound, CharStopTrainingSkill)
-    PyCallable_REG_CALL(SkillMgrBound, GetEndOfTraining)
-    PyCallable_REG_CALL(SkillMgrBound, GetSkillHistory)
-    PyCallable_REG_CALL(SkillMgrBound, CharAddImplant)
-    PyCallable_REG_CALL(SkillMgrBound, RemoveImplantFromCharacter)
-    PyCallable_REG_CALL(SkillMgrBound, GetSkillQueueAndFreePoints)
-    PyCallable_REG_CALL(SkillMgrBound, SaveSkillQueue)
-    PyCallable_REG_CALL(SkillMgrBound, AddToEndOfSkillQueue)
+    PyCallable_REG_CALL(SkillMgrBound, InjectSkillIntoBrain);
+    PyCallable_REG_CALL(SkillMgrBound, CharStartTrainingSkillByTypeID);
+    PyCallable_REG_CALL(SkillMgrBound, CharStopTrainingSkill);
+    PyCallable_REG_CALL(SkillMgrBound, GetEndOfTraining);
+    PyCallable_REG_CALL(SkillMgrBound, GetSkillHistory);
+    PyCallable_REG_CALL(SkillMgrBound, CharAddImplant);
+    PyCallable_REG_CALL(SkillMgrBound, RemoveImplantFromCharacter);
+    PyCallable_REG_CALL(SkillMgrBound, GetSkillQueueAndFreePoints);
+    PyCallable_REG_CALL(SkillMgrBound, SaveSkillQueue);
+    PyCallable_REG_CALL(SkillMgrBound, AddToEndOfSkillQueue);
 
-    PyCallable_REG_CALL(SkillMgrBound, GetRespecInfo)
-    PyCallable_REG_CALL(SkillMgrBound, RespecCharacter)
-    PyCallable_REG_CALL(SkillMgrBound, GetCharacterAttributeModifiers)
+    PyCallable_REG_CALL(SkillMgrBound, GetRespecInfo);
+    PyCallable_REG_CALL(SkillMgrBound, RespecCharacter);
+    PyCallable_REG_CALL(SkillMgrBound, GetCharacterAttributeModifiers);
 }
 
 SkillMgrBound::~SkillMgrBound()

@@ -50,18 +50,18 @@ public:
 
         m_strBoundObjectName = "ShipBound";
 
-        PyCallable_REG_CALL(ShipBound, Board)
-        PyCallable_REG_CALL(ShipBound, Undock)
-        PyCallable_REG_CALL(ShipBound, AssembleShip)
-        PyCallable_REG_CALL(ShipBound, Drop)
-        PyCallable_REG_CALL(ShipBound, Scoop)
-        PyCallable_REG_CALL(ShipBound, ScoopDrone)
-        PyCallable_REG_CALL(ShipBound, Jettison)
-        PyCallable_REG_CALL(ShipBound, Eject)
-        PyCallable_REG_CALL(ShipBound, LeaveShip)
-        PyCallable_REG_CALL(ShipBound, ActivateShip)
-        PyCallable_REG_CALL(ShipBound, GetShipConfiguration)
-        PyCallable_REG_CALL(ShipBound, SelfDestruct)
+        PyCallable_REG_CALL(ShipBound, Board);
+        PyCallable_REG_CALL(ShipBound, Undock);
+        PyCallable_REG_CALL(ShipBound, AssembleShip);
+        PyCallable_REG_CALL(ShipBound, Drop);
+        PyCallable_REG_CALL(ShipBound, Scoop);
+        PyCallable_REG_CALL(ShipBound, ScoopDrone);
+        PyCallable_REG_CALL(ShipBound, Jettison);
+        PyCallable_REG_CALL(ShipBound, Eject);
+        PyCallable_REG_CALL(ShipBound, LeaveShip);
+        PyCallable_REG_CALL(ShipBound, ActivateShip);
+        PyCallable_REG_CALL(ShipBound, GetShipConfiguration);
+        PyCallable_REG_CALL(ShipBound, SelfDestruct);
     }
 
     virtual ~ShipBound() {delete m_dispatch;}
@@ -70,18 +70,18 @@ public:
         delete this;
     }
 
-    PyCallable_DECL_CALL(Board)
-    PyCallable_DECL_CALL(Undock)
-    PyCallable_DECL_CALL(AssembleShip)
-    PyCallable_DECL_CALL(Drop)
-    PyCallable_DECL_CALL(Scoop)
-    PyCallable_DECL_CALL(ScoopDrone)
-    PyCallable_DECL_CALL(Jettison)
-    PyCallable_DECL_CALL(Eject)
-    PyCallable_DECL_CALL(LeaveShip)
-    PyCallable_DECL_CALL(ActivateShip)
-    PyCallable_DECL_CALL(GetShipConfiguration)
-    PyCallable_DECL_CALL(SelfDestruct)
+    PyCallable_DECL_CALL(Board);
+    PyCallable_DECL_CALL(Undock);
+    PyCallable_DECL_CALL(AssembleShip);
+    PyCallable_DECL_CALL(Drop);
+    PyCallable_DECL_CALL(Scoop);
+    PyCallable_DECL_CALL(ScoopDrone);
+    PyCallable_DECL_CALL(Jettison);
+    PyCallable_DECL_CALL(Eject);
+    PyCallable_DECL_CALL(LeaveShip);
+    PyCallable_DECL_CALL(ActivateShip);
+    PyCallable_DECL_CALL(GetShipConfiguration);
+    PyCallable_DECL_CALL(SelfDestruct);
 
 protected:
     ShipDB& m_db;
@@ -265,6 +265,8 @@ PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
 21:44:59 [Debug]     Argument 'onlineModules':
 21:44:59 [Debug]         Dictionary: Empty
 */
+        sLog.Error("ShipBound::Handle_Undock()", "%s is Undocking", call.client->GetName());
+
     Call_IntBoolArg args;
     if(!args.Decode(&call.tuple)) {
         codelog(SERVICE__ERROR, "Failed to decode arguments");

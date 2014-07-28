@@ -54,8 +54,8 @@ public:
         delete this;
     }
 
-        PyCallable_DECL_CALL(GetPlanetInfo)
-        PyCallable_DECL_CALL(GetPlanetResourceInfo)
+        PyCallable_DECL_CALL(GetPlanetInfo);
+        PyCallable_DECL_CALL(GetPlanetResourceInfo);
 
 protected:
     Dispatcher *const m_dispatch;

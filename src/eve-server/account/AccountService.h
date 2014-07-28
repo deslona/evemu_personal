@@ -42,13 +42,13 @@ protected:
 
     AccountDB m_db;
 
-    PyCallable_DECL_CALL(GetCashBalance)
-    PyCallable_DECL_CALL(GetEntryTypes)
-    PyCallable_DECL_CALL(GetKeyMap)
-    PyCallable_DECL_CALL(GiveCash)
-    PyCallable_DECL_CALL(GiveCashFromCorpAccount)
-    PyCallable_DECL_CALL(GetJournal)
-    PyCallable_DECL_CALL(GetWalletDivisionsInfo)
+    PyCallable_DECL_CALL(GetCashBalance);
+    PyCallable_DECL_CALL(GetEntryTypes);
+    PyCallable_DECL_CALL(GetKeyMap);
+    PyCallable_DECL_CALL(GiveCash);
+    PyCallable_DECL_CALL(GiveCashFromCorpAccount);
+    PyCallable_DECL_CALL(GetJournal);
+    PyCallable_DECL_CALL(GetWalletDivisionsInfo);
 
     PyTuple * GiveCashToChar(Client * const client, Client * const other, double amount, const char *reason, JournalRefType refTypeID);
     PyTuple * GiveCashToCorp(Client * const client, uint32 corpID, double amount, const char *reason, JournalRefType refTypeID);

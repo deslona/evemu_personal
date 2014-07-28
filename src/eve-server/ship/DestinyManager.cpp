@@ -148,16 +148,13 @@ void DestinyManager::_UpdateDerrived() {
     m_velocityAdjuster = exp(- (SPACE_FRICTION * TIC_DURATION_IN_SECONDS) / (m_mass * m_shipAgility));
     m_accelerationFactor = (SPACE_FRICTION*m_maxVelocity) / (m_mass * m_shipAgility);
 
-    //uint32 testID = m_self->GetID();
-    //if(( testID == 140000096 ) || ( testID == 140002407 )) {
     _log(PHYSICS__TRACE, "DestinyManager::_UpdateDerrived - Entity %u has derrived: maxVelocity=%f, velocityAdjuster=%f, accelerationFactor=%f",
         m_self->GetID(), m_maxVelocity, m_velocityAdjuster, m_accelerationFactor);
 }
 
 void DestinyManager::ProcessTic() {
   /*
-    uint32 testID = m_self->GetID();
-    if(( testID == 140000096 ) || ( testID == 140002407 ))
+    if( m_self->GetID() > 140000000 )
     {
         _log(PHYSICS__TRACEPOS, "DestinyManager::ProcessTic - [%d] Entity %u starts at (%.3f, %.3f, %.3f) with velocity (%f, %f, %f)=%.1f in mode %s",
         GetStamp(),
@@ -199,7 +196,7 @@ void DestinyManager::ProcessTic() {
 
     case DSTBALL_WARP: {
         //warp is a 3 stage thing... first you get up to speed,
-        //then you warp, and then you stop.
+        //then you cruise, and then you stop.
 
         if(m_warpState != NULL) {
             //warp is already started!
@@ -475,8 +472,7 @@ void DestinyManager::_InitWarp() {
         m_targetPoint.x, m_targetPoint.y, m_targetPoint.z,
         warp_distance);
 
-    //the client clears massive during warp, presumably so you
-    //do not run into things while warping.
+    //the client clears massive during warp,  (massive means object is solid)
 //#   pragma message( "TODO: set massive to false!" )      ---works....13July14
     std::vector<PyTuple *> updates;
     DoDestiny_SetBallMassive sbmassive;
@@ -841,6 +837,7 @@ void DestinyManager::EntityRemoved(SystemEntity *who) {
 
 //Global Actions:
 void DestinyManager::Stop(bool update) {
+  /*
     //Clear any pending docking operation since the user stopped ship movement:
 	if( m_self->IsClient() )
 		m_self->CastToClient()->SetPendingDockOperation( false );
@@ -862,7 +859,7 @@ void DestinyManager::Stop(bool update) {
 			return;
 		}
 	}
-
+*/
 	// vvv ORIGINAL DestinyManager::Stop(bool update) BEGINS HERE vvv
 	if(State == DSTBALL_STOP)
 		return;

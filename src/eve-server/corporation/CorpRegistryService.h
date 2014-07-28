@@ -49,10 +49,41 @@ protected:
     virtual PyBoundObject *_CreateBoundObject(Client *c, const PyRep *bind_args);
 };
 
-
-
-
-
 #endif
 
+/*
+    def GetContactList(self):
+        if util.IsNPC(session.corpid):
+            return {}
+        return self.GetCorpRegistry().GetCorporateContacts()
 
+    def AddCorporateContact(self, contactID, relationshipID):
+        self.GetCorpRegistry().AddCorporateContact(contactID, relationshipID)
+
+    def EditCorporateContact(self, contactID, relationshipID):
+        self.GetCorpRegistry().EditCorporateContact(contactID, relationshipID)
+
+    def RemoveCorporateContacts(self, contactIDs):
+        self.GetCorpRegistry().RemoveCorporateContacts(contactIDs)
+
+    def EditContactsRelationshipID(self, contactIDs, relationshipID):
+        self.GetCorpRegistry().EditContactsRelationshipID(contactIDs, relationshipID)
+
+    def GetLabels(self):
+        return self.GetCorpRegistry().GetLabels()
+
+    def CreateLabel(self, name, color = 0):
+        return self.GetCorpRegistry().CreateLabel(name, color)
+
+    def DeleteLabel(self, labelID):
+        self.GetCorpRegistry().DeleteLabel(labelID)
+
+    def EditLabel(self, labelID, name = None, color = None):
+        self.GetCorpRegistry().EditLabel(labelID, name, color)
+
+    def AssignLabels(self, contactIDs, labelMask):
+        self.GetCorpRegistry().AssignLabels(contactIDs, labelMask)
+
+    def RemoveLabels(self, contactIDs, labelMask):
+        self.GetCorpRegistry().RemoveLabels(contactIDs, labelMask)
+*/

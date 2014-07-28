@@ -36,22 +36,22 @@ ConfigService::ConfigService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(ConfigService, GetMultiOwnersEx)
-    PyCallable_REG_CALL(ConfigService, GetMultiLocationsEx)
-    PyCallable_REG_CALL(ConfigService, GetMultiAllianceShortNamesEx)
-    PyCallable_REG_CALL(ConfigService, GetMultiCorpTickerNamesEx)
-    PyCallable_REG_CALL(ConfigService, GetUnits)
-    PyCallable_REG_CALL(ConfigService, GetMap)
-    PyCallable_REG_CALL(ConfigService, GetMapOffices)
-    PyCallable_REG_CALL(ConfigService, GetMapObjects)
-    PyCallable_REG_CALL(ConfigService, GetMapConnections)
-    PyCallable_REG_CALL(ConfigService, GetMultiGraphicsEx)
-    PyCallable_REG_CALL(ConfigService, GetMultiInvTypesEx)
-    PyCallable_REG_CALL(ConfigService, GetStationSolarSystemsByOwner)
-    PyCallable_REG_CALL(ConfigService, GetCelestialStatistic)
-    PyCallable_REG_CALL(ConfigService, GetDynamicCelestials)
-    PyCallable_REG_CALL(ConfigService, GetMapLandmarks)
-    PyCallable_REG_CALL(ConfigService, SetMapLandmarks)
+    PyCallable_REG_CALL(ConfigService, GetMultiOwnersEx);
+    PyCallable_REG_CALL(ConfigService, GetMultiLocationsEx);
+    PyCallable_REG_CALL(ConfigService, GetMultiAllianceShortNamesEx);
+    PyCallable_REG_CALL(ConfigService, GetMultiCorpTickerNamesEx);
+    PyCallable_REG_CALL(ConfigService, GetUnits);
+    PyCallable_REG_CALL(ConfigService, GetMap);
+    PyCallable_REG_CALL(ConfigService, GetMapOffices);
+    PyCallable_REG_CALL(ConfigService, GetMapObjects);
+    PyCallable_REG_CALL(ConfigService, GetMapConnections);
+    PyCallable_REG_CALL(ConfigService, GetMultiGraphicsEx);
+    PyCallable_REG_CALL(ConfigService, GetMultiInvTypesEx);
+    PyCallable_REG_CALL(ConfigService, GetStationSolarSystemsByOwner);
+    PyCallable_REG_CALL(ConfigService, GetCelestialStatistic);
+    PyCallable_REG_CALL(ConfigService, GetDynamicCelestials);
+    PyCallable_REG_CALL(ConfigService, GetMapLandmarks);
+    PyCallable_REG_CALL(ConfigService, SetMapLandmarks);
 }
 
 ConfigService::~ConfigService() {
@@ -343,7 +343,7 @@ GetMapConnections(id, sol, reg, con, cel, _c)  <- from client py code
         sLog.Warning( "ConfigService::Handle_GetMapConnections()", "args.id = 9 | args.sol = 1");
         return m_db.GetMapConnections(call.client->GetSystemID(), args.sol, args.reg, args.con, args.cel, args._c);
     } else {
-        sLog.Success( "ConfigService::Handle_GetMapConnections()", "args.id is good number");
+        //sLog.Success( "ConfigService::Handle_GetMapConnections()", "args.id is good number");
         return m_db.GetMapConnections(args.id, args.sol, args.reg, args.con, args.cel, args._c);
     }
 }
@@ -402,7 +402,7 @@ PyResult ConfigService::Handle_GetDynamicCelestials(PyCallArgs &call) {
     }
 
     if(IsSolarSystem(arg.arg)) {
-        sLog.Success("GetDynamicCelesitals", " IsSolarSystem %u", arg.arg);
+        //sLog.Success("GetDynamicCelesitals", " IsSolarSystem %u", arg.arg);
         return m_db.GetDynamicCelestials(arg.arg);
     } else {
         sLog.Error("GetDynamicCelesitals", "  !IsSolarSystem %u", arg.arg);

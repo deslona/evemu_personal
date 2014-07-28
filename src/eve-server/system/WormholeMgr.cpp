@@ -37,7 +37,7 @@ WormHoleSvc::WormHoleSvc(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(WormHoleSvc, WormholeJump)
+    PyCallable_REG_CALL(WormHoleSvc, WormholeJump);
 }
 
 WormHoleSvc::~WormHoleSvc() {

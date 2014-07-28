@@ -36,8 +36,8 @@ m_dispatch(new Dispatcher(this))
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(OnlineStatusService, GetInitialState)
-    PyCallable_REG_CALL(OnlineStatusService, GetOnlineStatus)
+    PyCallable_REG_CALL(OnlineStatusService, GetInitialState);
+    PyCallable_REG_CALL(OnlineStatusService, GetOnlineStatus);
 }
 
 OnlineStatusService::~OnlineStatusService() {

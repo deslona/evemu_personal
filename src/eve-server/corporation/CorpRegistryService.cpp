@@ -48,33 +48,33 @@ public:
         m_strBoundObjectName = "CorpRegistryBound";
 
         //PyCall_REG_CALL
-        PyCallable_REG_CALL(CorpRegistryBound, GetEveOwners)
-        PyCallable_REG_CALL(CorpRegistryBound, GetCorporation)
-        PyCallable_REG_CALL(CorpRegistryBound, GetCorporations)
-        PyCallable_REG_CALL(CorpRegistryBound, GetInfoWindowDataForChar)
-        PyCallable_REG_CALL(CorpRegistryBound, GetLockedItemLocations)
-        PyCallable_REG_CALL(CorpRegistryBound, AddCorporation)
+        PyCallable_REG_CALL(CorpRegistryBound, GetEveOwners);
+        PyCallable_REG_CALL(CorpRegistryBound, GetCorporation);
+        PyCallable_REG_CALL(CorpRegistryBound, GetCorporations);
+        PyCallable_REG_CALL(CorpRegistryBound, GetInfoWindowDataForChar);
+        PyCallable_REG_CALL(CorpRegistryBound, GetLockedItemLocations);
+        PyCallable_REG_CALL(CorpRegistryBound, AddCorporation);
 
-        PyCallable_REG_CALL(CorpRegistryBound, GetSuggestedTickerNames)
-        PyCallable_REG_CALL(CorpRegistryBound, GetOffices)
-        PyCallable_REG_CALL(CorpRegistryBound, GetStations)
-        PyCallable_REG_CALL(CorpRegistryBound, GetMyApplications)
-        PyCallable_REG_CALL(CorpRegistryBound, InsertApplication)
-        PyCallable_REG_CALL(CorpRegistryBound, GetApplications)
-        PyCallable_REG_CALL(CorpRegistryBound, UpdateApplicationOffer)
-        PyCallable_REG_CALL(CorpRegistryBound, DeleteApplication)
-        PyCallable_REG_CALL(CorpRegistryBound, UpdateApplication)
-        PyCallable_REG_CALL(CorpRegistryBound, UpdateDivisionNames)
-        PyCallable_REG_CALL(CorpRegistryBound, UpdateCorporation)
-        PyCallable_REG_CALL(CorpRegistryBound, UpdateLogo)
+        PyCallable_REG_CALL(CorpRegistryBound, GetSuggestedTickerNames);
+        PyCallable_REG_CALL(CorpRegistryBound, GetOffices);
+        PyCallable_REG_CALL(CorpRegistryBound, GetStations);
+        PyCallable_REG_CALL(CorpRegistryBound, GetMyApplications);
+        PyCallable_REG_CALL(CorpRegistryBound, InsertApplication);
+        PyCallable_REG_CALL(CorpRegistryBound, GetApplications);
+        PyCallable_REG_CALL(CorpRegistryBound, UpdateApplicationOffer);
+        PyCallable_REG_CALL(CorpRegistryBound, DeleteApplication);
+        PyCallable_REG_CALL(CorpRegistryBound, UpdateApplication);
+        PyCallable_REG_CALL(CorpRegistryBound, UpdateDivisionNames);
+        PyCallable_REG_CALL(CorpRegistryBound, UpdateCorporation);
+        PyCallable_REG_CALL(CorpRegistryBound, UpdateLogo);
 
         // STUBBS
-        PyCallable_REG_CALL(CorpRegistryBound, GetMember)
-        PyCallable_REG_CALL(CorpRegistryBound, GetMembers)
-        PyCallable_REG_CALL(CorpRegistryBound, GetSharesByShareholder)
-        PyCallable_REG_CALL(CorpRegistryBound, SetAccountKey)
-        PyCallable_REG_CALL(CorpRegistryBound, PayoutDividend)
-        PyCallable_REG_CALL(CorpRegistryBound, GetVoteCasesByCorporation)
+        PyCallable_REG_CALL(CorpRegistryBound, GetMember);
+        PyCallable_REG_CALL(CorpRegistryBound, GetMembers);
+        PyCallable_REG_CALL(CorpRegistryBound, GetSharesByShareholder);
+        PyCallable_REG_CALL(CorpRegistryBound, SetAccountKey);
+        PyCallable_REG_CALL(CorpRegistryBound, PayoutDividend);
+        PyCallable_REG_CALL(CorpRegistryBound, GetVoteCasesByCorporation);
 
 
     }
@@ -84,32 +84,32 @@ public:
         delete this;
     }
 
-    PyCallable_DECL_CALL(GetEveOwners)
-    PyCallable_DECL_CALL(GetCorporation)
-    PyCallable_DECL_CALL(GetCorporations)
-    PyCallable_DECL_CALL(GetInfoWindowDataForChar)
-    PyCallable_DECL_CALL(GetLockedItemLocations)
-    PyCallable_DECL_CALL(AddCorporation)
-    PyCallable_DECL_CALL(GetSuggestedTickerNames)
-    PyCallable_DECL_CALL(GetOffices)
-    PyCallable_DECL_CALL(GetStations)
-    PyCallable_DECL_CALL(GetMyApplications)
-    PyCallable_DECL_CALL(InsertApplication)
-    PyCallable_DECL_CALL(GetApplications)
-    PyCallable_DECL_CALL(UpdateApplicationOffer)
-    PyCallable_DECL_CALL(DeleteApplication)
-    PyCallable_DECL_CALL(UpdateApplication)
-    PyCallable_DECL_CALL(UpdateDivisionNames)
-    PyCallable_DECL_CALL(UpdateCorporation)
-    PyCallable_DECL_CALL(UpdateLogo)
+    PyCallable_DECL_CALL(GetEveOwners);
+    PyCallable_DECL_CALL(GetCorporation);
+    PyCallable_DECL_CALL(GetCorporations);
+    PyCallable_DECL_CALL(GetInfoWindowDataForChar);
+    PyCallable_DECL_CALL(GetLockedItemLocations);
+    PyCallable_DECL_CALL(AddCorporation);
+    PyCallable_DECL_CALL(GetSuggestedTickerNames);
+    PyCallable_DECL_CALL(GetOffices);
+    PyCallable_DECL_CALL(GetStations);
+    PyCallable_DECL_CALL(GetMyApplications);
+    PyCallable_DECL_CALL(InsertApplication);
+    PyCallable_DECL_CALL(GetApplications);
+    PyCallable_DECL_CALL(UpdateApplicationOffer);
+    PyCallable_DECL_CALL(DeleteApplication);
+    PyCallable_DECL_CALL(UpdateApplication);
+    PyCallable_DECL_CALL(UpdateDivisionNames);
+    PyCallable_DECL_CALL(UpdateCorporation);
+    PyCallable_DECL_CALL(UpdateLogo);
 
     // STUBBS
-    PyCallable_DECL_CALL(GetMember)
-    PyCallable_DECL_CALL(GetMembers)
-    PyCallable_DECL_CALL(GetSharesByShareholder)
-    PyCallable_DECL_CALL(SetAccountKey)
-    PyCallable_DECL_CALL(PayoutDividend)
-    PyCallable_DECL_CALL(GetVoteCasesByCorporation)
+    PyCallable_DECL_CALL(GetMember);
+    PyCallable_DECL_CALL(GetMembers);
+    PyCallable_DECL_CALL(GetSharesByShareholder);
+    PyCallable_DECL_CALL(SetAccountKey);
+    PyCallable_DECL_CALL(PayoutDividend);
+    PyCallable_DECL_CALL(GetVoteCasesByCorporation);
 
 
 

@@ -49,12 +49,12 @@ private:
 
 	PaperDollDB m_db;
 
-    PyCallable_DECL_CALL(GetPaperDollData)
-    PyCallable_DECL_CALL(ConvertAndSavePaperDoll)
-    PyCallable_DECL_CALL(UpdateExistingCharacterFull)
-    PyCallable_DECL_CALL(UpdateExistingCharacterLimited)
-    PyCallable_DECL_CALL(GetPaperDollPortraitDataFor)
-    PyCallable_DECL_CALL(GetMyPaperDollData)
+    PyCallable_DECL_CALL(GetPaperDollData);
+    PyCallable_DECL_CALL(ConvertAndSavePaperDoll);
+    PyCallable_DECL_CALL(UpdateExistingCharacterFull);
+    PyCallable_DECL_CALL(UpdateExistingCharacterLimited);
+    PyCallable_DECL_CALL(GetPaperDollPortraitDataFor);
+    PyCallable_DECL_CALL(GetMyPaperDollData);
 };
 
 #endif // __PAPERDOLLSERVICE__H__INCL__

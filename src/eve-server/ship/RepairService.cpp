@@ -55,9 +55,39 @@ PyResult RepairService::Handle_UnasembleItems(PyCallArgs &call) {
 19:49:29 [SvcCall]         [ 0]   [ 0] Value:   [ 0]   [ 0] Integer field: 140001999
 19:49:29 [SvcCall]         [ 0]   [ 0] Value:   [ 0]   [ 1] Integer field: 60004450
 19:49:29 [SvcCall]         [ 1] List: Empty
-*/
+
     sLog.Warning("RepairService::Handle_UnasembleItems", "Called UnasembleItems stub.");
   call.Dump(SERVICE__CALLS);
-
+*/
+call.client->SendNotifyMsg("This Service is Not Implemented at this time.");
     return NULL;
 }
+
+/*
+            damageReports = self.repairSvc.GetDamageReports(itemIDs)
+
+                    self.repairSvc.RepairItems(itemIDs, amount['qty'])
+
+
+                itemIDAndAmountOfDamageList.append((item.itemID, amount))
+                self.repairSvc.DamageModules(itemIDAndAmountOfDamageList)
+*/
+
+/**
+                sm.RemoteSvc('repairSvc').UnasembleItems(dict(validIDsByStationID), skipChecks)
+
+repackableCategorys = (categoryStructure,
+ categoryShip,
+ categoryDrone,
+ categoryModule,
+ categorySubSystem,
+ categorySovereigntyStructure)
+repackableGroups = (groupCargoContainer,
+ groupSecureCargoContainer,
+ groupAuditLogSecureContainer,
+ groupFreightContainer,
+ groupTool,
+ groupMobileWarpDisruptor)
+
+
+ */

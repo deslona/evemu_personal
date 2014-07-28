@@ -43,7 +43,7 @@ protected:
 
     DogmaDB m_db;
 
-    PyCallable_DECL_CALL(GetOperandsForChar)
+    PyCallable_DECL_CALL(GetOperandsForChar);
 
 };
 

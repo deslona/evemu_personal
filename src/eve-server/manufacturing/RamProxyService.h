@@ -53,15 +53,15 @@ private:
 
     void _GetBOMItems(const PathElement &bomLocation, std::vector<InventoryItemRef> &into);
 
-    PyCallable_DECL_CALL(AssemblyLinesGet)
-    PyCallable_DECL_CALL(AssemblyLinesSelect)
-    PyCallable_DECL_CALL(AssemblyLinesSelectPublic)
-    PyCallable_DECL_CALL(AssemblyLinesSelectPrivate)
-    PyCallable_DECL_CALL(GetJobs2)
-    PyCallable_DECL_CALL(InstallJob)
-    PyCallable_DECL_CALL(CompleteJob)
+    PyCallable_DECL_CALL(AssemblyLinesGet);
+    PyCallable_DECL_CALL(AssemblyLinesSelect);
+    PyCallable_DECL_CALL(AssemblyLinesSelectPublic);
+    PyCallable_DECL_CALL(AssemblyLinesSelectPrivate);
+    PyCallable_DECL_CALL(GetJobs2);
+    PyCallable_DECL_CALL(InstallJob);
+    PyCallable_DECL_CALL(CompleteJob);
 
-    PyCallable_DECL_CALL(GetRelevantCharSkills)
+    PyCallable_DECL_CALL(GetRelevantCharSkills);
 };
 
 #endif

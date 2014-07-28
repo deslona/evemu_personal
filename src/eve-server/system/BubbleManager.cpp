@@ -94,7 +94,7 @@ void BubbleManager::UpdateBubble(SystemEntity *ent, bool notify, bool isWarping,
             sLog.Debug( "BubbleManager::UpdateBubble()", "SystemEntity '%s' is still located in Bubble %u", ent->GetName(), b->GetBubbleID() );
             return;
         }
-        _log(DESTINY__BUBBLE_TRACE, "Entity %u at (%.2f,%.2f,%.2f) is no longer located in bubble %u at (%.2f,%.2f,%.2f) with radius %.2f.  Removing...", ent->GetID(), ent->GetPosition().x, ent->GetPosition().y, ent->GetPosition().z, b->GetBubbleID(), b->m_center.x, b->m_center.y, b->m_center.z, b->m_radius);
+        _log(DESTINY__BUBBLE_TRACE, "BubbleManager::UpdateBubble() - Entity %u at (%.2f,%.2f,%.2f) is no longer located in bubble %u at (%.2f,%.2f,%.2f) with radius %.2f.  Removing...", ent->GetID(), ent->GetPosition().x, ent->GetPosition().y, ent->GetPosition().z, b->GetBubbleID(), b->m_center.x, b->m_center.y, b->m_center.z, b->m_radius);
         b->Remove(ent, notify);
 		return;
     }

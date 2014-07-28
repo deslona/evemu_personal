@@ -44,9 +44,9 @@ public:
 
         m_strBoundObjectName = "JumpCloneBound";
 
-        PyCallable_REG_CALL(JumpCloneBound, GetCloneState)
-        PyCallable_REG_CALL(JumpCloneBound, InstallCloneInStation)
-        PyCallable_REG_CALL(JumpCloneBound, GetPriceForClone)
+        PyCallable_REG_CALL(JumpCloneBound, GetCloneState);
+        PyCallable_REG_CALL(JumpCloneBound, InstallCloneInStation);
+        PyCallable_REG_CALL(JumpCloneBound, GetPriceForClone);
     }
     virtual ~JumpCloneBound() { delete m_dispatch; }
     virtual void Release() {
@@ -54,9 +54,9 @@ public:
         delete this;
     }
 
-    PyCallable_DECL_CALL(GetCloneState)
-    PyCallable_DECL_CALL(InstallCloneInStation)
-    PyCallable_DECL_CALL(GetPriceForClone)
+    PyCallable_DECL_CALL(GetCloneState);
+    PyCallable_DECL_CALL(InstallCloneInStation);
+    PyCallable_DECL_CALL(GetPriceForClone);
 
 protected:
     StationDB *const m_db;        //we do not own this
@@ -71,7 +71,7 @@ JumpCloneService::JumpCloneService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(JumpCloneService, GetShipCloneState)
+    PyCallable_REG_CALL(JumpCloneService, GetShipCloneState);
 }
 
 JumpCloneService::~JumpCloneService() {

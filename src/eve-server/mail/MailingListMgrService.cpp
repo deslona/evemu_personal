@@ -36,25 +36,25 @@ MailingListMgrService::MailingListMgrService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(MailingListMgrService, GetJoinedLists)
-    PyCallable_REG_CALL(MailingListMgrService, Create)
-    PyCallable_REG_CALL(MailingListMgrService, Join)
-    PyCallable_REG_CALL(MailingListMgrService, Leave)
-    PyCallable_REG_CALL(MailingListMgrService, Delete)
-    PyCallable_REG_CALL(MailingListMgrService, KickMembers)
-    PyCallable_REG_CALL(MailingListMgrService, GetMembers)
-    PyCallable_REG_CALL(MailingListMgrService, SetEntityAccess)
-    PyCallable_REG_CALL(MailingListMgrService, ClearEntityAccess)
-    PyCallable_REG_CALL(MailingListMgrService, SetMembersMuted)
-    PyCallable_REG_CALL(MailingListMgrService, SetMembersOperator)
-    PyCallable_REG_CALL(MailingListMgrService, SetMembersClear)
-    PyCallable_REG_CALL(MailingListMgrService, SetDefaultAccess)
-    PyCallable_REG_CALL(MailingListMgrService, GetInfo)
-    PyCallable_REG_CALL(MailingListMgrService, GetSettings)
-    PyCallable_REG_CALL(MailingListMgrService, GetWelcomeMail)
-    PyCallable_REG_CALL(MailingListMgrService, SaveWelcomeMail)
-    PyCallable_REG_CALL(MailingListMgrService, SendWelcomeMail)
-    PyCallable_REG_CALL(MailingListMgrService, ClearWelcomeMail)
+    PyCallable_REG_CALL(MailingListMgrService, GetJoinedLists);
+    PyCallable_REG_CALL(MailingListMgrService, Create);
+    PyCallable_REG_CALL(MailingListMgrService, Join);
+    PyCallable_REG_CALL(MailingListMgrService, Leave);
+    PyCallable_REG_CALL(MailingListMgrService, Delete);
+    PyCallable_REG_CALL(MailingListMgrService, KickMembers);
+    PyCallable_REG_CALL(MailingListMgrService, GetMembers);
+    PyCallable_REG_CALL(MailingListMgrService, SetEntityAccess);
+    PyCallable_REG_CALL(MailingListMgrService, ClearEntityAccess);
+    PyCallable_REG_CALL(MailingListMgrService, SetMembersMuted);
+    PyCallable_REG_CALL(MailingListMgrService, SetMembersOperator);
+    PyCallable_REG_CALL(MailingListMgrService, SetMembersClear);
+    PyCallable_REG_CALL(MailingListMgrService, SetDefaultAccess);
+    PyCallable_REG_CALL(MailingListMgrService, GetInfo);
+    PyCallable_REG_CALL(MailingListMgrService, GetSettings);
+    PyCallable_REG_CALL(MailingListMgrService, GetWelcomeMail);
+    PyCallable_REG_CALL(MailingListMgrService, SaveWelcomeMail);
+    PyCallable_REG_CALL(MailingListMgrService, SendWelcomeMail);
+    PyCallable_REG_CALL(MailingListMgrService, ClearWelcomeMail);
 }
 
 MailingListMgrService::~MailingListMgrService()

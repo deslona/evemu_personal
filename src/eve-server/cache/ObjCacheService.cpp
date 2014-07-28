@@ -141,7 +141,7 @@ ObjCacheService::ObjCacheService(PyServiceMgr *mgr, const char *cacheDir)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(ObjCacheService, GetCachableObject)
+    PyCallable_REG_CALL(ObjCacheService, GetCachableObject);
 
     //register full name -> short key in m_cacheKeys
     m_cacheKeys["config.BulkData.paperdollResources"] = "config.BulkData.paperdollResources";

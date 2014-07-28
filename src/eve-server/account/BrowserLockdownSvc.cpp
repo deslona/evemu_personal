@@ -37,10 +37,10 @@ BrowserLockdownService::BrowserLockdownService( PyServiceMgr *mgr )
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(BrowserLockdownService, GetFlaggedSitesHash)
-    PyCallable_REG_CALL(BrowserLockdownService, GetFlaggedSitesList)
-    PyCallable_REG_CALL(BrowserLockdownService, GetDefaultHomePage)
-    PyCallable_REG_CALL(BrowserLockdownService, IsBrowserInLockdown)
+    PyCallable_REG_CALL(BrowserLockdownService, GetFlaggedSitesHash);
+    PyCallable_REG_CALL(BrowserLockdownService, GetFlaggedSitesList);
+    PyCallable_REG_CALL(BrowserLockdownService, GetDefaultHomePage);
+    PyCallable_REG_CALL(BrowserLockdownService, IsBrowserInLockdown);
 }
 
 BrowserLockdownService::~BrowserLockdownService() {

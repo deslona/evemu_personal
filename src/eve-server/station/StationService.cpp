@@ -37,8 +37,8 @@ StationService::StationService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(StationService, GetGuests)
-    PyCallable_REG_CALL(StationService, GetSolarSystem)
+    PyCallable_REG_CALL(StationService, GetGuests);
+    PyCallable_REG_CALL(StationService, GetSolarSystem);
 }
 
 StationService::~StationService() {
@@ -59,23 +59,11 @@ PyResult StationService::Handle_GetSolarSystem(PyCallArgs &call) {
     return new PyObject("util.CachedObject", new PyInt(system));
 }
 
-// station guest list shows ALL docked players no matter what station they're in.
-PyResult StationService::Handle_GetGuests(PyCallArgs &call) {
-  /**
-00:26:27 L StationService::Handle_GetGuests(): size= 0
-00:26:27 [SvcCall]   Call Arguments:
-00:26:27 [SvcCall]       Tuple: Empty
-00:26:27 [SvcCall]   Call Named Arguments:
-00:26:27 [SvcCall]     Argument 'machoVersion':
-00:26:27 [SvcCall]         Integer field: 1
-
-  sLog.Log( "StationService::Handle_GetGuests()", "size= %u", call.tuple->size() );
-    call.Dump(SERVICE__CALLS);
-*/
+PyResult StationService::Handle_GetGuests(PyCallArgs &call) {		//  fixed   -allan 27Jul14
     PyList *res = new PyList();
 
     std::vector<Client *> clients;
-    m_manager->entity_list.FindByStationID(call.client->GetStationID(), clients);  /// oh!  THIS isnt working right....check later
+    m_manager->entity_list.FindByStationID(call.client->GetStationID(), clients);
     std::vector<Client *>::iterator cur, end;
     cur = clients.begin();
     end = clients.end();
@@ -84,10 +72,9 @@ PyResult StationService::Handle_GetGuests(PyCallArgs &call) {
         t->items[0] = new PyInt((*cur)->GetCharacterID());
         t->items[1] = new PyInt((*cur)->GetCorporationID());
         t->items[2] = new PyInt((*cur)->GetAllianceID());
-        t->items[3] = new PyInt((*cur)->GetStationID());    //unknown - trying StationID to see if this corrects station's "guest list"
+        t->items[3] = new PyInt((*cur)->GetWarFactionID());
         res->AddItem(t);
     }
 
     return res;
-
 }

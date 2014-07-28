@@ -46,18 +46,19 @@ public:
 
         m_strBoundObjectName = "CorpStationMgrIMBound";
 
-        PyCallable_REG_CALL(CorpStationMgrIMBound, GetEveOwners)
-        PyCallable_REG_CALL(CorpStationMgrIMBound, GetCorporateStationInfo)
-        PyCallable_REG_CALL(CorpStationMgrIMBound, DoStandingCheckForStationService)
-        PyCallable_REG_CALL(CorpStationMgrIMBound, GetPotentialHomeStations)
-        PyCallable_REG_CALL(CorpStationMgrIMBound, SetHomeStation)
-        PyCallable_REG_CALL(CorpStationMgrIMBound, SetCloneTypeID)
-        PyCallable_REG_CALL(CorpStationMgrIMBound, GetQuoteForRentingAnOffice)
-        PyCallable_REG_CALL(CorpStationMgrIMBound, RentOffice)
-        PyCallable_REG_CALL(CorpStationMgrIMBound, GetStationOffices)
-        PyCallable_REG_CALL(CorpStationMgrIMBound, GetNumberOfUnrentedOffices)
+        PyCallable_REG_CALL(CorpStationMgrIMBound, GetEveOwners);
+        PyCallable_REG_CALL(CorpStationMgrIMBound, GetCorporateStationInfo);
+        PyCallable_REG_CALL(CorpStationMgrIMBound, DoStandingCheckForStationService);
+        PyCallable_REG_CALL(CorpStationMgrIMBound, GetPotentialHomeStations);
+        PyCallable_REG_CALL(CorpStationMgrIMBound, SetHomeStation);
+        PyCallable_REG_CALL(CorpStationMgrIMBound, SetCloneTypeID);
+        PyCallable_REG_CALL(CorpStationMgrIMBound, GetQuoteForRentingAnOffice);
+        PyCallable_REG_CALL(CorpStationMgrIMBound, RentOffice);
+        PyCallable_REG_CALL(CorpStationMgrIMBound, GetStationOffices);
+        PyCallable_REG_CALL(CorpStationMgrIMBound, GetNumberOfUnrentedOffices);
         //testing
-        PyCallable_REG_CALL(CorpStationMgrIMBound, GetCorporateStationOffice)
+        PyCallable_REG_CALL(CorpStationMgrIMBound, GetCorporateStationOffice);
+        PyCallable_REG_CALL(CorpStationMgrIMBound, MoveCorpHQHere);
     }
     virtual ~CorpStationMgrIMBound() { delete m_dispatch; }
     virtual void Release() {
@@ -65,18 +66,19 @@ public:
         delete this;
     }
 
-    PyCallable_DECL_CALL(GetEveOwners)
-    PyCallable_DECL_CALL(GetCorporateStationInfo)
-    PyCallable_DECL_CALL(DoStandingCheckForStationService)
-    PyCallable_DECL_CALL(GetPotentialHomeStations)
-    PyCallable_DECL_CALL(SetHomeStation)
-    PyCallable_DECL_CALL(SetCloneTypeID)
-    PyCallable_DECL_CALL(GetQuoteForRentingAnOffice)
-    PyCallable_DECL_CALL(RentOffice)
-    PyCallable_DECL_CALL(GetStationOffices)
-    PyCallable_DECL_CALL(GetNumberOfUnrentedOffices)
+    PyCallable_DECL_CALL(GetEveOwners);
+    PyCallable_DECL_CALL(GetCorporateStationInfo);
+    PyCallable_DECL_CALL(DoStandingCheckForStationService);
+    PyCallable_DECL_CALL(GetPotentialHomeStations);
+    PyCallable_DECL_CALL(SetHomeStation);
+    PyCallable_DECL_CALL(SetCloneTypeID);
+    PyCallable_DECL_CALL(GetQuoteForRentingAnOffice);
+    PyCallable_DECL_CALL(RentOffice);
+    PyCallable_DECL_CALL(GetStationOffices);
+    PyCallable_DECL_CALL(GetNumberOfUnrentedOffices);
     //testing
-    PyCallable_DECL_CALL(GetCorporateStationOffice)
+    PyCallable_DECL_CALL(GetCorporateStationOffice);
+    PyCallable_DECL_CALL(MoveCorpHQHere);
 
 protected:
     Dispatcher *const m_dispatch;
@@ -93,7 +95,7 @@ CorpStationMgrService::CorpStationMgrService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    //PyCallable_REG_CALL(CorpStationMgrService, MachoBindObject)
+    PyCallable_REG_CALL(CorpStationMgrService, GetStationServiceStates)
     //PyCallable_REG_CALL(CorpStationMgrService, GetImprovementStaticData)
 }
 
@@ -614,13 +616,35 @@ PyResult CorpStationMgrIMBound::Handle_GetNumberOfUnrentedOffices( PyCallArgs &c
     return new PyInt(office_hack);
 }
 
-PyResult CorpStationMgrIMBound::Handle_GetCorporateStationOffice(PyCallArgs &call)
+PyResult CorpStationMgrIMBound::Handle_GetCorporateStationOffice(PyCallArgs &call) {
+  /*
+14:09:26 L CorpStationMgrIMBound::Handle_GetCorporateStationOffice(): size= 0
+14:09:26 [SvcCall]   Call Arguments:
+14:09:26 [SvcCall]       Tuple: Empty
+14:09:26 [SvcCall]   Call Named Arguments:
+14:09:26 [SvcCall]     Argument 'machoVersion':
+14:09:26 [SvcCall]         Integer field: 1
+  sLog.Log( "CorpStationMgrIMBound::Handle_GetCorporateStationOffice()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+*/
+    return new PyTuple(0);
+}
+
+PyResult CorpStationMgrIMBound::Handle_MoveCorpHQHere(PyCallArgs &call)
 {
-    sLog.Debug("Server","Called GetCorporateStationOffice Stub");
+  sLog.Log( "CorpStationMgrIMBound::Handle_MoveCorpHQHere()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
 
     return new PyTuple(0);
 }
 
+PyResult CorpStationMgrService::Handle_GetStationServiceStates(PyCallArgs &call)
+{
+  sLog.Log( "CorpStationMgrService::Handle_GetStationServiceStates()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    return new PyTuple(0);
+}
 
 
 

@@ -37,26 +37,26 @@ MapService::MapService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(MapService, GetStationExtraInfo)
-    PyCallable_REG_CALL(MapService, GetSolarSystemPseudoSecurities)
-    PyCallable_REG_CALL(MapService, GetSolarSystemVisits)
-    PyCallable_REG_CALL(MapService, GetBeaconCount)
-    PyCallable_REG_CALL(MapService, GetHistory)
-    PyCallable_REG_CALL(MapService, GetStationCount)    //ColorStarsByStationCount
+    PyCallable_REG_CALL(MapService, GetStationExtraInfo);
+    PyCallable_REG_CALL(MapService, GetSolarSystemPseudoSecurities);
+    PyCallable_REG_CALL(MapService, GetSolarSystemVisits);
+    PyCallable_REG_CALL(MapService, GetBeaconCount);
+    PyCallable_REG_CALL(MapService, GetHistory);
+    PyCallable_REG_CALL(MapService, GetStationCount);    //ColorStarsByStationCount
 
     /**  not handled yet...these are empty calls  */
-    PyCallable_REG_CALL(MapService, GetStuckSystems)
-    PyCallable_REG_CALL(MapService, GetRecentSovActivity)
-    PyCallable_REG_CALL(MapService, GetDeadspaceAgentsMap)
-    PyCallable_REG_CALL(MapService, GetDeadspaceComplexMap)
-    PyCallable_REG_CALL(MapService, GetIncursionGlobalReport)
-    PyCallable_REG_CALL(MapService, GetSystemsInIncursions)
-    PyCallable_REG_CALL(MapService, GetSystemsInIncursionsGM)
-    PyCallable_REG_CALL(MapService, GetVictoryPoints)
-    PyCallable_REG_CALL(MapService, GetMyExtraMapInfo)
-    PyCallable_REG_CALL(MapService, GetMyExtraMapInfoAgents)  //ColorStarsByMyAgents
-    PyCallable_REG_CALL(MapService, GetAllianceJumpBridges)
-    PyCallable_REG_CALL(MapService, GetLinkableJumpArrays)
+    PyCallable_REG_CALL(MapService, GetStuckSystems);
+    PyCallable_REG_CALL(MapService, GetRecentSovActivity);
+    PyCallable_REG_CALL(MapService, GetDeadspaceAgentsMap);
+    PyCallable_REG_CALL(MapService, GetDeadspaceComplexMap);
+    PyCallable_REG_CALL(MapService, GetIncursionGlobalReport);
+    PyCallable_REG_CALL(MapService, GetSystemsInIncursions);
+    PyCallable_REG_CALL(MapService, GetSystemsInIncursionsGM);
+    PyCallable_REG_CALL(MapService, GetVictoryPoints);
+    PyCallable_REG_CALL(MapService, GetMyExtraMapInfo);
+    PyCallable_REG_CALL(MapService, GetMyExtraMapInfoAgents);  //ColorStarsByMyAgents
+    PyCallable_REG_CALL(MapService, GetAllianceJumpBridges);
+    PyCallable_REG_CALL(MapService, GetLinkableJumpArrays);
 
 }
 

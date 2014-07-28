@@ -68,8 +68,8 @@ LanguageService::LanguageService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(LanguageService, GetLanguages)
-    PyCallable_REG_CALL(LanguageService, GetTextsForGroup)
+    PyCallable_REG_CALL(LanguageService, GetLanguages);
+    PyCallable_REG_CALL(LanguageService, GetTextsForGroup);
 }
 
 LanguageService::~LanguageService() {
@@ -103,29 +103,4 @@ PyResult LanguageService::Handle_GetTextsForGroup(PyCallArgs &call) {
 
     return m_db.GetTextsForGroup(args.languageID, args.textgroup);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

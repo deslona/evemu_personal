@@ -92,25 +92,25 @@ protected:
     std::map<uint32, LSCChannel *> m_channels;  //we own these pointers
 
     //make sure you add things to the constructor too
-    PyCallable_DECL_CALL(GetChannels)
-    PyCallable_DECL_CALL(GetRookieHelpChannel)
-    PyCallable_DECL_CALL(JoinChannels)
-    PyCallable_DECL_CALL(LeaveChannels)
-    PyCallable_DECL_CALL(LeaveChannel)
-    PyCallable_DECL_CALL(CreateChannel)
-    PyCallable_DECL_CALL(Configure)
-    PyCallable_DECL_CALL(DestroyChannel)
-    PyCallable_DECL_CALL(GetMembers)
-    PyCallable_DECL_CALL(GetMember)
-    PyCallable_DECL_CALL(SendMessage)
-    PyCallable_DECL_CALL(Invite)
-    PyCallable_DECL_CALL(AccessControl)
+    PyCallable_DECL_CALL(GetChannels);
+    PyCallable_DECL_CALL(GetRookieHelpChannel);
+    PyCallable_DECL_CALL(JoinChannels);
+    PyCallable_DECL_CALL(LeaveChannels);
+    PyCallable_DECL_CALL(LeaveChannel);
+    PyCallable_DECL_CALL(CreateChannel);
+    PyCallable_DECL_CALL(Configure);
+    PyCallable_DECL_CALL(DestroyChannel);
+    PyCallable_DECL_CALL(GetMembers);
+    PyCallable_DECL_CALL(GetMember);
+    PyCallable_DECL_CALL(SendMessage);
+    PyCallable_DECL_CALL(Invite);
+    PyCallable_DECL_CALL(AccessControl);
 
-    PyCallable_DECL_CALL(GetMyMessages)
-    PyCallable_DECL_CALL(GetMessageDetails)
-    PyCallable_DECL_CALL(Page)
-    PyCallable_DECL_CALL(MarkMessagesRead)
-    PyCallable_DECL_CALL(DeleteMessages)
+    PyCallable_DECL_CALL(GetMyMessages);
+    PyCallable_DECL_CALL(GetMessageDetails);
+    PyCallable_DECL_CALL(Page);
+    PyCallable_DECL_CALL(MarkMessagesRead);
+    PyCallable_DECL_CALL(DeleteMessages);
 
 private:
     LSCChannel *CreateChannel(uint32 channelID, const char * name, const char * motd, LSCChannel::Type type, const char * compkey,
@@ -123,9 +123,4 @@ private:
     void InitiateStaticChannels();
 };
 
-
-
-
 #endif
-
-

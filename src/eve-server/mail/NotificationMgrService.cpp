@@ -36,14 +36,14 @@ NotificationMgrService::NotificationMgrService(PyServiceMgr* mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(NotificationMgrService, GetByGroupID)
-    PyCallable_REG_CALL(NotificationMgrService, GetUnprocessed)
-    PyCallable_REG_CALL(NotificationMgrService, MarkGroupAsProcessed)
-    PyCallable_REG_CALL(NotificationMgrService, MarkAllAsProcessed)
-    PyCallable_REG_CALL(NotificationMgrService, MarkAsProcessed)
-    PyCallable_REG_CALL(NotificationMgrService, DeleteGroupNotifications)
-    PyCallable_REG_CALL(NotificationMgrService, DeleteAllNotifications)
-    PyCallable_REG_CALL(NotificationMgrService, DeleteNotifications)
+    PyCallable_REG_CALL(NotificationMgrService, GetByGroupID);
+    PyCallable_REG_CALL(NotificationMgrService, GetUnprocessed);
+    PyCallable_REG_CALL(NotificationMgrService, MarkGroupAsProcessed);
+    PyCallable_REG_CALL(NotificationMgrService, MarkAllAsProcessed);
+    PyCallable_REG_CALL(NotificationMgrService, MarkAsProcessed);
+    PyCallable_REG_CALL(NotificationMgrService, DeleteGroupNotifications);
+    PyCallable_REG_CALL(NotificationMgrService, DeleteAllNotifications);
+    PyCallable_REG_CALL(NotificationMgrService, DeleteNotifications);
 }
 
 NotificationMgrService::~NotificationMgrService() {

@@ -41,19 +41,19 @@ public:
         delete this;
     }
 
-    PyCallable_DECL_CALL(List)
-    PyCallable_DECL_CALL(Add)
-    PyCallable_DECL_CALL(MultiAdd)
-    PyCallable_DECL_CALL(GetItem)
-    PyCallable_DECL_CALL(ListStations)
-    PyCallable_DECL_CALL(ReplaceCharges)
-    PyCallable_DECL_CALL(MultiMerge)
-    PyCallable_DECL_CALL(StackAll)
-    PyCallable_DECL_CALL(StripFitting)
-    PyCallable_DECL_CALL(DestroyFitting)
-    PyCallable_DECL_CALL(SetPassword)
-    PyCallable_DECL_CALL(CreateBookmarkVouchers)
-    PyCallable_DECL_CALL(Voucher)
+    PyCallable_DECL_CALL(List);
+    PyCallable_DECL_CALL(Add);
+    PyCallable_DECL_CALL(MultiAdd);
+    PyCallable_DECL_CALL(GetItem);
+    PyCallable_DECL_CALL(ListStations);
+    PyCallable_DECL_CALL(ReplaceCharges);
+    PyCallable_DECL_CALL(MultiMerge);
+    PyCallable_DECL_CALL(StackAll);
+    PyCallable_DECL_CALL(StripFitting);
+    PyCallable_DECL_CALL(DestroyFitting);
+    PyCallable_DECL_CALL(SetPassword);
+    PyCallable_DECL_CALL(CreateBookmarkVouchers);
+    PyCallable_DECL_CALL(Voucher);
 
 protected:
     class Dispatcher;

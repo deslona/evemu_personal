@@ -36,21 +36,21 @@ CorporationService::CorporationService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(CorporationService, GetFactionInfo)
-    PyCallable_REG_CALL(CorporationService, GetCorpInfo)
-    PyCallable_REG_CALL(CorporationService, GetNPCDivisions)
-    PyCallable_REG_CALL(CorporationService, GetEmploymentRecord)
-    PyCallable_REG_CALL(CorporationService, GetMedalsReceived)
-    PyCallable_REG_CALL(CorporationService, GetAllCorpMedals)
-    PyCallable_REG_CALL(CorporationService, GetRecruitmentAdTypes)
-    PyCallable_REG_CALL(CorporationService, GetRecruitmentAdsByCriteria)
-    PyCallable_REG_CALL(CorporationService, GetRecruitmentAdRegistryData)
-    PyCallable_REG_CALL(CorporationService, SetAccountKey)
-    PyCallable_REG_CALL(CorporationService, IsEnemyFaction)
-    PyCallable_REG_CALL(CorporationService, GetVoteCasesByCorporation)
-    PyCallable_REG_CALL(CorporationService, MoveCorpHQHere)
-    PyCallable_REG_CALL(CorporationService, AddCorporateContact)
-    PyCallable_REG_CALL(CorporationService, GetRecentKillsAndLosses)
+    PyCallable_REG_CALL(CorporationService, GetFactionInfo);
+    PyCallable_REG_CALL(CorporationService, GetCorpInfo);
+    PyCallable_REG_CALL(CorporationService, GetNPCDivisions);
+    PyCallable_REG_CALL(CorporationService, GetEmploymentRecord);
+    PyCallable_REG_CALL(CorporationService, GetMedalsReceived);
+    PyCallable_REG_CALL(CorporationService, GetAllCorpMedals);
+    PyCallable_REG_CALL(CorporationService, GetRecruitmentAdTypes);
+    PyCallable_REG_CALL(CorporationService, GetRecruitmentAdsByCriteria);
+    PyCallable_REG_CALL(CorporationService, GetRecruitmentAdRegistryData);
+    PyCallable_REG_CALL(CorporationService, SetAccountKey);
+    PyCallable_REG_CALL(CorporationService, IsEnemyFaction);
+    PyCallable_REG_CALL(CorporationService, GetVoteCasesByCorporation);
+    PyCallable_REG_CALL(CorporationService, MoveCorpHQHere);
+    PyCallable_REG_CALL(CorporationService, AddCorporateContact);
+    PyCallable_REG_CALL(CorporationService, GetRecentKillsAndLosses);
 }
 
 CorporationService::~CorporationService() {

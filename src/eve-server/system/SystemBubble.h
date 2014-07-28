@@ -38,42 +38,9 @@ public:
     const GPoint m_center;
     const double m_radius;
 
-    /**
-     * Broadcast a set of updates and events to everyone in the bubble.
-     * @param updates the updates to be sent.
-     * @param events the events to be sent.
-     * @param desc a description that will be displayed in the event log.
-     */
     void BubblecastDestiny(std::vector<PyTuple *> &updates, std::vector<PyTuple *> &events, const char *desc) const;
-    /**
-     * Broadcast a set of updates to everyone in the bubble.
-     * @param updates the updates to be sent.
-     * @param desc a description that will be displayed in the event log.
-     */
-    void BubblecastDestinyUpdate(std::vector<PyTuple *> &updates, const char *desc) const;
-    /**
-     * Broadcast a set of events to everyone in the bubble.
-     * @param events the events to be sent.
-     * @param desc a description that will be displayed in the event log.
-     */
-    void BubblecastDestinyEvent(std::vector<PyTuple *> &events, const char *desc) const;
-    /**
-     * Broadcast a single update to everyone in the bubble.
-     * @param payload the update to be sent.
-     * @param desc a description that will be displayed in the event log.
-     */
     void BubblecastDestinyUpdate(PyTuple **payload, const char *desc) const;
-    /**
-     * Broadcast a single event to everyone in the bubble.
-     * @param payload the event to be sent.
-     * @param desc a description that will be displayed in the event log.
-     */
     void BubblecastDestinyEvent(PyTuple **payload, const char *desc) const;
-    /**
-     * Broadcast a single update to everyone in the bubble EXCEPT the specified entity.
-     * @param payload the update to be sent.
-     * @param desc a description that will be displayed in the event log.
-     */
     void BubblecastDestinyUpdateExclusive(PyTuple **payload, const char *desc, SystemEntity *ent) const;
 
     bool ProcessWander(std::vector<SystemEntity *> &wanderers);
@@ -84,7 +51,7 @@ public:
     void RemoveExclusive(SystemEntity *ent, bool notify=true);
     void clear();
     bool IsEmpty() const { return(m_entities.empty()); }
-	SystemEntity * const GetEntity(uint32 entityID) const;
+    SystemEntity * const GetEntity(uint32 entityID) const;
     void GetEntities(std::set<SystemEntity *> &into) const;
     uint32 GetBubbleID() { return m_bubbleID; };
 
@@ -108,9 +75,4 @@ protected:
     std::set<SystemEntity *> m_dynamicEntities;    //entities which may move. we do not own these.
 };
 
-
-
-
 #endif
-
-

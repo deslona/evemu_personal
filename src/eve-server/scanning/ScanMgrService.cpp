@@ -36,7 +36,7 @@ ScanMgrService::ScanMgrService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(ScanMgrService, GetSystemScanMgr)
+    PyCallable_REG_CALL(ScanMgrService, GetSystemScanMgr);
 
 }
 
@@ -89,3 +89,126 @@ AttributeError: 'NoneType' object has no attribute 'RequestScans'
             scanMan.DestroyProbe(probeID)
 
             */
+
+/*
+
+	probeResultPerfect = 1.0
+	probeResultInformative = 0.75
+	probeResultGood = 0.25
+	probeResultUnusable = 0.001
+
+
+probeScanGroupScrap = 1
+probeScanGroupSignatures = 4
+probeScanGroupShips = 8
+probeScanGroupStructures = 16
+probeScanGroupDronesAndProbes = 32
+probeScanGroupCelestials = 64
+probeScanGroupAnomalies = 128
+probeScanGroups = {}
+probeScanGroups[probeScanGroupScrap] = set([groupBiomass,
+ groupCargoContainer,
+ groupWreck,
+ groupSecureCargoContainer,
+ groupAuditLogSecureContainer])
+probeScanGroups[probeScanGroupSignatures] = set([groupCosmicSignature])
+probeScanGroups[probeScanGroupAnomalies] = set([groupCosmicAnomaly])
+probeScanGroups[probeScanGroupShips] = set([groupAssaultShip,
+ groupBattlecruiser,
+ groupBattleship,
+ groupBlackOps,
+ groupCapitalIndustrialShip,
+ groupCapsule,
+ groupCarrier,
+ groupCombatReconShip,
+ groupCommandShip,
+ groupCovertOps,
+ groupCruiser,
+ groupDestroyer,
+ groupDreadnought,
+ groupElectronicAttackShips,
+ groupEliteBattleship,
+ groupExhumer,
+ groupForceReconShip,
+ groupFreighter,
+ groupFrigate,
+ groupHeavyAssaultShip,
+ groupHeavyInterdictors,
+ groupIndustrial,
+ groupIndustrialCommandShip,
+ groupInterceptor,
+ groupInterdictor,
+ groupJumpFreighter,
+ groupLogistics,
+ groupMarauders,
+ groupMiningBarge,
+ groupSupercarrier,
+ groupPrototypeExplorationShip,
+ groupRookieship,
+ groupShuttle,
+ groupStealthBomber,
+ groupTitan,
+ groupTransportShip,
+ groupStrategicCruiser])
+probeScanGroups[probeScanGroupStructures] = set([groupConstructionPlatform,
+ groupStationUpgradePlatform,
+ groupStationImprovementPlatform,
+ groupMobileWarpDisruptor,
+ groupAssemblyArray,
+ groupControlTower,
+ groupCorporateHangarArray,
+ groupElectronicWarfareBattery,
+ groupEnergyNeutralizingBattery,
+ groupForceFieldArray,
+ groupJumpPortalArray,
+ groupLogisticsArray,
+ groupMobileHybridSentry,
+ groupMobileLaboratory,
+ groupMobileLaserSentry,
+ groupMobileMissileSentry,
+ groupMobilePowerCore,
+ groupMobileProjectileSentry,
+ groupMobileReactor,
+ groupMobileShieldGenerator,
+ groupMobileStorage,
+ groupMoonMining,
+ groupRefiningArray,
+ groupScannerArray,
+ groupSensorDampeningBattery,
+ groupShieldHardeningArray,
+ groupShipMaintenanceArray,
+ groupSilo,
+ groupStasisWebificationBattery,
+ groupStealthEmitterArray,
+ groupTrackingArray,
+ groupWarpScramblingBattery,
+ groupCynosuralSystemJammer,
+ groupCynosuralGeneratorArray,
+ groupInfrastructureHub,
+ groupSovereigntyClaimMarkers,
+ groupSovereigntyDisruptionStructures,
+ groupOrbitalConstructionPlatforms,
+ groupPlanetaryCustomsOffices])
+probeScanGroups[probeScanGroupDronesAndProbes] = set([groupCapDrainDrone,
+ groupCombatDrone,
+ groupElectronicWarfareDrone,
+ groupFighterDrone,
+ groupFighterBomber,
+ groupLogisticDrone,
+ groupMiningDrone,
+ groupProximityDrone,
+ groupRepairDrone,
+ groupStasisWebifyingDrone,
+ groupUnanchoringDrone,
+ groupWarpScramblingDrone,
+ groupScannerProbe,
+ groupSurveyProbe,
+ groupWarpDisruptionProbe])
+probeScanGroups[probeScanGroupCelestials] = set([groupAsteroidBelt,
+ groupForceField,
+ groupMoon,
+ groupPlanet,
+ groupStargate,
+ groupSun,
+ groupStation])
+ */

@@ -41,28 +41,33 @@ protected:
 
     CharacterDB m_db;    //using this for now until we decide if we need to split them. Might be bad since we actually have two instances of it, but so far it has no member data.
 
-    PyCallable_DECL_CALL(GetPublicInfo)
-    PyCallable_DECL_CALL(GetPublicInfo3)
-    PyCallable_DECL_CALL(AddToBounty)
-    PyCallable_DECL_CALL(GetTopBounties)
-    PyCallable_DECL_CALL(AddOwnerNote)
-    PyCallable_DECL_CALL(GetOwnerNoteLabels)
-    PyCallable_DECL_CALL(GetContactList)
-    PyCallable_DECL_CALL(GetCloneTypeID)
-    PyCallable_DECL_CALL(GetHomeStation)
-    PyCallable_DECL_CALL(GetFactions)
-    PyCallable_DECL_CALL(SetActivityStatus)
-    PyCallable_DECL_CALL(GetSettingsInfo)
-    PyCallable_DECL_CALL(LogSettings)
-    PyCallable_DECL_CALL(GetCharacterDescription)
-    PyCallable_DECL_CALL(SetCharacterDescription)
-    PyCallable_DECL_CALL(GetNote)
-    PyCallable_DECL_CALL(SetNote)
-    PyCallable_DECL_CALL(AddContact)
-    PyCallable_DECL_CALL(EditContact)
-    PyCallable_DECL_CALL(GetRecentShipKillsAndLosses)
-    PyCallable_DECL_CALL(GetLabels)
-    PyCallable_DECL_CALL(CreateLabel)
+    PyCallable_DECL_CALL(GetPublicInfo);
+    PyCallable_DECL_CALL(GetPublicInfo3);
+    PyCallable_DECL_CALL(AddToBounty);
+    PyCallable_DECL_CALL(GetTopBounties);
+    PyCallable_DECL_CALL(AddOwnerNote);
+    PyCallable_DECL_CALL(GetOwnerNoteLabels);
+    PyCallable_DECL_CALL(GetContactList);
+    PyCallable_DECL_CALL(GetCloneTypeID);
+    PyCallable_DECL_CALL(GetHomeStation);
+    PyCallable_DECL_CALL(GetFactions);
+    PyCallable_DECL_CALL(SetActivityStatus);
+    PyCallable_DECL_CALL(GetSettingsInfo);
+    PyCallable_DECL_CALL(LogSettings);
+    PyCallable_DECL_CALL(GetCharacterDescription);
+    PyCallable_DECL_CALL(SetCharacterDescription);
+    PyCallable_DECL_CALL(GetNote);
+    PyCallable_DECL_CALL(SetNote);
+    PyCallable_DECL_CALL(AddContact);
+    PyCallable_DECL_CALL(EditContact);
+    PyCallable_DECL_CALL(GetRecentShipKillsAndLosses);
+    PyCallable_DECL_CALL(GetLabels);
+    PyCallable_DECL_CALL(CreateLabel);
+
+    PyCallable_DECL_CALL(DeleteContacts);
+    PyCallable_DECL_CALL(BlockOwners);
+    PyCallable_DECL_CALL(UnblockOwners);
+    PyCallable_DECL_CALL(EditContactsRelationshipID);
 
 	//overloaded in order to support bound objects:
     virtual PyBoundObject *_CreateBoundObject(Client *c, const PyRep *bind_args);

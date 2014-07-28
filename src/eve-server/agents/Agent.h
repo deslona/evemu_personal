@@ -28,13 +28,6 @@
 class AgentDB;
 class Agent;
 
-typedef enum {
-    //totally made up right now:
-    MissionUnseen,
-    MissionUnaccepted,
-    MissionAccepted
-} MissionState;
-
 class AgentMissionSpec {
 public:
 

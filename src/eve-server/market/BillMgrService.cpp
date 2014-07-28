@@ -36,10 +36,10 @@ BillMgrService::BillMgrService(PyServiceMgr *mgr)
   m_dispatch(new Dispatcher(this)) {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(BillMgrService, GetBillTypes)
-    PyCallable_REG_CALL(BillMgrService, GetCorporationBills)
-    PyCallable_REG_CALL(BillMgrService, GetCorporationBillsReceivable)
-    PyCallable_REG_CALL(BillMgrService, GetAutomaticPaySettings)
+    PyCallable_REG_CALL(BillMgrService, GetBillTypes);
+    PyCallable_REG_CALL(BillMgrService, GetCorporationBills);
+    PyCallable_REG_CALL(BillMgrService, GetCorporationBillsReceivable);
+    PyCallable_REG_CALL(BillMgrService, GetAutomaticPaySettings);
 }
 
 BillMgrService::~BillMgrService() {

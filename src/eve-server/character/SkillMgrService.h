@@ -59,19 +59,19 @@ public:
      *
      * Injects a list of skills into a characters brain.
      */
-    PyCallable_DECL_CALL(InjectSkillIntoBrain)
+    PyCallable_DECL_CALL(InjectSkillIntoBrain);
 
     /**
      * CharStartTrainingSkillByTypeID
      *
      * Starts training a characters skill based on typeID
      */
-    PyCallable_DECL_CALL(CharStartTrainingSkillByTypeID)
-    PyCallable_DECL_CALL(CharStopTrainingSkill)
-    PyCallable_DECL_CALL(GetEndOfTraining)
-    PyCallable_DECL_CALL(GetSkillHistory)
-    PyCallable_DECL_CALL(CharAddImplant)
-    PyCallable_DECL_CALL(RemoveImplantFromCharacter)
+    PyCallable_DECL_CALL(CharStartTrainingSkillByTypeID);
+    PyCallable_DECL_CALL(CharStopTrainingSkill);
+    PyCallable_DECL_CALL(GetEndOfTraining);
+    PyCallable_DECL_CALL(GetSkillHistory);
+    PyCallable_DECL_CALL(CharAddImplant);
+    PyCallable_DECL_CALL(RemoveImplantFromCharacter);
 
     /**
      * GetSkillQueueAndFreePoints
@@ -79,7 +79,7 @@ public:
      * Gets the list of skill currently in
      * the skill queue for a character and the free points.
      */
-    PyCallable_DECL_CALL(GetSkillQueueAndFreePoints)
+    PyCallable_DECL_CALL(GetSkillQueueAndFreePoints);
 
     /**
      * SaveSkillQueue
@@ -87,7 +87,7 @@ public:
      * Saves a list of character skills received
      * from the client.
      */
-    PyCallable_DECL_CALL(SaveSkillQueue)
+    PyCallable_DECL_CALL(SaveSkillQueue);
 
     /**
      * AddToEndOfSkillQueue
@@ -95,11 +95,11 @@ public:
      * Adds a skill to end of a characters skill
      * queue.
      */
-    PyCallable_DECL_CALL(AddToEndOfSkillQueue)
+    PyCallable_DECL_CALL(AddToEndOfSkillQueue);
 
-    PyCallable_DECL_CALL(RespecCharacter)
-    PyCallable_DECL_CALL(GetRespecInfo)
-    PyCallable_DECL_CALL(GetCharacterAttributeModifiers)
+    PyCallable_DECL_CALL(RespecCharacter);
+    PyCallable_DECL_CALL(GetRespecInfo);
+    PyCallable_DECL_CALL(GetCharacterAttributeModifiers);
 
 protected:
     class Dispatcher;

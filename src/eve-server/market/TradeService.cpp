@@ -46,7 +46,7 @@ public:
 
         m_strBoundObjectName = "TradeBound";
 
-        PyCallable_REG_CALL(TradeBound, List)
+        PyCallable_REG_CALL(TradeBound, List);
     }
     virtual ~TradeBound()
     {
@@ -58,7 +58,7 @@ public:
         delete this;
     }
 
-    PyCallable_DECL_CALL(List)
+    PyCallable_DECL_CALL(List);
 
 protected:
     Dispatcher *const m_dispatch;
@@ -72,7 +72,7 @@ TradeService::TradeService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(TradeService, InitiateTrade)
+    PyCallable_REG_CALL(TradeService, InitiateTrade);
 }
 
 TradeService::~TradeService() {

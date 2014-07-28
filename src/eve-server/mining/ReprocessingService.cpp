@@ -36,11 +36,11 @@ public:
     ReprocessingServiceBound(PyServiceMgr *mgr, ReprocessingDB& db, uint32 stationID);
     virtual ~ReprocessingServiceBound();
 
-    PyCallable_DECL_CALL(GetOptionsForItemTypes)
-    PyCallable_DECL_CALL(GetReprocessingInfo)
-    PyCallable_DECL_CALL(GetQuote)
-    PyCallable_DECL_CALL(GetQuotes)
-    PyCallable_DECL_CALL(Reprocess)
+    PyCallable_DECL_CALL(GetOptionsForItemTypes);
+    PyCallable_DECL_CALL(GetReprocessingInfo);
+    PyCallable_DECL_CALL(GetQuote);
+    PyCallable_DECL_CALL(GetQuotes);
+    PyCallable_DECL_CALL(Reprocess);
 
     bool Load();
     virtual void Release();
@@ -114,11 +114,11 @@ ReprocessingServiceBound::ReprocessingServiceBound(PyServiceMgr *mgr, Reprocessi
 
     m_strBoundObjectName = "ReprocessingServiceBound";
 
-    PyCallable_REG_CALL(ReprocessingServiceBound, GetOptionsForItemTypes)
-    PyCallable_REG_CALL(ReprocessingServiceBound, GetReprocessingInfo)
-    PyCallable_REG_CALL(ReprocessingServiceBound, GetQuote)
-    PyCallable_REG_CALL(ReprocessingServiceBound, GetQuotes)
-    PyCallable_REG_CALL(ReprocessingServiceBound, Reprocess)
+    PyCallable_REG_CALL(ReprocessingServiceBound, GetOptionsForItemTypes);
+    PyCallable_REG_CALL(ReprocessingServiceBound, GetReprocessingInfo);
+    PyCallable_REG_CALL(ReprocessingServiceBound, GetQuote);
+    PyCallable_REG_CALL(ReprocessingServiceBound, GetQuotes);
+    PyCallable_REG_CALL(ReprocessingServiceBound, Reprocess);
 }
 
 ReprocessingServiceBound::~ReprocessingServiceBound() {

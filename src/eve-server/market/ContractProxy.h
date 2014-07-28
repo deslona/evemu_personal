@@ -39,8 +39,9 @@ protected:
     class Dispatcher;
     Dispatcher *const m_dispatch;
 
-    PyCallable_DECL_CALL(GetLoginInfo)
-    PyCallable_DECL_CALL(GetMyExpiredContractList)
+    PyCallable_DECL_CALL(GetLoginInfo);
+    PyCallable_DECL_CALL(CollectMyPageInfo);
+    PyCallable_DECL_CALL(GetMyExpiredContractList);
 };
 
 #endif /* !__MARKET__CONTRACT_PROXY_H__INCL__ */

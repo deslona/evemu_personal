@@ -39,18 +39,18 @@ CharUnboundMgrService::CharUnboundMgrService(PyServiceMgr* mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(CharUnboundMgrService, SelectCharacterID)
-    PyCallable_REG_CALL(CharUnboundMgrService, GetCharacterToSelect)
-    PyCallable_REG_CALL(CharUnboundMgrService, GetCharactersToSelect)
-    PyCallable_REG_CALL(CharUnboundMgrService, GetCharacterInfo)
-    PyCallable_REG_CALL(CharUnboundMgrService, IsUserReceivingCharacter)
-    PyCallable_REG_CALL(CharUnboundMgrService, DeleteCharacter)
-    PyCallable_REG_CALL(CharUnboundMgrService, PrepareCharacterForDelete)
-    PyCallable_REG_CALL(CharUnboundMgrService, CancelCharacterDeletePrepare)
-    PyCallable_REG_CALL(CharUnboundMgrService, ValidateNameEx)
-    PyCallable_REG_CALL(CharUnboundMgrService, GetCharCreationInfo)
-    PyCallable_REG_CALL(CharUnboundMgrService, GetCharNewExtraCreationInfo)
-    PyCallable_REG_CALL(CharUnboundMgrService, CreateCharacterWithDoll)
+    PyCallable_REG_CALL(CharUnboundMgrService, SelectCharacterID);
+    PyCallable_REG_CALL(CharUnboundMgrService, GetCharacterToSelect);
+    PyCallable_REG_CALL(CharUnboundMgrService, GetCharactersToSelect);
+    PyCallable_REG_CALL(CharUnboundMgrService, GetCharacterInfo);
+    PyCallable_REG_CALL(CharUnboundMgrService, IsUserReceivingCharacter);
+    PyCallable_REG_CALL(CharUnboundMgrService, DeleteCharacter);
+    PyCallable_REG_CALL(CharUnboundMgrService, PrepareCharacterForDelete);
+    PyCallable_REG_CALL(CharUnboundMgrService, CancelCharacterDeletePrepare);
+    PyCallable_REG_CALL(CharUnboundMgrService, ValidateNameEx);
+    PyCallable_REG_CALL(CharUnboundMgrService, GetCharCreationInfo);
+    PyCallable_REG_CALL(CharUnboundMgrService, GetCharNewExtraCreationInfo);
+    PyCallable_REG_CALL(CharUnboundMgrService, CreateCharacterWithDoll);
 }
 
 CharUnboundMgrService::~CharUnboundMgrService() {

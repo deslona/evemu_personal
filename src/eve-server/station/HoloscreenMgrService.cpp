@@ -36,9 +36,9 @@ HoloscreenMgrService::HoloscreenMgrService(PyServiceMgr* mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(HoloscreenMgrService, GetTwoHourCache)
-    PyCallable_REG_CALL(HoloscreenMgrService, GetRecentEpicArcCompletions)
-    PyCallable_REG_CALL(HoloscreenMgrService, GetRuntimeCache)
+    PyCallable_REG_CALL(HoloscreenMgrService, GetTwoHourCache);
+    PyCallable_REG_CALL(HoloscreenMgrService, GetRecentEpicArcCompletions);
+    PyCallable_REG_CALL(HoloscreenMgrService, GetRuntimeCache);
 }
 
 HoloscreenMgrService::~HoloscreenMgrService()

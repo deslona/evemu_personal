@@ -446,8 +446,6 @@ SET( ship_modules_components_INCLUDE
 SET( ship_modules_components_SOURCE
      "${TARGET_SOURCE_DIR}/ship/modules/components/ActiveModuleProcessingComponent.cpp"
      "${TARGET_SOURCE_DIR}/ship/modules/components/ModifyShipAttributesComponent.cpp" )
-    #"${TARGET_SOURCE_DIR}/ship/modules/.cpp"
-    #"${TARGET_SOURCE_DIR}/ship/modules/.cpp" )
 
 SET( standing_INCLUDE
      "${TARGET_INCLUDE_DIR}/standing/FactionWarMgrDB.h"

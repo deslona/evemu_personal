@@ -56,7 +56,7 @@ public:
         delete this;
     }
 
-    PyCallable_DECL_CALL(GetWars)
+    PyCallable_DECL_CALL(GetWars);
 
 private:
     Dispatcher *const m_dispatch;

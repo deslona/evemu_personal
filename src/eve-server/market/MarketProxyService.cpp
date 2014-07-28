@@ -38,20 +38,20 @@ MarketProxyService::MarketProxyService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(MarketProxyService, GetStationAsks)
-    PyCallable_REG_CALL(MarketProxyService, GetSystemAsks)
-    PyCallable_REG_CALL(MarketProxyService, GetRegionBest)
-    PyCallable_REG_CALL(MarketProxyService, GetMarketGroups)
-    PyCallable_REG_CALL(MarketProxyService, GetOrders)
-    PyCallable_REG_CALL(MarketProxyService, GetOldPriceHistory)
-    PyCallable_REG_CALL(MarketProxyService, GetNewPriceHistory)
-    PyCallable_REG_CALL(MarketProxyService, PlaceCharOrder)
-    PyCallable_REG_CALL(MarketProxyService, GetCharOrders)
-    PyCallable_REG_CALL(MarketProxyService, ModifyCharOrder)
-    PyCallable_REG_CALL(MarketProxyService, CancelCharOrder)
-    PyCallable_REG_CALL(MarketProxyService, CharGetNewTransactions)
-    PyCallable_REG_CALL(MarketProxyService, StartupCheck)
-    PyCallable_REG_CALL(MarketProxyService, GetCorporationOrders)
+    PyCallable_REG_CALL(MarketProxyService, GetStationAsks);
+    PyCallable_REG_CALL(MarketProxyService, GetSystemAsks);
+    PyCallable_REG_CALL(MarketProxyService, GetRegionBest);
+    PyCallable_REG_CALL(MarketProxyService, GetMarketGroups);
+    PyCallable_REG_CALL(MarketProxyService, GetOrders);
+    PyCallable_REG_CALL(MarketProxyService, GetOldPriceHistory);
+    PyCallable_REG_CALL(MarketProxyService, GetNewPriceHistory);
+    PyCallable_REG_CALL(MarketProxyService, PlaceCharOrder);
+    PyCallable_REG_CALL(MarketProxyService, GetCharOrders);
+    PyCallable_REG_CALL(MarketProxyService, ModifyCharOrder);
+    PyCallable_REG_CALL(MarketProxyService, CancelCharOrder);
+    PyCallable_REG_CALL(MarketProxyService, CharGetNewTransactions);
+    PyCallable_REG_CALL(MarketProxyService, StartupCheck);
+    PyCallable_REG_CALL(MarketProxyService, GetCorporationOrders);
 }
 
 MarketProxyService::~MarketProxyService() {
@@ -105,23 +105,9 @@ PyResult MarketProxyService::Handle_GetSystemAsks(PyCallArgs &call) {
 
 
 PyResult MarketProxyService::Handle_GetRegionBest(PyCallArgs &call) {
-    PyRep *result = NULL;
-
-    uint32 locid = call.client->GetSystemID();
-    if(!IsSolarSystem(locid)) {
-        codelog(SERVICE__ERROR, "%s: GetSystemID() returned a non-system %u!", call.client->GetName(), locid);
-        return NULL;
-    }
-
-    uint32 regionID;
-    if(!m_db.GetSystemInfo(locid, NULL, &regionID, NULL, NULL)) {
-        codelog(SERVICE__ERROR, "%s: Failed to find parents of system %u!", call.client->GetName(), locid);
-        return NULL;
-    }
-
-    result = m_db.GetRegionBest(regionID);
+    PyRep *result = m_db.GetRegionBest(call.client->GetRegionID());
     if(result == NULL) {
-        _log(SERVICE__ERROR, "%s: Failed to load GetRegionBest for region %u", call.client->GetName(), regionID);
+        _log(SERVICE__ERROR, "%s: Failed to load GetRegionBest for region %u", call.client->GetName(), call.client->GetRegionID());
         return NULL;
     }
 
@@ -867,25 +853,3 @@ void MarketProxyService::_ExecuteSellOrder(uint32 sell_order_id, uint32 stationI
         codelog(MARKET__ERROR, "%s: Failed to record buy side of transaction.", buyer->GetName());
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

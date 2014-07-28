@@ -78,6 +78,14 @@ Client::~Client() {
 
         SaveAllToDatabase();
 
+		//TODO  - for warping to random point when client logs out in space...
+		//		1)  check client IsInSpace(?)
+		//		2)  set timer to delay removing bubble/sysmgr/destiny
+		//		3)  set current position (DB::character_.logoutPosition?)  initial code in place for warp-in on login
+		//		4)  generate random point to warp to
+		//		5)  _warp to random point
+		//		6)  remove client from bubbe/sysmgr/destiny
+
         // remove ourselves from system
         if(m_system != NULL)
             m_system->RemoveClient(this);   //handles removing us from bubbles and sending RemoveBall events.
@@ -145,10 +153,12 @@ void Client::Process() {
             break;
         //used to delay stargate animation
         case msJump:
+  sLog.Warning( "Client::Process()", "case: msJump" );
             _ExecuteJump();
             break;
 		//used to move closer to gate (not within jump distance)
 		case msMove:
+  sLog.Warning( "Client::Process()", "case:msMove from %u, to %u", m_fromGate, m_toGate );
 		    StargateJump(m_fromGate, m_toGate);
 			break;
         }
@@ -384,8 +394,9 @@ bool Client::EnterSystem(bool login) {
     return true;
 }
 
-bool Client::UpdateLocation() {
+bool Client::UpdateLocation(bool login) {
     if(IsStation(GetLocationID())) {
+        sLog.Warning( "Client::EnterSystem()", "IsStation()" );
         //we entered station, delete m_destiny
         delete m_destiny;
         m_destiny = NULL;
@@ -397,6 +408,7 @@ bool Client::UpdateLocation() {
 
         OnCharNowInStation();
     } else if(IsSolarSystem(GetLocationID())) {
+        sLog.Warning( "Client::EnterSystem()", "IsSolarSystem()" );
         //we are in a system, so we need a destiny manager
         m_destiny = new DestinyManager(this, m_system);
         //ship should never be NULL.
@@ -417,13 +429,22 @@ bool Client::UpdateLocation() {
             // This is NOT a login, so we always enter a system stopped.
             m_destiny->Halt(false);
             //set position.
-            //m_destiny->SetPosition(this->GetPosition(), false);
+			/** NOTE  this is already 0,0,0 at login....is reset BEFORE this point.....  */
+			if(this->GetPosition().x == 0 ) {
+			  //TODO  select random point in system and set client position to it
+			    m_destiny->SetPosition(this->GetPosition(), false);
+				sLog.Warning( "Client::UpdateLocation()", "client %s GetPosition = 0,0,0.  Setting to *random*", this->GetName() );
+			} else {
+			    m_destiny->SetPosition(this->GetPosition(), false);
+				sLog.Warning( "Client::UpdateLocation()", "client %s GetPosition = %.2f, %.2f, %.2f", this->GetName(), this->GetPosition().x, this->GetPosition().y, this->GetPosition().z  );
+			}
     }
     return true;
 }
 
 void Client::UndockFromStation( uint32 stationID, uint32 systemID, uint32 constellationID, uint32 regionID, GPoint dockPosition )
 {   // made specific for undocking instead of 'generic' move function below
+
     OnCharNoLongerInStation();       //character notification messages wrapper
 	//register with system manager...should also update bubble manager to add client to station's bubble.
     EnterSystem( false );
@@ -446,14 +467,17 @@ void Client::UndockFromStation( uint32 stationID, uint32 systemID, uint32 conste
     GetChar()->SetLocation( 0, systemID, constellationID, regionID );
 	//set ship.m_position and save
     GetShip()->Relocate( dockPosition );
+
     //update char session with new values  ...this should change mlocation (GetLocationID()) also.   it does not.  23Jul
 	//need mlocation set to sol system before adding destiny manager and updating with new position.
     _UpdateSession( GetChar() );
+
     //we are in a system, so we need a destiny manager
     m_destiny = new DestinyManager(this, m_system);
     //ship should never be NULL.
     m_destiny->SetShipCapabilities( GetShip() );
 	m_destiny->SetPosition(dockPosition);		//may not need....test.....not sure   24Jul
+
 	//update client and set session change
 	//TODO: implement and set session change timer .....client knows already.  session change timer = 10s
     _SendSessionChange();
@@ -463,6 +487,7 @@ void Client::MoveToLocation( uint32 location, const GPoint& pt )
 {
     if( GetLocationID() == location )
     {
+        sLog.Warning( "Client::MoveToLocation()", "GetLocationID()" );
         // This is a warp or simple movement
         MoveToPosition( pt );
         return;
@@ -471,6 +496,7 @@ void Client::MoveToLocation( uint32 location, const GPoint& pt )
     uint32 stationID, solarSystemID, constellationID, regionID;
     if( IsStation( location ) )
     {
+        sLog.Warning( "Client::MoveToLocation()", "IsStation()" );
         // Entering station
         stationID = location;
 
@@ -484,6 +510,7 @@ void Client::MoveToLocation( uint32 location, const GPoint& pt )
     }
     else if( IsSolarSystem( location ) )
     {
+        sLog.Warning( "Client::MoveToLocation()", "IsSolarSystem()" );
         // Entering a solarsystem
         // source is GetLocation()
         // destination is location
@@ -511,7 +538,7 @@ void Client::MoveToLocation( uint32 location, const GPoint& pt )
     _UpdateSession( GetChar() );
 
     EnterSystem( false );
-    UpdateLocation();
+    UpdateLocation( false );
 
     _SendSessionChange();
 }
@@ -622,7 +649,7 @@ void Client::_UpdateSession( const CharacterConstRef& character )
 
 void Client::_UpdateSession2( uint32 characterID )
 {
-    std::vector<uint32> characterDataVector;
+    //std::vector<uint32> characterDataVector;
     std::map<std::string, uint32> characterDataMap;
 
     if( characterID == 0 )
@@ -1071,11 +1098,13 @@ void Client::StargateJump(uint32 fromGate, uint32 toGate) {
     GPoint end(da.end_x, da.end_y, da.end_z);
     GVector direction(start, end);
     double rangeTostargate = direction.length();
+        sLog.Warning( "Client::StargateJump()", "Range to Stargate = %u.", rangeTostargate );
 
-    // Verify range to stargate is within docking perimeter of 1500 meters:
+    // Verify range to stargate is within jumping perimeter of 1500 meters:
     if( (rangeTostargate - stargate->GetRadius()) > 1500 )
     {
-	    SendNotifyMsg("Not within Gate Activation Distance.  Moving closer.  Please Stand By.");
+        sLog.Warning( "Client::StargateJump()", "Not within Gate Activation Distance." );
+	    this->SendNotifyMsg("Not within Gate Activation Distance.  Moving closer.  Please Stand By.");
         m_destiny->GotoDirection( direction, true );   // Turn ship and move toward stargate.
 		m_fromGate = fromGate;
 		m_toGate = toGate;
@@ -1198,12 +1227,10 @@ bool Client::SelectCharacter( uint32 char_id )
 
     _UpdateSession2( char_id );
 
-//    if( !EnterSystem( true ) )
-//        return false;
-
     m_char = m_services.item_factory.GetCharacter( char_id );
     if( !GetChar() )
     {
+            sLog.Error("Client::SelectCharacter()", "GetChar for %u = NULL", char_id);
         // Release the item factory now that the ItemFactory is finished being used:
         m_services.item_factory.UnsetUsingClient();
         return false;
@@ -1212,23 +1239,24 @@ bool Client::SelectCharacter( uint32 char_id )
     ShipRef ship = m_services.item_factory.GetShip( GetShipID() );
    if( !ship )
    {
+            sLog.Error("Client::SelectCharacter()", "ship for %u = NULL", char_id);
         // Release the item factory now that the ItemFactory is finished being used:
         m_services.item_factory.UnsetUsingClient();
         return false;
    }
 
    ship->Load( m_services.item_factory, GetShipID() );
-
    BoardShip( ship );
 
     if( !EnterSystem( true ) )
     {
+            sLog.Error("Client::SelectCharacter()", "EnterSystem for %u returned false", char_id);
         // Release the item factory now that the ItemFactory is finished being used:
         m_services.item_factory.UnsetUsingClient();
         return false;
     }
 
-    UpdateLocation();
+    UpdateLocation( true );
 
     // update skill queue.....this can cancel out skill training when there is no destiny manager for client yet.
     //GetChar()->UpdateSkillQueue();
@@ -1242,6 +1270,7 @@ bool Client::SelectCharacter( uint32 char_id )
 
     // Release the item factory now that the ItemFactory is finished being used:
     m_services.item_factory.UnsetUsingClient();
+            sLog.Success("Client::SelectCharacter()", "SelectCharacter for %u completed", char_id);
     return true;
 }
 
@@ -1537,6 +1566,7 @@ void Client::OnCharNoLongerInStation()
     n.charID = GetCharacterID();
     n.corpID = GetCorporationID();
     n.allianceID = GetAllianceID();
+	n.factionID = GetWarFactionID();
 
     PyTuple* tmp = n.Encode();
     // this entire line should be something like this Broadcast("OnCharNoLongerInStation", "stationid", &tmp);
@@ -1550,6 +1580,7 @@ void Client::OnCharNowInStation()
     n.charID = GetCharacterID();
     n.corpID = GetCorporationID();
     n.allianceID = GetAllianceID();
+	n.warFactionID = GetWarFactionID();
 
     PyTuple* tmp = n.Encode();
     services().entity_list.Broadcast( "OnCharNowInStation", "stationid", &tmp );

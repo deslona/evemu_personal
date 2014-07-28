@@ -37,8 +37,9 @@ ContractProxyService::ContractProxyService( PyServiceMgr *mgr )
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(ContractProxyService, GetLoginInfo)
-    PyCallable_REG_CALL(ContractProxyService, GetMyExpiredContractList)
+    PyCallable_REG_CALL(ContractProxyService, GetLoginInfo);
+    PyCallable_REG_CALL(ContractProxyService, CollectMyPageInfo);
+    PyCallable_REG_CALL(ContractProxyService, GetMyExpiredContractList);
 }
 
 ContractProxyService::~ContractProxyService()
@@ -47,9 +48,17 @@ ContractProxyService::~ContractProxyService()
 }
 
 PyResult ContractProxyService::Handle_GetMyExpiredContractList(PyCallArgs &call) {
-    sLog.Debug("Server", "Called GetMyExpiredContractList Stub.");
+  sLog.Log( "ContractProxyService::Handle_GetMyExpiredContractList()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
 
 //AttributeError: 'NoneType' object has no attribute 'contracts'
+    return NULL;
+}
+
+PyResult ContractProxyService::Handle_CollectMyPageInfo(PyCallArgs &call) {
+  sLog.Log( "ContractProxyService::Handle_CollectMyPageInfo()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
     return NULL;
 }
 

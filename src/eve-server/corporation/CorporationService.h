@@ -42,21 +42,21 @@ protected:
 
     CorporationDB m_db;
 
-    PyCallable_DECL_CALL(GetFactionInfo)
-    PyCallable_DECL_CALL(GetCorpInfo)
-    PyCallable_DECL_CALL(GetNPCDivisions)
-    PyCallable_DECL_CALL(GetEmploymentRecord)
-    PyCallable_DECL_CALL(GetMedalsReceived)
-    PyCallable_DECL_CALL(GetAllCorpMedals)
-    PyCallable_DECL_CALL(GetRecruitmentAdTypes)
-    PyCallable_DECL_CALL(GetRecruitmentAdsByCriteria)
-    PyCallable_DECL_CALL(GetRecruitmentAdRegistryData)
-    PyCallable_DECL_CALL(SetAccountKey)  /** wrong place...  */
-    PyCallable_DECL_CALL(IsEnemyFaction)
-    PyCallable_DECL_CALL(GetVoteCasesByCorporation)  /** wrong place...  */
-    PyCallable_DECL_CALL(MoveCorpHQHere)
-    PyCallable_DECL_CALL(AddCorporateContact)
-    PyCallable_DECL_CALL(GetRecentKillsAndLosses)
+    PyCallable_DECL_CALL(GetFactionInfo);
+    PyCallable_DECL_CALL(GetCorpInfo);
+    PyCallable_DECL_CALL(GetNPCDivisions);
+    PyCallable_DECL_CALL(GetEmploymentRecord);
+    PyCallable_DECL_CALL(GetMedalsReceived);
+    PyCallable_DECL_CALL(GetAllCorpMedals);
+    PyCallable_DECL_CALL(GetRecruitmentAdTypes);
+    PyCallable_DECL_CALL(GetRecruitmentAdsByCriteria);
+    PyCallable_DECL_CALL(GetRecruitmentAdRegistryData);
+    PyCallable_DECL_CALL(SetAccountKey);
+    PyCallable_DECL_CALL(IsEnemyFaction);
+    PyCallable_DECL_CALL(GetVoteCasesByCorporation);
+    PyCallable_DECL_CALL(MoveCorpHQHere);
+    PyCallable_DECL_CALL(AddCorporateContact);
+    PyCallable_DECL_CALL(GetRecentKillsAndLosses);
 };
 
 #endif

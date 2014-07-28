@@ -42,7 +42,7 @@ protected:
 
     ScanningDB m_db;
 
-    PyCallable_DECL_CALL(GetSystemScanMgr)
+    PyCallable_DECL_CALL(GetSystemScanMgr);
 
 };
 

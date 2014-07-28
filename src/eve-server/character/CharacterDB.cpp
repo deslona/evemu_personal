@@ -340,6 +340,7 @@ void CharacterDB::GetCharacterData(uint32 characterID, std::map<std::string, uin
     if(!res.GetRow(row))
     {
         sLog.Error("CharacterDB::GetCharacterData()", "No valid rows were returned by the database query.");
+        return;
     }
 
 //    std::map<std::string,uint32> characterDataMap;

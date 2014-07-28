@@ -44,10 +44,10 @@ public:
 
         m_strBoundObjectName = "PosMgrBound";
 
-        PyCallable_REG_CALL(PosMgrBound, GetMoonForTower)
-        PyCallable_REG_CALL(PosMgrBound, SetTowerPassword)
-        PyCallable_REG_CALL(PosMgrBound, SetShipPassword)
-        PyCallable_REG_CALL(PosMgrBound, GetSiloCapacityByItemID)
+        PyCallable_REG_CALL(PosMgrBound, GetMoonForTower);
+        PyCallable_REG_CALL(PosMgrBound, SetTowerPassword);
+        PyCallable_REG_CALL(PosMgrBound, SetShipPassword);
+        PyCallable_REG_CALL(PosMgrBound, GetSiloCapacityByItemID);
     }
 
     virtual ~PosMgrBound() {delete m_dispatch;}
@@ -55,10 +55,10 @@ public:
         delete this;
     }
 
-    PyCallable_DECL_CALL(GetMoonForTower)
-    PyCallable_DECL_CALL(SetTowerPassword)
-    PyCallable_DECL_CALL(SetShipPassword)
-    PyCallable_DECL_CALL(GetSiloCapacityByItemID)
+    PyCallable_DECL_CALL(GetMoonForTower);
+    PyCallable_DECL_CALL(SetTowerPassword);
+    PyCallable_DECL_CALL(SetShipPassword);
+    PyCallable_DECL_CALL(GetSiloCapacityByItemID);
 
 protected:
     Dispatcher *const m_dispatch;
@@ -74,9 +74,9 @@ PosMgrService::PosMgrService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(PosMgrService, GetControlTowerFuelRequirements)
-    PyCallable_REG_CALL(PosMgrService, InstallJumpBridgeLink)
-    PyCallable_REG_CALL(PosMgrService, UninstallJumpBridgeLink)
+    PyCallable_REG_CALL(PosMgrService, GetControlTowerFuelRequirements);
+    PyCallable_REG_CALL(PosMgrService, InstallJumpBridgeLink);
+    PyCallable_REG_CALL(PosMgrService, UninstallJumpBridgeLink);
 }
 
 PosMgrService::~PosMgrService() {
@@ -179,6 +179,24 @@ PyResult PosMgrService::Handle_UninstallJumpBridgeLink(PyCallArgs &call) {
     return m_db.GetControlTowerFuelRequirements();
 }
 
+/*
+    def AnchorOrbital(self, itemID):
+        posMgr = util.Moniker('posMgr', session.solarsystemid)
+        posMgr.AnchorOrbital(itemID)
+
+    def UnanchorOrbital(self, itemID):
+        posMgr = util.Moniker('posMgr', session.solarsystemid)
+        posMgr.UnanchorOrbital(itemID)
+
+    def CompleteOrbitalStateChange(self, itemID):
+        posMgr = util.Moniker('posMgr', session.solarsystemid)
+        posMgr.CompleteOrbitalStateChange(itemID)
+
+    def GMUpgradeOrbital(self, itemID):
+        posMgr = util.Moniker('posMgr', session.solarsystemid)
+        posMgr.GMUpgradeOrbital(itemID)
+
+*/
 /*
                 state = slimItem.orbitalState
                 if state in (entities.STATE_UNANCHORING,

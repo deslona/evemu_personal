@@ -73,7 +73,7 @@ SlashService::SlashService(PyServiceMgr *mgr, CommandDispatcher *cd)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(SlashService, SlashCmd)
+    PyCallable_REG_CALL(SlashService, SlashCmd);
 }
 
 SlashService::~SlashService() {

@@ -1,13 +1,7 @@
 
 <elements>
 <!--
-GetMapConnections(id, reg, con, sol, cel, _c)
-      <int name="id" />
-      <bool name="reg" /> args.reg
-      <bool name="con" />
-      <bool name="sol" />
-      <int name="cel" />
-      <int name="_c" />
+GetMapConnections(id, sol, reg, con, cel, _c)
 -->
 
   <elementDef name="Call_GetMapConnections">

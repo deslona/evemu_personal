@@ -38,13 +38,13 @@ AccountService::AccountService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(AccountService, GetCashBalance)
-    PyCallable_REG_CALL(AccountService, GetEntryTypes)
-    PyCallable_REG_CALL(AccountService, GetKeyMap)
-    PyCallable_REG_CALL(AccountService, GiveCash)
-    PyCallable_REG_CALL(AccountService, GiveCashFromCorpAccount)
-    PyCallable_REG_CALL(AccountService, GetJournal)
-    PyCallable_REG_CALL(AccountService, GetWalletDivisionsInfo)
+    PyCallable_REG_CALL(AccountService, GetCashBalance);
+    PyCallable_REG_CALL(AccountService, GetEntryTypes);
+    PyCallable_REG_CALL(AccountService, GetKeyMap);
+    PyCallable_REG_CALL(AccountService, GiveCash);
+    PyCallable_REG_CALL(AccountService, GiveCashFromCorpAccount);
+    PyCallable_REG_CALL(AccountService, GetJournal);
+    PyCallable_REG_CALL(AccountService, GetWalletDivisionsInfo);
 }
 
 AccountService::~AccountService() {

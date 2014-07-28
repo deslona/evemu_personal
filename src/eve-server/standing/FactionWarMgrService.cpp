@@ -37,15 +37,15 @@ FactionWarMgrService::FactionWarMgrService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(FactionWarMgrService, GetWarFactions)
-    PyCallable_REG_CALL(FactionWarMgrService, GetFWSystems)
-    PyCallable_REG_CALL(FactionWarMgrService, GetMyCharacterRankOverview)
-    PyCallable_REG_CALL(FactionWarMgrService, GetMyCharacterRankInfo)
-    PyCallable_REG_CALL(FactionWarMgrService, GetFactionMilitiaCorporation)
-    PyCallable_REG_CALL(FactionWarMgrService, GetCharacterRankInfo)
-    PyCallable_REG_CALL(FactionWarMgrService, GetFactionalWarStatus)
-    PyCallable_REG_CALL(FactionWarMgrService, IsEnemyFaction)
-    PyCallable_REG_CALL(FactionWarMgrService, JoinFactionAsCharacter)
+    PyCallable_REG_CALL(FactionWarMgrService, GetWarFactions);
+    PyCallable_REG_CALL(FactionWarMgrService, GetFWSystems);
+    PyCallable_REG_CALL(FactionWarMgrService, GetMyCharacterRankOverview);
+    PyCallable_REG_CALL(FactionWarMgrService, GetMyCharacterRankInfo);
+    PyCallable_REG_CALL(FactionWarMgrService, GetFactionMilitiaCorporation);
+    PyCallable_REG_CALL(FactionWarMgrService, GetCharacterRankInfo);
+    PyCallable_REG_CALL(FactionWarMgrService, GetFactionalWarStatus);
+    PyCallable_REG_CALL(FactionWarMgrService, IsEnemyFaction);
+    PyCallable_REG_CALL(FactionWarMgrService, JoinFactionAsCharacter);
 }
 
 FactionWarMgrService::~FactionWarMgrService()

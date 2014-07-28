@@ -866,9 +866,9 @@ enum {
 };
 
 enum {
-    corpRoleLocationTypeHQ = 1LL,
-    corpRoleLocationTypeBase = 2LL,
-    corpRoleLocationTypeOther = 3LL
+    corpRoleLocationTypeHQ = 1,
+    corpRoleLocationTypeBase = 2,
+    corpRoleLocationTypeOther = 3
 };
 
 typedef enum {
@@ -976,6 +976,169 @@ typedef enum {
     accountSales = 3000,
     accountPurchases = 4000
 } EVEAccountKeys;
+
+// probe shit
+typedef enum {
+	Scrap = 1,
+	Signatures = 4,
+	Ships = 8,
+	Structures = 16,
+	DronesAndProbes = 32,
+	Celestials = 64,
+	Anomalies = 128
+} ProbeScanGroup;
+
+typedef enum {
+	Inactive = 0,
+	Idle = 1,
+	Moving = 2,
+	Warping = 3,
+	Scanning = 4,
+	Returning = 5
+} ProbeState;
+
+// wormhole shit
+typedef enum {
+	RegionMin = 11000000,
+	RegionMax = 11999999,
+	ConstellationMin = 21000000,
+	ConstellationMax = 21999999,
+	SystemMin = 31000000,
+	SystemMax = 31999999
+} mapWormholeValues;
+
+//  mission states
+typedef enum {
+	MissionAllocated = 0,
+	MissionOffered = 1,
+	MissionAccepted = 2,
+	MissionFailed = 3,
+	DungeonStarted = 0,
+	DungeonCompleted = 1,
+	DungeonFailed = 2
+} MissionState;
+
+/** misc costs
+costCloneContract = 5600
+costJumpClone = 100000
+*/
+
+// invul timers
+typedef enum {
+	Docking = 3000,
+	Jumping = 5000,
+	WarpingOut = 5000,
+	WarpingIn = 10000,
+	Undocking = 30000,
+	Restoring = 60000
+} InvulTimer;
+
+/*
+typedef enum {
+ 3018681,
+ 3018821,
+ 3018822,
+ 3018823,
+ 3018824,
+ 3018680,
+ 3018817,
+ 3018818,
+ 3018819,
+ 3018820,
+ 3018682,
+ 3018809,
+ 3018810,
+ 3018811,
+ 3018812,
+ 3018678,
+ 3018837,
+ 3018838,
+ 3018839,
+ 3018840,
+ 3018679,
+ 3018841,
+ 3018842,
+ 3018843,
+ 3018844,
+ 3018677,
+ 3018845,
+ 3018846,
+ 3018847,
+ 3018848,
+ 3018676,
+ 3018825,
+ 3018826,
+ 3018827,
+ 3018828,
+ 3018675,
+ 3018805,
+ 3018806,
+ 3018807,
+ 3018808,
+ 3018672,
+ 3018801,
+ 3018802,
+ 3018803,
+ 3018804,
+ 3018684,
+ 3018829,
+ 3018830,
+ 3018831,
+ 3018832,
+ 3018685,
+ 3018813,
+ 3018814,
+ 3018815,
+ 3018816,
+ 3018683,
+ 3018833,
+ 3018834,
+ 3018835,
+ 3018836]
+}rookieAgentList;
+*/
+
+// calendar shit
+typedef enum {
+calendarMonday = 0,
+calendarTuesday = 1,
+calendarWednesday = 2,
+calendarThursday = 3,
+calendarFriday = 4,
+calendarSaturday = 5,
+calendarSunday = 6,
+calendarJanuary = 1,
+calendarFebruary = 2,
+calendarMarch = 3,
+calendarApril = 4,
+calendarMay = 5,
+calendarJune = 6,
+calendarJuly = 7,
+calendarAugust = 8,
+calendarSeptember = 9,
+calendarOctober = 10,
+calendarNovember = 11,
+calendarDecember = 12,
+calendarNumDaysInWeek = 7,
+calendarTagPersonal = 1,
+calendarTagCorp = 2,
+calendarTagAlliance = 4,
+calendarTagCCP = 8,
+calendarTagAutomated = 16,
+calendarViewRangeInMonths = 12,
+calendarMaxTitleSize = 40,
+calendarMaxDescrSize = 500,
+calendarMaxInvitees = 50,
+calendarMaxInviteeDisplayed = 100,
+calendarAutoEventPosFuel = 1,
+eventResponseUninvited = 0,
+eventResponseDeleted = 1,
+eventResponseDeclined = 2,
+eventResponseUndecided = 3,
+eventResponseAccepted = 4,
+eventResponseMaybe = 5,
+calendarStartYear = 2003
+} CalendarDef;
 
 //the constants are made up of:
 //  prefix     -> cachedObject

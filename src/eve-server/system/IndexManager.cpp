@@ -36,7 +36,7 @@ IndexManager::IndexManager(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(IndexManager, GetAllDevelopmentIndices)
+    PyCallable_REG_CALL(IndexManager, GetAllDevelopmentIndices);
 }
 
 IndexManager::~IndexManager() {
@@ -44,17 +44,27 @@ IndexManager::~IndexManager() {
 }
 
 PyResult IndexManager::Handle_GetAllDevelopmentIndices( PyCallArgs& call )
-{/*s
+{/*
 22:49:13 L IndexManager::Handle_GetAllDevelopmentIndices(): size= 0
-22:49:13 [SvcCall]   Call Arguments:
-22:49:13 [SvcCall]       Tuple: Empty
-22:49:13 [SvcCall]   Call Named Arguments:
-22:49:13 [SvcCall]     Argument 'machoVersion':
-22:49:13 [SvcCall]         Integer field: 1
-
-  sLog.Log( "IndexManager::Handle_GetAllDevelopmentIndices()", "size= %u", call.tuple->size() );
-
-  call.Dump(SERVICE__CALLS);
+        for indexInfo in sm.RemoteSvc('devIndexManager').GetAllDevelopmentIndices():
+            systemToIndexMap[indexInfo.solarSystemID] = {const.attributeDevIndexMilitary: indexInfo.militaryPoints,
+             const.attributeDevIndexIndustrial: indexInfo.industrialPoints,
+             const.attributeDevIndexSovereignty: indexInfo.claimedFor * CLAIM_DAYS_TO_SECONDS}
   */
     return NULL;
 }
+
+/*
+        self.devIndices = sm.RemoteSvc('devIndexManager').GetDevelopmentIndicesForSystem(session.solarsystemid2)
+        devIndex = self.devIndices.get(indexID, None)
+        */
+
+/*
+developmentIndices = [attributeDevIndexMilitary, attributeDevIndexIndustrial, attributeDevIndexSovereignty]
+attributeDevIndexMilitary = 1583
+attributeDevIndexIndustrial = 1584
+attributeDevIndexSovereignty = 1615
+
+
+
+*/

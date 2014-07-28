@@ -38,7 +38,7 @@ protected:
     class Dispatcher;
     Dispatcher *const m_dispatch;
 
-    PyCallable_DECL_CALL(GetAllDevelopmentIndices)
+    PyCallable_DECL_CALL(GetAllDevelopmentIndices);
 };
 
 #endif

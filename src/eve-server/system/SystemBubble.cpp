@@ -40,9 +40,9 @@ SystemBubble::SystemBubble(const GPoint &center, double radius)
   m_radius2(radius*radius),
   m_position_check_radius_sqrd((radius+BUBBLE_HYSTERESIS_METERS) * (radius+BUBBLE_HYSTERESIS_METERS))
 {
-    _log(DESTINY__BUBBLE_DEBUG, "SystemBubble::Constructor - Created new bubble %p at (%.2f,%.2f,%.2f) with radius %.2f", this, m_center.x, m_center.y, m_center.z, m_radius);
     m_bubbleIncrementer++;
     m_bubbleID = m_bubbleIncrementer;
+    _log(DESTINY__BUBBLE_DEBUG, "Created new bubble %u(%p) at (%.2f,%.2f,%.2f) with radius %.2f", m_bubbleID, this, m_center.x, m_center.y, m_center.z, m_radius);
 }
 
 //send a set of destiny events and updates to everybody in the bubble.
@@ -63,8 +63,8 @@ void SystemBubble::BubblecastDestiny(std::vector<PyTuple *> &updates, std::vecto
         cur = events.begin();
         end = events.end();
         for(; cur != end; cur++) {
-            PyTuple *up = *cur;
-            BubblecastDestinyUpdate(&up, desc);    //update is consumed.
+            PyTuple *ev = *cur;
+            BubblecastDestinyEvent(&ev, desc);    //event is consumed.
         }
         events.clear();
     }
@@ -84,13 +84,13 @@ void SystemBubble::BubblecastDestinyUpdate( PyTuple** payload, const char* desc 
     end = m_dynamicEntities.end();
     for(; cur != end; ++cur)
     {
-        if( !(*cur)->IsClient() ) continue;      // skip updates to Non-clients  -allan
-        if( NULL == up_dup )
+        if( up_dup == NULL )
             up_dup = new PyTuple( *up );
 
-        _log( DESTINY__BUBBLE_TRACE, "Bubblecast %s update to %s (%u)", desc, (*cur)->GetName(), (*cur)->GetID() );
+        //if( !(*cur)->IsClient() ) continue;      // skip updates to Non-clients  -allan
         (*cur)->QueueDestinyUpdate( &up_dup );
-        //they may not have consumed it (NPCs for example), so dont re-dup it in that case.
+
+        _log( DESTINY__BUBBLE_TRACE, "Bubblecast %s update to %s (%u)", desc, (*cur)->GetName(), (*cur)->GetID() );
     }
 
     PySafeDecRef( up_dup );
@@ -111,17 +111,18 @@ void SystemBubble::BubblecastDestinyUpdateExclusive( PyTuple** payload, const ch
     end = m_dynamicEntities.end();
     for(; cur != end; ++cur)
     {
-		// Only queue a Destiny update for this bubble if the current SystemEntity is not 'ent':
-		// (this is an update to all SystemEntity objects in the bubble EXCLUDING 'ent')
-		if(( (*cur)->GetID() != ent->GetID() ) && ( (*cur)->IsClient() )) //|| (*cur)->IsNPC() ) )    // -allan
-		{
-			if( NULL == up_dup )
-				up_dup = new PyTuple( *up );
+        // Only queue a Destiny update for this bubble if the current SystemEntity is not 'ent':
+        // (this is an update to all SystemEntity objects in the bubble EXCLUDING 'ent')
+        if( (*cur)->GetID() != ent->GetID() )
+        {
+            if( up_dup == NULL )
+                up_dup = new PyTuple( *up );
 
-			_log( DESTINY__BUBBLE_TRACE, "Bubblecast %s update to %s (%u)", desc, (*cur)->GetName(), (*cur)->GetID() );
-			(*cur)->QueueDestinyUpdate( &up_dup );
-			//they may not have consumed it (NPCs for example), so dont re-dup it in that case.
-		}
+            //if( !(*cur)->IsClient() ) continue;      // skip updates to Non-clients  -allan
+            (*cur)->QueueDestinyUpdate( &up_dup );
+
+            _log( DESTINY__BUBBLE_TRACE, "Bubblecast %s update to %s (%u)", desc, (*cur)->GetName(), (*cur)->GetID() );
+        }
     }
 
     PySafeDecRef( up_dup );
@@ -132,27 +133,27 @@ void SystemBubble::BubblecastDestinyUpdateExclusive( PyTuple** payload, const ch
 //assume that static entities are also not interested in destiny updates.
 void SystemBubble::BubblecastDestinyEvent( PyTuple** payload, const char* desc ) const
 {
-    PyTuple* up = *payload;
+    PyTuple* ev = *payload;
     *payload = NULL;    //could optimize out one of the Clones in here...
 
-    PyTuple* up_dup = NULL;
+    PyTuple* ev_dup = NULL;
 
     std::set<SystemEntity *>::const_iterator cur, end, tmp;
     cur = m_dynamicEntities.begin();
     end = m_dynamicEntities.end();
     for(; cur != end; ++cur)
     {
-        if( !(*cur)->IsClient() ) continue; 		// skip updates to Non-clients  -allan
-        if( NULL == up_dup )
-            up_dup = new PyTuple( *up );
+        if( ev_dup == NULL )
+            ev_dup = new PyTuple( *ev );
+
+        //if( !(*cur)->IsClient() ) continue; 		// skip updates to Non-clients  -allan
+        (*cur)->QueueDestinyEvent( &ev_dup );
 
         _log( DESTINY__BUBBLE_TRACE, "Bubblecast %s event to %s (%u)", desc, (*cur)->GetName(), (*cur)->GetID() );
-        (*cur)->QueueDestinyEvent( &up_dup );
-        //they may not have consumed it (NPCs for example), so dont re-dup it in that case.
     }
 
-    PySafeDecRef( up_dup );
-    PyDecRef( up );
+    PySafeDecRef( ev_dup );
+    PyDecRef( ev );
 }
 
 //called at some regular interval from the bubble manager.
@@ -178,6 +179,7 @@ bool SystemBubble::ProcessWander(std::vector<SystemEntity *> &wanderers) {
     endw = found_wandering.end();
     for(; curw != endw; ++curw) {
         _log( DESTINY__BUBBLE_TRACE, "SystemBubble::ProcessWander() - entity %s (%u) found wandering, but listed in bubble %u ... removing", (*curw)->GetName(), (*curw)->GetID(), this->GetBubbleID() );
+
         Remove(*curw);
     }
     return false;
@@ -190,19 +192,19 @@ void SystemBubble::Add(SystemEntity *ent, bool notify) {
     }
     //if they are already in this bubble, do not continue.
     if(m_entities.find(ent->GetID()) != m_entities.end()) {
-       // _log(DESTINY__BUBBLE_TRACE, "Tried to add entity %u to bubble %p, but it is already in here.", ent->GetID(), this);
+        _log(DESTINY__BUBBLE_TRACE, "SystemBubble::Add() - Tried to add entity %u to bubble %p, but it is already in here.", ent->GetID(), this);
         return;
     }
     //regardless, if this entity is a Client and it is NOT cloaked,
-	//notify everybody else in the bubble of the add.
-	if(ent->IsClient())
-	{
-		if( (ent->CastToClient()->Destiny() != NULL) )
-			if( !(ent->CastToClient()->Destiny()->IsCloaked()) )
-				_BubblecastAddBall(ent);
-	}
-	else
-		_BubblecastAddBall(ent);
+    //notify everybody else in the bubble of the add.
+    if(ent->IsClient())
+    {
+        if( (ent->CastToClient()->Destiny() != NULL) )
+            if( !(ent->CastToClient()->Destiny()->IsCloaked()) )
+                _BubblecastAddBall(ent);
+    }
+    else
+        _BubblecastAddBall(ent);
 
     _log(DESTINY__BUBBLE_DEBUG, "SystemBubble::Add() - Adding entity %u at (%.2f,%.2f,%.2f) to bubble %u at (%.2f,%.2f,%.2f) with radius %.2f", ent->GetID(), ent->GetPosition().x, ent->GetPosition().y, ent->GetPosition().z, this->GetBubbleID(), m_center.x, m_center.y, m_center.z, m_radius);
     m_entities[ent->GetID()] = ent;
@@ -211,12 +213,12 @@ void SystemBubble::Add(SystemEntity *ent, bool notify) {
         m_dynamicEntities.insert(ent);
     }
 
-	// Trigger SpawnManager for this bubble to generate NPC Spawn, if any,
-	// only if this entity is a Client and it is NOT cloaked:
-	if( ent->IsClient() )
-		if( (ent->CastToClient()->Destiny() != NULL) )
-			if( !(ent->CastToClient()->Destiny()->IsCloaked()) )
-				ent->System()->DoSpawnForBubble(*this);
+    // Trigger SpawnManager for this bubble to generate NPC Spawn, if any,
+    // only if this entity is a Client and it is NOT cloaked:
+    if( ent->IsClient() )
+        if( (ent->CastToClient()->Destiny() != NULL) )
+            if( !(ent->CastToClient()->Destiny()->IsCloaked()) )
+                ent->System()->DoSpawnForBubble(*this);
 }
 
 void SystemBubble::Remove(SystemEntity *ent, bool notify) {
@@ -238,7 +240,6 @@ void SystemBubble::Remove(SystemEntity *ent, bool notify) {
 }
 
 void SystemBubble::AddExclusive(SystemEntity *ent, bool notify) {
-    sLog.Warning("SystemBubble::AddExclusive", "Fuction Called ");
     //notify before addition so we do not include ourself.
     //if(notify) {
     //    _SendAddBalls(ent);
@@ -251,16 +252,16 @@ void SystemBubble::AddExclusive(SystemEntity *ent, bool notify) {
     //regardless, notify everybody else in the bubble of the add.
     _BubblecastAddBall(ent);
 
-    _log(DESTINY__BUBBLE_DEBUG, "SystemBubble::AddExclusive - Adding entity %u at (%.2f,%.2f,%.2f) to bubble %u at (%.2f,%.2f,%.2f) with radius %.2f", ent->GetID(), ent->GetPosition().x, ent->GetPosition().y, ent->GetPosition().z, this->GetBubbleID(), m_center.x, m_center.y, m_center.z, m_radius);
+    _log(DESTINY__BUBBLE_DEBUG, "SystemBubble::AddExclusive() - Adding entity %u at (%.2f,%.2f,%.2f) to bubble %u at (%.2f,%.2f,%.2f) with radius %.2f", ent->GetID(), ent->GetPosition().x, ent->GetPosition().y, ent->GetPosition().z, this->GetBubbleID(), m_center.x, m_center.y, m_center.z, m_radius);
     //m_entities[ent->GetID()] = ent;
     //ent->m_bubble = this;
     //if(ent->IsStaticEntity() == false) {
     //    m_dynamicEntities.insert(ent);
     //}
 
-	//// Trigger SpawnManager for this bubble to generate NPC Spawn, if any:
-	//if( ent->IsClient() )
-	//	ent->System()->DoSpawnForBubble(*this);
+    //// Trigger SpawnManager for this bubble to generate NPC Spawn, if any:
+    //if( ent->IsClient() )
+    //  ent->System()->DoSpawnForBubble(*this);
 }
 
 void SystemBubble::RemoveExclusive(SystemEntity *ent, bool notify) {
@@ -269,7 +270,7 @@ void SystemBubble::RemoveExclusive(SystemEntity *ent, bool notify) {
     if( ent->m_bubble == NULL )
         return;     // Get outta here in case this was called again
 
-    _log(DESTINY__BUBBLE_DEBUG, "SystemBubble::RemoveExclusive - Removing entity %u at (%.2f,%.2f,%.2f) from bubble %u at (%.2f,%.2f,%.2f) with radius %.2f", ent->GetID(), ent->GetPosition().x, ent->GetPosition().y, ent->GetPosition().z, this->GetBubbleID(), m_center.x, m_center.y, m_center.z, m_radius);
+    _log(DESTINY__BUBBLE_DEBUG, "SystemBubble::RemoveExclusive() - Removing entity %u at (%.2f,%.2f,%.2f) from bubble %u at (%.2f,%.2f,%.2f) with radius %.2f", ent->GetID(), ent->GetPosition().x, ent->GetPosition().y, ent->GetPosition().z, this->GetBubbleID(), m_center.x, m_center.y, m_center.z, m_radius);
     //ent->m_bubble = NULL;
     //m_entities.erase(ent->GetID());
     //m_dynamicEntities.erase(ent);
@@ -288,11 +289,11 @@ void SystemBubble::clear() {
 
 SystemEntity * const SystemBubble::GetEntity(uint32 entityID) const
 {
-	std::map<uint32, SystemEntity *>::const_iterator entity_iterator = m_entities.find(entityID);
-	if( entity_iterator != m_entities.end() )
-		return (entity_iterator->second);
-	else
-		return NULL;
+    std::map<uint32, SystemEntity *>::const_iterator entity_iterator = m_entities.find(entityID);
+    if( entity_iterator != m_entities.end() )
+        return (entity_iterator->second);
+    else
+        return NULL;
 }
 
 void SystemBubble::GetEntities(std::set<SystemEntity *> &into) const {
@@ -306,7 +307,7 @@ void SystemBubble::GetEntities(std::set<SystemEntity *> &into) const {
 
 bool SystemBubble::InBubble(const GPoint &pt) const
 {
-    // Return true when System Entity is still within BUBBLE_RADIUS_METERS + BUBBLE_HYSTERESIS_METERS
+    // Return true (we're still in this bubble) when System Entity is still within BUBBLE_RADIUS_METERS + BUBBLE_HYSTERESIS_METERS
     // from the center of the bubble
     return(GVector(m_center, pt).lengthSquared() < m_position_check_radius_sqrd);
 }
@@ -378,9 +379,8 @@ void SystemBubble::_SendAddBalls( SystemEntity* to_who )
 
     _log( DESTINY__TRACE, "Add Balls:" );
     addballs.Dump( DESTINY__TRACE, "    " );
-    _log( DESTINY__TRACE, "    Ball Binary:" );
+    //_log( DESTINY__TRACE, "    Ball Binary:" );
     //_hex( DESTINY__TRACE, &( addballs.destiny_binary->content() )[0], addballs.destiny_binary->content().size() );
-
     _log( DESTINY__TRACE, "    Ball Decoded:" );
     Destiny::DumpUpdate( DESTINY__TRACE, &( addballs.destiny_binary->content() )[0],
                                          addballs.destiny_binary->content().size() );

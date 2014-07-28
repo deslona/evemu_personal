@@ -41,16 +41,16 @@ BookmarkService::BookmarkService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(BookmarkService, GetBookmarks)
-    PyCallable_REG_CALL(BookmarkService, BookmarkLocation)
-    PyCallable_REG_CALL(BookmarkService, UpdateBookmark)
-    PyCallable_REG_CALL(BookmarkService, CreateFolder)
-    PyCallable_REG_CALL(BookmarkService, UpdateFolder)
-    PyCallable_REG_CALL(BookmarkService, DeleteFolder)
+    PyCallable_REG_CALL(BookmarkService, GetBookmarks);
+    PyCallable_REG_CALL(BookmarkService, BookmarkLocation);
+    PyCallable_REG_CALL(BookmarkService, UpdateBookmark);
+    PyCallable_REG_CALL(BookmarkService, CreateFolder);
+    PyCallable_REG_CALL(BookmarkService, UpdateFolder);
+    PyCallable_REG_CALL(BookmarkService, DeleteFolder);
 
     /*  NOT WORKING YET  */
-    PyCallable_REG_CALL(BookmarkService, DeleteBookmarks)
-    PyCallable_REG_CALL(BookmarkService, MoveBookmarksToFolder)
+    PyCallable_REG_CALL(BookmarkService, DeleteBookmarks);
+    PyCallable_REG_CALL(BookmarkService, MoveBookmarksToFolder);
 }
 
 BookmarkService::~BookmarkService() {
@@ -153,8 +153,10 @@ PyResult BookmarkService::Handle_GetBookmarks(PyCallArgs &call) {
 }
 
 
-PyResult BookmarkService::Handle_BookmarkLocation(PyCallArgs &call)
-{
+PyResult BookmarkService::Handle_BookmarkLocation(PyCallArgs &call) {
+  /**
+      bookmarkID, itemID, typeID, x, y, z, locationID = sm.RemoteSvc('bookmark').BookmarkLocation(itemID, ownerID, memo, comment, folderID)
+  */
     std::string note;
     std::string memo;
     uint32 bookmarkID = GetNextAvailableBookmarkID();
@@ -165,19 +167,35 @@ PyResult BookmarkService::Handle_BookmarkLocation(PyCallArgs &call)
     uint64 created = 0;
     uint32 locationID = 0;
     uint32 typeCheck = 0;
-    uint32 creatorID = call.client->GetCharacterID();       //  will need more research when trade is implemented for sharing bm's between chars....corp/friend/etc.  this should be the original characterID that made the bm.
     uint32 folderID = 0;
     GPoint point;
+
+    uint32 creatorID = call.client->GetCharacterID();
+	/**  will need more research when trade is implemented for sharing bm's between chars....corp/friend/etc.
+	 *  this should be the original characterID that made the bm.
+	 *  mission bm's are created by the agent giving the mission  -allan 27Jul14
+     *     if hasattr(bookmark, 'locationType') and bookmark.locationType in ('agenthomebase', 'objective'):
+	 *
+     *  checkIfAgentBookmark = bookmark and getattr(bookmark, 'agentID', 0) and hasattr(bookmark, 'locationNumber')
+     *  checkIfReadonlyBookmark = bookmark and type(getattr(bookmark, 'bookmarkID', 0)) == types.TupleType
+     *  checkBookmarkDeadspace = bool(getattr(bookmark, 'deadspace', 0))
+	 *
+            if getattr(bookmark, 'agentID', 0) and hasattr(bookmark, 'locationNumber'):
+                referringAgentID = getattr(bookmark, 'referringAgentID', None)
+                sm.StartService('agents').GetAgentMoniker(bookmark.agentID).WarpToLocation(bookmark.locationType, bookmark.locationNumber, warpRange, fleet, referringAgentID)
+
+	 */
 
     ////////////////////////////////////////
     // Verify expected packet structure:            updated 20Jan14   -allan
     //
-    // call.tuple  size=4
+    // call.tuple  size=5
     //       |
-    //       |--> [0] PyInt:      sends id of entity calling char is in...ship/station/system/pos/etc
+    //       |--> [0] PyInt:      sends id of entity the calling char is in...ship/station/system/pos/etc
     //       |--> [1] PyInt:       ownerID = charID of char making the bm
     //       |--> [2] PyWString:  label (called memo in db) for the bookmark
-    //       \--> [3] PyString:  text for the "note" field in the bookmark
+    //       \--> [3] PyString:  text for the note (comment) field in the bookmark
+	//		 |--> [4] PyInt:		folderID bookmark is being placed into.  default=0
     //
     ////////////////////////////////////////
 
@@ -254,7 +272,7 @@ PyResult BookmarkService::Handle_BookmarkLocation(PyCallArgs &call)
 
     tuple0->items[ 0 ] = new PyInt( bookmarkID );           // Bookmark ID from Database 'bookmarks' table
     tuple0->items[ 1 ] = new PyInt( itemID );               // itemID
-    tuple0->items[ 2 ] = new PyInt( typeID );               // typeID from invTypes
+    tuple0->items[ 2 ] = new PyInt( typeID );               // typeID
     tuple0->items[ 3 ] = new PyInt( (uint32)(point.x) );    // X coordinate
     tuple0->items[ 4 ] = new PyInt( (uint32)(point.y) );    // Y coordinate
     tuple0->items[ 5 ] = new PyInt( (uint32)(point.z) );    // Z coordinate
@@ -363,12 +381,11 @@ PyResult BookmarkService::Handle_CreateFolder(PyCallArgs &call) {
 
     PyTuple* res = NULL;
 
-    PyTuple* tuple0 = new PyTuple( 4 );
+    PyTuple* tuple0 = new PyTuple( 3 );
 
     tuple0->items[ 0 ] = new PyInt( ownerID );
     tuple0->items[ 1 ] = new PyInt( folderID );
     tuple0->items[ 2 ] = new PyString( folderName );
-    tuple0->items[ 3 ] = new PyInt( creatorID );
 
     res = tuple0;
 
@@ -516,6 +533,8 @@ PyResult BookmarkService::Handle_DeleteBookmarks(PyCallArgs &call)          //no
 
 PyResult BookmarkService::Handle_MoveBookmarksToFolder(PyCallArgs &call) {
   /**
+            rows = bookmarkMgr.MoveBookmarksToFolder(folderID, bookmarkIDs)
+
 23:39:40 E BookmarkService::Handle_MoveBookmarksToFolder(): Service is not handled yet.  Returning NULL.
 23:39:40 [SvcCall]   Call Arguments:
 23:39:40 [SvcCall]       Tuple: 2 elements
@@ -564,3 +583,9 @@ PyResult BookmarkService::Handle_MoveBookmarksToFolder(PyCallArgs &call) {
 
     return res;
 }
+
+
+/**
+  bookmarkID, itemID, typeID, x, y, z, locationID = self.bookmarkMgr.BookmarkScanResult(locationID, memo, comment, resultID, ownerID, folderID=0)
+
+*/

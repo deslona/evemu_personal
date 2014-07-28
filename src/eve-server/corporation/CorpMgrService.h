@@ -42,12 +42,12 @@ protected:
 
     CorporationDB m_db;
 
-    PyCallable_DECL_CALL(GetPublicInfo)
-    PyCallable_DECL_CALL(GetCorporations)
-    PyCallable_DECL_CALL(GetAssetInventory)
-    PyCallable_DECL_CALL(GetCorporationStations)
-    PyCallable_DECL_CALL(GetCorporationIDForCharacter)
-    PyCallable_DECL_CALL(GetAssetInventoryForLocation)
+    PyCallable_DECL_CALL(GetPublicInfo);
+    PyCallable_DECL_CALL(GetCorporations);
+    PyCallable_DECL_CALL(GetAssetInventory);
+    PyCallable_DECL_CALL(GetCorporationStations);
+    PyCallable_DECL_CALL(GetCorporationIDForCharacter);
+    PyCallable_DECL_CALL(GetAssetInventoryForLocation);
 
 };
 

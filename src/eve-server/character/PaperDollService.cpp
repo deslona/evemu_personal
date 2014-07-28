@@ -36,12 +36,12 @@ PaperDollService::PaperDollService(PyServiceMgr* mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(PaperDollService, GetPaperDollData)
-    PyCallable_REG_CALL(PaperDollService, ConvertAndSavePaperDoll)
-    PyCallable_REG_CALL(PaperDollService, UpdateExistingCharacterFull)
-    PyCallable_REG_CALL(PaperDollService, UpdateExistingCharacterLimited)
-    PyCallable_REG_CALL(PaperDollService, GetPaperDollPortraitDataFor)
-    PyCallable_REG_CALL(PaperDollService, GetMyPaperDollData)
+    PyCallable_REG_CALL(PaperDollService, GetPaperDollData);
+    PyCallable_REG_CALL(PaperDollService, ConvertAndSavePaperDoll);
+    PyCallable_REG_CALL(PaperDollService, UpdateExistingCharacterFull);
+    PyCallable_REG_CALL(PaperDollService, UpdateExistingCharacterLimited);
+    PyCallable_REG_CALL(PaperDollService, GetPaperDollPortraitDataFor);
+    PyCallable_REG_CALL(PaperDollService, GetMyPaperDollData);
 }
 
 PaperDollService::~PaperDollService() {
@@ -70,7 +70,7 @@ PyResult PaperDollService::Handle_GetPaperDollPortraitDataFor(PyCallArgs &call) 
 
 PyResult PaperDollService::Handle_GetMyPaperDollData(PyCallArgs &call)
 {
-	
+
 	PyDict* args = new PyDict;
 
 	args->SetItemString( "colors", m_db.GetPaperDollAvatarColors(call.client->GetCharacterID()) );

@@ -74,16 +74,16 @@ LookupService::LookupService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(LookupService, LookupCharacters)
-    PyCallable_REG_CALL(LookupService, LookupOwners)
-    PyCallable_REG_CALL(LookupService, LookupPlayerCharacters)
-    PyCallable_REG_CALL(LookupService, LookupCorporations)
-    PyCallable_REG_CALL(LookupService, LookupFactions)
-    PyCallable_REG_CALL(LookupService, LookupCorporationTickers)
-    PyCallable_REG_CALL(LookupService, LookupStations)
-    PyCallable_REG_CALL(LookupService, LookupKnownLocationsByGroup)
+    PyCallable_REG_CALL(LookupService, LookupCharacters);
+    PyCallable_REG_CALL(LookupService, LookupOwners);
+    PyCallable_REG_CALL(LookupService, LookupPlayerCharacters);
+    PyCallable_REG_CALL(LookupService, LookupCorporations);
+    PyCallable_REG_CALL(LookupService, LookupFactions);
+    PyCallable_REG_CALL(LookupService, LookupCorporationTickers);
+    PyCallable_REG_CALL(LookupService, LookupStations);
+    PyCallable_REG_CALL(LookupService, LookupKnownLocationsByGroup);
 
-    PyCallable_REG_CALL(LookupService, LookupEvePlayerCharacters)
+    PyCallable_REG_CALL(LookupService, LookupEvePlayerCharacters);
     //PyCallable_REG_CALL(LookupService, )
 }
 

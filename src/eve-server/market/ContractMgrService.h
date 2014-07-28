@@ -33,7 +33,7 @@ public:
     ContractMgrService(PyServiceMgr *mgr);
     ~ContractMgrService();
 
-    PyCallable_DECL_CALL(NumRequiringAttention)
+    PyCallable_DECL_CALL(NumRequiringAttention);
 
 private:
     class Dispatcher;

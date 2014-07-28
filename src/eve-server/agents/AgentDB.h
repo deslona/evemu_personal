@@ -43,15 +43,11 @@ public:
  	bool LoadAgentLocation(uint32 agentID, uint32 &locationID,
  	uint32 &locationType, uint32 &solarSystemID);
 
+    PyRep *GetAgentSolarSystem(uint32 AgentID);
+
    // AgentLevel *LoadAgentLevel(uint8 level);
 
 protected:
 };
 
-
-
-
-
 #endif
-
-

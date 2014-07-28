@@ -875,9 +875,8 @@ void SystemManager::MakeSetState(const SystemBubble *bubble, DoDestiny_SetState 
 
     _log( DESTINY__TRACE, "Set State:" );
     ss.Dump( DESTINY__TRACE, "    " );
-    _log( DESTINY__TRACE, "    Buffer:" );
-    _hex( DESTINY__TRACE, &( ss.destiny_state->content() )[0],
-                          ss.destiny_state->content().size() );
+    //_log( DESTINY__TRACE, "    Buffer:" );
+    //_hex( DESTINY__TRACE, &( ss.destiny_state->content() )[0], ss.destiny_state->content().size() );
 
     _log( DESTINY__TRACE, "    Decoded:" );
     Destiny::DumpUpdate( DESTINY__TRACE, &( ss.destiny_state->content() )[0],

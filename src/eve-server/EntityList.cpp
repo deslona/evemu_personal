@@ -181,19 +181,19 @@ Client *EntityList::FindAccount(uint32 account_id) const {
 
 void EntityList::FindByStationID(uint32 stationID, std::vector<Client *> &result) const {
     //this could likely be done better
-
     client_list::const_iterator cur, end;
     cur = m_clients.begin();
     end = m_clients.end();
     for(; cur != end; cur++) {
-        if((*cur)->GetStationID() == stationID)
+        if((*cur)->GetStationID() == stationID) {
+            sLog.Warning( "EntityList::FindByStationID()", "Client %s (%u) is in station %u", (*cur)->GetName(), (*cur)->GetID(), stationID );
             result.push_back(*cur);
+		}
     }
 }
 
 void EntityList::FindByRegionID(uint32 regionID, std::vector<Client *> &result) const {
     //this could likely be done better
-
     client_list::const_iterator cur, end;
     cur = m_clients.begin();
     end = m_clients.end();

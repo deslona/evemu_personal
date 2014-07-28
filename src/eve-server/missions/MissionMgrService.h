@@ -41,7 +41,7 @@ protected:
 
     //MissionDB m_db;
 
-    PyCallable_DECL_CALL(GetMyCourierMissions)
+    PyCallable_DECL_CALL(GetMyCourierMissions);
 
     //overloaded in order to support bound objects:
     //virtual PyBoundObject *_CreateBoundObject(Client *c, const PyRep *bind_args);

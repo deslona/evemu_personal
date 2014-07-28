@@ -42,14 +42,14 @@ protected:
 
     CertificateMgrDB m_db;
 
-    PyCallable_DECL_CALL(GetMyCertificates)
-    PyCallable_DECL_CALL(GetCertificateCategories)
-    PyCallable_DECL_CALL(GetAllShipCertificateRecommendations)
-    PyCallable_DECL_CALL(GetCertificateClasses)
-    PyCallable_DECL_CALL(GrantCertificate)
-    PyCallable_DECL_CALL(BatchCertificateGrant)
-    PyCallable_DECL_CALL(BatchCertificateUpdate)
-    PyCallable_DECL_CALL(GetCertificatesByCharacter)
+    PyCallable_DECL_CALL(GetMyCertificates);
+    PyCallable_DECL_CALL(GetCertificateCategories);
+    PyCallable_DECL_CALL(GetAllShipCertificateRecommendations);
+    PyCallable_DECL_CALL(GetCertificateClasses);
+    PyCallable_DECL_CALL(GrantCertificate);
+    PyCallable_DECL_CALL(BatchCertificateGrant);
+    PyCallable_DECL_CALL(BatchCertificateUpdate);
+    PyCallable_DECL_CALL(GetCertificatesByCharacter);
 
     bool _GrantCertificate(uint32 characterID, uint32 certificateID);
     bool _UpdateCertificate(uint32 characterID, uint32 certificateID, bool pub);

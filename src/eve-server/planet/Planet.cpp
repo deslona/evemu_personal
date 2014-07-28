@@ -37,8 +37,8 @@ planetORB::planetORB(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    //PyCallable_REG_CALL(planetORB, )
-    //PyCallable_REG_CALL(planetORB, )
+    //PyCallable_REG_CALL(planetORB, );
+    //PyCallable_REG_CALL(planetORB, );
 }
 
 planetORB::~planetORB() {
@@ -53,3 +53,14 @@ PyResult planetORB::Handle_( PyCallArgs& call )
     return new PyNone;
 }
 */
+
+
+/**
+    def ConfigureOrbital(self, item):
+        sm.GetService('planetUI').OpenConfigureWindow(item)
+
+    def TakeOrbitalOwnership(self, itemID, planetID):
+        registry = moniker.GetPlanetOrbitalRegistry(session.solarsystemid)
+        registry.GMChangeSpaceObjectOwner(itemID, session.corpid)
+
+        */

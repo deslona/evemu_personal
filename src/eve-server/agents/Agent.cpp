@@ -106,10 +106,3 @@ void Agent::DoAction(
     //locate char = 15
     choices[15] = "I need to find somebody.  Can you help me?";
 }
-
-
-/**
-agents.GetAgentsByStationID()
-agents.GetDivisions()
-
-*/

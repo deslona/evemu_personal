@@ -36,8 +36,8 @@ CalendarMgrService::CalendarMgrService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(CalendarMgrService, GetResponsesForCharacter)
-    PyCallable_REG_CALL(CalendarMgrService, calendarProxy)
+    PyCallable_REG_CALL(CalendarMgrService, GetResponsesForCharacter);
+    PyCallable_REG_CALL(CalendarMgrService, calendarProxy);
 }
 
 CalendarMgrService::~CalendarMgrService() {

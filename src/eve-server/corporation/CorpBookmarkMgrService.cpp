@@ -38,8 +38,8 @@ CorpBookmarkMgrService::CorpBookmarkMgrService(PyServiceMgr* mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(CorpBookmarkMgrService, GetBookmarks)
-    PyCallable_REG_CALL(CorpBookmarkMgrService, UpdatePlayerBookmark)
+    PyCallable_REG_CALL(CorpBookmarkMgrService, GetBookmarks);
+    PyCallable_REG_CALL(CorpBookmarkMgrService, UpdatePlayerBookmark);
 }
 
 CorpBookmarkMgrService::~CorpBookmarkMgrService()

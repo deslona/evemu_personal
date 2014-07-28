@@ -36,14 +36,14 @@ TutorialService::TutorialService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(TutorialService, GetTutorialInfo)
-    PyCallable_REG_CALL(TutorialService, GetTutorials)
-    PyCallable_REG_CALL(TutorialService, GetCriterias)
-    PyCallable_REG_CALL(TutorialService, GetCategories)
-    PyCallable_REG_CALL(TutorialService, GetContextHelp)
-    PyCallable_REG_CALL(TutorialService, GetCharacterTutorialState)
-    PyCallable_REG_CALL(TutorialService, GetTutorialsAndConnections)
-    PyCallable_REG_CALL(TutorialService, GetCareerAgents)
+    PyCallable_REG_CALL(TutorialService, GetTutorialInfo);
+    PyCallable_REG_CALL(TutorialService, GetTutorials);
+    PyCallable_REG_CALL(TutorialService, GetCriterias);
+    PyCallable_REG_CALL(TutorialService, GetCategories);
+    PyCallable_REG_CALL(TutorialService, GetContextHelp);
+    PyCallable_REG_CALL(TutorialService, GetCharacterTutorialState);
+    PyCallable_REG_CALL(TutorialService, GetTutorialsAndConnections);
+    PyCallable_REG_CALL(TutorialService, GetCareerAgents);
 }
 
 TutorialService::~TutorialService() {

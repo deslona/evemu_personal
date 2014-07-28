@@ -40,7 +40,7 @@ protected:
 
     //VoucherDB m_db;
 
-    PyCallable_DECL_CALL(GetObject)
+    PyCallable_DECL_CALL(GetObject);
 
 };
 

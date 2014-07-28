@@ -58,12 +58,12 @@ public:
 
         m_strBoundObjectName = "AgentMgrBound";
 
-        PyCallable_REG_CALL(AgentMgrBound, GetInfoServiceDetails)
-        PyCallable_REG_CALL(AgentMgrBound, DoAction)
-        PyCallable_REG_CALL(AgentMgrBound, GetMyJournalDetails)
-        PyCallable_REG_CALL(AgentMgrBound, GetAgentLocationWrap)
-        PyCallable_REG_CALL(AgentMgrBound, GetMissionBriefingInfo)
-        PyCallable_REG_CALL(AgentMgrBound, GetMissionObjectiveInfo)
+        PyCallable_REG_CALL(AgentMgrBound, GetInfoServiceDetails);
+        PyCallable_REG_CALL(AgentMgrBound, DoAction);
+        PyCallable_REG_CALL(AgentMgrBound, GetMyJournalDetails);
+        PyCallable_REG_CALL(AgentMgrBound, GetAgentLocationWrap);
+        PyCallable_REG_CALL(AgentMgrBound, GetMissionBriefingInfo);
+        PyCallable_REG_CALL(AgentMgrBound, GetMissionObjectiveInfo);
     }
     virtual ~AgentMgrBound() { delete m_dispatch; }
     virtual void Release() {
@@ -71,12 +71,12 @@ public:
         delete this;
     }
 
-    PyCallable_DECL_CALL(GetInfoServiceDetails)
-    PyCallable_DECL_CALL(DoAction)
-    PyCallable_DECL_CALL(GetMyJournalDetails)
-    PyCallable_DECL_CALL(GetAgentLocationWrap)
-    PyCallable_DECL_CALL(GetMissionBriefingInfo)
-    PyCallable_DECL_CALL(GetMissionObjectiveInfo)
+    PyCallable_DECL_CALL(GetInfoServiceDetails);
+    PyCallable_DECL_CALL(DoAction);
+    PyCallable_DECL_CALL(GetMyJournalDetails);
+    PyCallable_DECL_CALL(GetAgentLocationWrap);
+    PyCallable_DECL_CALL(GetMissionBriefingInfo);
+    PyCallable_DECL_CALL(GetMissionObjectiveInfo);
 
 protected:
     AgentDB *const m_db;        //we do not own this
@@ -92,11 +92,11 @@ AgentMgrService::AgentMgrService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(AgentMgrService, GetAgents)
-    PyCallable_REG_CALL(AgentMgrService, GetMyJournalDetails)
-    PyCallable_REG_CALL(AgentMgrService, GetMyEpicJournalDetails)
-    PyCallable_REG_CALL(AgentMgrService, GetSolarSystemOfAgent)
-    PyCallable_REG_CALL(AgentMgrService, GetCareerAgents)
+    PyCallable_REG_CALL(AgentMgrService, GetAgents);
+    PyCallable_REG_CALL(AgentMgrService, GetMyJournalDetails);
+    PyCallable_REG_CALL(AgentMgrService, GetMyEpicJournalDetails);
+    PyCallable_REG_CALL(AgentMgrService, GetSolarSystemOfAgent);
+    PyCallable_REG_CALL(AgentMgrService, GetCareerAgents);
 }
 
 AgentMgrService::~AgentMgrService() {
@@ -346,37 +346,7 @@ PyResult AgentMgrService::Handle_GetSolarSystemOfAgent(PyCallArgs &call)
 
     call.Dump(SERVICE__CALLS);
     */
-
-/**  not working....crashes server */
-    DBQueryResult res;
-
-    uint32 AgentID = call.tuple->GetItem(0)->AsInt()->value();
-
-    if(!sDatabase.RunQuery(res,
-        " SELECT"
-        "  a.agentID,"
-        "  s.solarSystemID"
-        " FROM agtAgents AS a"
-        "  LEFT JOIN staStations AS s ON s.stationID = a.locationID"
-        " WHERE a.agentID = %u",AgentID))
-    {
-        _log(DATABASE__ERROR, "Failed to query for Agent = %u", AgentID);
-    }
-
-    DBResultRow row;
-    if(!res.GetRow(row)) {
-        _log(DATABASE__ERROR, "SystemID of Agent %u not found.", AgentID);
-        return NULL;
-    } else return (DBResultToRowset(res));
-/*
-    PyTuple *t = new PyTuple(1);
-    t->items[0] = new PyInt( row.GetUInt(1) );
-
-    return t;
-    */
-
-        //throw(PyException(MakeCustomError("Agent Finder is not avalible at this time.")));
-    //return NULL;
+	return (m_db.GetAgentSolarSystem(call.tuple->GetItem(0)->AsInt()->value()));
 }
 
 PyResult AgentMgrService::Handle_GetCareerAgents(PyCallArgs &call)
@@ -407,3 +377,31 @@ PyResult AgentMgrBound::Handle_GetMissionObjectiveInfo(PyCallArgs &call)
 */
     return new PyInt( 0 );
 }
+
+/**
+agents.GetAgentsByStationID()
+agents.GetDivisions()
+
+agentTypeNonAgent = 1
+agentTypeBasicAgent = 2
+agentTypeTutorialAgent = 3
+agentTypeResearchAgent = 4
+agentTypeGenericStorylineMissionAgent = 6
+agentTypeStorylineMissionAgent = 7
+agentTypeEventMissionAgent = 8
+agentTypeFactionalWarfareAgent = 9
+agentTypeEpicArcAgent = 10
+agentTypeAura = 11
+
+//  mission states
+typedef enum {
+	MissionAllocated = 0,
+	MissionOffered = 1,
+	MissionAccepted = 2,
+	MissionFailed = 3,
+	DungeonStarted = 0,
+	DungeonCompleted = 1,
+	DungeonFailed = 2
+} missionState;
+
+*/

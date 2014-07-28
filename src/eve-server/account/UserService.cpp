@@ -36,9 +36,9 @@ UserService::UserService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(UserService, GetRedeemTokens)
-    PyCallable_REG_CALL(UserService, GetCreateDate)
-    PyCallable_REG_CALL(UserService, ReportISKSpammer)
+    PyCallable_REG_CALL(UserService, GetRedeemTokens);
+    PyCallable_REG_CALL(UserService, GetCreateDate);
+    PyCallable_REG_CALL(UserService, ReportISKSpammer);
 }
 
 UserService::~UserService() {

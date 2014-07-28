@@ -37,14 +37,14 @@ private:
     class Dispatcher;
     Dispatcher *const m_dispatch;
 
-    PyCallable_DECL_CALL(GetByGroupID)
-    PyCallable_DECL_CALL(GetUnprocessed)
-    PyCallable_DECL_CALL(MarkGroupAsProcessed)
-    PyCallable_DECL_CALL(MarkAllAsProcessed)
-    PyCallable_DECL_CALL(MarkAsProcessed)
-    PyCallable_DECL_CALL(DeleteGroupNotifications)
-    PyCallable_DECL_CALL(DeleteAllNotifications)
-    PyCallable_DECL_CALL(DeleteNotifications)
+    PyCallable_DECL_CALL(GetByGroupID);
+    PyCallable_DECL_CALL(GetUnprocessed);
+    PyCallable_DECL_CALL(MarkGroupAsProcessed);
+    PyCallable_DECL_CALL(MarkAllAsProcessed);
+    PyCallable_DECL_CALL(MarkAsProcessed);
+    PyCallable_DECL_CALL(DeleteGroupNotifications);
+    PyCallable_DECL_CALL(DeleteAllNotifications);
+    PyCallable_DECL_CALL(DeleteNotifications);
 };
 
 #endif

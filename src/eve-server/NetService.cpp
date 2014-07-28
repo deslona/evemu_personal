@@ -37,9 +37,9 @@ NetService::NetService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(NetService, GetInitVals)
-    PyCallable_REG_CALL(NetService, GetTime)
-    PyCallable_REG_CALL(NetService, GetClusterSessionStatistics)
+    PyCallable_REG_CALL(NetService, GetInitVals);
+    PyCallable_REG_CALL(NetService, GetTime);
+    PyCallable_REG_CALL(NetService, GetClusterSessionStatistics);
 }
 
 NetService::~NetService() {
