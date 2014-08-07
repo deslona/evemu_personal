@@ -19,20 +19,23 @@ do with the source code downloaded from this project.
 - Character avatar creation is working
 - Walking in station is now possible, yet male characters use female animations.
 - Items and Ships display in station
-- Undocking and Docking is working
+- Undocking and Docking is working (not complete.  undock bugs almost fixed)
 - Skill Training is working (including pause/resume AND Training History)
 - Injecting Skills is working
-- BookMarks are mostly working
-- Celestial Information from OverView is working
+- BookMarks are mostly working (no support for delete)
+- All Celestial Information from OverView is working
+- Corporation stuff kinda working
 - Planets and Services Info from StarMap(F10) is working
 - Station Info from StarMap working
+- Agents and Converstation working (hard-coded...no data yet)
+- SolarSystem, Constellation, and Region information working
 - Most dynamic data working from StarMap(F10) [visited systems, Bookmarked systems, Personal Assets, jumps/hour, ALL killtypes ]
 - Refining/Reprocessing works, using Standings (kinda), and Skills
 - Market History Data working
 - Manufacturing working
-- ML/PL research working
+- ML/PL research working (but hacked)
 - POS's Deployable and Anchorable (but cant put online)
-- Text-Based Search Partially working
+- Text-Based Search Partially working (bad return...nothing displayed)
 
 
 
