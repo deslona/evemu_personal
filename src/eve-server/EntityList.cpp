@@ -32,6 +32,7 @@
 
 EntityList::EntityList() : m_services( NULL ) {}
 EntityList::~EntityList() {
+  /*
     {
         client_list::iterator cur, end;
         cur = m_clients.begin();
@@ -51,6 +52,7 @@ EntityList::~EntityList() {
             delete cur->second;
         }
     }
+    */
 }
 
 void EntityList::Add(Client **client) {

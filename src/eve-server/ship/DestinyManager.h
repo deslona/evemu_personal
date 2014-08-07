@@ -114,7 +114,7 @@ public:
 	bool IsStopped() { return ((State == Destiny::DSTBALL_STOP) ? true : false); }
 	bool IsAligned() { return ((State == Destiny::DSTBALL_GOTO) ? true : false); }
 	bool IsOrbiting() { return ((State == Destiny::DSTBALL_ORBIT) ? true : false); }
-	bool IsFollowing() { return ((State == Destiny::DSTBALL_GOTO) ? true : false); }
+	bool IsFollowing() { return ((State == Destiny::DSTBALL_FOLLOW) ? true : false); }
 	bool IsJumping() { return ((State == Destiny::DSTBALL_STOP) ? true : false); }
 	bool IsWarping() { return ((State == Destiny::DSTBALL_WARP) ? true : false); }
 	bool IsCloaked() { return m_cloaked; }
@@ -173,7 +173,7 @@ protected:
 
     //User controlled information used by a state to determine what to do.
     Destiny::BallMode State;
-    //double m_userSpeedFraction;			//unitless
+    double m_userSpeedFraction;			//unitless
     double m_activeSpeedFraction;		//unitless
     GPoint m_targetPoint;
     double m_targetDistance;

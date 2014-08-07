@@ -287,7 +287,6 @@ PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
 
     //do session change...
 	call.client->UndockFromStation( stationID, systemID, constellationID, regionID, dockPosition );
-    //call.client->MoveToLocation(call.client->GetSystemID(), dockPosition);
 
     //calculate undock movement
     GPoint dest =
@@ -309,7 +308,7 @@ PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
     //call.client->SetJustUndocking( true );
     // --- END HACK ---
 
-	call.client->Destiny()->Stop( true );
+	//call.client->Destiny()->Stop( true );
     return NULL;
 }
 
