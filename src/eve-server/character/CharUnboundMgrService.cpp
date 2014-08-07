@@ -78,6 +78,10 @@ PyResult CharUnboundMgrService::Handle_ValidateNameEx(PyCallArgs &call)
 }
 
 PyResult CharUnboundMgrService::Handle_SelectCharacterID(PyCallArgs &call) {
+  /*
+        arg = {charID = 140002457, loadTutorialDungeon = false, secondChoiceID = 0x7ffff0d78180}
+        __FUNCTION__ = "Handle_SelectCharacterID"
+*/
     CallSelectCharacterID arg;
     if (!arg.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "Failed to decode args for SelectCharacterID call");

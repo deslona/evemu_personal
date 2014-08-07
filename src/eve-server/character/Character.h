@@ -207,6 +207,7 @@ public:
         double _balance = 0.0,
         double _aurBalance = 0.0,
         double _securityRating = 0.0,
+		uint64 _loginTime = 0,
         uint32 _logonMinutes = 0,
         double _skillPoints = 0,
         uint32 _corporationID = 0,
@@ -235,6 +236,7 @@ public:
     double balance;
     double aurBalance;
     double securityRating;
+	uint64 loginTime;
     uint32 logonMinutes;
     double skillPoints;
 
@@ -510,6 +512,7 @@ public:
     double                  balance() const { return m_balance; }
     double                  aurBalance() const { return m_aurBalance; }
     double                  securityRating() const { return m_securityRating; }
+    uint64					loginTime() const { return m_loginTime; }
     uint32                  logonMinutes() const { return m_logonMinutes; }
     void                    addSecurityRating( double securityAmount ) { m_securityRating += securityAmount; }
 
@@ -647,6 +650,7 @@ protected:
     double m_balance;
     double m_aurBalance;
     double m_securityRating;
+	uint64 m_loginTime;
     uint32 m_logonMinutes;
 
     uint32 m_corporationID;

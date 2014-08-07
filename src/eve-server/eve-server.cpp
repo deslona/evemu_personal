@@ -168,7 +168,8 @@ int main( int argc, char* argv[] )
     sLog.InitializeLogging(sConfig.files.logDir);
     sLog.Log("server init", "Loading server...");
     sLog.Log("SERVER VERSION", "EVEmu 0.7.41-allan" );
-    sLog.Log("BUILD DATE", "5 August 2014");
+	sLog.Log("SERVER REVISION", "EVEmu " EVEMU_VERSION );
+    sLog.Log("BUILD DATE", "5 August 2014" );
     sLog.Log("SOURCE", "get at " EVEMU_REPOSITORY );
     sLog.Log("SERVER INIT", "\n"
         "\tSupported Client: %s\n"
@@ -431,8 +432,16 @@ int main( int argc, char* argv[] )
 				// check for command exit.
 				if (strncmp(buf, "exit", 4) == 0)
 				    RunLoops = false;
+				else if (strncmp(buf, "help", 4) == 0)
+				    sLog.Success("STDIN", "Command recognzed but not avalible at this time: %s", buf);
 				else if (strncmp(buf, "clients", 7) == 0)
-				    sLog.Success("STDIN", "Command recognzed but not avalible at this time: (%d)%s", strlen(buf), buf);
+				    sLog.Success("STDIN", "Command recognzed but not avalible at this time: %s", buf);
+				else if (strncmp(buf, "memory", 6) == 0)
+				    sLog.Success("STDIN", "Command recognzed but not avalible at this time: %s", buf);
+				else if (strncmp(buf, "save", 4) == 0)
+				    sLog.Success("STDIN", "Command recognzed but not avalible at this time: %s", buf);
+				else if (strncmp(buf, "say", 3) == 0)
+				    sLog.Success("STDIN", "Command recognzed but not avalible at this time: %s", buf);
 				else
 				    sLog.Warning("STDIN", "Command not recognized: (%d)%s", strlen(buf), buf);
 			}
@@ -460,8 +469,6 @@ int main( int argc, char* argv[] )
     delete _sDgmTypeAttrMgr;
 
     log_close_logfile();
-
-    //std::cout << std::endl << "press the ENTER key to exit...";  std::cin.get();
 
 	// Shut down the Item system ensuring ALL items get saved to the database:
 	sLog.Warning("server shutdown", "Shutting down Item Factory." );

@@ -104,7 +104,7 @@ enum {
 struct BallHeader {
     uint64 entityID;
     uint8 mode;        //see DSTBALL_
-    double radius;    //7.230769230769231e-3
+    float radius;    //7.230769230769231e-3
     double x;    //1.33638303942e12
     double y;    //6.252761088e10
     double z;    //4.1517330432e11
@@ -117,7 +117,7 @@ struct MassSector {
     uint8  cloak;        // indicates cloak
     uint64 allianceID;
     uint32 corpID;
-    double Harmonic;
+    float Harmonic;
 };
 
 //only included if the thing can move...
@@ -126,15 +126,15 @@ struct ShipSector {
     double velocity_x;
     double velocity_y;
     double velocity_z;
-    double agility;
-    double speed_fraction;
+    float agility;
+    float speed_fraction;
 };
 
 struct MiniBall {
     double x;
     double y;
     double z;
-    double radius;
+    float radius;
 };
 
 struct MiniBallList {

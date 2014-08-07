@@ -39,7 +39,7 @@
  *   this can (and should) be used for positioning mission space, cosmic signatures,  anomolies, complexes, and other things needing a random
  *       position in a given system.
  *
- *		class DBGPointEntity has index, itemID, and position, and is found in SystemDB.
+ *		class DBGPointEntity has index, itemID, and position, and is found in SystemDB.   see class decelaration below
  *
  *  NOTE i remember reading *somewhere* that ALL SPAWNS are within *some distance* from planets.   cant find that info now.  -allan 31Jul14
  */
@@ -90,7 +90,7 @@ void SystemGPoint::GetRandMoon(uint32 systemID) {
 
 }
 
-void SystemGPoint::GetRandPointInSystem(uint32 systemID, uint32 distance) {
+void SystemGPoint::GetRandPointInSystem(uint32 systemID, uint64 distance) {
 
 }
 

@@ -129,6 +129,7 @@ CharacterData::CharacterData(   //uses v4
     double _balance,
     double _aurBalance,
     double _securityRating,
+	uint64 _loginTime,
     uint32 _logonMinutes,
     double _skillPoints,
     uint32 _corporationID,
@@ -154,6 +155,7 @@ CharacterData::CharacterData(   //uses v4
   balance(_balance),
   aurBalance(_aurBalance),
   securityRating(_securityRating),
+  loginTime(_loginTime),
   logonMinutes(_logonMinutes),
   skillPoints(_skillPoints),
   corporationID(_corporationID),
@@ -882,7 +884,7 @@ void Character::UpdateSkillQueue() {
 
     if ( !m_skillQueue.empty() && currentTraining ) {
         _CalculateTotalSPTrained();              // Re-Calculate total SP trained and store in internal variable:
-        _GetLogonMinutes();                      // Update Character's Online Time (LogonMinutes)
+        //_GetLogonMinutes();                      // Update Character's Online Time (LogonMinutes)
         SaveSkillQueue();                        // Save character skill data:
         UpdateSkillQueueEndTime(m_skillQueue);   // and Queue end time:
     } else ClearSkillQueue();
@@ -1180,17 +1182,19 @@ PyObject* Character::GetSkillHistory() {
 }
 
 void Character::_SetLoginTime() {
-	m_db.SetLoginTime(itemID());
+	m_loginTime = Win32TimeNow();
+	//m_db.SetLoginTime(itemID());
 }
 
 void Character::_GetLogonMinutes() {
     //  get login time and set _logonMinutes       -allan
-    EvilNumber loginTime = m_db.GetLoginTime(itemID());
+    //uint32 loginTime = m_db.GetLoginTime(itemID());
+    uint32 loginMinutes = ( (Win32TimeNow() - loginTime() ) / 1000000000);  // * 2;
 
     // some checks are done < 1m, so if this check has no minutes, keep original time and exit
-    if(loginTime > 0) {
-        m_logonMinutes = logonMinutes() + loginTime.get_int();
-        m_db.UpdateLoginTime(itemID());
+    if(loginMinutes > 0) {
+        m_logonMinutes += loginMinutes;
+        //m_db.UpdateLoginTime(itemID());
     }
 }
 

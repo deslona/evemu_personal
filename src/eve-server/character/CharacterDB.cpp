@@ -1239,6 +1239,7 @@ PyObject* CharacterDB::GetSkillHistory(uint32 characterID) {
 void CharacterDB::SetLoginTime(uint32 characterID) {
 	//    char just logged in...set time im db.
 	//  TODO:  change to mem object to avoid DB hits....
+
     DBerror err;
     if( !sDatabase.RunQuery( err, "UPDATE character_ SET logonDateTime = %" PRIu64 " WHERE characterID = %u ", Win32TimeNow(), characterID )) {
         codelog(SERVICE__ERROR, "CharacterDB::SetLoginTime - Error in query: %s", err.c_str());
@@ -1259,10 +1260,10 @@ EvilNumber CharacterDB::GetLoginTime(uint32 characterID) {
     sDatabase.RunQuery(res, "SELECT logonDateTime FROM character_ WHERE characterID = %u", characterID );
 
     DBResultRow row;
-    EvilNumber loginTime = 0;
+    uint32 loginTime = 0;
     if(res.GetRow(row)) {
         uint64 logonDateTime = row.GetUInt64(0);
-        if (logonDateTime > 0 ) loginTime = ((Win32TimeNow() - logonDateTime) / 1000000000) * 2;
+        if (logonDateTime > 0 ) loginTime = ( (Win32TimeNow() - logonDateTime ) / 1000000000);  // * 2;
     }
     return loginTime;
 }

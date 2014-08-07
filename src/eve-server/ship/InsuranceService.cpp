@@ -74,9 +74,10 @@ InsuranceService::InsuranceService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(InsuranceService, GetContractForShip);
     PyCallable_REG_CALL(InsuranceService, InsureShip);
     PyCallable_REG_CALL(InsuranceService, GetInsurancePrice);
+    PyCallable_REG_CALL(InsuranceService, GetContractForShip);
+	//SetSessionCheck?
 }
 
 InsuranceService::~InsuranceService() {
@@ -110,6 +111,11 @@ PyResult InsuranceBound::Handle_GetInsurancePrice( PyCallArgs& call ) {
 }
 
 PyResult InsuranceBound::Handle_GetContracts( PyCallArgs& call ) {
+  /**   look into this.....
+            contracts = self.GetInsuranceMgr().GetContracts()
+            contracts = self.GetInsuranceMgr().GetContracts(1)  <-- corp contracts?
+            contracts = sm.RemoteSvc('insuranceSvc').GetContracts()
+            */
     return m_db->GetInsuranceContractsByOwnerID(call.client->GetCharacterID());
 }
 

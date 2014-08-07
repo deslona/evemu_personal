@@ -40,7 +40,7 @@ public:
 	void Get2RandPlanets(uint32);
 	void Get3RandPlanets(uint32);
 	void GetRandMoon(uint32);
-	void GetRandPointInSystem(uint32, uint32);
+	void GetRandPointInSystem(uint32, uint64);
 
 protected:
 
