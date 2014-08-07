@@ -42,32 +42,29 @@ SystemBubble::SystemBubble(const GPoint &center, double radius)
 {
     m_bubbleIncrementer++;
     m_bubbleID = m_bubbleIncrementer;
-    _log(DESTINY__BUBBLE_DEBUG, "Created new bubble %u(%p) at (%.2f,%.2f,%.2f) with radius %.2f", m_bubbleID, this, m_center.x, m_center.y, m_center.z, m_radius);
+    _log(DESTINY__BUBBLE_DEBUG, "SystemBubble::Constructor - Created new bubble %u (%p) at (%.2f,%.2f,%.2f) with radius %.2f", m_bubbleID, this, m_center.x, m_center.y, m_center.z, m_radius);
 }
 
 //send a set of destiny events and updates to everybody in the bubble.
 void SystemBubble::BubblecastDestiny(std::vector<PyTuple *> &updates, std::vector<PyTuple *> &events, const char *desc) const {
     //this could be done more efficiently....
-    {
-        std::vector<PyTuple *>::iterator cur, end;
-        cur = updates.begin();
-        end = updates.end();
-        for(; cur != end; cur++) {
-            PyTuple *up = *cur;
-            BubblecastDestinyUpdate(&up, desc);    //update is consumed.
-        }
-        updates.clear();
+    std::vector<PyTuple *>::iterator cur1, end1;
+    cur1 = updates.begin();
+    end1 = updates.end();
+    for(; cur1 != end1; cur1++) {
+        PyTuple *up = *cur1;
+        BubblecastDestinyUpdate(&up, desc);    //update is consumed.
     }
-    {
-        std::vector<PyTuple *>::iterator cur, end;
-        cur = events.begin();
-        end = events.end();
-        for(; cur != end; cur++) {
-            PyTuple *ev = *cur;
-            BubblecastDestinyEvent(&ev, desc);    //event is consumed.
-        }
-        events.clear();
+    updates.clear();
+
+    std::vector<PyTuple *>::iterator cur2, end2;
+    cur2 = events.begin();
+    end2 = events.end();
+    for(; cur2 != end2; cur2++) {
+        PyTuple *ev = *cur2;
+        BubblecastDestinyEvent(&ev, desc);    //event is consumed.
     }
+    events.clear();
 }
 
 //send a destiny update to everybody in the bubble.
@@ -87,8 +84,8 @@ void SystemBubble::BubblecastDestinyUpdate( PyTuple** payload, const char* desc 
         if( up_dup == NULL )
             up_dup = new PyTuple( *up );
 
-        //if( !(*cur)->IsClient() ) continue;      // skip updates to Non-clients  -allan
-        (*cur)->QueueDestinyUpdate( &up_dup );
+        //if( ((*cur)->IsClient()) || ((*cur)->IsNPC()) )		// skip systemEntities that are NOT pc/npc
+		    (*cur)->QueueDestinyUpdate( &up_dup );
 
         _log( DESTINY__BUBBLE_TRACE, "Bubblecast %s update to %s (%u)", desc, (*cur)->GetName(), (*cur)->GetID() );
     }
@@ -118,8 +115,8 @@ void SystemBubble::BubblecastDestinyUpdateExclusive( PyTuple** payload, const ch
             if( up_dup == NULL )
                 up_dup = new PyTuple( *up );
 
-            //if( !(*cur)->IsClient() ) continue;      // skip updates to Non-clients  -allan
-            (*cur)->QueueDestinyUpdate( &up_dup );
+            //if( ((*cur)->IsClient()) || ((*cur)->IsNPC()) )		// skip systemEntities that are NOT pc/npc
+                (*cur)->QueueDestinyUpdate( &up_dup );
 
             _log( DESTINY__BUBBLE_TRACE, "Bubblecast %s update to %s (%u)", desc, (*cur)->GetName(), (*cur)->GetID() );
         }
@@ -146,8 +143,8 @@ void SystemBubble::BubblecastDestinyEvent( PyTuple** payload, const char* desc )
         if( ev_dup == NULL )
             ev_dup = new PyTuple( *ev );
 
-        //if( !(*cur)->IsClient() ) continue; 		// skip updates to Non-clients  -allan
-        (*cur)->QueueDestinyEvent( &ev_dup );
+        //if( ((*cur)->IsClient()) || ((*cur)->IsNPC()) )		// skip systemEntities that are NOT pc/npc
+            (*cur)->QueueDestinyEvent( &ev_dup );
 
         _log( DESTINY__BUBBLE_TRACE, "Bubblecast %s event to %s (%u)", desc, (*cur)->GetName(), (*cur)->GetID() );
     }
@@ -174,6 +171,7 @@ bool SystemBubble::ProcessWander(std::vector<SystemEntity *> &wanderers) {
             wanderers.push_back(*cur);
         }
     }
+
     std::vector<SystemEntity *>::const_iterator curw, endw;
     curw = found_wandering.begin();
     endw = found_wandering.end();
@@ -182,43 +180,43 @@ bool SystemBubble::ProcessWander(std::vector<SystemEntity *> &wanderers) {
 
         Remove(*curw);
     }
-    return false;
+    return true;
 }
 
 void SystemBubble::Add(SystemEntity *ent, bool notify) {
-    //notify before addition so we do not include ourself.
-    if(notify) {
-        _SendAddBalls(ent);
-    }
     //if they are already in this bubble, do not continue.
     if(m_entities.find(ent->GetID()) != m_entities.end()) {
-        _log(DESTINY__BUBBLE_TRACE, "SystemBubble::Add() - Tried to add entity %u to bubble %p, but it is already in here.", ent->GetID(), this);
+        _log(DESTINY__BUBBLE_TRACE, "SystemBubble::Add() - Tried to add entity %u to bubble %u (%p), but it is already in here.", ent->GetID(), this->GetBubbleID(), this);
         return;
     }
-    //regardless, if this entity is a Client and it is NOT cloaked,
+
+    //notify before addition so we do not include ourself.
+    if(notify) _SendAddBalls(ent);
+
+    //if this entity is a Client and it is NOT cloaked,
     //notify everybody else in the bubble of the add.
-    if(ent->IsClient())
-    {
-        if( (ent->CastToClient()->Destiny() != NULL) )
-            if( !(ent->CastToClient()->Destiny()->IsCloaked()) )
-                _BubblecastAddBall(ent);
-    }
-    else
+    if(ent->IsClient()) {
+        if( (ent->CastToClient()->Destiny() != NULL) &&  !(ent->CastToClient()->Destiny()->IsCloaked()) )
+            _BubblecastAddBall(ent);
+    } else
         _BubblecastAddBall(ent);
 
-    _log(DESTINY__BUBBLE_DEBUG, "SystemBubble::Add() - Adding entity %u at (%.2f,%.2f,%.2f) to bubble %u at (%.2f,%.2f,%.2f) with radius %.2f", ent->GetID(), ent->GetPosition().x, ent->GetPosition().y, ent->GetPosition().z, this->GetBubbleID(), m_center.x, m_center.y, m_center.z, m_radius);
+    GPoint startPoint( ent->GetPosition() );
+    GPoint endPoint(0,0,0);
+    GVector direction(startPoint, endPoint);
+    double rangeToStar = direction.length();
+	rangeToStar /= ONE_AU_IN_METERS;
+
+    _log(DESTINY__BUBBLE_DEBUG, "SystemBubble::Add() - Adding entity %u at (%.2f,%.2f,%.2f) to bubble %u at (%.2f,%.2f,%.2f) with radius %.2f.  Distance to Star %.2f AU", ent->GetID(), startPoint.x, startPoint.y, startPoint.z, this->GetBubbleID(), m_center.x, m_center.y, m_center.z, m_radius, rangeToStar);
+
     m_entities[ent->GetID()] = ent;
     ent->m_bubble = this;
-    if(ent->IsStaticEntity() == false) {
-        m_dynamicEntities.insert(ent);
-    }
+    if(ent->IsStaticEntity() == false) m_dynamicEntities.insert(ent);
 
-    // Trigger SpawnManager for this bubble to generate NPC Spawn, if any,
+    // Trigger SpawnManager for this bubble to generate NPC Spawn, if any, but
     // only if this entity is a Client and it is NOT cloaked:
-    if( ent->IsClient() )
-        if( (ent->CastToClient()->Destiny() != NULL) )
-            if( !(ent->CastToClient()->Destiny()->IsCloaked()) )
-                ent->System()->DoSpawnForBubble(*this);
+    if( (ent->IsClient()) && (ent->CastToClient()->Destiny() != NULL) && !(ent->CastToClient()->Destiny()->IsCloaked()) )
+        ent->System()->DoSpawnForBubble(*this);
 }
 
 void SystemBubble::Remove(SystemEntity *ent, bool notify) {
@@ -228,9 +226,11 @@ void SystemBubble::Remove(SystemEntity *ent, bool notify) {
         return;     // Get outta here in case this was called again
 
     _log(DESTINY__BUBBLE_DEBUG, "SystemBubble::Remove() - Removing entity %u at (%.2f,%.2f,%.2f) from bubble %u at (%.2f,%.2f,%.2f) with radius %.2f", ent->GetID(), ent->GetPosition().x, ent->GetPosition().y, ent->GetPosition().z, this->GetBubbleID(), m_center.x, m_center.y, m_center.z, m_radius);
+
     ent->m_bubble = NULL;
     m_entities.erase(ent->GetID());
     m_dynamicEntities.erase(ent);
+
     //notify after removal so we do not remove ourself.
     if(notify) {
         _SendRemoveBalls(ent);

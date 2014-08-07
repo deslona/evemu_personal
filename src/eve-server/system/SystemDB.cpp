@@ -48,9 +48,9 @@ bool SystemDB::LoadSystemEntities(uint32 systemID, std::vector<DBSystemEntity> &
         entry.typeID = row.GetInt(1);
         entry.groupID = row.GetInt(2);
         entry.orbitID = (row.IsNull(3) ? 0 : row.GetInt(3));
-        entry.position.x = row.GetInt(4);
-        entry.position.y = row.GetInt(5);
-        entry.position.z = row.GetInt(6);
+        entry.position.x = row.GetDouble(4);
+        entry.position.y = row.GetDouble(5);
+        entry.position.z = row.GetDouble(6);
         entry.radius = (row.IsNull(7) ? 1 : row.GetDouble(7));
         entry.security = (row.IsNull(8) ? 0.0 : row.GetDouble(8));
         entry.itemName = row.GetText(9);
@@ -166,4 +166,49 @@ PyObject *SystemDB::ListJumps(uint32 stargateID) {
     }
 
     return DBResultToRowset(res);
+}
+
+void SystemDB::GetPlanets(uint32 systemID, std::vector<DBGPointEntity> *planetIDs, uint8 *total) {
+// groupID = 7
+    DBQueryResult res;
+    sDatabase.RunQuery(res, "SELECT itemID, x, y, z FROM mapDenormalize WHERE solarSystemID = %u AND groupID = 7", systemID);
+
+    DBResultRow row;
+    DBGPointEntity entry;
+	int8 itr = 1;
+    while(res.GetRow(row)) {
+	    entry.idx = itr;
+        entry.itemID = row.GetInt(0);
+        entry.position = GPoint (
+			row.GetDouble(1),
+			row.GetDouble(2),
+			row.GetDouble(3)
+			);
+        planetIDs->push_back(entry);
+		itr ++;
+    }
+    *total = itr;
+}
+
+void SystemDB::GetMoons(uint32 systemID, std::vector<DBGPointEntity> *moonIDs, uint8 *total) {
+// groupID = 8
+    DBQueryResult res;
+    sDatabase.RunQuery(res, "SELECT itemID, x, y, z FROM mapDenormalize WHERE solarSystemID = %u AND groupID = 8", systemID);
+
+    DBResultRow row;
+    DBGPointEntity entry;
+	int8 itr = 1;
+    while(res.GetRow(row)) {
+	    entry.idx = itr;
+        entry.itemID = row.GetInt(0);
+        entry.position = GPoint (
+			row.GetDouble(1),
+			row.GetDouble(2),
+			row.GetDouble(3)
+			);
+
+        moonIDs->push_back(entry);
+		itr ++;
+    }
+    *total = itr;
 }

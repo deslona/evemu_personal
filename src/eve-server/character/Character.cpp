@@ -120,7 +120,7 @@ _Ty *CharacterType::_LoadCharacterType(ItemFactory &factory, uint32 typeID, uint
 /*
  * CharacterData
  */
-CharacterData::CharacterData(   //uses v3
+CharacterData::CharacterData(   //uses v4
     uint32 _accountID,
     const char *_title,
     const char *_desc,
@@ -297,6 +297,23 @@ CorpMemberInfo::CorpMemberInfo(
 }
 
 /*
+ * FleetMember Info
+ */
+FleetMemberInfo::FleetMemberInfo(
+	uint8 _fleetID,
+	uint8 _fleetRole,
+	uint8 _fleetBooster,
+	uint8 _wingID,
+	uint8 _squadID)
+: fleetID(_fleetID),
+  fleetRole(_fleetRole),
+  fleetBooster(_fleetBooster),
+  wingID(_wingID),
+  squadID(_squadID)
+{
+}
+
+/*
  * Character
  */
 Character::Character(
@@ -423,11 +440,8 @@ bool Character::_Load() {
     }
 
     //  set login time in DB        -allan
-    //    this is for tracking login time per char, then use Character::SaveChar() function to set logonMinutes in charData.
-    DBerror err;
-    if( !sDatabase.RunQuery( err, "UPDATE character_ SET logonDateTime = %" PRIu64 " WHERE characterID = %u ", Win32TimeNow(), itemID() )) {
-        codelog(SERVICE__ERROR, "Character::_Load - Error in query: %s", err.c_str());
-    }
+	//  TODO:  change to mem object to avoid DB hits....
+    _SetLoginTime();
 
 	bool bLoadSuccessful = false;
 
@@ -1165,6 +1179,10 @@ PyObject* Character::GetSkillHistory() {
     return(m_db.GetSkillHistory( itemID() ));
 }
 
+void Character::_SetLoginTime() {
+	m_db.SetLoginTime(itemID());
+}
+
 void Character::_GetLogonMinutes() {
     //  get login time and set _logonMinutes       -allan
     EvilNumber loginTime = m_db.GetLoginTime(itemID());
@@ -1180,54 +1198,13 @@ bool Character::isOffline(uint32 charID) {
     return m_db.isOffline(charID);
 }
 
-void Character::VisitSystem(uint32 solarSystemID) {
-    DBQueryResult res;
-    sDatabase.RunQuery(res,
-      "SELECT visits FROM chrVisitedSystems WHERE characterID = %u AND solarSystemID = %u",
-      itemID(), solarSystemID
-      );
-
-    DBResultRow row;
-    uint16 visits;
-    if(res.GetRow(row)) visits = row.GetUInt(0); else visits = 0;
-    visits ++;
-
-    DBerror err;
-    if (visits > 1) {
-      if(!sDatabase.RunQuery(err,
-        "UPDATE chrVisitedSystems SET visits = %u, lastDateTime = %" PRIu64 " WHERE characterID = %u AND solarSystemID = %u",
-        visits, Win32TimeNow(), itemID(), solarSystemID
-        )) {
-            sLog.Error("Character::VisitSystem","%s: Query Failed: %s", itemName().c_str(), err.c_str() );
-            return;
-        }
-    }else{
-      if(!sDatabase.RunQuery(err,
-        "INSERT INTO chrVisitedSystems (characterID, solarSystemID, visits, lastDateTime)"
-        "VALUES (%u, %u, %u, %" PRIu64 ")", itemID(), solarSystemID, visits, Win32TimeNow()
-        )) {
-            sLog.Error("Character::VisitSystem","%s: Query Failed: %s", itemName().c_str(), err.c_str() );
-            return;
-        }
-    }
+void Character::VisitSystem(uint32 systemID) {
+    m_db.VisitSystem(systemID, itemID());
 }
 
 void Character::chkDynamicSystemID(uint32 systemID) {
   /**  this ensures mapDynamicData.solarSystemID for `systemID` is in the DB for later calls. -allan 16Mar14 */
-    DBQueryResult chk;
-    sDatabase.RunQuery(chk, "SELECT solarSystemID FROM mapDynamicData WHERE solarSystemID = %u", systemID );
-
-    DBResultRow row;
-    if(chk.GetRow(row)) {
-        sLog.Success("Character::chkDynamicSystemID"," System %u already in DB", systemID );
-    } else {
-        DBerror err;
-        if(!sDatabase.RunQuery(err, "INSERT INTO mapDynamicData (solarSystemID) VALUES (%u)", systemID )) {
-            sLog.Error("Character::chkDynamicSystemID","%u: Query Failed: %s", systemID, err.c_str() );
-        } else {
-          sLog.Warning("Character::chkDynamicSystemID"," System %u inserted in DB", systemID );
-        }
-    }
+  m_db.chkDynamicSystemID(systemID);
 }
 
 /** the following functions rely on solarSystemID being in the mapDynamicData table.
@@ -1235,147 +1212,60 @@ void Character::chkDynamicSystemID(uint32 systemID) {
   *   the function is as follows and is declared above...
   *         void SystemDB::chkDynamicSystemID(uint32 systemID)
   *
-  *  NOTE: these will have to be reset each server start.  should prolly trunicate table on restart after everything is working as i am using the count() in this table for active systems on website for testing, etc.
+  *  NOTE: these will have to be reset each server start.
+  *        really should trunicate table on restart after everything is working.
   */
 
-void Character::AddJumpToDynamicData(uint32 solarSystemID, bool add) {
-    DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT jumpsHour, pilotsInSpace FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
-
-    DBResultRow row;
-    uint16 jumps, pilotsInSpace;
-    if(res.GetRow(row)) {
-        jumps = row.GetUInt(0);
-        pilotsInSpace = row.GetUInt(1);
-    }else {
-        jumps = 0;
-        pilotsInSpace = 0;
-    }
-    jumps ++;
-
-    if(add) pilotsInSpace ++; else pilotsInSpace --;
-    if (pilotsInSpace < 0) pilotsInSpace = 0;
-
-    DBerror err;
-    if(!sDatabase.RunQuery(err,
-        "UPDATE mapDynamicData SET jumpsHour = %u, pilotsInSpace = %u, jumpsDateTime = %" PRIu64 ", pilotsDateTime = %" PRIu64 " WHERE solarSystemID = %u",
-        jumps, Win32TimeNow(), Win32TimeNow(), solarSystemID )) {
-            sLog.Error("Character::AddJumpToDynamicData","%u: Query Failed: %s", itemID(), err.c_str() );
-            return;
-    }
+void Character::AddJumpToDynamicData(uint32 systemID) {
+  m_db.AddJumpToDynamicData(systemID);
 }
 
-//  this should prolly be changed to a dynamic call from memory, instead of from db....
-//   however, showing pilots in system on the webpage will need the db.  *shrugs*
-//    updated to show both docked and inspace....duh.   25April
-//    changed....added another arg to accept chars on login.
 /**  will need to rewrite based on client data from ui/shared/maps/starmodehandler.py(427) ColorStarsByNumPilots
- *   very odd formula (first look) for tracking systems and players.
+ *   very odd formula for tracking systems and players.
+ *
+ *   NOTE:  this is not correct.  needs deeper understanding and re-write.   -allan 5Aug14
  */
-void Character::AddPilotToDynamicData(uint32 solarSystemID, bool docked, bool login) {
-    DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT pilotsDocked, pilotsInSpace FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
+void Character::AddPilotToDynamicData(uint32 systemID, bool isDocked, bool isLogin) {
 
-    DBResultRow row;
-    uint16 pilotsDocked = 0, pilotsInSpace = 0;
-    if(res.GetRow(row)) {
-        pilotsDocked = row.GetUInt(0);
-        pilotsInSpace = row.GetUInt(1);
-    }
+    uint32 docked, space;
+	m_db.AddPilotToDynamicData(systemID, isDocked, isLogin, &docked, &space);
 
-    if(login) {
-        if(docked) pilotsDocked ++; else pilotsInSpace ++;
-    } else {
-        if(docked) {
-            pilotsDocked ++;
-            pilotsInSpace --;
-        } else {
-            pilotsDocked --;
-            pilotsInSpace ++;
-        }
-    }
+  /**
+        sta = solarsystem - 30000000;
+        sol = total;
+        statDivisor = sta / docked;
 
-    if (pilotsDocked < 0 || pilotsDocked > 100) pilotsDocked = 0;
-    if (pilotsInSpace < 0 || pilotsInSpace > 100) pilotsInSpace = 0;
+        InSpace = sol - sta / statDivisor;
+        docked = sta / statDivisor;
+        */
+  /**  not working right....*/
+  /*
+  float divisor = 0;
+  uint16 sta = systemID - 30000000;
+  uint32 sol = &docked + &space;
+  if(docked)
+      divisor = sta / docked;
+  else
+	  sLog.Error("DynamicData", "PilotDocked = 0");
 
-    DBerror err;
-    if(!sDatabase.RunQuery(err, "UPDATE mapDynamicData SET pilotsDocked = %u, pilotsInSpace = %u, pilotsDateTime = %" PRIu64 " WHERE solarSystemID = %u", pilotsDocked, pilotsInSpace, Win32TimeNow(), solarSystemID )){
-        sLog.Error("Character::AddPilotToDynamicData","%s: Query Failed: %s", itemID(), err.c_str() );
-    }
+  if(divisor < 1) {
+	  sLog.Error("DynamicData", "divisor = 0");
+	  divisor = 1;
+	  sta = 0;
+	  sol = 0;
+  }
+  m_db.SaveSolStaToDynamicData(systemID, sol, sta, divisor);
+  */
 }
 
-void Character::AddKillToDynamicData(uint32 solarSystemID) {  /**killsHour, kills24Hours */
-    DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT killsHour, kills24Hours FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
-
-    DBResultRow row;
-    uint16 killsHour, kills24Hours;
-    if(res.GetRow(row)) {
-        killsHour = row.GetUInt(0);
-        kills24Hours = row.GetUInt(1);
-    } else {
-        killsHour = 0;
-        kills24Hours = 0;
-    }
-    killsHour ++;
-    kills24Hours ++;
-
-    DBerror err;
-    if(!sDatabase.RunQuery(err,
-        "UPDATE mapDynamicData SET killsHour = %u, kills24Hours = %u, killsDateTime = %" PRIu64 ", kills24DateTime = %" PRIu64 " WHERE solarSystemID = %u",
-        killsHour, kills24Hours, Win32TimeNow(), Win32TimeNow(), solarSystemID )) {
-            sLog.Error("Character::AddKillToDynamicData","%u: Query Failed: %s", itemID(), err.c_str() );
-            return;
-    }
+void Character::AddKillToDynamicData(uint32 systemID) {  /**killsHour, kills24Hours */
+	m_db.AddKillToDynamicData(systemID);
 }
 
-void Character::AddPodKillToDynamicData(uint32 solarSystemID) {   /**podKillsHour, podKills24Hour */
-    DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT podKillsHour, podKills24Hour FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
-
-    DBResultRow row;
-    uint16 podKillsHour;
-    uint16 podKills24Hour;
-    if(res.GetRow(row)) {
-        podKillsHour = row.GetUInt(0);
-        podKills24Hour = row.GetUInt(1);
-    } else {
-        podKillsHour = 0;
-        podKills24Hour = 0;
-    }
-    podKillsHour ++;
-    podKills24Hour ++;
-
-    DBerror err;
-    if(!sDatabase.RunQuery(err,
-        "UPDATE mapDynamicData SET podKillsHour = %u, podKills24Hour = %u, podDateTime = %" PRIu64 ", pod24DateTime = %" PRIu64 " WHERE solarSystemID = %u",
-        podKillsHour, podKills24Hour, Win32TimeNow(), Win32TimeNow(), solarSystemID )) {
-            sLog.Error("Character::AddPodKillToDynamicData","%u: Query Failed: %s", itemID(), err.c_str() );
-            return;
-    }
+void Character::AddPodKillToDynamicData(uint32 systemID) {   /**podKillsHour, podKills24Hour */
+	m_db.AddPodKillToDynamicData(systemID);
 }
 
-void Character::AddFactionKillToDynamicData(uint32 solarSystemID) {     /**factionKills*/
-    DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT factionKills, factionKills24Hour FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
-
-    DBResultRow row;
-    uint16 factionKills,factionKills24Hour;
-    if(res.GetRow(row)) {
-        factionKills = row.GetUInt(0);
-        factionKills24Hour = row.GetUInt(1);
-    } else {
-        factionKills = 0;
-        factionKills24Hour = 0;
-    }
-    factionKills ++;
-    factionKills24Hour ++;
-
-    DBerror err;
-    if(!sDatabase.RunQuery(err,
-        "UPDATE mapDynamicData SET factionKills = %u, factionKills24Hour = %u, factionDateTime = %" PRIu64 ", faction24DateTime = %" PRIu64 " WHERE solarSystemID = %u",
-        factionKills, factionKills24Hour, Win32TimeNow(), Win32TimeNow(), solarSystemID )) {
-            sLog.Error("Character::AddKillToDynamicData","%u: Query Failed: %s", itemID(), err.c_str() );
-            return;
-    }
+void Character::AddFactionKillToDynamicData(uint32 systemID) {     /**factionKills*/
+	m_db.AddFactionKillToDynamicData(systemID);
 }

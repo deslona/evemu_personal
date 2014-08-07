@@ -77,11 +77,11 @@ public:
     void SendDestinyUpdate(std::vector<PyTuple *> &updates, std::vector<PyTuple *> &events, bool self_only) const;
 
 	// Information query functions:
-    const GPoint &GetPosition() const { return(m_position); }
-    const GVector &GetVelocity() const { return(m_velocity); }
-    double GetSpeedFraction() { return(m_activeSpeedFraction); }
-	SystemManager * const GetSystemManager() { return m_system; }
-	SystemBubble * const GetCurrentBubble() { return m_self->Bubble(); }
+    const GPoint &GetPosition() 	const { return(m_position); }
+    const GVector &GetVelocity() 	const { return(m_velocity); }
+    double GetSpeedFraction() 		{ return(m_activeSpeedFraction); }
+	SystemManager *const 			GetSystemManager() { return m_system; }
+	SystemBubble *const 			GetCurrentBubble() { return m_self->Bubble(); }
 
     //called whenever an entity is going away and can no longer be used as a target
     void EntityRemoved(SystemEntity *who);
@@ -173,7 +173,7 @@ protected:
 
     //User controlled information used by a state to determine what to do.
     Destiny::BallMode State;
-    double m_userSpeedFraction;			//unitless
+    //double m_userSpeedFraction;			//unitless
     double m_activeSpeedFraction;		//unitless
     GPoint m_targetPoint;
     double m_targetDistance;

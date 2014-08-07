@@ -242,8 +242,17 @@ PyResult BeyonceBound::Handle_CmdAlignTo(PyCallArgs &call) {
 }
 
 PyResult BeyonceBound::Handle_CmdGotoDirection(PyCallArgs &call) {
+  /**
+04:45:32 L BeyonceBound: Handle_CmdGotoDirection
+04:45:32 [SvcCall]   Call Arguments:
+04:45:32 [SvcCall]       Tuple: 3 elements
+04:45:32 [SvcCall]         [ 0] Real field: -0.043847
+04:45:32 [SvcCall]         [ 1] Real field: 0.860934
+04:45:32 [SvcCall]         [ 2] Real field: 0.506824
+
     sLog.Log( "BeyonceBound", "Handle_CmdGotoDirection" );
   call.Dump(SERVICE__CALLS);
+*/
     Call_PointArg arg;
     if(!arg.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "%s: failed to decode args", call.client->GetName());
@@ -378,6 +387,7 @@ PyResult BeyonceBound::Handle_CmdWarpToStuff(PyCallArgs &call) {
 21:05:18 [SvcCall]     Argument 'machoVersion':
 21:05:18 [SvcCall]         Integer field: 1
 */
+        sLog.Warning( "BeyonceBound", "Handle_CmdWarpToStuff" );
     CallWarpToStuff arg;
     if(!arg.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "%s: failed to decode args", call.client->GetName());
@@ -610,6 +620,8 @@ PyResult BeyonceBound::Handle_CmdWarpToStuff(PyCallArgs &call) {
 }
 
 PyResult BeyonceBound::Handle_CmdWarpToStuffAutopilot(PyCallArgs &call) {
+  //  sends targeted celestial itemID as arg.
+        sLog.Warning( "BeyonceBound", "Handle_CmdWarpToStuffAutopilot" );
     CallWarpToStuffAutopilot arg;
 
     if(!arg.Decode(&call.tuple)) {
@@ -617,7 +629,7 @@ PyResult BeyonceBound::Handle_CmdWarpToStuffAutopilot(PyCallArgs &call) {
         return NULL;
     }
     //Change this to change the default autopilot distance (Faster Autopilot FTW)
-    double distance = 2500.0;
+    double distance = 5000.0; //15000
 
     //Don't update destiny until done with warp
     SystemManager *sm = call.client->System();
@@ -630,7 +642,10 @@ PyResult BeyonceBound::Handle_CmdWarpToStuffAutopilot(PyCallArgs &call) {
         codelog(CLIENT__ERROR, "%s: unable to find location %d", call.client->GetName(), arg.item);
         return NULL;
     }
-    //Adding in object radius
+    // autopilot check
+	call.client->SetAutoPilot(true);
+
+	//Adding in object radius
     distance += call.client->GetRadius() + se->GetRadius();
     call.client->WarpTo(se->GetPosition(), distance);
 
@@ -654,6 +669,7 @@ PyResult BeyonceBound::Handle_UpdateStateRequest(PyCallArgs &call) {
 }
 
 PyResult BeyonceBound::Handle_CmdStop(PyCallArgs &call) {
+        sLog.Warning( "BeyonceBound", "Handle_CmdStop" );
     DestinyManager *destiny = call.client->Destiny();
     if(destiny == NULL) {
         codelog(CLIENT__ERROR, "%s: Client has no destiny manager!", call.client->GetName());
@@ -672,6 +688,7 @@ PyResult BeyonceBound::Handle_CmdStop(PyCallArgs &call) {
     return NULL;
 }
 
+// CmdTurboDock (in client code)
 PyResult BeyonceBound::Handle_CmdDock(PyCallArgs &call) {
   /**
 14:09:25 L BeyonceBound::Handle_CmdDock(): size= 2
@@ -679,9 +696,9 @@ PyResult BeyonceBound::Handle_CmdDock(PyCallArgs &call) {
 14:09:25 [SvcCall]       Tuple: 2 elements
 14:09:25 [SvcCall]         [ 0] Integer field: 60012124
 14:09:25 [SvcCall]         [ 1] Integer field: 140001323
-  sLog.Log( "BeyonceBound::Handle_CmdDock()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
 	*/
+  sLog.Log( "BeyonceBound::Handle_CmdDock()", "size= %u", call.tuple->size() );
     Call_TwoIntegerArgs arg;  //sends stationID, shipID
     if(!arg.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "%s: failed to decode args", call.client->GetName());
@@ -705,14 +722,16 @@ PyResult BeyonceBound::Handle_CmdDock(PyCallArgs &call) {
 }
 
 PyResult BeyonceBound::Handle_CmdStargateJump(PyCallArgs &call) {
-    // sends 3 args....fromgateID, togateID, and shipID
+  /**CmdStargateJump(destID, theJump.toCelestialID, session.shipid)
+  */
+        sLog.Warning( "BeyonceBound", "Handle_CmdStargateJump" );
+    // sends 3 args....fromGateID, toGateID, and shipID
     Call_StargateJump arg;
     if(!arg.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "%s: failed to decode args", call.client->GetName());
         return NULL;
     }
 
-  sLog.Warning( "BeyonceBound::Handle_CmdStargateJump()", "size= %u", call.tuple->size() );
     call.client->StargateJump(arg.fromStargateID, arg.toStargateID);
     return NULL;
 }
