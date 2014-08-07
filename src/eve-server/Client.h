@@ -62,6 +62,7 @@ detect clients moving into agro radius
 #include "ship/Ship.h"
 
 #include "system/SystemEntity.h"
+#include "system/SystemGPoint.h"
 #include "ship/ModuleManager.h"
 
 class CryptoChallengePacket;
@@ -128,7 +129,7 @@ public:
     // character data
     CharacterRef GetChar() const                    { return m_char; }
     ShipRef GetShip() const                         { return ShipRef::StaticCast( Item() ); }
-    bool InPod() const                              { return GetShip()->typeID() == 670; }
+    bool InPod() const                              { return ( GetShip()->typeID() == 670 ); }
 
     bool IsInSpace() const                          { return ( GetStationID() == 0 ); }
     double x() const                                { return GetPosition().x; }    //this is terribly inefficient.
@@ -169,23 +170,22 @@ public:
     void StargateJump(uint32 fromGate, uint32 toGate);
     void SetDockStationID(uint32 stationID) { m_dockStationID = stationID; };
     uint32 GetDockStationID() { return m_dockStationID; };
-    void SetDockingPoint(GPoint &dockPoint);
-    void GetDockingPoint(GPoint &dockPoint);
+    void SetDockingPoint(GPoint dockPoint);
+    void GetDockingPoint(GPoint *dockPoint);
     bool GetPendingDockOperation() { return m_needToDock; };
     void SetPendingDockOperation(bool needToDock) { m_needToDock = needToDock; }
 
     // THESE FUNCTIONS ARE HACKS AS WE DONT KNOW WHY THE CLIENT CALLS STOP AT UNDOCK
     void SetJustUndocking(bool justUndocking)
     {
-        if( m_justUndockedCount == 0 ) {
-            m_justUndockedCount = 1;
-            m_justUndocked = justUndocking;
-		} else
-            m_justUndockedCount--;
+        if(justUndocking)
+            m_justUndocked = true;
+		else
+            m_justUndocked = false;
     }
     bool GetJustUndocking() { return m_justUndocked; };
-    void SetUndockAlignToPoint(GPoint &dest);
-    void GetUndockAlignToPoint(GPoint &dest);
+    void SetUndockAlignToPoint(GPoint dest);
+    void GetUndockAlignToPoint(GPoint *dest);
     // --- END HACK FUNCTIONS FOR UNDOCK ---
 
     void SendErrorMsg(const char *fmt, ...);
@@ -236,6 +236,10 @@ public:
     void DisconnectClient();
     void BanClient();
 
+	void SetAutoPilot(bool);
+	// set true for using autopilot.
+	bool m_autoPilot = false;
+
 protected:
     void _ReduceDamage(Damage &d);
     void _UpdateSession( const CharacterConstRef& character );
@@ -255,13 +259,14 @@ protected:
     SystemManager *m_system;    //we do not own this
     CharacterRef m_char;
 
+	SystemGPoint m_SGP;
+
     std::set<LSCChannel *> m_channels;    //we do not own these.
 
     //this whole move system is a piece of crap:
     typedef enum {
         msIdle,
-        msJump,
-        msMove
+        msJump
     } _MoveState;
     void _postMove(_MoveState type, uint32 wait_ms=500);
     _MoveState m_moveState;
@@ -269,8 +274,6 @@ protected:
     uint32 m_moveSystemID;
     GPoint m_movePoint;
     uint32 m_dockStationID;
-	uint32 m_fromGate;
-	uint32 m_toGate;
     void _ExecuteJump();
     bool m_needToDock;
 
@@ -286,7 +289,6 @@ protected:
     // It all makes more sense this way.
 
     bool m_justUndocked;
-    int m_justUndockedCount;
     GPoint m_undockAlignToPoint;
     // --- END HACK VARIABLES FOR UNDOCK ---
 

@@ -216,7 +216,7 @@ PyRep *CharacterDB::GetCharSelectInfo(uint32 characterID) {
     uint64 startDate = Win32TimeNow() - 24*Win32Time_Day;
 
     if(!sDatabase.RunQuery(res,
-        "SELECT " // fixed DB query -allan 01/09/14
+        "SELECT " // fixed DB query -allan 11Jan14
         "  entity.itemName AS shortName, "
         "  bloodlineTypes.bloodlineID, "
         "  ch.gender, "
@@ -272,7 +272,7 @@ PyObject *CharacterDB::GetCharPublicInfo(uint32 characterID) {
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
-        "SELECT "       // fixed DB Query   -allan 01/11/14
+        "SELECT "       // fixed DB Query   -allan 11Jan14
         "  entity.typeID,"
         "  entity.itemName AS characterName,"
         "  ch.corporationID,"
@@ -314,7 +314,7 @@ void CharacterDB::GetCharacterData(uint32 characterID, std::map<std::string, uin
     DBResultRow row;
 
     if(!sDatabase.RunQuery(res,
-        "SELECT "       // fixed DB Query   -allan 01/11/14
+        "SELECT "       // fixed DB Query   -allan 11Jan14
         "  ch.corporationID, "
         "  ch.stationID, "
         "  ch.solarSystemID, "
@@ -353,11 +353,11 @@ void CharacterDB::GetCharacterData(uint32 characterID, std::map<std::string, uin
     characterDataMap["constellationID"] = row.GetUInt(3);
     characterDataMap["regionID"] = row.GetUInt(4);
     characterDataMap["corporationHQ"] = row.GetUInt(5);
-    characterDataMap["corpRole"] = row.GetUInt(6);
-    characterDataMap["rolesAtAll"] = row.GetUInt(7);
-    characterDataMap["rolesAtBase"] = row.GetUInt(8);
-    characterDataMap["rolesAtHQ"] = row.GetUInt(9);
-    characterDataMap["rolesAtOther"] = row.GetUInt(10);
+    characterDataMap["corpRole"] = row.GetUInt64(6);
+    characterDataMap["rolesAtAll"] = row.GetUInt64(7);
+    characterDataMap["rolesAtBase"] = row.GetUInt64(8);
+    characterDataMap["rolesAtHQ"] = row.GetUInt64(9);
+    characterDataMap["rolesAtOther"] = row.GetUInt64(10);
     characterDataMap["shipID"] = row.GetUInt(11);
     characterDataMap["locationID"] = row.GetUInt(12);
 }
@@ -368,12 +368,8 @@ PyObject *CharacterDB::GetCharPublicInfo3(uint32 characterID) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT "
-        "  ch.bounty,"
-        "  ch.title,"
-        "  ch.startDateTime,"
-        "  ch.description,"
-        "  ch.corporationID"
-        " FROM character_ AS ch"
+        "  bounty"
+        " FROM character_ "
         " WHERE characterID=%u", characterID))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
@@ -1240,6 +1236,23 @@ PyObject* CharacterDB::GetSkillHistory(uint32 characterID) {
     return(DBResultToRowset(res));
 }
 
+void CharacterDB::SetLoginTime(uint32 characterID) {
+	//    char just logged in...set time im db.
+	//  TODO:  change to mem object to avoid DB hits....
+    DBerror err;
+    if( !sDatabase.RunQuery( err, "UPDATE character_ SET logonDateTime = %" PRIu64 " WHERE characterID = %u ", Win32TimeNow(), characterID )) {
+        codelog(SERVICE__ERROR, "CharacterDB::SetLoginTime - Error in query: %s", err.c_str());
+    }
+}
+
+void CharacterDB::UpdateLoginTime(uint32 characterID) {
+        // updated logonDateTime to now....last check was then to now, so remove that time and reset
+        DBerror err;
+        if( !sDatabase.RunQuery( err, "UPDATE character_ SET logonDateTime = %" PRIu64 " WHERE characterID = %u ", Win32TimeNow(), characterID )) {
+            codelog(SERVICE__ERROR, "CharacterDB::UpdateLoginTime - Error in query: %s", err.c_str());
+        }
+}
+
 EvilNumber CharacterDB::GetLoginTime(uint32 characterID) {
     //  logged as Win32TimeNow();
     DBQueryResult res;
@@ -1254,28 +1267,20 @@ EvilNumber CharacterDB::GetLoginTime(uint32 characterID) {
     return loginTime;
 }
 
-void CharacterDB::UpdateLoginTime(uint32 characterID) {
-        // updated logonDateTime to now....last check was then to now, so remove that time and reset
-        DBerror err;
-        if( !sDatabase.RunQuery( err, "UPDATE character_ SET logonDateTime = %" PRIu64 " WHERE characterID = %u ", Win32TimeNow(), characterID )) {
-            codelog(SERVICE__ERROR, "Character::_GetLogonMinutes - Error in query: %s", err.c_str());
-        }
-}
-
 bool CharacterDB::isOffline(uint32 characterID) {
     DBQueryResult res;
     sDatabase.RunQuery(res, "SELECT Online FROM character_ WHERE characterID = %u", characterID );
 
     DBResultRow row;
-    if(res.GetRow(row)) return false; else return true;
+    return(!res.GetRow(row));
 }
 
 void CharacterDB::addOwnerCache(uint32 ownerID, std::string ownerName, uint32 typeID) {
     DBerror err;
     sDatabase.RunQuery(err,
-                       "INSERT INTO cacheOwners(ownerID, ownerName, typeID)"
-                       " VALUES (%u, %s, %u)",
-                       ownerID, ownerName.c_str(), typeID);
+        "INSERT INTO cacheOwners(ownerID, ownerName, typeID)"
+        " VALUES (%u, %s, %u)",
+        ownerID, ownerName.c_str(), typeID);
 }
 
 PyRep* CharacterDB::GetBounty(uint32 charID, uint32 ownerID) {
@@ -1286,7 +1291,7 @@ PyRep* CharacterDB::GetBounty(uint32 charID, uint32 ownerID) {
 
 PyRep* CharacterDB::GetTopBounties() {
     DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT characterID, ownerID, bounty FROM bounties ORDER BY bounty DESC LIMIT 10");
+    sDatabase.RunQuery(res, "SELECT characterID, bounty FROM bounties ORDER BY bounty DESC LIMIT 15");
     return(DBResultToRowset(res));
 }
 
@@ -1296,4 +1301,185 @@ void CharacterDB::AddBounty(uint32 charID, uint32 ownerID, uint32 amount) {
         "INSERT INTO bounties(characterID, ownerID, bounty, timePlaced)"
         " VALUES (%u, %u, %u, %" PRIu64 ")",
         charID, ownerID, amount, Win32TimeNow() );
+}
+
+void CharacterDB::VisitSystem(uint32 solarSystemID, uint32 charID) {
+    DBQueryResult res;
+    sDatabase.RunQuery(res,
+      "SELECT visits FROM chrVisitedSystems WHERE characterID = %u AND solarSystemID = %u",
+      charID, solarSystemID
+      );
+
+    DBResultRow row;
+    uint16 visits = 0;
+    if(res.GetRow(row)) visits = row.GetUInt(0);
+    visits ++;
+
+    DBerror err;
+    if (visits > 1) {
+      sDatabase.RunQuery(err,
+        "UPDATE chrVisitedSystems SET visits = %u, lastDateTime = %" PRIu64 " WHERE characterID = %u AND solarSystemID = %u",
+        visits, Win32TimeNow(), charID, solarSystemID
+        );
+    }else{
+      sDatabase.RunQuery(err,
+        "INSERT INTO chrVisitedSystems (characterID, solarSystemID, visits, lastDateTime)"
+        "VALUES (%u, %u, %u, %" PRIu64 ")", charID, solarSystemID, visits, Win32TimeNow()
+        );
+    }
+}
+
+
+
+
+
+
+void CharacterDB::chkDynamicSystemID(uint32 systemID) {
+  /**  this ensures mapDynamicData.solarSystemID for `systemID` is in the DB for later calls. -allan 16Mar14 */
+    DBQueryResult chk;
+    sDatabase.RunQuery(chk, "SELECT solarSystemID FROM mapDynamicData WHERE solarSystemID = %u", systemID );
+
+    DBResultRow row;
+    if(chk.GetRow(row)) {
+        sLog.Success("CharacterDB::chkDynamicSystemID"," System %u already in DB", systemID );
+    } else {
+        DBerror err;
+        sDatabase.RunQuery(err, "INSERT INTO mapDynamicData (solarSystemID) VALUES (%u)", systemID );
+        sLog.Warning("CharacterDB::chkDynamicSystemID"," System %u inserted in DB", systemID );
+    }
+}
+
+/** the following functions rely on solarSystemID being in the mapDynamicData table.
+  * the check is called before these are used, and solarSystemID is then verified for existance and added if needed.
+  *   the function is as follows and is declared above...
+  *         void SystemDB::chkDynamicSystemID(uint32 systemID)
+  *
+  *  NOTE: these will have to be reset each server start.
+  *        really should trunicate table on restart after everything is working.
+  */
+
+void CharacterDB::AddJumpToDynamicData(uint32 solarSystemID) {
+    DBQueryResult res;
+    sDatabase.RunQuery(res, "SELECT jumpsHour FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
+
+    DBResultRow row;
+    uint16 jumps = 0;
+    if(res.GetRow(row)) jumps = row.GetUInt(0);
+    jumps ++;
+
+    DBerror err;
+    sDatabase.RunQuery(err,
+        "UPDATE mapDynamicData SET jumpsHour = %u WHERE solarSystemID = %u",
+        jumps, solarSystemID );
+}
+
+void CharacterDB::AddPilotToDynamicData(uint32 solarSystemID, bool isDocked, bool isLogin, uint32 *pilotsDocked, uint32 *pilotsInSpace) {
+    DBQueryResult res;
+    sDatabase.RunQuery(res, "SELECT pilotsDocked, pilotsInSpace FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
+
+    DBResultRow row;
+    uint16 docked = 0, space = 0;
+    if(res.GetRow(row)) {
+        docked = row.GetUInt(0);
+        space = row.GetUInt(1);
+    }
+
+    if(isLogin) {
+        if(isDocked) docked ++; else space ++;
+    } else {
+        if(isDocked) {
+            docked ++;
+            space --;
+        } else {
+            docked --;
+            space ++;
+        }
+    }
+
+    if (docked < 0 || docked > 100) docked = 0;
+    if (space < 0 || space > 100) space = 0;
+
+    DBerror err;
+    sDatabase.RunQuery(err, "UPDATE mapDynamicData SET pilotsDocked = %u, pilotsInSpace = %u, pilotsDateTime = %" PRIu64 " WHERE solarSystemID = %u", docked, space, Win32TimeNow(), solarSystemID );
+
+	//*pilotsDocked = docked;
+	//*pilotsInSpace = space;
+}
+
+uint16 CharacterDB::GetActivePilotsFromDynamicData(uint32 solarSystemID) {
+    DBQueryResult res;
+    sDatabase.RunQuery(res, "SELECT pilotsDocked, pilotsInSpace FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
+
+    DBResultRow row;
+    uint16 pilotsDocked = 0, pilotsInSpace = 0;
+    if(res.GetRow(row)) {
+        pilotsDocked = row.GetUInt(0);
+        pilotsInSpace = row.GetUInt(1);
+    }
+    return(pilotsDocked, pilotsInSpace);
+
+}
+
+void CharacterDB::SaveSolStaToDynamicData(uint32 solarSystemID, uint16 sol, uint16 sta, float divisor) {
+    DBerror err;
+    sDatabase.RunQuery(err,
+		"UPDATE mapDynamicData SET sol = %u, sta = %u, statDivisor = %f WHERE solarSystemID = %u",
+		sol, sta, divisor, solarSystemID );
+}
+
+void CharacterDB::AddKillToDynamicData(uint32 solarSystemID) {  /**killsHour, kills24Hours */
+    DBQueryResult res;
+    sDatabase.RunQuery(res, "SELECT killsHour, kills24Hours FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
+
+    DBResultRow row;
+    uint16 killsHour = 0, kills24Hours = 0;
+    if(res.GetRow(row)) {
+        killsHour = row.GetUInt(0);
+        kills24Hours = row.GetUInt(1);
+    }
+    killsHour ++;
+    kills24Hours ++;
+
+    DBerror err;
+    sDatabase.RunQuery(err,
+        "UPDATE mapDynamicData SET killsHour = %u, kills24Hours = %u, killsDateTime = %" PRIu64 ", kills24DateTime = %" PRIu64 " WHERE solarSystemID = %u",
+        killsHour, kills24Hours, Win32TimeNow(), Win32TimeNow(), solarSystemID );
+}
+
+void CharacterDB::AddPodKillToDynamicData(uint32 solarSystemID) {   /**podKillsHour, podKills24Hour */
+    DBQueryResult res;
+    sDatabase.RunQuery(res, "SELECT podKillsHour, podKills24Hour FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
+
+    DBResultRow row;
+    uint16 podKillsHour = 0, podKills24Hour = 0;
+    if(res.GetRow(row)) {
+        podKillsHour = row.GetUInt(0);
+        podKills24Hour = row.GetUInt(1);
+    }
+    podKillsHour ++;
+    podKills24Hour ++;
+
+    DBerror err;
+    sDatabase.RunQuery(err,
+        "UPDATE mapDynamicData SET podKillsHour = %u, podKills24Hour = %u, podDateTime = %" PRIu64 ", pod24DateTime = %" PRIu64 " WHERE solarSystemID = %u",
+        podKillsHour, podKills24Hour, Win32TimeNow(), Win32TimeNow(), solarSystemID );
+}
+
+void CharacterDB::AddFactionKillToDynamicData(uint32 solarSystemID) {     /**factionKills*/
+    DBQueryResult res;
+    sDatabase.RunQuery(res, "SELECT factionKills, factionKills24Hour FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
+
+    DBResultRow row;
+    uint16 factionKills = 0, factionKills24Hour = 0;
+    if(res.GetRow(row)) {
+        factionKills = row.GetUInt(0);
+        factionKills24Hour = row.GetUInt(1);
+    }
+    factionKills ++;
+    factionKills24Hour ++;
+
+    DBerror err;
+    sDatabase.RunQuery(err,
+        "UPDATE mapDynamicData SET factionKills = %u, factionKills24Hour = %u, factionDateTime = %" PRIu64 ", faction24DateTime = %" PRIu64 " WHERE solarSystemID = %u",
+        factionKills, factionKills24Hour, Win32TimeNow(), Win32TimeNow(), solarSystemID );
 }

@@ -98,6 +98,9 @@ PyResult AlertService::Handle_BeanDelivery( PyCallArgs& call )
  * @return guess it should have PyNone back.
  */
 PyResult AlertService::Handle_SendClientStackTraceAlert(PyCallArgs &call) {
+  /**
+		  SendClientStackTraceAlert(stackID, stackTrace, mode, nextErrorKeyHash)
+  */
 
 #ifdef DEV_DEBUG_TREAT
     traceLogger->logTrace(*call.tuple);

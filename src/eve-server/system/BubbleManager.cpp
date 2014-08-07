@@ -56,22 +56,20 @@ void BubbleManager::Process() {
     if(m_wanderTimer.Check()) {
         std::vector<SystemEntity *> wanderers;
 
-        {
-            std::vector<SystemBubble *>::iterator cur, end;
-            cur = m_bubbles.begin();
-            end = m_bubbles.end();
-            for(; cur != end; ++cur) {
-                if((*cur)->IsEmpty()) {
-                    // Remove this bubble now that it is empty of ALL system entities
-                    _log(DESTINY__BUBBLE_DEBUG, "BubbleManager::Process() - Bubble %u is empty and is therefore being deleted from the system right now.", (*cur)->GetBubbleID() );
-                    m_bubbles.erase(cur);
-                    cur = m_bubbles.begin();
-                    end = m_bubbles.end();
-                }
-                else
-                    // If wanderers are found, they are processed and moved to new bubbles, if applicable:
-                    (*cur)->ProcessWander(wanderers);
-            }
+        std::vector<SystemBubble *>::iterator cur, end;
+        cur = m_bubbles.begin();
+        end = m_bubbles.end();
+        for(; cur != end; ++cur) {
+            if((*cur)->IsEmpty()) {
+                // Remove this bubble now that it is empty of ALL system entities
+                _log(DESTINY__BUBBLE_DEBUG, "BubbleManager::Process() - Bubble %u is empty and is therefore being deleted from the system right now.", (*cur)->GetBubbleID() );
+                m_bubbles.erase(cur);
+                cur = m_bubbles.begin();
+                end = m_bubbles.end();
+            } else {
+                // If wanderers are found, they are processed and moved to new bubbles, if applicable:
+                (*cur)->ProcessWander(wanderers);
+			}
         }
         if(!wanderers.empty()) {
             std::vector<SystemEntity *>::const_iterator cur, end;
@@ -96,7 +94,6 @@ void BubbleManager::UpdateBubble(SystemEntity *ent, bool notify, bool isWarping,
         }
         _log(DESTINY__BUBBLE_TRACE, "BubbleManager::UpdateBubble() - Entity %u at (%.2f,%.2f,%.2f) is no longer located in bubble %u at (%.2f,%.2f,%.2f) with radius %.2f.  Removing...", ent->GetID(), ent->GetPosition().x, ent->GetPosition().y, ent->GetPosition().z, b->GetBubbleID(), b->m_center.x, b->m_center.y, b->m_center.z, b->m_radius);
         b->Remove(ent, notify);
-		return;
     }
     if(isWarping) //entity is in warp, therefore no bubble needed while warping....
 	    return;
@@ -147,7 +144,7 @@ void BubbleManager::Add(SystemEntity *ent, bool notify, bool isPostWarp) {
 }
 
 void BubbleManager::NewBubbleCenter(GVector shipVelocity, GPoint & newBubbleCenter)
-{
+{//TODO:  check for existing bubble in this space....if so, create new bubble so edges touch
     shipVelocity.normalize();
     newBubbleCenter.x += shipVelocity.x * (BUBBLE_RADIUS_METERS - BUBBLE_HYSTERESIS_METERS);
     newBubbleCenter.y += shipVelocity.y * (BUBBLE_RADIUS_METERS - BUBBLE_HYSTERESIS_METERS);

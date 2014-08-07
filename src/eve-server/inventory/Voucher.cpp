@@ -45,7 +45,13 @@ VoucherService::~VoucherService() {
 }
 
 PyResult VoucherService::Handle_GetObject( PyCallArgs& call ) {
-  /*t
+  /**
+            voucher = self.GetVoucherSvc().GetObject(voucherID)
+            if voucher is None:
+                return
+            self.data[voucherID] = voucher
+            */
+  /*
 23:33:00 L VoucherService::Handle_GetObject(): size= 1
 23:33:00 [SvcCall]   Call Arguments:
 23:33:00 [SvcCall]       Tuple: 1 elements
@@ -78,11 +84,12 @@ AttributeError: Rowset instance has no attribute 'GetDescription'
     return new PyString(row.GetText(0));
     //return DBResultToRowset(res);
     //return new PyNone;
-
+/*
     PyTuple* tuple = new PyTuple( 2 );
 
     tuple->items[ 0 ] = new PyString( "GetDescription" );
     tuple->items[ 1 ] = new PyString( row.GetText(0) );
 
     return tuple;
+	*/
 }

@@ -69,3 +69,6 @@ PyResult UserService::Handle_ReportISKSpammer( PyCallArgs& call )
 
     return NULL;
 }
+
+
+            //sm.RemoteSvc('userSvc').ApplyPilotLicence(itemID, justQuery=True)

@@ -138,7 +138,7 @@ PyRep *MarketDB::GetOrders( uint32 regionID, uint32 typeID )
         "SELECT"
         "    price, volRemaining, typeID, orderRange, orderID,"
         "   volEntered, minVolume, bid, issued as issueDate, duration,"
-        "   stationID, regionID, solarSystemID, jumps"
+        "   stationID, regionID, solarSystemID, jumps, orderRange AS range"
         " FROM market_orders "
         " WHERE regionID=%u AND typeID=%u AND bid=%d", regionID, typeID, TransactionTypeSell))
     {

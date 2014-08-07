@@ -127,7 +127,7 @@ PyObject *MapDB::GetSolSystemVisits(uint32 charID)
 //  called from MapService by multiple functions based on passed values.
 ///  added jumpsHour and numPilots data inserts.  16Mar14
 ///  added killsHour, factionKills, podKillsHour  24Mar14
-///  NOTE: DB has fields for timing the *Hour and *24Hour parts. need to write checks for that when everything else starts working.
+///  NOTE: DB has fields for timing the *Hour and *24Hour parts. need to write checks for that once everything else is working.
 PyObject *MapDB::GetDynamicData(uint32 int1, uint32 int2) {
   /*   object#  0 = type   1 = timeframe
 solarSystemID

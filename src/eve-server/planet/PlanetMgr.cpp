@@ -100,6 +100,10 @@ PyResult PlanetMgrBound::Handle_GetPlanetResourceInfo(PyCallArgs &call) {
 }
 
 PyResult PlanetMgrService::Handle_GetPlanetsForChar(PyCallArgs &call) {
+  /**
+            self.colonizationData = sm.RemoteSvc('planetMgr').GetPlanetsForChar()
+            returns  PlanetID, numberOfPins
+            */
     sLog.Log("PlanetMgrBound", "Handle_GetPlanetsForChar() size=%u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
 

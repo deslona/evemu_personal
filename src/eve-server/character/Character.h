@@ -309,6 +309,26 @@ public:
 };
 
 /**
+ * Class representing fleet data	-allan 31Jul14
+ */
+class FleetMemberInfo {
+public:
+	FleetMemberInfo(
+	    uint8 _fleetID = 0,
+	    uint8 _fleetRole = 0,
+	    uint8 _fleetBooster = 0,
+	    uint8 _wingID = 0,
+	    uint8 _squadID = 0
+	);
+
+	uint8 fleetID;
+	uint8 fleetRole;
+	uint8 fleetBooster;
+	uint8 wingID;
+	uint8 squadID;
+};
+
+/**
  * Class representing character.
  */
 class Character
@@ -536,17 +556,13 @@ public:
     //  Dynamic Data
     void                    VisitSystem(uint32);
     void                    chkDynamicSystemID(uint32);
-    void                    AddJumpToDynamicData(uint32, bool);
+    void                    AddJumpToDynamicData(uint32);
     void                    AddPilotToDynamicData(uint32, bool, bool);
-    void                    AddKillToDynamicData(uint32 solarSystemID);
-    void                    AddPodKillToDynamicData(uint32 solarSystemID);
-    void                    AddFactionKillToDynamicData(uint32 solarSystemID);
+    void                    AddKillToDynamicData(uint32);
+    void                    AddPodKillToDynamicData(uint32);
+    void                    AddFactionKillToDynamicData(uint32);
 
     bool                    isOffline(uint32);
-
-void PopulateConnections();
-void Populate2(uint16 count, uint32 fromreg, uint32 fromcon, uint32 fromsol);
-void Populate3(uint32 fromreg, uint32 fromcon, uint32 fromsol, uint32 tosol, uint32 tocon, uint32 toreg, uint16 count);
 
 protected:
     Character(
@@ -614,6 +630,8 @@ protected:
     void AddItem(InventoryItemRef item);
 
     void _CalculateTotalSPTrained();
+
+    void _SetLoginTime();
     void _GetLogonMinutes();
 
     /*

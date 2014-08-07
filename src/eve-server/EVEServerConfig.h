@@ -47,13 +47,15 @@ public:
         /// Rate at which skills train compared to normal speed
         float skillRate;
         /// Modifier for security rating changes. Changes how fast it goes up/down based on actions
-        float secRate;
+        double secRate;
         /// Modifier for npc bounties automatically awarded for shooting down npc enemies.
-        float npcBountyMultiply;
+        double npcBountyMultiply;
         /// Startup Cost to create a corporation.
         double corporationStartupCost;
-        /// SP ceiling for double SP/Min    -allan 01/11/14
+        /// SP ceiling for double SP/Min    -allan 11Jan14
         double MaxSPforBonus;
+		/// process timer - can slow down time if needed.   make dynamic on server console later.  -allan 5Aug14
+		float processTic;
     } rates;
 
     // From <account/>
@@ -110,7 +112,7 @@ public:
         std::string imageDir;
     } files;
 
-    /// From <net/>
+    // From <net/>
     struct
     {
         /// Port at which the server should listen.

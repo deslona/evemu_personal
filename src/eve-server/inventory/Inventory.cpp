@@ -168,19 +168,19 @@ bool Inventory::LoadContents(ItemFactory &factory) {
       * flagConnected                    = 9,    //Character in station connected
       * flagDisconnected                = 10,    //Character in station offline
       * check current item to see if it is an offline char in the system...continue if true  -allan
-        //if( !cur->IsClient() ) continue;
+        //if( !cur->IsClient() ) continue;  *** dont use....items != clients
       */
         // Each "cur" item should be checked to see if they are "owned" by the character connected to this client,
         // and if not, then do not "get" the entire contents of this for() loop for that item, except in the case that
         // this item is located in space or belongs to this character's corporation:
         factory.db().GetItem( *cur, into );
-        if( factory.GetUsingClient() != NULL ) {
+        if( factory.GetUsingClient() ) {
             characterID = factory.GetUsingClient()->GetCharacterID();
             corporationID = factory.GetUsingClient()->GetCorporationID();
             locationID = factory.GetUsingClient()->GetLocationID();
         } else      //  the char this item belongs to is not online....dont load it, dont throw error.  -allan
             continue;
-        if( (into.ownerID == characterID) || (characterID == 0) || (into.ownerID == corporationID) || (into.locationID == locationID) ) {
+        if( (into.ownerID == characterID) || (characterID == 0) || (into.ownerID == 1) || (into.ownerID == corporationID) || (into.locationID == locationID) ) {
             // Continue to GetItem() if the client calling this is owned by the character that owns this item
             // --OR--
             // The characterID == 0, which means this is attempting to load the character of this client for the first time.

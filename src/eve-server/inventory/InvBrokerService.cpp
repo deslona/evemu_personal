@@ -50,6 +50,7 @@ public:
         PyCallable_REG_CALL(InvBrokerBound, GetInventory);
         PyCallable_REG_CALL(InvBrokerBound, SetLabel);
         PyCallable_REG_CALL(InvBrokerBound, TrashItems);
+        PyCallable_REG_CALL(InvBrokerBound, List);
     }
     virtual ~InvBrokerBound()
     {
@@ -66,6 +67,7 @@ public:
     PyCallable_DECL_CALL(GetInventory);
     PyCallable_DECL_CALL(SetLabel);
     PyCallable_DECL_CALL(TrashItems);
+    PyCallable_DECL_CALL(List);
 
 
 protected:
@@ -88,6 +90,9 @@ InvBrokerService::InvBrokerService(PyServiceMgr *mgr)
 PyResult InvBrokerService::Handle_GetItemDescriptor(PyCallArgs &call) {
     // not really clear on the use of this one? just a general header update?!
     // from Inventory::List
+	/**
+            self.__itemhdr = sm.RemoteSvc('invbroker').GetItemDescriptor()
+            */
 
     PyList *keywords = new PyList();
     keywords->AddItem(new_tuple(new PyString("stacksize"), new PyToken("util.StackSize")));
@@ -312,4 +317,16 @@ PyResult InvBrokerBound::Handle_TrashItems(PyCallArgs &call) {
     m_manager->item_factory.UnsetUsingClient();
 
     return(new PyList());
+}
+
+PyResult InvBrokerBound::Handle_List(PyCallArgs &call) {
+/**
+            realItems = self.moniker.List()
+       returns itemID, ?
+            */
+
+  sLog.Log( "InvBrokerBound::Handle_List()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
+
+    return NULL;
 }

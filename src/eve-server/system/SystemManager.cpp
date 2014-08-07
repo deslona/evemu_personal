@@ -707,13 +707,11 @@ bool SystemManager::BuildDynamicEntity(Client *who, const DBSystemDynamicEntity 
 }
 
 void SystemManager::AddClient(Client *who) {
+  //called from Client::EnterSystem and Client::BoardShip
     AddEntity( who );
     m_entities[who->GetID()] = who;
     m_entityChanged = true;
-    //this is actually handled in SetPosition via UpdateBubble.
-    if(who->IsInSpace()) {
-        bubbles.Add(who, false);
-    }
+
     _log(CLIENT__TRACE, "%s: Added to system manager for %u", who->GetName(), m_systemID);
 
     // Add character's Ship Item Ref to Solar System dynamic inventory:

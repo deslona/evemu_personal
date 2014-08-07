@@ -104,9 +104,9 @@ public:
 
     bool Load(AgentDB *from);
 
-    std::vector<AgentMission *> missions;    //we own these
-    std::vector<AgentOffer *> offers;        //we own these
-    std::vector<AgentResearch *> research;    //we own these
+    std::list<AgentMission *> missions;    //we own these
+    std::list<AgentOffer *> offers;        //we own these
+    std::list<AgentResearch *> research;    //we own these
 };
 
 class AgentMissionSet {
@@ -116,9 +116,9 @@ public:
 
     bool Load(AgentDB *from);
 
-    std::vector<const AgentMissionSpec *> missions;    //we own these
-    std::vector<const AgentOfferSpec *> offers;        //we own these
-    std::vector<const AgentResearchSpec *> research;    //we own these
+    std::list<const AgentMissionSpec *> missions;    //we own these
+    std::list<const AgentOfferSpec *> offers;        //we own these
+    std::list<const AgentResearchSpec *> research;    //we own these
 };
 
 

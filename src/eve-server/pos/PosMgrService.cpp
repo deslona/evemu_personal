@@ -77,6 +77,8 @@ PosMgrService::PosMgrService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(PosMgrService, GetControlTowerFuelRequirements);
     PyCallable_REG_CALL(PosMgrService, InstallJumpBridgeLink);
     PyCallable_REG_CALL(PosMgrService, UninstallJumpBridgeLink);
+	//        jb = sm.RemoteSvc('posMgr').GetJumpArrays()
+    //    ct = sm.RemoteSvc('posMgr').GetControlTowers()
 }
 
 PosMgrService::~PosMgrService() {

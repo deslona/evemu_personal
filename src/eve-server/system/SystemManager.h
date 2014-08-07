@@ -30,13 +30,11 @@
 #include "system/SystemDB.h"
 
 //#define ONE_AU_IN_METERS 1.495978707e11     // 1 astronomical unit in meters
-#define ONE_AU_IN_METERS 149598000000.0     // 1 astronomical unit in meters, per EVElopedia: http://wiki.eveonline.com/en/wiki/Astronomical_Unit
+//#define ONE_AU_IN_METERS 149598000000.0     // 1 astronomical unit in meters, per EVElopedia: http://wiki.eveonline.com/en/wiki/Astronomical_Unit
 #define BASE_WARP_SPEED 3.0                 // base default max warp speed of 3.0 AU/s
-
-/**   based on client code...
-AU = 149597870700.0
-LIGHTYEAR = 9460000000000000.0
-*/
+//   based on client code...
+#define ONE_AU_IN_METERS 149597870700.0
+#define ONE_LIGHTYEAR = 9460000000000000.0
 
 class PyRep;
 class PyDict;

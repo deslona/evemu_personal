@@ -287,6 +287,7 @@ PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
 
     //do session change...
 	call.client->UndockFromStation( stationID, systemID, constellationID, regionID, dockPosition );
+    //call.client->MoveToLocation(call.client->GetSystemID(), dockPosition);
 
     //calculate undock movement
     GPoint dest =
@@ -298,16 +299,17 @@ PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
         );
 
     //move away from dock
-    call.client->Destiny()->SetSpeedFraction( 2.0, true );
+    call.client->Destiny()->SetShipCapabilities( call.client->GetShip() );
+    //call.client->Destiny()->SetSpeedFraction( 1.0, false );
+	call.client->Destiny()->GotoDirection( dest, true );
     //call.client->Destiny()->AlignTo( dest, true );
-    call.client->Destiny()->GotoDirection( dest, true );
 
-    // THIS IS A HACK AS WE DONT KNOW WHY THE CLIENT CALLS STOP AT UNDOCK
-    // SO SAVE THE UNDOCK ALIGN-TO POINT AND TELL CLIENT WE JUST UNDOCKED
+    // SAVE THE UNDOCK ALIGN-TO POINT AND TELL CLIENT WE JUST UNDOCKED
     //call.client->SetUndockAlignToPoint( dest );
     //call.client->SetJustUndocking( true );
     // --- END HACK ---
 
+	call.client->Destiny()->Stop( true );
     return NULL;
 }
 
@@ -388,7 +390,12 @@ PyResult ShipBound::Handle_AssembleShip(PyCallArgs &call) {
     {
         // Split the stack into a new inventory item (new_item) with quantity minus one,
         // original item (ship) will be left with quantity = 1, then will be assembled:
-        InventoryItemRef new_item = ship->Split(ship->quantity()-1,true);
+        //InventoryItemRef new_item = ship->Split(ship->quantity()-1,true);
+		ship = RefPtr<Ship>::StaticCast( ship->Split(1, true) );
+		if( !ship ) {
+		    _log( ITEM__ERROR, "Failed to split stack to assemble ship %u.", itemID );
+			return NULL;
+		}
     }
 
     ship->ChangeSingleton(true, true);

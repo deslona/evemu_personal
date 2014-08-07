@@ -34,7 +34,7 @@ SearchDB::SearchDB() { }
 
 PyObject *SearchDB::Query(std::string string, int32 searchID, uint32 charID) {
    sLog.Warning("SearchDB::Query", "Search : String = %s, ID = %u", string.c_str(), searchID );
-    const char* query = "";
+   std::string query = "";
 
     switch (searchID) {
       case 1:           //  agent
@@ -44,7 +44,7 @@ PyObject *SearchDB::Query(std::string string, int32 searchID, uint32 charID) {
                     "   itemName,"
                     "   locationID"
                     " FROM entity"
-                    " WHERE itemName LIKE '%s' ";
+                    " WHERE itemName = '%s' ";
             break;
       case 3:           //  corp            AttributeError: Rowset instance has no attribute 'get'
             query = "SELECT"
@@ -53,17 +53,17 @@ PyObject *SearchDB::Query(std::string string, int32 searchID, uint32 charID) {
                     "   stationID,"
                     "   graphicID"
                     " FROM corporation"
-                    " WHERE corporationName LIKE '%s' ";
+                    " WHERE corporationName = '%s' ";
             break;
       case 4:           //  alliance
             query = "SELECT"
                     " FROM "
-                    " WHERE  LIKE '%s' ";
+                    " WHERE  = '%s' ";
             break;
       case 5:           //  faction
             query = "SELECT"
                     " FROM "
-                    " WHERE  LIKE '%s' ";
+                    " WHERE  = '%s' ";
             break;
       case 6:           //  constellation
             query = "SELECT"
@@ -71,7 +71,7 @@ PyObject *SearchDB::Query(std::string string, int32 searchID, uint32 charID) {
                     "   constellationID,"
                     "   constellationName"
                     " FROM mapConstellations"
-                    " WHERE constellationName LIKE '%s' ";
+                    " WHERE constellationName = '%s' ";
             break;
       case 7:           //  solar system
             query = "SELECT "
@@ -80,14 +80,14 @@ PyObject *SearchDB::Query(std::string string, int32 searchID, uint32 charID) {
                     "   solarSystemID,"
                     "   solarSystemName"
                     " FROM mapSolarSystems "
-                    " WHERE solarSystemName LIKE '%s' ";
+                    " WHERE solarSystemName = '%s' ";
             break;
       case 8:           //  region
             query = "SELECT "
                     "   regionID,"
                     "   regionName"
                     " FROM mapRegions"
-                    " WHERE regionName LIKE '%s' ";
+                    " WHERE regionName = '%s' ";
             break;
       case 9:           //  station
             query = "SELECT "
@@ -97,21 +97,27 @@ PyObject *SearchDB::Query(std::string string, int32 searchID, uint32 charID) {
                     "   stationID,"
                     "   stationName"
                     " FROM staStations "
-                    " WHERE stationName LIKE '%s' ";
+                    " WHERE stationName = '%s' ";
             break;
       default:
-            codelog(SERVICE__ERROR, "Invalid query '%s' on search %u for %u", query, searchID, charID);
+            codelog(SERVICE__ERROR, "Invalid query '%s' on search %u for %u", query.c_str(), searchID, charID);
             return NULL;
     }
 
     DBQueryResult res;
-    if (!sDatabase.RunQuery(res, query, string.c_str() )) {
+    if (!sDatabase.RunQuery(res, query.c_str(), string.c_str() )) {
         codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
 
     DBResultRow row;
-    if(res.GetRow(row)) return(DBResultToRowset(res)); else { sLog.Error("SearchDB::Query", "res = NULL : query = %s : string = %s", query, string.c_str() ); return NULL; }
+    if(res.GetRow(row)) {
+	    sLog.Success("SearchDB::Query", "res = %s", DBResultToRowset(res) );
+	    return(DBResultToRowset(res));
+	} else {
+	    sLog.Error("SearchDB::Query", "res = NULL : query = %s : string = %s", query.c_str(), string.c_str() );
+		return NULL;
+	}
 
     //return DBResultToRowset(res);
 }
@@ -170,5 +176,5 @@ PyObject *SearchDB::QuickQuery(std::string string, uint32 charID) {
         return NULL;
     }
 
-    if(res.GetRow(row)) return(DBResultToRowset(res)); else { sLog.Error("SearchDB::QuickQuery", "res = NULL : string = %s",  string.c_str() ); return NULL; }
+    if(res.GetRow(row)) return(DBResultToRowset(res)); else { sLog.Error("SearchDB::QuickQuery", "res = NULL : string = %s", string.c_str() ); return NULL; }
 }

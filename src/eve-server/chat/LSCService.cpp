@@ -65,6 +65,10 @@ LSCService::LSCService(PyServiceMgr *mgr, CommandDispatcher* cd)
     PyCallable_REG_CALL(LSCService, MarkMessagesRead);
     PyCallable_REG_CALL(LSCService, DeleteMessages);
 
+	// sm.RemoteSvc('LSC').VoiceStatus(eveChannelID, 2)  gag
+	// sm.RemoteSvc('LSC').VoiceStatus(eveChannelID, 1)  ungag
+	// sm.RemoteSvc('LSC').VoiceStatus(eveChannelName, 0) leave channel
+
     InitiateStaticChannels();
 }
 

@@ -186,7 +186,7 @@ void EntityList::FindByStationID(uint32 stationID, std::vector<Client *> &result
     end = m_clients.end();
     for(; cur != end; cur++) {
         if((*cur)->GetStationID() == stationID) {
-            sLog.Warning( "EntityList::FindByStationID()", "Client %s (%u) is in station %u", (*cur)->GetName(), (*cur)->GetID(), stationID );
+            sLog.Warning( "EntityList::FindByStationID()", "Client %s (%u) added to GuestList for station %u", (*cur)->GetName(), (*cur)->GetID(), stationID );
             result.push_back(*cur);
 		}
     }
@@ -198,8 +198,10 @@ void EntityList::FindByRegionID(uint32 regionID, std::vector<Client *> &result) 
     cur = m_clients.begin();
     end = m_clients.end();
     for(; cur != end; cur++) {
-        if((*cur)->GetRegionID() == regionID)
+        if((*cur)->GetRegionID() == regionID) {
+            sLog.Warning( "EntityList::FindByStationID()", "Client %s (%u) added to GuestList for region %u", (*cur)->GetName(), (*cur)->GetID(), regionID );
             result.push_back(*cur);
+		}
     }
 }
 
@@ -241,7 +243,7 @@ void EntityList::Multicast(const character_set &cset, const PyAddress &dest, EVE
     }
 }
 
-//in theory this could be written in therms of the more generic
+//in theory this could be written in terms of the more generic
 //MulticastTarget function, but this is much more efficient.
 void EntityList::Multicast( const char* notifyType, const char* idType, PyTuple** payload, NotificationDestination target, uint32 target_id, bool seq )
 {

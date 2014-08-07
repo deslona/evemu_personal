@@ -66,8 +66,6 @@ PyResult ConfigService::Handle_GetMultiOwnersEx(PyCallArgs &call) {
 23:14:21 [SvcCall]         [ 0] List: 1 elements
 23:14:21 [SvcCall]         [ 0]   [ 0] Integer field: 140000053
 */
-  sLog.Log( "ConfigService", "Handle_GetMultiOwnersEx" );
-  call.Dump(SERVICE__CALLS);
     Call_SingleIntList arg;
     if(!arg.Decode(&call.tuple)) {
         _log(SERVICE__ERROR, "Failed to decode arguments.");
@@ -131,12 +129,9 @@ PyResult ConfigService::Handle_GetMultiGraphicsEx(PyCallArgs &call) {
     return(m_db.GetMultiGraphicsEx(arg.ints));
 }
 
-
-
 PyResult ConfigService::Handle_GetUnits(PyCallArgs &call) {
     return(m_db.GetUnits());
 }
-
 
 PyResult ConfigService::Handle_GetMap(PyCallArgs &call) {
     Call_SingleIntegerArg args;

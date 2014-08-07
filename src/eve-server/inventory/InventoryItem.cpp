@@ -539,7 +539,7 @@ InventoryItemRef InventoryItem::Spawn(ItemFactory &factory, ItemData &data)
             //InventoryItemRef itemRef = InventoryItem::LoadEntity( factory, itemID, data );		// Use this to prevent Asteroids from being stored in DB
 
             // THESE SHOULD BE MOVED INTO AN Asteroid::Spawn() function that does not exist yet
-            // Create default dynamic attributes in the AttributeMap:
+            // Create default dynamic attributes in the AttributeMap:		TODO: pull data from DB based on typeID and system sec status.
             itemRef.get()->SetAttribute(AttrRadius, 500.0);       // Radius
             itemRef.get()->SetAttribute(AttrMass,   1000000.0);    // Mass
 			itemRef.get()->SetAttribute(AttrVolume, itemRef.get()->type().attributes.volume());       // Volume

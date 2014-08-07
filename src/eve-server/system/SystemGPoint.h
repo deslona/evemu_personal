@@ -20,69 +20,38 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Allan   31Jul14
 */
 
-#ifndef __SYSTEMDB_H_INCL__
-#define __SYSTEMDB_H_INCL__
+#ifndef __SYSTEM_G_POINT_H__
+#define __SYSTEM_G_POINT_H__
 
-#include "ServiceDB.h"
+#include "system/SystemDB.h"
 
-class DBSystemEntity {
+//work in progress
+
+
+class SystemGPoint {
 public:
-    uint32 itemID;
-    uint32 typeID;
-    uint32 groupID;
-    uint32 orbitID;
-    GPoint position;
-    double radius;
-    double security;
-    std::string itemName;
+
+	void GetRandPointOnPlanet(uint32);
+	void GetRandPointOnMoon(uint32);
+	void GetRandPlanet(uint32);
+	void Get2RandPlanets(uint32);
+	void Get3RandPlanets(uint32);
+	void GetRandMoon(uint32);
+	void GetRandPointInSystem(uint32, uint32);
+
+protected:
+
+    SystemDB m_db;
 };
-
-class DBSystemDynamicEntity {
-public:
-    uint32 itemID;
-    std::string itemName;
-    uint32 typeID;
-    uint32 groupID;
-    uint32 ownerID;
-    uint32 locationID;
-    uint32 flag;
-    uint32 categoryID;
-    uint32 corporationID;
-    uint32 allianceID;
-    double x;
-    double y;
-    double z;
-};
-
-class DBGPointEntity {
-  public:
-	uint8 idx;
-    uint32 itemID;
-    GPoint position;
-    double x;
-    double y;
-    double z;
-};
-
-class SystemDB
-: public ServiceDB
-{
-public:
-    bool LoadSystemEntities(uint32 systemID, std::vector<DBSystemEntity> &into);
-    bool LoadSystemDynamicEntities(uint32 systemID, std::vector<DBSystemDynamicEntity> &into);
-    static bool GetWrecksToTypes(DBQueryResult &res);
-    static uint32 GetObjectLocationID( uint32 itemID );
-
-    PyObject *ListFactions();
-    PyObject *ListJumps(uint32);
-
-    void GetPlanets(uint32 systemID, std::vector<DBGPointEntity> *planetIDs, uint8 *total);
-	void GetMoons(uint32 systemID, std::vector<DBGPointEntity> *moonIDs, uint8 *total);
-
-};
-
 
 #endif
+
+
+
+
+
+
+

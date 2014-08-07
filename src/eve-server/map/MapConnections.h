@@ -13,9 +13,7 @@
 #ifndef MAPCONN_H
 #define MAPCONN_H
 
-class MapCon
-: public MapCon
-{
+class MapCon {
   public:
     MapCon();
 

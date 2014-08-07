@@ -39,6 +39,10 @@ m_dispatch(new Dispatcher(this))
 
     PyCallable_REG_CALL(AuthService, Ping);
     PyCallable_REG_CALL(AuthService, GetPostAuthenticationMessage);
+	/*
+    return sm.RemoteSvc('authentication').AmUnderage()
+    return sm.RemoteSvc('authentication').AccruedTime()
+    */
 }
 
 AuthService::~AuthService() {

@@ -178,6 +178,31 @@ PyResult AgentMgrService::Handle_GetAgents(PyCallArgs &call) {
     return result;
 }
 
+///  this really needs to be a cached object....
+PyResult AgentMgrService::Handle_GetSolarSystemOfAgent(PyCallArgs &call)
+{/*
+  uint8 size = call.tuple->size();
+  uint32 int1 = call.tuple->GetItem(0)->AsInt()->value();
+  sLog.Log( "AgentMgrService::Handle_GetSolarSystemOfAgent()", "size= %u, 0=%s(%u)", size, call.tuple->GetItem( 0 )->TypeString(), int1 );
+22:28:49 [SvcCall]   Call Arguments:
+22:28:49 [SvcCall]       Tuple: 1 elements
+22:28:49 [SvcCall]         [ 0] Integer field: 3019442      // <- this value increments @ 10/sec
+22:28:49 [SvcCall]   Call Named Arguments:
+22:28:49 [SvcCall]     Argument 'machoVersion':
+22:28:49 [SvcCall]         Integer field: 1
+
+    call.Dump(SERVICE__CALLS);
+    */
+    Call_SingleArg args;
+    if(!args.Decode(&call.tuple)) {
+        codelog(SERVICE__ERROR, "Failed to decode args from '%s'", call.client->GetName());
+        return NULL;
+    }
+
+	//return (m_db.GetAgentSolarSystem(args.arg));
+	return NULL;
+}
+
 //15:39:45 L AgentMgrBound::Handle_DoAction(): size= 1, 0=None
 PyResult AgentMgrBound::Handle_DoAction(PyCallArgs &call) {
   /*
@@ -331,24 +356,6 @@ PyResult AgentMgrService::Handle_GetMyEpicJournalDetails( PyCallArgs& call )
     return new PyList;
 }
 
-///  this really needs to be a cached object....
-PyResult AgentMgrService::Handle_GetSolarSystemOfAgent(PyCallArgs &call)
-{/*
-  uint8 size = call.tuple->size();
-  uint32 int1 = call.tuple->GetItem(0)->AsInt()->value();
-  sLog.Log( "AgentMgrService::Handle_GetSolarSystemOfAgent()", "size= %u, 0=%s(%u)", size, call.tuple->GetItem( 0 )->TypeString(), int1 );
-22:28:49 [SvcCall]   Call Arguments:
-22:28:49 [SvcCall]       Tuple: 1 elements
-22:28:49 [SvcCall]         [ 0] Integer field: 3019442      // <- this value increments @ 10/sec
-22:28:49 [SvcCall]   Call Named Arguments:
-22:28:49 [SvcCall]     Argument 'machoVersion':
-22:28:49 [SvcCall]         Integer field: 1
-
-    call.Dump(SERVICE__CALLS);
-    */
-	return (m_db.GetAgentSolarSystem(call.tuple->GetItem(0)->AsInt()->value()));
-}
-
 PyResult AgentMgrService::Handle_GetCareerAgents(PyCallArgs &call)
 {
   sLog.Log( "AgentMgrBound::Handle_GetCareerAgents()", "size= %u", call.tuple->size() );
@@ -376,6 +383,33 @@ PyResult AgentMgrBound::Handle_GetMissionObjectiveInfo(PyCallArgs &call)
 06:08:55 [SvcCall]         Integer field: 1
 */
     return new PyInt( 0 );
+}
+
+
+PyCallable_Make_InnerDispatcher(EpicArcService)
+
+EpicArcService::EpicArcService(PyServiceMgr *mgr)
+: PyService(mgr, "epicArcStatus"),
+  m_dispatch(new Dispatcher(this))
+{
+    _SetCallDispatcher(m_dispatch);
+
+    PyCallable_REG_CALL(EpicArcService, AgentHasEpicMissionsForCharacter);
+}
+
+EpicArcService::~EpicArcService() {
+    delete m_dispatch;
+}
+
+PyResult EpicArcService::Handle_AgentHasEpicMissionsForCharacter(PyCallArgs &call) {
+  /**
+     epicArcStatusSvc = sm.RemoteSvc('epicArcStatus').AgentHasEpicMissionsForCharacter(agent.agentID):
+     */
+  sLog.Log( "EpicArcService::Handle_AgentHasEpicMissionsForCharacter()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+    //takes no arguments
+    return new PyNone;
+
 }
 
 /**

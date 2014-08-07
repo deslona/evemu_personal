@@ -147,6 +147,22 @@ PyResult Standing::Handle_GetMyStandings(PyCallArgs &call) {
 
 
 PyResult Standing::Handle_GetNPCNPCStandings(PyCallArgs &call) {
+  /**
+        tmp = sm.RemoteSvc('standing2').GetNPCNPCStandings()
+        self.npcnpcstandingsto = tmp.Filter('toID')
+        self.npcnpcstandingsfrom = tmp.Filter('fromID')
+        if util.IsNPC(eve.session.corpid):
+            self.npccharstandings = sm.RemoteSvc('standing2').GetCharStandings()
+            self.npccorpstandings = {}
+        else:
+            ret = uthread.parallel([(sm.RemoteSvc('standing2').GetCharStandings, ()), (sm.RemoteSvc('standing2').GetCorpStandings, ())])
+            self.npccharstandings = ret[0]
+            self.npccorpstandings = ret[1]
+        if type(self.npccorpstandings) != types.DictType:
+            self.npccorpstandings = self.npccorpstandings.Index('fromID')
+        self.npccharstandings = self.npccharstandings.Index('fromID')
+        self.gotten = 1
+        */
   /*
 20:12:42 L Standing::Handle_GetNPCNPCStandings(): size= 0
 20:12:42 [SvcCall]   Call Arguments:
@@ -208,7 +224,17 @@ PyResult Standing::Handle_GetSecurityRating(PyCallArgs &call) {
 }
 
 PyResult Standing::Handle_GetStandingTransactions(PyCallArgs &call) {
-  /*-
+  /**
+            data = sm.RemoteSvc('standing2').GetStandingTransactions(fromID, toID, direction, eventID, eventType, eventDateTime)
+            self.sr.data = [eventID,
+             fromID,
+             toID,
+             data,
+             eventType,
+             eventDateTime,
+             direction]
+             */
+  /*
 21:50:56 L Standing::Handle_GetStandingTransactions(): size= 6
 21:50:56 [SvcCall]   Call Arguments:
 21:50:56 [SvcCall]       Tuple: 6 elements
@@ -279,7 +305,12 @@ PyResult Standing::Handle_GetCorpStandings(PyCallArgs &call) {
 
 
 /**
-  standing.CanUseAgent
+                self.sr.data = sm.RemoteSvc('standing2').GetStandingCompositions(fromID, toID)
+            if self.sr.data:
+                prior = 0.0
+                for each in self.sr.data:
+                    if each.ownerID == fromID:
+                        prior = each.standing
 
 
 

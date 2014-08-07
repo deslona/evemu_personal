@@ -124,7 +124,7 @@ AgentLevel *AgentDB::LoadAgentLevel(uint8 level)
         return NULL;
     }
 
-    std::vector<uint32> IDs;
+    std::list<uint32> IDs;
     DBResultRow row;
 
     IDs.clear();

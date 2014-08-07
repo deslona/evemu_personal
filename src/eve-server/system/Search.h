@@ -35,11 +35,11 @@ public:
     Search(PyServiceMgr *mgr);
     virtual ~Search();
 
-    SearchDB m_db;
-
 protected:
     class Dispatcher;
     Dispatcher *const m_dispatch;
+
+    SearchDB m_db;
 
     PyCallable_DECL_CALL(Query);
     PyCallable_DECL_CALL(QuickQuery);

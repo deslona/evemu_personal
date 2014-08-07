@@ -74,3 +74,14 @@ COMMAND( chatban, ROLE_ADMIN,
 COMMAND( whois, ROLE_ADMIN,
         "(characterName) - returns information on character")
 */
+/*
+        sm.RemoteSvc('slash').SlashCmd('/hop %s' % distance)
+
+        */
+/**
+	/pos online
+	/pos unanchor
+	/pos anchor
+	/pos offline
+	/sov complete
+*/

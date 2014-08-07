@@ -93,13 +93,13 @@ bool InventoryDB::GetGroup(uint32 groupID, GroupData &into) {
     into.category = EVEItemCategories(row.GetUInt(0));
     into.name = row.GetText(1);
     into.description = row.GetText(2);
-    into.useBasePrice = row.GetInt(3) ? true : false;
-    into.allowManufacture = row.GetInt(4) ? true : false;
-    into.allowRecycler = row.GetInt(5) ? true : false;
-    into.anchored = row.GetInt(6) ? true : false;
-    into.anchorable = row.GetInt(7) ? true : false;
-    into.fittableNonSingleton = row.GetInt(8) ? true : false;
-    into.published = row.GetInt(9) ? true : false;
+    into.useBasePrice = (row.GetInt(3) ? true : false);
+    into.allowManufacture = (row.GetInt(4) ? true : false);
+    into.allowRecycler = (row.GetInt(5) ? true : false);
+    into.anchored = (row.GetInt(6) ? true : false);
+    into.anchorable = (row.GetInt(7) ? true : false);
+    into.fittableNonSingleton = (row.GetInt(8) ? true : false);
+    into.published = (row.GetInt(9) ? true : false);
 
     return true;
 }
@@ -146,7 +146,7 @@ bool InventoryDB::GetType(uint32 typeID, TypeData &into) {
     into.portionSize = row.GetUInt(7);
     into.race = EVERace(row.IsNull(8) ? 0 : row.GetUInt(8));
 	into.basePrice = row.GetUInt64(9) *100.0;
-    into.published = row.GetInt(10) ? true : false;
+    into.published = (row.GetInt(10) ? true : false);
     into.marketGroupID = row.IsNull(11) ? 0 : row.GetUInt(11);
     into.chanceOfDuplicating = row.GetDouble(12);
 
@@ -508,7 +508,7 @@ bool InventoryDB::GetItem(uint32 itemID, ItemData &into) {
     into.name = row.GetText(0);
     into.typeID = row.GetUInt(1);
     into.ownerID = (row.IsNull(2) ? 1 : row.GetUInt(2));
-    into.locationID = (row.IsNull(3) ? 1 : row.GetUInt(3));
+    into.locationID = (row.IsNull(3) ? 0 : row.GetUInt(3));
     into.flag = (EVEItemFlags)row.GetUInt(4);
     into.contraband = (row.GetInt(5) ? true : false);
     into.singleton = (row.GetInt(6) ? true : false);
@@ -1507,13 +1507,13 @@ bool InventoryDB::GetSolarSystem(uint32 solarSystemID, SolarSystemData &into) {
     into.maxPosition = GPoint(row.GetDouble(3), row.GetDouble(4), row.GetDouble(5));
     into.luminosity = row.GetDouble(6);
 
-    into.border = row.GetInt(7) ? true : false;
-    into.fringe = row.GetInt(8) ? true : false;
-    into.corridor = row.GetInt(9) ? true : false;
-    into.hub = row.GetInt(10) ? true : false;
-    into.international = row.GetInt(11) ? true : false;
-    into.regional = row.GetInt(12) ? true : false;
-    into.constellation = row.GetInt(13) ? true : false;
+    into.border = (row.GetInt(7) ? true : false);
+    into.fringe = (row.GetInt(8) ? true : false);
+    into.corridor = (row.GetInt(9) ? true : false);
+    into.hub = (row.GetInt(10) ? true : false);
+    into.international = (row.GetInt(11) ? true : false);
+    into.regional = (row.GetInt(12) ? true : false);
+    into.constellation = (row.GetInt(13) ? true : false);
 
     into.security = row.GetDouble(14);
     into.factionID = (row.IsNull(15) ? 0 : row.GetUInt(15));

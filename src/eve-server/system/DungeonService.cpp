@@ -125,3 +125,30 @@ PyResult DungeonService::Handle_DEGetRooms( PyCallArgs& call )
 
     return NULL;
 }
+/**
+        archetypes = sm.RemoteSvc('dungeon').GetArchetypes()
+        archetypeOptions = [ (archetype.archetypeName, archetype.archetypeID) for archetype in archetypes ]
+        roomObjectGroups = sm.RemoteSvc('dungeon').DEGetRoomObjectPaletteData()
+        objectIDs = sm.RemoteSvc('dungeon').AddTemplateObjects(roomID, self.sr.node.id, (posInRoom.x, posInRoom.y, posInRoom.z))
+            sm.RemoteSvc('dungeon').TemplateRemove(self.sr.node.id)
+        dungeonSvc = sm.RemoteSvc('dungeon')
+        templateID = dungeonSvc.TemplateAdd(templateName, templateDescription)
+        dungeonSvc.TemplateObjectAddDungeonList(templateID, objectIDList)
+        */
+/*
+        self.templateRows = sm.RemoteSvc('dungeon').DEGetTemplates()
+        for row in self.templateRows:
+            data = {'label': row.templateName,
+             'hint': row.description != row.templateName and row.description or '',
+             'id': row.templateID,
+             'form': self}
+             */
+/**
+    return sm.RemoteSvc('dungeon').IsObjectLocked(objectID)
+        sm.RemoteSvc('dungeon').EditObjectXYZ(objectID=objectID, x=x, y=y, z=z)
+        sm.RemoteSvc('dungeon').EditObjectYawPitchRoll(objectID=objectID, yaw=yaw, pitch=pitch, roll=roll)
+        sm.RemoteSvc('dungeon').EditObjectRadius(objectID=objectID, radius=radius)
+        newObjectID = sm.RemoteSvc('dungeon').CopyObject(objectID, roomID, offsetX, offsetY, offsetZ)
+        newObjectID, revisionID = sm.RemoteSvc('dungeon').AddObject(roomID, typeID, x, y, z, yaw, pitch, roll, radius)
+        sm.RemoteSvc('dungeon').RemoveObject(objectID)
+    */

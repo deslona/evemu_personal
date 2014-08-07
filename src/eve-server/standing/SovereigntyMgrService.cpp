@@ -46,6 +46,10 @@ SovereigntyMgrService::~SovereigntyMgrService() {
 }
 
 PyResult SovereigntyMgrService::Handle_GetSystemSovereigntyInfo(PyCallArgs &call) {
+  /**
+        sovInfo = sm.RemoteSvc('sovMgr').GetSystemSovereigntyInfo(session.solarsystemid2)
+        ssAllianceID = sovInfo.allianceID if sovInfo else None
+        */
     sLog.Debug("Server", "Called GetSystemSovereigntyInfo Stub");
 
         return NULL;

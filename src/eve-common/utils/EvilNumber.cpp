@@ -236,7 +236,7 @@ EvilNumber EvilNumber::log( const EvilNumber & val )
     if( val.mType == evil_number_float )
         result.mValue.fVal = std::log( val.mValue.fVal );
     else {
-        result.mValue.fVal = std::log( (float)(val.mValue.iVal) );
+        result.mValue.fVal = std::log( (double)(val.mValue.iVal) );
     }
     result.mType = evil_number_float;
 
@@ -250,7 +250,7 @@ EvilNumber EvilNumber::log10( const EvilNumber & val )
     if( val.mType == evil_number_float )
         result.mValue.fVal = std::log10( val.mValue.fVal );
     else {
-        result.mValue.fVal = std::log10( (float)(val.mValue.iVal) );
+        result.mValue.fVal = std::log10( (double)(val.mValue.iVal) );
     }
     result.mType = evil_number_float;
 
@@ -264,7 +264,7 @@ EvilNumber EvilNumber::exp( const EvilNumber & val )
     if( val.mType == evil_number_float )
         result.mValue.fVal = std::exp( val.mValue.fVal );
     else {
-        result.mValue.fVal = std::exp( (float)(val.mValue.iVal) );
+        result.mValue.fVal = std::exp( (double)(val.mValue.iVal) );
     }
     result.mType = evil_number_float;
 
@@ -291,7 +291,7 @@ inline void EvilNumber::CheckIntegrity()
 {
     // check if we are a integer
     int cmp_val = (int)mValue.fVal;
-    if (float(cmp_val) == mValue.fVal) {
+    if (double(cmp_val) == mValue.fVal) {
         //we are a integer.... /me cheers...
         mValue.iVal = cmp_val;
         mType = evil_number_int;

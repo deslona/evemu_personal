@@ -1102,6 +1102,7 @@ void NPC::Killed(Damage &fatal_blow)
     _AwardBounty(killer);
 
     //  log faction kill in dynamic data   -allan
+	//  client logs faction kills in total kills.  return is value1(total kills) - value2(faction kills) > 0:
     if( client != NULL ) {
         client->GetChar()->chkDynamicSystemID(GetLocationID());
         client->GetChar()->AddKillToDynamicData(GetLocationID());

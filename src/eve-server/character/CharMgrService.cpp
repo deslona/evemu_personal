@@ -147,6 +147,8 @@ CharMgrService::CharMgrService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(CharMgrService, BlockOwners);
     PyCallable_REG_CALL(CharMgrService, UnblockOwners);
     PyCallable_REG_CALL(CharMgrService, EditContactsRelationshipID);
+    PyCallable_REG_CALL(CharMgrService, GetImageServerLink);
+
 }
 
 CharMgrService::~CharMgrService() {
@@ -333,11 +335,12 @@ PyResult CharMgrService::Handle_GetFactions( PyCallArgs& call )
 }
 
 PyResult CharMgrService::Handle_SetActivityStatus( PyCallArgs& call ) {
-  uint8 size = call.tuple->size();
-  uint16 int1 = call.tuple->GetItem(0)->AsInt()->value();
-  uint16 int2 = call.tuple->GetItem(1)->AsInt()->value();
-  sLog.Log( "CharMgrService::Handle_SetActivityStatus()", "size=%u, 0=Int(%u), 1=Int(%u) ", size, int1, int2   );
-  //call.Dump(SERVICE__CALLS);
+  /**
+            sm.RemoteSvc('charMgr').SetActivityStatus(const.PLAYER_STATUS_AFK, diffInSeconds)
+            sm.RemoteSvc('charMgr').SetActivityStatus(const.PLAYER_STATUS_ACTIVE, self.numSecondsAway)
+PLAYER_STATUS_ACTIVE = 0
+PLAYER_STATUS_AFK = 1
+*/
 
     return new PyInt( 0 );
 }
@@ -353,16 +356,16 @@ PyResult CharMgrService::Handle_GetSettingsInfo( PyCallArgs& call ) {
         if len(ret) > 0:
             sm.RemoteSvc('charMgr').LogSettings(ret)
     */
- PyTuple* res = new PyTuple( 2 );
+ //PyTuple* res = new PyTuple( 2 );
  // type code? unknown what the value should be!
- res->items[ 0 ] = new PyString( "unknown" );
+ //res->items[ 0 ] = new PyString( "unknown" );
 
  // error code? 0 = no error
  // if called with any value other than zero the exception output will show 'Verified = False'
  // if called with zero 'Verified = True'
- res->items[ 1 ] = new PyInt( 0 );
- return res;
-// return NULL;
+ //res->items[ 1 ] = new PyInt( 0 );
+ //return res;
+ return NULL;
 }
 
 //  this is a return call from client after GetSettingsInfo
@@ -465,9 +468,7 @@ PyResult CharMgrService::Handle_AddContact( PyCallArgs& call )
 15:48:32 [SvcCall]     Argument 'machoVersion':
 15:48:32 [SvcCall]         Integer field: 1
 */
-  uint8 size = call.tuple->size();
-  uint32 int0 = call.tuple->GetItem(0)->AsInt()->value();
-  sLog.Log( "CharMgrService::Handle_AddContact()", "size=%u, 0=%s(%u) ", size, call.tuple->GetItem( 0 )->TypeString(), int0 );
+  sLog.Log( "CharMgrService::Handle_AddContact()", "size=%u ", call.tuple->size());
   call.Dump(SERVICE__CALLS);
 
   // make db call to save contact.  will have to find the call to get contact list....
@@ -476,8 +477,7 @@ PyResult CharMgrService::Handle_AddContact( PyCallArgs& call )
 
 PyResult CharMgrService::Handle_EditContact( PyCallArgs& call )
 {
-  uint8 size = call.tuple->size();
-  sLog.Log( "CharMgrService::Handle_EditContact()", "size=%u ", size );
+  sLog.Log( "CharMgrService::Handle_EditContact()", "size=%u ", call.tuple->size());
   call.Dump(SERVICE__CALLS);
 
   return NULL;
@@ -485,8 +485,10 @@ PyResult CharMgrService::Handle_EditContact( PyCallArgs& call )
 
 PyResult CharMgrService::Handle_GetRecentShipKillsAndLosses( PyCallArgs& call )
 {
-  uint8 size = call.tuple->size();
-  sLog.Log( "CharMgrService::Handle_GetRecentShipKillsAndLosses()", "size=%u ", size );
+  /**
+        shipKills = sm.RemoteSvc('charMgr').GetRecentShipKillsAndLosses(num, startIndex)
+        */
+  sLog.Log( "CharMgrService::Handle_GetRecentShipKillsAndLosses()", "size=%u ", call.tuple->size());
   call.Dump(SERVICE__CALLS);
 
   return NULL;
@@ -494,8 +496,7 @@ PyResult CharMgrService::Handle_GetRecentShipKillsAndLosses( PyCallArgs& call )
 
 PyResult CharMgrService::Handle_GetLabels( PyCallArgs& call )
 {
-  uint8 size = call.tuple->size();
-  sLog.Log( "CharMgrService::Handle_GetLabels()", "size=%u ", size );
+  sLog.Log( "CharMgrService::Handle_GetLabels()", "size=%u ", call.tuple->size());
   call.Dump(SERVICE__CALLS);
 
 //AttributeError: 'NoneType' object has no attribute 'values'
@@ -506,8 +507,7 @@ PyResult CharMgrService::Handle_GetLabels( PyCallArgs& call )
 
 PyResult CharMgrService::Handle_CreateLabel( PyCallArgs& call )
 {
-  uint8 size = call.tuple->size();
-  sLog.Log( "CharMgrService::Handle_CreateLabel()", "size=%u ", size );
+  sLog.Log( "CharMgrService::Handle_CreateLabel()", "size=%u ", call.tuple->size());
   call.Dump(SERVICE__CALLS);
 
   return NULL;
@@ -518,8 +518,7 @@ PyResult CharMgrService::Handle_DeleteContacts( PyCallArgs& call )
   /*
  sm.RemoteSvc('charMgr').DeleteContacts([contactIDs])
  */
-  uint8 size = call.tuple->size();
-  sLog.Log( "CharMgrService::Handle_DeleteContacts()", "size=%u ", size );
+  sLog.Log( "CharMgrService::Handle_DeleteContacts()", "size=%u ", call.tuple->size());
   call.Dump(SERVICE__CALLS);
 
   return NULL;
@@ -530,8 +529,7 @@ PyResult CharMgrService::Handle_BlockOwners( PyCallArgs& call )
   /*
         sm.RemoteSvc('charMgr').BlockOwners([ownerID])
  */
-  uint8 size = call.tuple->size();
-  sLog.Log( "CharMgrService::Handle_BlockOwners()", "size=%u ", size );
+  sLog.Log( "CharMgrService::Handle_BlockOwners()", "size=%u ", call.tuple->size());
   call.Dump(SERVICE__CALLS);
 
   return NULL;
@@ -542,8 +540,7 @@ PyResult CharMgrService::Handle_UnblockOwners( PyCallArgs& call )
   /*
             sm.RemoteSvc('charMgr').UnblockOwners(blocked)
  */
-  uint8 size = call.tuple->size();
-  sLog.Log( "CharMgrService::Handle_UnblockOwners()", "size=%u ", size );
+  sLog.Log( "CharMgrService::Handle_UnblockOwners()", "size=%u ", call.tuple->size());
   call.Dump(SERVICE__CALLS);
 
   return NULL;
@@ -552,11 +549,16 @@ PyResult CharMgrService::Handle_UnblockOwners( PyCallArgs& call )
 PyResult CharMgrService::Handle_EditContactsRelationshipID( PyCallArgs& call )
 {
   /*
-                sm.RemoteSvc('charMgr').EditContactsRelationshipID(contactIDs, relationshipID)
+            sm.RemoteSvc('charMgr').EditContactsRelationshipID(contactIDs, relationshipID)
  */
-  uint8 size = call.tuple->size();
-  sLog.Log( "CharMgrService::Handle_EditContactsRelationshipID()", "size=%u ", size );
+  sLog.Log( "CharMgrService::Handle_EditContactsRelationshipID()", "size=%u ", call.tuple->size());
   call.Dump(SERVICE__CALLS);
 
+  return NULL;
+}
+
+PyResult CharMgrService::Handle_GetImageServerLink( PyCallArgs& call )
+{
+	//  serverLink = sm.RemoteSvc('charMgr').GetImageServerLink()
   return NULL;
 }

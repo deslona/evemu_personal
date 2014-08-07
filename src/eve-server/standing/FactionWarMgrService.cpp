@@ -46,6 +46,25 @@ FactionWarMgrService::FactionWarMgrService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(FactionWarMgrService, GetFactionalWarStatus);
     PyCallable_REG_CALL(FactionWarMgrService, IsEnemyFaction);
     PyCallable_REG_CALL(FactionWarMgrService, JoinFactionAsCharacter);
+
+	/*
+        return self.facWarMgr.IsEnemyFaction(enemyID, factionID)
+        return self.facWarMgr.IsEnemyCorporation(enemyID, factionID)
+        return self.facWarMgr.GetSystemsConqueredThisRun()
+        ret = self.facWarMgr.GetCorporationWarFactionID(corpID)
+        return self.facWarMgr.GetFactionCorporations(factionID)
+         self.facWarMgr.JoinFactionAsCharacterRecommendationLetter, factionID, itemID)
+            self.facWarMgr.JoinFactionAsAlliance(factionID)
+            self.facWarMgr.JoinFactionAsCorporation(factionID)
+        return self.facWarMgr.GetStats_FactionInfo()
+            self.topStats = self.facWarMgr.GetStats_TopAndAllKillsAndVPs()
+        for k, v in self.facWarMgr.GetStats_Character().items():
+        for k, v in self.facWarMgr.GetStats_Corp().items():
+        for k, v in self.facWarMgr.GetStats_Alliance().items():
+        return self.facWarMgr.GetStats_Militia()
+        return self.facWarMgr.GetStats_CorpPilots()
+        status = self.facWarMgr.GetSystemStatus(session.solarsystemid2, session.warfactionid)
+            */
 }
 
 FactionWarMgrService::~FactionWarMgrService()
@@ -161,4 +180,45 @@ PyResult FactionWarMgrService::Handle_JoinFactionAsCharacter(PyCallArgs &call) {
   return NULL;
 }
 
+/**
+    def LeaveFactionAsAlliance(self, factionID):
+        self.facWarMgr.LeaveFactionAsAlliance(factionID)
+
+    def LeaveFactionAsCorporation(self, factionID):
+        self.facWarMgr.LeaveFactionAsCorporation(factionID)
+
+    def WithdrawJoinFactionAsAlliance(self, factionID):
+        self.facWarMgr.WithdrawJoinFactionAsAlliance(factionID)
+
+    def WithdrawJoinFactionAsCorporation(self, factionID):
+        self.facWarMgr.WithdrawJoinFactionAsCorporation(factionID)
+
+    def WithdrawLeaveFactionAsAlliance(self, factionID):
+        self.facWarMgr.WithdrawLeaveFactionAsAlliance(factionID)
+
+    def WithdrawLeaveFactionAsCorporation(self, factionID):
+        self.facWarMgr.WithdrawLeaveFactionAsCorporation(factionID)
+
+    def GetFactionalWarStatus(self):
+        return self.facWarMgr.GetFactionalWarStatus()
+
+    def GetWarFactions(self):
+        return self.facWarMgr.GetWarFactions()
+
+    def GetCharacterRankInfo(self, charID, corpID = None):
+        if corpID is None or self.GetCorporationWarFactionID(corpID) is not None:
+            if charID == session.charid:
+                return self.facWarMgr.GetMyCharacterRankInfo()
+            else:
+                return self.facWarMgr.GetCharacterRankInfo(charID)
+
+    def GetCharacterRankOverview(self, charID):
+        if not charID == session.charid:
+            return None
+        return self.facWarMgr.GetMyCharacterRankOverview()
+
+    def RefreshCorps(self):
+        return self.facWarMgr.RefreshCorps()
+
+*/
 

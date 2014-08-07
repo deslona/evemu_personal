@@ -733,11 +733,9 @@ DST_WARPEXIT = 11
         <stringInline value="TerminalExplosion" />
         <!-- 1 -->
         <tupleInline>
-            <int name="entityID" />
-            <!-- seen 1206 -->
-            <int name="unknownInt" />
-            <!-- always seems to be false -->
-            <bool name="unknownBool" />
+            <int name="shipID" />
+            <int name="bubbleID" />
+            <bool name="ballIsGlobal" />
         </tupleInline>
       </tupleInline>
   </elementDef>

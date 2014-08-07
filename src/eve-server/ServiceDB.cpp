@@ -28,13 +28,8 @@
 #include "EVEServerConfig.h"
 #include "ServiceDB.h"
 
-/**
- *  added auto account    -allan 01/18/14
- *       role = sConfig.account.autoAccountRole;
- */
-
 bool ServiceDB::GetAccountInformation( const char* username, const char* password, AccountInfo & account_info )
-{
+{			//added auto account    -allan 18Jan14
     std::string _username = username;
     std::string _escaped_username;
 
@@ -329,13 +324,15 @@ bool ServiceDB::GetStationInfo(uint32 stationID, uint32 *systemID, uint32 *const
         *dockPosition = GPoint(
         /*    i need offset for dockPosition, and this is best way to get it....cannot use position of station from DB, as station moves.
 		         this change **SHOULD NOT** affect anything but undocking   -allan  23Jul14
+		         */
             row.GetDouble(3) + row.GetDouble(6),
             row.GetDouble(4) + row.GetDouble(7),
             row.GetDouble(5) + row.GetDouble(8)
-            */
+            /*
             row.GetDouble(6),
             row.GetDouble(7),
             row.GetDouble(8)
+            */
         );
     if(dockOrientation != NULL) {
         *dockOrientation = GVector(
@@ -344,7 +341,7 @@ bool ServiceDB::GetStationInfo(uint32 stationID, uint32 *systemID, uint32 *const
             row.GetDouble(11)
         );
         // as it's a direction, it should be normalized
-        //dockOrientation->normalize();
+        dockOrientation->normalize();
     }
 
     return true;

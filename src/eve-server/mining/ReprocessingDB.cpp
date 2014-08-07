@@ -116,17 +116,17 @@ bool ReprocessingDB::GetRecoverables(const uint32 typeID, std::vector<Recoverabl
     Recoverable rec;
 
     bool gotFromRamTable=false;
-    
+
     while(res.GetRow(row)) {
         gotFromRamTable = true;
         rec.typeID = row.GetInt(0);
         rec.amountPerBatch = row.GetInt(1);
         into.push_back(rec);
     }
-    
+
     //eve-dev says tech 2 items contain both basic materials and advanced materials
     //if(gotFromRamTable) return true;
-    
+
     if(!sDatabase.RunQuery(res,
                 "SELECT materialTypeID, quantity"
                 " FROM invTypeMaterials"

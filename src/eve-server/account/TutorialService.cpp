@@ -124,21 +124,14 @@ PyResult TutorialService::Handle_GetCharacterTutorialState( PyCallArgs& call ) {
 //00:25:58 L TutorialService::Handle_GetTutorialsAndConnections(): size= 0
 PyResult TutorialService::Handle_GetTutorialsAndConnections( PyCallArgs& call ) {
   /*  Empty Call  */
-/**  python from client  ../ui/services/tutorialsvc.py
-    def GetTutorialsByCategory(self):
-        tutorials = self.GetTutorials()
-        byCategs = {}
-        for tutorialID, tutorialData in tutorials.iteritems():
-            if tutorialData.categoryID not in byCategs:
-                byCategs[tutorialData.categoryID] = []
-            tutorialName = localization.GetByMessageID(tutorialData.tutorialNameID)
-            byCategs[tutorialData.categoryID].append((tutorialName, tutorialData))
-
-        for k, v in byCategs.iteritems():
-            byCategs[k] = uiutil.SortListOfTuples(v)
-
-        return byCategs
-
+/**
+            t, tc = sm.RemoteSvc('tutorialSvc').GetTutorialsAndConnections()
+            self.tutorials = t.Index('tutorialID')
+            tc = tc.Filter('tutorialID')
+            self.tutorialConnections = defaultdict(dict)
+            for tutID, rows in tc.iteritems():
+                for each in rows:
+                    self.tutorialConnections[tutID][each.raceID] = each.nextTutorialID
 
 AttributeError: 'NoneType' object has no attribute 'iteritems'
  */
@@ -148,6 +141,56 @@ AttributeError: 'NoneType' object has no attribute 'iteritems'
 
 PyResult TutorialService::Handle_GetCareerAgents( PyCallArgs& call ) {
   /*  Empty Call  */
+  /**
+        agentMapping = sm.RemoteSvc('tutorialSvc').GetCareerAgents()
+        for careerType in agentMapping:
+            agentIDs = []
+            if careerType not in self.careerAgents:
+                self.careerAgents[careerType] = {}
+                self.careerAgents[careerType]['agent'] = {}
+                self.careerAgents[careerType]['station'] = {}
+            agentIDs = agentMapping.get(careerType, [])
+            agents = sm.RemoteSvc('tutorialSvc').GetTutorialAgents(agentIDs)
+            for agent in agents:
+                self.careerAgents[careerType]['agent'][agent.agentID] = agent
+                self.careerAgents[careerType]['station'][agent.agentID] = sm.GetService('map').GetStation(agent.stationID)
+*/
 
     return new PyInt( 0 );
 }
+
+
+/**
+            sm.RemoteSvc('tutorialSvc').LogCompleted(tutorialID, pageNo, int(time))
+        elif status == 'aborted':
+            stat[sequenceID] = 'done'
+            sm.RemoteSvc('tutorialSvc').LogAborted(tutorialID, pageNo, int(time))
+
+                categories = sm.RemoteSvc('tutorialSvc').GetCategories()
+                for category in categories:
+                    self.categories[category.categoryID] = category
+                    self.categories[category.categoryID].categoryName = localization.GetByMessageID(category.categoryNameID)
+                    self.categories[category.categoryID].description = localization.GetByMessageID(category.descriptionID)
+
+                criterias = sm.RemoteSvc('tutorialSvc').GetCriterias()
+                for criteria in criterias:
+                    self.criterias[criteria.criteriaID] = criteria
+            actions = sm.RemoteSvc('tutorialSvc').GetActions()
+            for action in actions:
+                self.actions[action.actionID] = action
+
+            tutData = sm.RemoteSvc('tutorialSvc').GetTutorialInfo(tutorialID)
+                sm.RemoteSvc('tutorialSvc').LogAppClosed(tutorialID, pageNo, int(time))
+                        sm.RemoteSvc('tutorialSvc').LogClosed(tutorialID, pageNo, int(time))
+                    sm.RemoteSvc('tutorialSvc').LogStarted(tutorialID, pageNo, int(time))
+            sm.RemoteSvc('tutorialSvc').LogCompleted(tutorialID, pageNo, int(time))
+        return sm.RemoteSvc('tutorialLocationSvc').GiveTutorialGoodies(tutorialID, pageID, pageNo)
+                tutData = sm.RemoteSvc('tutorialSvc').GetTutorialInfo(VID)
+
+        rs = sm.RemoteSvc('tutorialSvc').GetCharacterTutorialState()
+        if not rs or len(rs) == 0:
+            return
+
+
+
+            */

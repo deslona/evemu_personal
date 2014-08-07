@@ -359,10 +359,15 @@ bool CorporationDB::ListAllFactionRaces(std::map<int32, PyRep *> &into) {
 }
 
 PyObject *CorporationDB::ListNPCDivisions() {
+        //" divisionID, divisionName, divisionNameID, description, leaderType, leaderTypeID"
+		/*
+                row.divisionName = localization.GetByMessageID(row.divisionNameID)
+                row.leaderType = localization.GetByMessageID(row.leaderTypeID)
+	  */
     DBQueryResult res;
     if(!sDatabase.RunQuery(res,
         "SELECT "
-        "   divisionID, divisionName, divisionNameID, leaderTypeID"
+		" divisionID, divisionName, description, leaderType"
         " FROM crpNPCDivisions" )) {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
@@ -798,7 +803,7 @@ PyObject *CorporationDB::GetEveOwners() {
         "(SELECT"
         " itemID AS ownerID,"
         " itemName AS ownerName,"
-    " 0 AS ownerNameID,"
+		" 0 AS ownerNameID,"
         " typeID"
         " FROM entity"
         " WHERE itemID < %u"

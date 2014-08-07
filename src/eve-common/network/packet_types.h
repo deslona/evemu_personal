@@ -1206,6 +1206,25 @@ typedef enum {
     dgmEffOnline = 4,
 } EffectCategories;
 
+typedef enum {
+fleetJobNone = 0,
+fleetJobScout = 1,
+fleetJobCreator = 2
+} FleetJobs;
+
+typedef enum {
+fleetRoleLeader = 1,
+fleetRoleWingCmdr = 2,
+fleetRoleSquadCmdr = 3,
+fleetRoleMember = 4
+} FleetRoles;
+
+typedef enum {
+fleetBoosterNone = 0,
+fleetBoosterFleet = 1,
+fleetBoosterWing = 2,
+fleetBoosterSquad = 3
+} FleetBoosters;
 
 /*
  *

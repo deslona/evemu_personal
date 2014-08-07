@@ -56,7 +56,9 @@ MapService::MapService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(MapService, GetMyExtraMapInfo);
     PyCallable_REG_CALL(MapService, GetMyExtraMapInfoAgents);  //ColorStarsByMyAgents
     PyCallable_REG_CALL(MapService, GetAllianceJumpBridges);
+    PyCallable_REG_CALL(MapService, GetAllianceBeacons);
     PyCallable_REG_CALL(MapService, GetLinkableJumpArrays);
+    PyCallable_REG_CALL(MapService, GetCurrentSovData);
 
 }
 
@@ -151,18 +153,33 @@ PyResult MapService::Handle_GetHistory(PyCallArgs &call) {
 
 //02:38:07 L MapService::Handle_GetBeaconCount(): size= 0
 PyResult MapService::Handle_GetBeaconCount(PyCallArgs &call) {
+  /**
+    def GetActiveCynos(self, itemID):
+        data = sm.RemoteSvc('map').GetBeaconCount()
+        systems = set(sm.GetService('map').IterateSolarSystemIDs(itemID))
+        totalModules = 0
+        totalStructures = 0
+        for solarSystemID, counts in data.iteritems():
+            if solarSystemID in systems:
+                moduleCount, structureCount = counts
+                totalModules += moduleCount
+                totalStructures += structureCount
+
+        return util.KeyVal(cynoModules=totalModules, cynoStructures=totalStructures)
+*/
     return (m_db.GetDynamicData(2, 24));
 }
 
 //02:51:49 L MapService::Handle_GetStationCount(): size= 0
 PyResult MapService::Handle_GetStationCount(PyCallArgs &call)
-{
+{  // cached on client side.  if cache is empty, this call is made.
   sLog.Log( "MapService::Handle_GetStationCount()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
   /**
   ColorStarsByStationCount
   - not real sure how to do this one.....see MapDB.cpp
   ValueError: need more than 1 value to unpack
+
         starmap.stationCountCache = sm.RemoteSvc('map').GetStationCount()
     history = starmap.stationCountCache
     maxCount = 0
@@ -193,6 +210,9 @@ PyResult MapService::Handle_GetStuckSystems(PyCallArgs &call)
 //22:49:23 L MapService::Handle_GetRecentSovActivity(): size= 0
 PyResult MapService::Handle_GetRecentSovActivity(PyCallArgs &call)
 {
+  /**
+        data = sm.RemoteSvc('map').GetRecentSovActivity()
+        */
   sLog.Log( "MapService::Handle_GetRecentSovActivity()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
 
@@ -305,6 +325,7 @@ PyResult MapService::Handle_GetMyExtraMapInfo(PyCallArgs &call)
 
     return NULL;
 }
+
 PyResult MapService::Handle_GetAllianceJumpBridges(PyCallArgs &call)
 {
      /**
@@ -315,11 +336,41 @@ PyResult MapService::Handle_GetAllianceJumpBridges(PyCallArgs &call)
     return NULL;
 }
 
+PyResult MapService::Handle_GetAllianceBeacons(PyCallArgs &call)
+{/**
+            beacons = sm.RemoteSvc('map').GetAllianceBeacons()
+            for solarSystemID, structureID, structureTypeID in beacons:
+                if solarSystemID != session.solarsystemid:
+                    solarsystem = cfg.evelocations.Get(solarSystemID)
+                    invType = cfg.invtypes.Get(structureTypeID)
+                    structureName = uiutil.MenuLabel('UI/Menusvc/BeaconLabel', {'name': invType.name,
+                     'system': solarSystemID})
+                    allianceMenu.append((solarsystem.name, (solarSystemID, structureID, structureName)))
+                    */
+  sLog.Log( "MapService::Handle_GetAllianceBeacons()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    return NULL;
+}
+
 PyResult MapService::Handle_GetLinkableJumpArrays(PyCallArgs &call)
-{
-     /**   sends nothing (no args)
-             solarSystemID, structureID   */
+{/**
+		  sends nothing (no args)
+              returns  solarSystemID, structureID, ?
+             */
   sLog.Log( "MapService::Handle_GetLinkableJumpArrays()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    return NULL;
+}
+
+PyResult MapService::Handle_GetCurrentSovData(PyCallArgs &call)
+{/**
+            data = sm.RemoteSvc('map').GetCurrentSovData(constellationID)
+            returns locationID, ?
+            return sm.RemoteSvc('map').GetCurrentSovData(locationID)
+             */
+  sLog.Log( "MapService::Handle_GetCurrentSovData()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
 
     return NULL;

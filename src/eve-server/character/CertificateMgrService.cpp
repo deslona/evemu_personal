@@ -45,6 +45,9 @@ CertificateMgrService::CertificateMgrService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(CertificateMgrService, BatchCertificateGrant);
     PyCallable_REG_CALL(CertificateMgrService, BatchCertificateUpdate);
     PyCallable_REG_CALL(CertificateMgrService, GetCertificatesByCharacter);
+	/*
+        sm.RemoteSvc('certificateMgr').UpdateCertificateFlags(certificateID, visibilityFlags)
+        */
 }
 
 CertificateMgrService::~CertificateMgrService()

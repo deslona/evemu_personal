@@ -175,12 +175,8 @@ PyResult NetService::Handle_GetTime(PyCallArgs &call) {
 }
 
 PyResult NetService::Handle_GetClusterSessionStatistics(PyCallArgs &call) {
-     /**     ColorStarsByNumPilots
-      * sol, sta, statDivisor = sm.ProxySvc('machoNet').GetClusterSessionStatistics()
-      * this really should be a dynamic system call to systementity service or whatever it is to get systems with clients
-      */
     DBQueryResult res;
-    //sDatabase.RunQuery(res, "SELECT sol, sta, statDivisor FROM mapDynamicData );
+    sDatabase.RunQuery(res, "SELECT sol, sta, statDivisor FROM mapDynamicData" );
 
     return DBResultToRowset(res);
 }

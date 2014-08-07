@@ -160,7 +160,7 @@ PyResult MarketProxyService::Handle_GetOrders(PyCallArgs &call) {
 
     result = m_db.GetOrders(regionID, args.arg);
     if(result == NULL) {
-        _log(SERVICE__ERROR, "%s: Failed to load GetOrders for item %u of region %u", call.client->GetName(), args.arg, regionID);
+        _log(SERVICE__ERROR, "%s: Failed to load GetOrders for item %u of region %u", call.client->GetName(), args.arg, call.client->GetRegionID());
         return NULL;
     }
 
@@ -186,15 +186,15 @@ PyResult MarketProxyService::Handle_GetOrders(PyCallArgs &call) {
             codelog(SERVICE__ERROR, "%s: GetSystemID() returned a non-system %u!", call.client->GetName(), locid);
             return NULL;
         }
-
+/*
         uint32 regionID;
         if(!m_db.GetSystemInfo(locid, NULL, &regionID, NULL, NULL))
         {
             codelog(SERVICE__ERROR, "%s: Failed to find parents of system %u!", call.client->GetName(), locid);
             return NULL;
         }
-
-        result = m_db.GetOrders(regionID, args.arg);
+*/
+        result = m_db.GetOrders(call.client->GetRegionID(), args.arg);
         if(result == NULL) {
             codelog(SERVICE__ERROR, "Failed to load cache, generating empty contents.");
             result = new PyNone();
@@ -236,16 +236,16 @@ PyResult MarketProxyService::Handle_GetOldPriceHistory(PyCallArgs &call) {
         codelog(SERVICE__ERROR, "%s: GetSystemID() returned a non-system %u!", call.client->GetName(), locid);
         return NULL;
     }
-
+/*
     uint32 regionID;
     if(!m_db.GetSystemInfo(locid, NULL, &regionID, NULL, NULL)) {
         codelog(SERVICE__ERROR, "%s: Failed to find parents of system %u!", call.client->GetName(), locid);
         return NULL;
     }
-
-    result = m_db.GetOldPriceHistory(regionID, args.arg);
+*/
+    result = m_db.GetOldPriceHistory(call.client->GetRegionID(), args.arg);
     if(result == NULL) {
-        _log(SERVICE__ERROR, "%s: Failed to load Old Price History for item %u of region %u", call.client->GetName(), args.arg, regionID);
+        _log(SERVICE__ERROR, "%s: Failed to load Old Price History for item %u of region %u", call.client->GetName(), args.arg, call.client->GetRegionID());
         return NULL;
     }
 
@@ -266,16 +266,16 @@ PyResult MarketProxyService::Handle_GetNewPriceHistory(PyCallArgs &call) {
         codelog(SERVICE__ERROR, "%s: GetSystemID() returned a non-system %u!", call.client->GetName(), locid);
         return NULL;
     }
-
+/*
     uint32 regionID;
     if(!m_db.GetSystemInfo(locid, NULL, &regionID, NULL, NULL)) {
         codelog(SERVICE__ERROR, "%s: Failed to find parents of system %u!", call.client->GetName(), locid);
         return NULL;
     }
-
-    result = m_db.GetNewPriceHistory(regionID, args.arg);
+*/
+    result = m_db.GetNewPriceHistory(call.client->GetRegionID(), args.arg);
     if(result == NULL) {
-        _log(SERVICE__ERROR, "%s: Failed to load New Price History for item %u of region %u", call.client->GetName(), args.arg, regionID);
+        _log(SERVICE__ERROR, "%s: Failed to load New Price History for item %u of region %u", call.client->GetName(), args.arg, call.client->GetRegionID());
         return NULL;
     }
 

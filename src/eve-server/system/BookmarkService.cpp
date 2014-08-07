@@ -51,6 +51,9 @@ BookmarkService::BookmarkService(PyServiceMgr *mgr)
     /*  NOT WORKING YET  */
     PyCallable_REG_CALL(BookmarkService, DeleteBookmarks);
     PyCallable_REG_CALL(BookmarkService, MoveBookmarksToFolder);
+    PyCallable_REG_CALL(BookmarkService, CopyBookmarks);
+    PyCallable_REG_CALL(BookmarkService, AddBookmarkFromVoucher);
+
 }
 
 BookmarkService::~BookmarkService() {
@@ -156,6 +159,23 @@ PyResult BookmarkService::Handle_GetBookmarks(PyCallArgs &call) {
 PyResult BookmarkService::Handle_BookmarkLocation(PyCallArgs &call) {
   /**
       bookmarkID, itemID, typeID, x, y, z, locationID = sm.RemoteSvc('bookmark').BookmarkLocation(itemID, ownerID, memo, comment, folderID)
+
+    def GetValidBookmarks(self):
+        ret = []
+        for bookmark in self.bookmarkCache.itervalues():
+            typeOb = cfg.invtypes.Get(bookmark.typeID)
+            if typeOb.categoryID not in self.validCategories:
+                continue
+            ret.append(bookmark)
+
+        self.validCategories = (
+         const.categoryCelestial,				categoryCelestial = 2
+         const.categoryStation,     			categoryStation = 3
+         const.categoryShip,        			categoryShip = 6
+         const.categoryStructure,   			categoryStructure = 23
+         const.categoryAsteroid,    			categoryAsteroid = 25
+         const.categoryPlanetaryInteraction		categoryPlanetaryInteraction = 41
+         )
   */
     std::string note;
     std::string memo;
@@ -584,6 +604,27 @@ PyResult BookmarkService::Handle_MoveBookmarksToFolder(PyCallArgs &call) {
     return res;
 }
 
+PyResult BookmarkService::Handle_CopyBookmarks(PyCallArgs &call) {
+  /**
+            newBookmarks, message = bookmarkMgr.CopyBookmarks(bookmarksToCopy, folderID)
+            */
+
+      sLog.Error( "BookmarkService::Handle_CopyBookmarks()", "Service is not handled yet.  Returning NULL.");
+  call.Dump(SERVICE__CALLS);
+
+    return(new PyNone());
+}
+
+PyResult BookmarkService::Handle_AddBookmarkFromVoucher(PyCallArgs &call) {
+  /**
+	 sm.RemoteSvc('bookmark').AddBookmarkFromVoucher, itemID, ownerID, folderID, violateSafetyTimer=True)
+            */
+
+      sLog.Error( "BookmarkService::Handle_AddBookmarkFromVoucher()", "Service is not handled yet.  Returning NULL.");
+  call.Dump(SERVICE__CALLS);
+
+    return(new PyNone());
+}
 
 /**
   bookmarkID, itemID, typeID, x, y, z, locationID = self.bookmarkMgr.BookmarkScanResult(locationID, memo, comment, resultID, ownerID, folderID=0)

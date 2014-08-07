@@ -32,13 +32,12 @@
 
 class Agent;
 
-class AgentMgrService : public PyService
-{
-public:
+class AgentMgrService : public PyService {
+  public:
     AgentMgrService(PyServiceMgr *mgr);
     virtual ~AgentMgrService();
 
-protected:
+  protected:
     class Dispatcher;
     Dispatcher *const m_dispatch;
 
@@ -58,7 +57,20 @@ protected:
     virtual PyBoundObject *_CreateBoundObject(Client *c, const PyRep *bind_args);
 };
 
+class EpicArcService : public PyService {
+  public:
+    EpicArcService(PyServiceMgr *mgr);
+    virtual ~EpicArcService();
 
+  protected:
+    class Dispatcher;
+    Dispatcher *const m_dispatch;
+
+    AgentDB m_db;
+
+	PyCallable_DECL_CALL(AgentHasEpicMissionsForCharacter);
+
+};
 
 
 #endif

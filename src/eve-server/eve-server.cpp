@@ -167,8 +167,8 @@ int main( int argc, char* argv[] )
 
     sLog.InitializeLogging(sConfig.files.logDir);
     sLog.Log("server init", "Loading server...");
-    sLog.Log("SERVER VERSION", "EVEmu 0.7.38-allan" );
-    sLog.Log("BUILD DATE", "27 July 2014");
+    sLog.Log("SERVER VERSION", "EVEmu 0.7.41-allan" );
+    sLog.Log("BUILD DATE", "5 August 2014");
     sLog.Log("SOURCE", "get at " EVEMU_REPOSITORY );
     sLog.Log("SERVER INIT", "\n"
         "\tSupported Client: %s\n"
@@ -388,6 +388,11 @@ int main( int argc, char* argv[] )
     uint32 etime;
     uint32 last_time = GetTickCount();
 
+	#define BUFLEN 256
+	char buf[BUFLEN];
+	fd_set fds;
+	struct timeval tv;
+
     EVETCPConnection* tcpc;
     while( RunLoops == true )
     {
@@ -413,6 +418,25 @@ int main( int argc, char* argv[] )
         // do the stuff for thread sleeping
         if( MAIN_LOOP_DELAY > etime )
             Sleep( MAIN_LOOP_DELAY - etime );
+
+		tv.tv_sec = 0;
+		tv.tv_usec = 0;
+		FD_ZERO(&fds);
+		FD_SET(STDIN_FILENO, &fds);
+		// check for input.
+		select(STDIN_FILENO+1, &fds, NULL, NULL, &tv);
+		if (FD_ISSET(STDIN_FILENO, &fds)) {
+		    if (fgets(buf,BUFLEN, stdin)) {
+			    sLog.Log( "STDIN", "Received command: %s", buf );
+				// check for command exit.
+				if (strncmp(buf, "exit", 4) == 0)
+				    RunLoops = false;
+				else if (strncmp(buf, "clients", 7) == 0)
+				    sLog.Success("STDIN", "Command recognzed but not avalible at this time: (%d)%s", strlen(buf), buf);
+				else
+				    sLog.Warning("STDIN", "Command not recognized: (%d)%s", strlen(buf), buf);
+			}
+		}
     }
 
     sLog.Warning("server shutdown", "Main loop stopped" );

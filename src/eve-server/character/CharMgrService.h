@@ -68,6 +68,7 @@ protected:
     PyCallable_DECL_CALL(BlockOwners);
     PyCallable_DECL_CALL(UnblockOwners);
     PyCallable_DECL_CALL(EditContactsRelationshipID);
+    PyCallable_DECL_CALL(GetImageServerLink);
 
 	//overloaded in order to support bound objects:
     virtual PyBoundObject *_CreateBoundObject(Client *c, const PyRep *bind_args);

@@ -37,10 +37,6 @@ public:
     PyRep *GetSiloCapacityByItemID(uint32 itemID);
 };
 
-
-
-
-
 #endif
 
-
+/*environment/spaceObject/station.py*/

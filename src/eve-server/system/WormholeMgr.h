@@ -45,3 +45,16 @@ protected:
 };
 
 #endif
+/**
+                wormholeClasses = {0: 'UI/Wormholes/Classes/Space',
+                 1: 'UI/Wormholes/Classes/UnknownSpace',
+                 2: 'UI/Wormholes/Classes/UnknownSpace',
+                 3: 'UI/Wormholes/Classes/UnknownSpace',
+                 4: 'UI/Wormholes/Classes/UnknownSpace',
+                 5: 'UI/Wormholes/Classes/DeepUnknownSpace',
+                 6: 'UI/Wormholes/Classes/DeepUnknownSpace',
+                 7: 'UI/Wormholes/Classes/HighSecuritySpace',
+                 8: 'UI/Wormholes/Classes/LowSecuritySpace',
+                 9: 'UI/Wormholes/Classes/NullSecuritySpace'}
+
+                 */

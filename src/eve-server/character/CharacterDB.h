@@ -175,8 +175,9 @@ public:
     void SaveSkillHistory(int, double, uint32, uint32, int, double, double);
     PyObject* GetSkillHistory(uint32);
 
-    EvilNumber GetLoginTime(uint32);
+    void SetLoginTime(uint32);
     void UpdateLoginTime(uint32);
+    EvilNumber GetLoginTime(uint32);
 
     bool isOffline(uint32);
 
@@ -185,6 +186,18 @@ public:
     PyRep* GetBounty(uint32, uint32);
     PyRep* GetTopBounties();
     void AddBounty(uint32, uint32, uint32);
+
+	// for dynamic db functions    -allan
+	void VisitSystem(uint32, uint32);
+	void chkDynamicSystemID(uint32);
+	void AddJumpToDynamicData(uint32);
+	void AddPilotToDynamicData(uint32, bool, bool, uint32*, uint32*);
+	uint16 GetActivePilotsFromDynamicData(uint32);
+	void SaveSolStaToDynamicData(uint32, uint16, uint16, float);
+	void AddKillToDynamicData(uint32);
+	void AddPodKillToDynamicData(uint32);
+	void AddFactionKillToDynamicData(uint32);
+
 
 private:
     /**

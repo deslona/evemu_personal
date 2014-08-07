@@ -44,6 +44,9 @@ RepairService::~RepairService() {
 }
 
 PyResult RepairService::Handle_UnasembleItems(PyCallArgs &call) {
+  /**
+                sm.RemoteSvc('repairSvc').UnasembleItems(dict(validIDsByStationID), skipChecks)
+                */
   /*
 19:49:29 L RepairService::Handle_UnasembleItems: Called UnasembleItems stub.
 19:49:29 [SvcCall]   Call Arguments:
