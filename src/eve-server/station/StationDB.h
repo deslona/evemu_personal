@@ -67,19 +67,13 @@ public:
             return false;
         }
 
-        /* I am aware of the fact that the next piece of code is spamming the console */
-        sLog.Log("Station DB", "Loading Solar systems:");
+        sLog.Log("       ServerInit", "Loading Solar systems.");
 
         DBResultRow row;
         for(unsigned int i = 0; res.GetRow(row); i++)
         {
             mStorageContainer.insert(std::make_pair(row.GetUInt(0), DBRowToRow(row)));
-
-            if ((i % 200) == 0)
-                printf(".");
         }
-        printf("\n");
-        sLog.Log("Station DB", "Storing solar system data Done");
         mLoaded = true;
 
         return true;

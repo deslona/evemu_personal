@@ -59,7 +59,7 @@ PyResult StationService::Handle_GetSolarSystem(PyCallArgs &call) {
     return new PyObject("util.CachedObject", new PyInt(system));
 }
 
-PyResult StationService::Handle_GetGuests(PyCallArgs &call) {		//  fixed?   -allan 27Jul14
+PyResult StationService::Handle_GetGuests(PyCallArgs &call) {		//  fixed?   -allan 27Jul14   nope..12Aug14
     PyList *res = new PyList();
 
     std::vector<Client *> clients;

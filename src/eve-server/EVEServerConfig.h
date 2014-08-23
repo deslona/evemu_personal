@@ -49,7 +49,7 @@ public:
         /// Modifier for security rating changes. Changes how fast it goes up/down based on actions
         double secRate;
         /// Modifier for npc bounties automatically awarded for shooting down npc enemies.
-        double npcBountyMultiply;
+        float npcBountyMultiply;
         /// Startup Cost to create a corporation.
         double corporationStartupCost;
         /// SP ceiling for double SP/Min    -allan 11Jan14

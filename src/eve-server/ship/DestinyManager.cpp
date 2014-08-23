@@ -57,8 +57,8 @@ DestinyManager::DestinyManager(SystemEntity *self, SystemManager *system)
   m_velocity(0, 0, 0),
 //  m_acceleration(0),
   m_maxVelocity(1.0f),
-  m_accelerationFactor(0.0f),
-  m_velocityAdjuster(0.0f),
+  m_accelerationFactor(0.0),
+  m_velocityAdjuster(0.0),
 //  m_maxAcceleration(1.0),
   State(DSTBALL_STOP),
   m_userSpeedFraction(0.0f),
@@ -66,11 +66,11 @@ DestinyManager::DestinyManager(SystemEntity *self, SystemManager *system)
   m_targetPoint(0, 0, 0),
   m_targetDistance(0.0),
 //  m_targetEntity(0,NULL),
-  m_radius(1.0f),
-  m_mass(1.0f),
-  m_maxShipVelocity(1.0f),
-  m_shipAgility(1.0f),
-  m_shipInertia(1.0f),
+  m_radius(1.0),
+  m_mass(1.0),
+  m_maxShipVelocity(1.0),
+  m_shipAgility(1.0),
+  m_shipInertia(1.0),
   m_warpState(NULL)
 {
     //do not touch m_self here, it may not be fully constructed.
@@ -91,56 +91,79 @@ void DestinyManager::Process() {
     ProcessTic();
 }
 
-void DestinyManager::SendSingleDestinyUpdate(PyTuple **up, bool self_only) const {
-    std::vector<PyTuple *> updates(1, *up);
-    *up = NULL;
-    std::vector<PyTuple *> events;
-    //consumes updates and events
-    SendDestinyUpdate(updates, events, self_only);
+void DestinyManager::SendSelfDestinyUpdate(PyTuple **up) const{
+    m_self->QueueDestinyUpdate( up );
+    PySafeDecRef( *up ); //they are not required to consume it.
 }
 
-void DestinyManager::SendDestinyUpdate(std::vector<PyTuple *> &updates, bool self_only) const {
-    std::vector<PyTuple *> events;
-    //consumes updates and events
-    SendDestinyUpdate(updates, events, self_only);
+void DestinyManager::SendSelfDestinyEvent(PyTuple **up) const {
+    m_self->QueueDestinyEvent( up );
+    PySafeDecRef( *up ); //they are not required to consume it.
 }
 
-void DestinyManager::SendDestinyUpdate( std::vector<PyTuple*> &updates, std::vector<PyTuple*> &events, bool self_only ) const
-{
+void DestinyManager::SendDestinyUpdate(PyTuple **up, bool self_only) const {
     if( self_only )
-    {
-        _log( DESTINY__TRACE, "DestinyManager::SendDestinyUpdate - [%u] Sending destiny update (%lu, %lu) to self (%u).", GetStamp(), updates.size(), events.size(), m_self->GetID() );
+	    SendSelfDestinyUpdate( up );
+	else {
+        _log( DESTINY__TRACE, "DestinyManager::SendDestinyUpdate - [%u] Broadcasting destiny update", GetStamp() );
+		m_self->Bubble()->BubblecastDestinyUpdate( up, "destiny" );
+	}
+}
+
+void DestinyManager::SendDestinyEvent(PyTuple **ev, bool self_only) const {
+    if( self_only )
+	    SendSelfDestinyEvent( ev );
+	else {
+        _log( DESTINY__TRACE, "DestinyManager::SendDestinyEvent - [%u] Broadcasting destiny event", GetStamp() );
+		m_self->Bubble()->BubblecastDestinyEvent( ev, "destiny" );
+	}
+}
+
+void DestinyManager::SendDestinyUpdate( std::vector<PyTuple*> &updates, bool self_only ) const{
+    if( self_only ) {
+        _log( DESTINY__TRACE, "DestinyManager::SendDestinyUpdate - [%u] Sending destiny update (%lu) to self (%u).", GetStamp(), updates.size(), m_self->GetID() );
 
         std::vector<PyTuple*>::iterator cur, end;
         cur = updates.begin();
         end = updates.end();
-        for(; cur != end; cur++)
-        {
+        for(; cur != end; cur++) {
             PyTuple* t = *cur;
-            m_self->QueueDestinyUpdate( &t );
-            PySafeDecRef( t ); //they are not required to consume it.
+			SendSelfDestinyUpdate( &t );
         }
         updates.clear();
+	} else if( NULL != m_self->Bubble() ) {
+	    _log( DESTINY__TRACE, "DestinyManager::SendDestinyUpdate - [%u] Broadcasting destiny update (%lu)", GetStamp(), updates.size() );
+		m_self->Bubble()->BubblecastDestinyUpdate( updates, "destiny" );
+	} else {
+	    _log( DESTINY__ERROR, "DestinyManager::SendDestinyUpdate - [%u] Cannot broadcast destiny update (%lu); entity (%u) is not in any bubble.", GetStamp(), updates.size(), m_self->GetID() );
+	}
+}
 
+void DestinyManager::SendDestinyEvent( std::vector<PyTuple*>& events, bool self_only ) const {
+    if( self_only ) {
+	    _log( DESTINY__TRACE, "DestinyManager::SendDestinyEvent - [%u] Sending destiny event (%lu) to self (%u).", GetStamp(), events.size(), m_self->GetID() );
+		std::vector<PyTuple*>::iterator cur, end;
         cur = events.begin();
         end = events.end();
-        for(; cur != end; cur++)
-        {
+        for(; cur != end; cur++) {
             PyTuple* t = *cur;
-            m_self->QueueDestinyEvent( &t );
-            PySafeDecRef( t ); //they are not required to consume it.
+			SendSelfDestinyEvent( &t );
         }
         events.clear();
-    }
-    else if( m_self->Bubble() )
-    {
-        _log( DESTINY__TRACE, "DestinyManager::SendDestinyUpdate - [%u] Broadcasting destiny update (u:%lu, e:%lu)", GetStamp(), updates.size(), events.size() );
+    } else if( m_self->Bubble() ) {
+        _log( DESTINY__TRACE, "DestinyManager::SendDestinyEvent - [%u] Broadcasting destiny event (%lu)", GetStamp(), events.size() );
+		m_self->Bubble()->BubblecastDestinyEvent( events, "destiny" );
+	} else {
+	    _log( DESTINY__ERROR, "DestinyManager::SendDestinyEvent - [%u] Cannot broadcast destiny update (%lu); entity (%u) is not in any bubble.", GetStamp(), events.size(), m_self->GetID() );
+	}
+}
 
-        m_self->Bubble()->BubblecastDestiny( updates, events, "destiny" );
-    }
-    else
-    {
-        _log( DESTINY__ERROR, "DestinyManager::SendDestinyUpdate - [%u] Cannot broadcast destiny update (%lu, %lu); entity (%u) is not in any bubble.", GetStamp(), updates.size(), events.size(), m_self->GetID() );
+void DestinyManager::SendDestinyUpdate( std::vector<PyTuple*>& updates, std::vector<PyTuple*>& events, bool self_only ) const {
+    if( self_only ) {
+	    SendDestinyUpdate(updates, self_only);
+		SendDestinyEvent(events, self_only);
+    } else {
+        _log( DESTINY__ERROR, "DestinyManager::SendDestinyUpdate - [%u] Cannot broadcast destiny update (u:%lu, e:%lu); entity (%u) is not in any bubble.", GetStamp(), updates.size(), events.size(), m_self->GetID() );
     }
 }
 
@@ -149,12 +172,12 @@ void DestinyManager::_UpdateDerrived() {
     m_velocityAdjuster = exp(- (SPACE_FRICTION * TIC_DURATION_IN_SECONDS) / (m_mass * m_shipAgility));
     m_accelerationFactor = (SPACE_FRICTION * m_maxVelocity) / (m_mass * m_shipAgility);
 
-    _log(PHYSICS__TRACE, "DestinyManager::_UpdateDerrived - Entity %u has derrived: maxVelocity=%f, velocityAdjuster=%f, accelerationFactor=%f",
-        m_self->GetID(), m_maxVelocity, m_velocityAdjuster, m_accelerationFactor);
+    _log(PHYSICS__TRACE, "DestinyManager::_UpdateDerrived - Entity %s(%u) has derrived: maxVelocity=%f, velocityAdjuster=%f, accelerationFactor=%f",
+        m_self->GetName(), m_self->GetID(), m_maxVelocity, m_velocityAdjuster, m_accelerationFactor);
 }
 
 void DestinyManager::SetSpeedFraction(double fraction, bool update) {
-    //m_userSpeedFraction = fraction;
+    m_userSpeedFraction = fraction;
     m_activeSpeedFraction = fraction;
     _UpdateDerrived();
 
@@ -164,7 +187,7 @@ void DestinyManager::SetSpeedFraction(double fraction, bool update) {
         du.fraction = fraction;
 
         PyTuple *tmp = du.Encode();
-        SendSingleDestinyUpdate(&tmp);    //consumed
+        SendDestinyUpdate(&tmp);    //consumed
     }
 }
 
@@ -211,7 +234,7 @@ void DestinyManager::ProcessTic() {
         break;
 
     case DSTBALL_WARP: {
-        //warp is a 3 stage thing... first you get up to speed,
+        //warp is a 3 stage thing... first you align and get up to speed,
         //then you cruise, and then you stop.
 
         if(m_warpState != NULL) {
@@ -224,6 +247,7 @@ void DestinyManager::ProcessTic() {
         //velocity vector.
         GVector warp_vector(m_position, m_targetPoint);
         warp_vector.normalize();
+		uint64 m_distance = warp_vector.length();
         GVector vel_normalized(m_velocity);
         vel_normalized.normalize();
         double dot = warp_vector.dotProduct(vel_normalized);    //cos(angle) between vectors.
@@ -269,24 +293,20 @@ void DestinyManager::ProcessTic() {
 
 //Global Actions:
 void DestinyManager::Stop(bool update) {
-  /*
+    if( m_self->IsClient() ) {
+	    Client *c = m_self->CastToClient();
+	    c->m_autoPilot = false;
+
     //Clear any pending docking operation since the user stopped ship movement:
-	if( m_self->IsClient() )
-		m_self->CastToClient()->SetPendingDockOperation( false );
+		c->SetPendingDockOperation( false );
 
     // THIS IS A HACK AS WE DONT KNOW WHY THE CLIENT CALLS STOP AT UNDOCK
-    if( m_self->IsClient() )
-	{
-	    //autopilot shit
-		m_self->CastToClient()->m_autoPilot = false;
-
-		if( m_self->CastToClient()->GetJustUndocking() )
+		if( c->GetJustUndocking() )
 		{
 			// Client just undocked from a station so DO NOT STOP:
-			m_self->CastToClient()->SetJustUndocking( false );
+			c->SetJustUndocking( false );
 			GPoint dest;
-			m_self->CastToClient()->GetUndockAlignToPoint( &dest );
-			//AlignTo( dest, true );
+			c->GetUndockAlignToPoint( dest );
 			dest.normalize();
 			GotoDirection( dest, true );
 			SetSpeedFraction( 1.0, true );
@@ -294,8 +314,7 @@ void DestinyManager::Stop(bool update) {
 			return;
 		}
 	}
-*/
-	// vvv ORIGINAL DestinyManager::Stop(bool update) BEGINS HERE vvv
+
 	if(State == DSTBALL_STOP)
 		return;
 
@@ -311,6 +330,7 @@ void DestinyManager::Stop(bool update) {
 	m_targetEntity.second = NULL;
 	//redude velocity to 0, applying reverse thrust until we get there.
 //    m_targetPoint = m_position - (m_velocity * 1.0e6);    //opposite direction
+    m_userSpeedFraction = 0.0f;
 	m_activeSpeedFraction = 0.0f;
 	_UpdateDerrived();
 
@@ -321,7 +341,7 @@ void DestinyManager::Stop(bool update) {
 		du.entityID = m_self->GetID();
 
 		PyTuple *tmp = du.Encode();
-		SendSingleDestinyUpdate(&tmp);    //consumed
+		SendDestinyUpdate(&tmp);    //consumed
 	}
 }
 
@@ -329,6 +349,7 @@ void DestinyManager::Halt(bool update) {
     m_targetEntity.first = 0;
     m_targetEntity.second = NULL;
     m_velocity = GVector(0, 0, 0);
+    m_userSpeedFraction = 0.0f;
     m_activeSpeedFraction = 0.0f;
     _UpdateDerrived();
 
@@ -358,9 +379,9 @@ void DestinyManager::Halt(bool update) {
         {
         DoDestiny_SetBallVelocity du;
         du.entityID = m_self->GetID();
-        du.x = 0.0f;
-        du.y = 0.0f;
-        du.z = 0.0f;
+        du.x = 0.0;
+        du.y = 0.0;
+        du.z = 0.0;
 
         updates.push_back(du.Encode());
         }
@@ -563,31 +584,12 @@ void DestinyManager::_MoveAccel(const GVector &calc_acceleration) {
     //-- this is the resulting acceleration --
 
 #endif
-    std::vector<PyTuple *> updates;
-
-    {
-        DoDestiny_CmdSetSpeedFraction du;
-        du.entityID = m_self->GetID();
-        du.fraction = 0.0f;
-
-        updates.push_back(du.Encode());
-    }
-    {
-        DoDestiny_SetBallVelocity du;
-        du.entityID = m_self->GetID();
-        du.x = 0.0f;
-        du.y = 0.0f;
-        du.z = 0.0f;
-
-        updates.push_back(du.Encode());
-    }
-    SendDestinyUpdate(updates, false);
 }
 
 void DestinyManager::_InitWarp() {
 
-    _log(PHYSICS__TRACE, "DestinyManager::_InitWarp():Calculate - Entity %u starting warp to %f, %f, %f. Distance is %f",
-        m_self->GetID(), m_targetPoint.x, m_targetPoint.y, m_targetPoint.z, m_targetDistance);
+    _log(PHYSICS__TRACE, "DestinyManager::_InitWarp():Calculate - Entity %s(%u) starting warp to %f, %f, %f. Distance is %f",
+        m_self->GetName(), m_self->GetID(), m_targetPoint.x, m_targetPoint.y, m_targetPoint.z, m_targetDistance);
 
     //init warp:
     //destiny_WARP_Math
@@ -604,7 +606,7 @@ void DestinyManager::_InitWarp() {
 
     m_targetPoint = stop_point;
     _log(PHYSICS__TRACE, "DestinyManager::_InitWarp():Calculate - Entity %u: Calculate has determined we will exit warp at %f, %f, %f at a distance of %f.",
-        m_self->GetID(), m_targetPoint.x, m_targetPoint.y, m_targetPoint.z, warp_distance);
+        m_self->GetName(), m_self->GetID(), m_targetPoint.x, m_targetPoint.y, m_targetPoint.z, warp_distance);
 
     //the client clears massive during warp,  (massive means object is solid)
 //#   pragma message( "TODO: set massive to false!" )      ---works....13July14
@@ -705,13 +707,13 @@ void DestinyManager::_Warp() {
         velocity_magnitude = warp_progress * 3.0;
 
         // Remove ship from bubble only when distance traveled takes the ship beyond the bubble's radius
-        m_system->bubbles.UpdateBubble(m_self,true,true);   // use optional 3rd param to indicate ship is warping so as to not add to or create new bubble while accelerating into warp.
+        m_system->bubbles.UpdateBubble(m_self,true,true);   // use optional 2nd param to indicate ship is warping so as to not add to or create new bubble while accelerating into warp.
 
         //_log(PHYSICS__TRACE, "DestinyManager::_Warp():Accelerate - Entity %u: Warp Accelerating: velocity %f m/s with %f m left to go.",
         //    m_self->GetID(), velocity_magnitude, dist_remaining);
 
     } else if(seconds_into_warp < m_warpState->slow_time) {
-        //dont simplify this, the roundoff error caused by all the extra
+        //dont simplify this (or use floats), the roundoff error caused by all the extra
         // multiply/divide crap then is major enough as to cause problems
         double delta_t = (m_warpState->acceleration_time * 3.0) - ((seconds_into_warp * 3.0)+1.0);
         double delta_s = (m_warpState->speed * delta_t)/(-3.0);
@@ -726,9 +728,8 @@ void DestinyManager::_Warp() {
     //        m_self->Bubble()->Remove(m_self);
     //    }
 
-        _log(PHYSICS__TRACE, "DestinyManager::_Warp():Cruise - Entity %u: Warp Cruising: velocity %f m/s with %f m left to go.",
-            m_self->GetID(),
-            velocity_magnitude, dist_remaining);
+        _log(PHYSICS__TRACE, "DestinyManager::_Warp():Cruise - Entity %s(%u): Warp Cruising: velocity %f m/s with %f m left to go.",
+            m_self->GetName(), m_self->GetID(), velocity_magnitude, dist_remaining);
     } else {
         //warp_completely_done
 
@@ -756,37 +757,28 @@ void DestinyManager::_Warp() {
             // This MUST be called BEFORE SetPosition() since SetPosition does not
             // currently support passing in the isPostWarp boolean nor the isWarping boolean
             m_system->bubbles.UpdateBubble(m_self, true, false, true);
-
-            // HACK: broadcast our position every tic once inside radius of destination bubble
-            // This temporarily fixes the warp-in bug that led to incorrect position of ship at end of warp
-            //SetPosition( GetPosition(), true, false, true );
+			//  need to find a way to update existing clients in bubble to this entity's true posistion
         }
 
         //note, this should actually be checked AFTER we change new_velocity.
         //but hey, it doesn't get copied into ball.velocity until later anyhow.
         if(velocity_magnitude < m_maxShipVelocity) {
             stop = true;
-            //SetPosition( GetPosition(), true );
+            SetPosition( GetPosition(), true );
         }
     }
 
-//    if( m_warpState->acceleration_time > 1000 )
-//    {
-//        //during the warp, we are not in any bubble.
-//        m_self->Bubble()->Remove(m_self);
-//    }
-
-/**   what is this for????
+	//  update position and velocity for all stages.
     GVector vector_to_us = m_warpState->normvec_them_to_us * dist_remaining;
-
     m_position = m_targetPoint + vector_to_us;
     m_velocity = m_warpState->normvec_them_to_us * (-velocity_magnitude);
-*/
+
     if(stop) {
-        _log(PHYSICS__TRACE, "DestinyManager::_Warp():Complete - Entity %u: Warp completed. Exit velocity %f m/s with %f m left to go.",
-            m_self->GetID(), velocity_magnitude, dist_remaining);
+        _log(PHYSICS__TRACE, "DestinyManager::_Warp():Complete - Entity %s(%u): Warp completed. Exit velocity %f m/s with %f m left to go.",
+            m_self->GetName(), m_self->GetID(), velocity_magnitude, dist_remaining);
         delete m_warpState;
         m_warpState = NULL;
+        SetSpeedFraction( 0.0f, true );
         Stop(true);
     }
 }
@@ -806,7 +798,7 @@ void DestinyManager::_Orbit() {
     if( m_system->get( m_targetEntity.first ) == NULL )
     {
         // Our target was removed, so STOP
-        SetSpeedFraction( 0.0, true );
+        SetSpeedFraction( 0.0f, true );
         Stop( true );
         return;
     }
@@ -819,7 +811,7 @@ void DestinyManager::_Orbit() {
             if( m_targetEntity.first != targetClient->GetShipID() )
             {
                 // The client is no longer in the ship we were targeting, so STOP
-                SetSpeedFraction( 0.0, true );
+                SetSpeedFraction( 0.0f, true );
                 Stop( true );
                 return;
             }
@@ -950,7 +942,7 @@ void DestinyManager::EntityRemoved(SystemEntity *who) {
 
         case DSTBALL_FOLLOW:
         case DSTBALL_ORBIT:
-            _log(DESTINY__DEBUG, "%u: Our target entity has gone away. Stopping.", m_self->GetID());
+            _log(DESTINY__DEBUG, "Entity %s(%u): Our target entity has gone away. Stopping.", m_self->GetName(), m_self->GetID());
             Stop();
             break;
 
@@ -968,12 +960,12 @@ void DestinyManager::Follow(SystemEntity *who, double distance, bool update) {
     m_targetEntity.first = who->GetID();
     m_targetEntity.second = who;
     m_targetDistance = distance;
-    //if(m_userSpeedFraction == 0.0f)
-    //    m_userSpeedFraction = 1.0f;
-    //if(m_activeSpeedFraction != m_userSpeedFraction) {
+    if(m_userSpeedFraction == 0.0)
+        m_userSpeedFraction = 1.0f;
+    if(m_activeSpeedFraction != m_userSpeedFraction) {
         m_activeSpeedFraction = 1.0f;
         _UpdateDerrived();
-    //}
+    }
 
     //Clear any pending docking operation since the user set a new course:
 	if( m_self->IsClient() )
@@ -986,14 +978,14 @@ void DestinyManager::Follow(SystemEntity *who, double distance, bool update) {
         du.unknown = uint32(distance);
 
         PyTuple *tmp = du.Encode();
-        SendSingleDestinyUpdate(&tmp);    //consumed
+        SendDestinyUpdate(&tmp);    //consumed
     }
 
     sLog.Debug( "DestinyManager::Follow()", "SystemEntity '%s' following SystemEntity '%s' at velocity %f",
                 m_self->GetName(), who->GetName(), m_maxVelocity );
 
     // Forcibly set Speed since it doesn't get updated when Following upon Undock from stations:
-    //SetSpeedFraction( m_activeSpeedFraction, true );
+    SetSpeedFraction( m_activeSpeedFraction, true );
 }
 
 void DestinyManager::Orbit(SystemEntity *who, double distance, bool update) {
@@ -1006,12 +998,12 @@ void DestinyManager::Orbit(SystemEntity *who, double distance, bool update) {
     m_targetEntity.first = who->GetID();
     m_targetEntity.second = who;
     m_targetDistance = distance;
-    /*if(m_userSpeedFraction == 0.0f)
-        m_userSpeedFraction = 1.0f;*/    //doesn't seem to do this.
-    //if(m_activeSpeedFraction != m_userSpeedFraction) {
+    if(m_userSpeedFraction == 0.0)
+        m_userSpeedFraction = 1.0f;    //doesn't seem to do this.
+    if(m_activeSpeedFraction != m_userSpeedFraction) {
         m_activeSpeedFraction = 1.0f;
         _UpdateDerrived();
-    //}
+    }
 
     if(update) {
         DoDestiny_CmdOrbit du;
@@ -1020,7 +1012,7 @@ void DestinyManager::Orbit(SystemEntity *who, double distance, bool update) {
         du.distance = uint32(distance);
 
         PyTuple *tmp = du.Encode();
-        SendSingleDestinyUpdate(&tmp);    //consumed
+        SendDestinyUpdate(&tmp);    //consumed
     }
 }
 
@@ -1040,12 +1032,12 @@ void DestinyManager::OrbitingCruise(SystemEntity *who, double distance, bool upd
     m_targetEntity.first = who->GetID();
     m_targetEntity.second = who;
     m_targetDistance = distance;
-    /*if(m_userSpeedFraction == 0.0f)
-        m_userSpeedFraction = 1.0f;*/    //doesn't seem to do this.
-    //if(m_activeSpeedFraction != m_userSpeedFraction) {
+    if(m_userSpeedFraction == 0.0)
+        m_userSpeedFraction = 1.0f;    //doesn't seem to do this.
+    if(m_activeSpeedFraction != m_userSpeedFraction) {
         m_activeSpeedFraction = 1.0f;
         _UpdateDerrived();
-    //}
+    }
 
     if(update) {
         DoDestiny_CmdOrbit du;
@@ -1054,7 +1046,7 @@ void DestinyManager::OrbitingCruise(SystemEntity *who, double distance, bool upd
         du.distance = uint32(distance);
 
         PyTuple *tmp = du.Encode();
-        SendSingleDestinyUpdate(&tmp);    //consumed
+        SendDestinyUpdate(&tmp);    //consumed
     }
 }
 
@@ -1088,7 +1080,7 @@ void DestinyManager::SetShipCapabilities(InventoryItemRef ship)
     m_shipInertia = Inertia;
 //    m_maxShipAcceleration = maxShipAcceleration;
 
-    _log(PHYSICS__TRACE, "DestinyManager::SetShipCapabilities - Entity %u is using ship attributes: Radius=%f, Mass=%f, maxVelocity=%f, agility=%f, inertia=%f", m_self->GetID(), m_radius, m_mass, m_maxShipVelocity, m_shipAgility, m_shipInertia);
+    _log(PHYSICS__TRACE, "DestinyManager::SetShipCapabilities - Entity %s(%u) is using ship attributes: Radius=%f, Mass=%f, maxVelocity=%f, agility=%f, inertia=%f", m_self->GetName(), m_self->GetID(), m_radius, m_mass, m_maxShipVelocity, m_shipAgility, m_shipInertia);
 
     _UpdateDerrived();
 }
@@ -1096,8 +1088,8 @@ void DestinyManager::SetShipCapabilities(InventoryItemRef ship)
 void DestinyManager::SetPosition(const GPoint &pt, bool update, bool isWarping, bool isPostWarp) {
     //m_body->setPosition( pt );
     m_position = pt;
-    _log(PHYSICS__TRACEPOS, "DestinyManager::SetPosition - Entity %u set its position to (%.1f, %.1f, %.1f)",
-        m_self->GetID(), m_position.x, m_position.y, m_position.z );
+    _log(PHYSICS__TRACEPOS, "DestinyManager::SetPosition - Entity %s(%u) set its position to (%.1f, %.1f, %.1f)",
+        m_self->GetName(), m_self->GetID(), m_position.x, m_position.y, m_position.z );
 
     if(update) {
         DoDestiny_SetBallPosition du;
@@ -1107,33 +1099,68 @@ void DestinyManager::SetPosition(const GPoint &pt, bool update, bool isWarping, 
         du.z = pt.z;
 
         PyTuple *tmp = du.Encode();
-        SendSingleDestinyUpdate(&tmp);    //consumed
+        SendDestinyUpdate(&tmp);    //consumed
     }
     m_system->bubbles.UpdateBubble(m_self, update, isWarping, isPostWarp);
 }
 
-void DestinyManager::AlignTo(const GPoint &direction, bool update) {
-  /**  this is for turning ship for alignment with no acceleration or movement
-   *		fix this later....   -allan 7Aug14
+void DestinyManager::AlignTo(SystemEntity *ent, bool update) {
+  /**  this is for turning ship for alignment to direction with no acceleration or movement   -allan 7Aug14
+   *		continue this later....   allan 11Aug14
    */
-    GotoDirection(direction, update);
-}
+    const GPoint position = ent->GetPosition();
 
-void DestinyManager::GotoDirection(const GPoint &direction, bool update) {
-    State = DSTBALL_GOTO;
-    m_targetPoint = m_position + (direction * 1.0e16);
+	State = DSTBALL_GOTO;
+    m_targetPoint = position;  //m_position + (position * 1.0e16);
 
-    //if(m_userSpeedFraction == 0.0f) {
-        //m_userSpeedFraction = 1.0f;
-    //}
-    //if(m_activeSpeedFraction != m_userSpeedFraction) {
-        m_activeSpeedFraction = 1.0f;
-        _UpdateDerrived();
-    //}
+    m_userSpeedFraction = 0.1f;
+    m_activeSpeedFraction = 0.1f;
+    _UpdateDerrived();
 
     //Clear any pending docking operation since the user set a new course:
 	if( m_self->IsClient() )
 		m_self->CastToClient()->SetPendingDockOperation( false );
+
+    /**  need a while loop in here for checking alignment
+	 *     when alignment is good (~8º), call Stop()
+	 *
+        GVector align_vector(m_position, m_targetPoint);
+        align_vector.normalize();
+        GVector vel_normalized(m_velocity);
+        vel_normalized.normalize();
+        double dot = warp_vector.dotProduct(vel_normalized);    //cosine between vectors.
+        while(dot < (1.0 - 0.01)) {    //this is about 8 degrees
+        }
+	 */
+	GotoDirection(position, true);
+
+    if(update) {
+        DoDestiny_CmdAlignTo au;
+        au.entityID = ent->GetID();
+
+        PyTuple *tmp = au.Encode();
+        SendDestinyUpdate(&tmp);    //consumed
+    }
+
+    _log(PHYSICS__TRACEPOS, "DestinyManager::AlignTo() - '%s' aligning to SystemEntity '%s'(%u) @ (%f,%f,%f)",
+                m_self->GetName(), ent->GetName(), ent->GetID(), position.x, position.y, position.z );
+}
+
+void DestinyManager::GotoDirection(const GPoint &direction, bool update) {
+    //Clear any pending docking operation since the user set a new course:
+	if( m_self->IsClient() )
+		m_self->CastToClient()->SetPendingDockOperation( false );
+
+    State = DSTBALL_GOTO;
+    m_targetPoint = m_position + (direction * 1.0e16);
+    bool process = false;
+    if(m_userSpeedFraction == 0.0f) {
+        m_userSpeedFraction = 1.0f;
+        process = true;
+    }
+
+    if(m_activeSpeedFraction != m_userSpeedFraction)
+	    SetSpeedFraction( 1.0f, update );
 
     if(update) {
         DoDestiny_CmdGotoDirection du;
@@ -1143,7 +1170,7 @@ void DestinyManager::GotoDirection(const GPoint &direction, bool update) {
         du.z = direction.z;
 
         PyTuple *tmp = du.Encode();
-        SendSingleDestinyUpdate(&tmp);    //consumed
+        SendDestinyUpdate(&tmp);    //consumed
     }
 
     _log(PHYSICS__TRACEPOS, "DestinyManager::GotoDirection() - SystemEntity '%s' vectoring to (%f,%f,%f) at velocity %f",
@@ -1152,32 +1179,78 @@ void DestinyManager::GotoDirection(const GPoint &direction, bool update) {
 
 PyResult DestinyManager::AttemptDockOperation()
 {
-    Client * who = m_self->CastToClient();
-    SystemManager * sm = m_self->System();
+    Client *who = m_self->CastToClient();
+    SystemManager *sm = m_self->System();
     uint32 stationID = who->GetDockStationID();
     SystemEntity *station = sm->get(stationID);
 
     if(station == NULL) {
         codelog(CLIENT__ERROR, "%s: Station %u not found.", who->GetName(), stationID);
+		who->SendErrorMsg("Station Not Found, Docking Aborted.");
         return NULL;
+	}
+
+	GPoint stationOrigin = static_cast< StationEntity* >( station )->GetPosition();
+    GPoint position = who->GetPosition();
+
+    GVector direction(position, stationOrigin);
+    double rangeToStationPerimiter = direction.length() - station->GetRadius();
+
+    // WARNING: DO NOT uncomment the following line as it for some reason causes HEAP corruption to occur on auto-docking
+    //if( !(who->GetPendingDockOperation()) )
+        //GotoDirection( direction, true );   // Turn ship and move toward docking point
+
+    // Verify range to station is within docking perimeter of 1500 meters:
+    //if( (rangeToStation - station->GetRadius()) > 1500 )
+	sLog.Warning("DestinyManager::AttemptDockOperation()", "rangeToStationPerimiter is %u", rangeToStationPerimiter);
+	if( rangeToStationPerimiter > 1500 )
+    {
+		who->SendErrorMsg("Outside Docking Perimiter.  Please Move Closer.");
+    // This packet has to be returned to the client when outside the docking perimeter
+	//   TODO:  make a packet response for this, named:  OnDockingApproach
+    // Packet::ErrorResponse
+    /* -- In the marshalstream:
+    ObjectEx:
+    Header:
+      Tuple: 3 elements
+        [ 0] Token: 'ccp_exceptions.UserError'
+        [ 1] Tuple: 1 elements
+        [ 1]   [ 0] String: 'DockingApproach'
+        [ 2] Dictionary: 2 entries
+        [ 2]   [ 0] Key: String: 'msg'
+        [ 2]   [ 0] Value: String: 'DockingApproach'
+        [ 2]   [ 1] Key: String: 'dict'
+        [ 2]   [ 1] Value: (None)
+    */
+    // TODO: On docking failure: Send DoDestinyUpdates for GotoPoint for Station Dockpoint, SetBallMassive, SetBallMass
+
+        //GotoDirection( direction, true );   // Turn ship and move toward docking point
+        // WARNING: DO NOT uncomment the following line as it for some reason causes HEAP corruption to occur on auto-docking
+        //who->SetPendingDockOperation( true );   // Set client object into state that a Docking operation is pending
+        //return NULL;                            // so that DestinyManager can track when it needs to auto-dock
     }
+    // Stop Destiny from trying to move ship because it is about to dock and if Destiny keeps trying to move the ship after
+    // some point in the dock procedure, the server crashes hard.
+    Stop(false);
 
-    GPoint stationOrigin = static_cast< StationEntity* >( station )->GetPosition();
-    // Leave stationOrigin alone, so that docking perimeter is a sphere centered on the station's center coordinate, not the undock point
-	const GPoint &position = who->GetPosition();
-    OnDockingAccepted da;
-    da.end_x = stationOrigin.x;
-    da.end_y = stationOrigin.y;
-    da.end_z = stationOrigin.z;
-    da.start_x = position.x;
-    da.start_y = position.y;
-    da.start_z = position.z;
-    da.stationID = stationID;
+	//GPoint stationDockPoint = static_cast< StationEntity* >( station )->GetStationObject()->GetStationType()->dockEntry(); //station->GetPosition();
+    // When docking, Set X,Y,Z to origin so that when changing ships in stations, they don't appear outside:
+	who->MoveToLocation( stationID, m_position );		// if stationDockPoint does not help, try m_position
 
-    GPoint start(da.start_x, da.start_y, da.start_z);
-    GPoint end(da.end_x, da.end_y, da.end_z);
-    GVector direction(start, end);
-    double rangeToStation = direction.length();
+    who->SetPendingDockOperation( false );
+
+    //clear all targets
+    who->targets.ClearAllTargets();
+
+	//tell ship it's docking.  this only offlines all modules right now.
+	who->GetShip()->Dock();
+
+    //Check if player is in pod, in which case they get a rookie ship for free  (with 2 civilian modules and 1 trit)
+    if( who->GetShip()->typeID() == itemTypeCapsule )
+	    who->SpawnNewRookieShip();
+
+    // Save all Character, Ship, Module data to Database on dock:
+    who->SaveAllToDatabase();
 
     // Docking was accepted, so send the OnDockingAccepted packet:
     // Packet::Notification
@@ -1197,97 +1270,14 @@ PyResult DestinyManager::AttemptDockOperation()
       [ 1]   [ 1]   [ 1]   [ 2] Real field: 50607993007.845703      // z
       [ 1]   [ 1]   [ 2] Integer field: 60004450                    // Station ID
     */
-    //PyTuple *tmp = da.Encode();
-    //SendSingleDestinyUpdate(&tmp);    //consumed
-
-    // WARNING: DO NOT uncomment the following line as it for some reason causes HEAP corruption to occur on auto-docking
-    //if( !(who->GetPendingDockOperation()) )
-        //GotoDirection( direction, true );   // Turn ship and move toward docking point
-
-    // Verify range to station is within docking perimeter of 500 meters:
-    // (there is something WRONG with this as it will become true even when the client says ship is still about 14km from station)
-    if( (rangeToStation - station->GetRadius()) > 1500 )
-    {
-        GotoDirection( direction, true );   // Turn ship and move toward docking point
-        // WARNING: DO NOT uncomment the following line as it for some reason causes HEAP corruption to occur on auto-docking
-        //who->SetPendingDockOperation( true );   // Set client object into state that a Docking operation is pending
-        return NULL;                            // so that DestinyManager can track when it needs to auto-dock
-    }
-    // This packet has to be returned to the client when outside the docking perimeter
-    // Packet::ErrorResponse
-    /* -- In the marshalstream:
-    ObjectEx:
-    Header:
-      Tuple: 3 elements
-        [ 0] Token: 'ccp_exceptions.UserError'
-        [ 1] Tuple: 1 elements
-        [ 1]   [ 0] String: 'DockingApproach'
-        [ 2] Dictionary: 2 entries
-        [ 2]   [ 0] Key: String: 'msg'
-        [ 2]   [ 0] Value: String: 'DockingApproach'
-        [ 2]   [ 1] Key: String: 'dict'
-        [ 2]   [ 1] Value: (None)
-    List data:
-      Empty
-    Dict data:
-      Empty
-    */
-    // TODO: On docking failure: Send DoDestinyUpdates for GotoPoint for Station Dockpoint, SetBallMassive, SetBallMass
-
-    // Stop Destiny from trying to move ship because it is about to dock and if Destiny keeps trying to move the ship after
-    // some point in the dock procedure, the server crashes hard.
-    Stop(false);
-
-	GPoint stationDockPoint = static_cast< StationEntity* >( station )->GetStationObject()->GetStationType()->dockEntry(); //station->GetPosition();
-    // When docking, Set X,Y,Z to origin so that when changing ships in stations, they don't appear outside:
-	who->MoveToLocation( stationID, m_position );		// if stationDockPoint does not help, try m_position
-
-    who->SetPendingDockOperation( false );
-
-    //clear all targets
-    who->targets.ClearAllTargets();
-
-	//tell ship it's docking.  this only offlines all modules right now.
-	who->GetShip()->Dock();
-
-    //Check if player is in pod, in which case they get a rookie ship for free
-    if( who->GetShip()->typeID() == itemTypeCapsule )
-    {
-        //set spawn location for hangar - not sure if this is correct.  Do you instantly get put in the rookie ship?
-        EVEItemFlags flag = (EVEItemFlags)flagHangar;
-
-        //create rookie ship of appropriate type
-        uint32 typeID;
-        if(who->GetChar()->race() == raceAmarr )  typeID = amarrRookie;
-        else if(who->GetChar()->race() == raceCaldari )  typeID = caldariRookie;
-        else if(who->GetChar()->race() == raceGallente )  typeID = gallenteRookie;
-        else if(who->GetChar()->race() == raceMinmatar )  typeID = minmatarRookie;
-
-        //create data for new rookie ship
-        ItemData idata(
-            typeID,
-            who->GetCharacterID(),
-            0, //temp location
-            flag,
-            1
-        );
-        //spawn rookie
-        InventoryItemRef i = who->services().item_factory.SpawnItem( idata );
-
-        //move the new rookie ship into the players hanger in station
-        if(!i)
-            throw PyException( MakeCustomError( "Unable to generate correct rookie ship" ) );
-
-        i->Move( who->GetStationID(), flag, true );
-    }
-
-    // Save all Character, Ship, Module data to Database on dock:
-    if( who->IsClient() )
-        who->CastToClient()->SaveAllToDatabase();
-
-	// Finally, remove ship from current bubble and system manager:
-	//who->System()->RemoveClient(who);
-
+	/*  begin docking accepted packet building for return
+    PyTuple *da = new PyTuple(2);
+	PyTuple *da2 = new PyTuple(2);
+	PyTuple *da3 = new PyTuple(3);
+	PyList *da_list = new PyList(3);
+	PyList *da_list2 = new PyList(3);
+	da_list->SetItems
+*/
 	return NULL;
 }
 
@@ -1523,7 +1513,7 @@ void DestinyManager::SendTerminalExplosion() const {
         updates.push_back(du.Encode());
     }
 
-    SendDestinyUpdate(updates, false);
+    SendDestinyUpdate(updates, true);
 }
 
 //this should only be available on gates.
@@ -1537,7 +1527,7 @@ void DestinyManager::SendGateActivity(uint32 stargateID) const {
     du.active = 0;
 
     PyTuple *tmp = du.Encode();
-    SendSingleDestinyUpdate(&tmp);    //consumed
+    SendDestinyUpdate(&tmp);    //consumed
 }
 
 void DestinyManager::SendSetState(const SystemBubble *b) const {
@@ -1548,7 +1538,7 @@ void DestinyManager::SendSetState(const SystemBubble *b) const {
     m_system->MakeSetState(b, ss);
 
     PyTuple *tmp = ss.Encode();
-    SendSingleDestinyUpdate(&tmp, true);    //consumed
+    SendDestinyUpdate(&tmp, true);    //consumed
 }
 
 void DestinyManager::SendBallInfoOnUndock(bool update) const {
@@ -1737,30 +1727,17 @@ void DestinyManager::SendSpecialEffect(const ShipRef shipRef, uint32 moduleID, u
     effect.otherTypeID = chargeTypeID;
     effect.area = area;
     effect.effect_type = effectString;
-    effect.isOffensive = (isOffensive) ? 1 : 0;
-    effect.start = (start) ? 1 : 0;
-    effect.active = (isActive) ? 1 : 0;
+    effect.isOffensive = isOffensive;
+    effect.start = start;
+    effect.active = isActive;
     effect.duration_ms = duration;
-	switch( repeat )
-	{
-		case 0:
-			effect.repeat = 0;  //new PyBool(false);
-			break;
-		case 1:
-			effect.repeat = 1;  //new PyBool(true);
-			break;
-		default:
-			effect.repeat = repeat;  //new PyInt(repeat);
-	}
-
-    effect.startTime = Win32TimeNow() + ((duration * Win32Time_Second) / 1000);
-
+	effect.repeat = repeat;  //new PyInt(repeat);
+	effect.startTime = Win32TimeNow();
     updates.push_back(effect.Encode());
-
     SendDestinyUpdate(updates, false);
 
 	//PyTuple* up = effect.Encode();
-    //SendSingleDestinyUpdate( &up );    //consumed
+    //SendDestinyUpdate( &up );    //consumed
     //PySafeDecRef( up );
 }
 

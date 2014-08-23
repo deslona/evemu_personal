@@ -325,9 +325,10 @@ GetMapConnections(id, sol, reg, con, cel, _c)  <- from client py code
       <bool name="con" />
       <int name="cel" />
       <int name="_c" />
-*/
+
   sLog.Log( "ConfigService::Handle_GetMapConnections()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
+*/
     Call_GetMapConnections args;
     if(!args.Decode(&call.tuple)) {
         _log(SERVICE__ERROR, "Failed to decode args.");

@@ -28,13 +28,14 @@
 
 #include "PyService.h"
 
-class FleetProxyService: public PyService
+class FleetProxyService
+ : public PyService
 {
-public:
+  public:
     FleetProxyService(PyServiceMgr *mgr);
     ~FleetProxyService();
 
-protected:
+  protected:
     class Dispatcher;
     Dispatcher *const m_dispatch;
 

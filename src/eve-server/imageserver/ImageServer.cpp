@@ -59,8 +59,8 @@ ImageServer::ImageServer()
         CreateDirectory( subdir.c_str(), NULL );
     }
 
-    sLog.Log("image server", "our URL: %s", _url.c_str());
-    sLog.Log("image server", "our base: %s", _basePath.c_str());
+    sLog.Log("       ServerInit", "Image Server URL: %s", _url.c_str());
+    sLog.Log("       ServerInit", "Image Server path: %s", _basePath.c_str());
 }
 
 void ImageServer::ReportNewImage(uint32 accountID, std::tr1::shared_ptr<std::vector<char> > imageData)

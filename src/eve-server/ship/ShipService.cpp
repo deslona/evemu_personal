@@ -176,7 +176,8 @@ PyResult ShipBound::Handle_Board(PyCallArgs &call) {
                     //oldShipRef->DisableSaveTimer();     // Stop auto-save timer for old ship
                     //boardShipRef->EnableSaveTimer();    // Start auto-save timer for new ship
 
-                    if( oldShipRef->typeID() == itemTypeCapsule )
+                    //if( oldShipRef->typeID() == itemTypeCapsule )
+					if( call.client->InPod() )
                     {
                         // Move pod out of inventory, then delete its Inventory Item object:
                         call.client->MoveItem( oldShipRef->itemID(), 0, (EVEItemFlags)flagNone );
@@ -257,10 +258,12 @@ PyResult ShipBound::Handle_Board(PyCallArgs &call) {
 
 PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
   /**
+       shipsvc.Undock( shipID, ignoreContraband, onlineModules=onlineModules)
+
 21:44:59 [Debug]   Call Arguments:
 21:44:59 [Debug]       Tuple: 2 elements
 21:44:59 [Debug]         [ 0] Integer field: 140000096		<- shipID
-21:44:59 [Debug]         [ 1] Boolean field: false    		<- unknown
+21:44:59 [Debug]         [ 1] Boolean field: false    		<- ignoreContraband
 21:44:59 [Debug]   Call Named Arguments:
 21:44:59 [Debug]     Argument 'onlineModules':
 21:44:59 [Debug]         Dictionary: Empty
@@ -286,7 +289,10 @@ PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
     }
 
     //do session change...
-	call.client->UndockFromStation( stationID, systemID, constellationID, regionID, dockPosition );
+	//call.client->UndockFromStation( stationID, systemID, constellationID, regionID, dockPosition );
+    call.client->MoveToLocation(call.client->GetSystemID(), dockPosition);
+
+    call.client->OnCharNoLongerInStation();
 
     //calculate undock movement
     GPoint dest =
@@ -296,19 +302,15 @@ PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
             dockOrientation.y,
             dockOrientation.z// * (-1.0)
         );
-
+	dest.normalize();
     //move away from dock
-    call.client->Destiny()->SetShipCapabilities( call.client->GetShip() );
-    //call.client->Destiny()->SetSpeedFraction( 1.0, false );
+	call.client->Destiny()->SetSpeedFraction( 1.0f, true );
 	call.client->Destiny()->GotoDirection( dest, true );
-    //call.client->Destiny()->AlignTo( dest, true );
+	call.client->Destiny()->Stop(true);
 
-    // SAVE THE UNDOCK ALIGN-TO POINT AND TELL CLIENT WE JUST UNDOCKED
     //call.client->SetUndockAlignToPoint( dest );
     //call.client->SetJustUndocking( true );
-    // --- END HACK ---
 
-	//call.client->Destiny()->Stop( true );
     return NULL;
 }
 
@@ -1104,11 +1106,14 @@ PyResult ShipBound::Handle_LeaveShip(PyCallArgs &call){
 
     // Remove ball from bubble manager for this client's character's system for the old ship and then
     // board the capsule:
-    call.client->System()->bubbles.Remove( call.client, true );
+    if(call.client->IsInSpace())
+        call.client->System()->bubbles.Remove(call.client, true );
+
     call.client->BoardShip( updatedCapsuleRef );
 
     // Add ball to bubble manager for this client's character's system for the new capsule object:
-    call.client->System()->bubbles.Add( call.client, true );
+    if(call.client->IsInSpace())
+        call.client->System()->bubbles.Add(call.client, true);
 
     return NULL;
 }
@@ -1129,16 +1134,22 @@ PyResult ShipBound::Handle_ActivateShip(PyCallArgs &call) {
         return NULL;
     }
 
-    if(call.client->IsInSpace())
-        call.client->System()->bubbles.Remove(call.client, true );
-
     newShip = args.arg1;
+
+	ShipRef oldShipRef = call.client->GetShip();
     ShipRef newShipRef = call.client->services().item_factory.GetShip(newShip);
 
-    call.client->BoardShip(newShipRef);
+	if(call.client->IsInSpace())
+		call.client->System()->bubbles.Remove(call.client, true );
 
-    if(call.client->IsInSpace())
-        call.client->System()->bubbles.Add(call.client, true);
+	call.client->BoardShip(newShipRef);
+
+	if(call.client->IsInSpace())
+	    call.client->System()->bubbles.Add(call.client, true);
+
+	// Now that we're in our new ship, if the old ship was a capsule, it's gone, so let's delete it:
+	if( oldShipRef->groupID() == EVEDB::invGroups::Capsule )
+		oldShipRef->Delete();
 
     PyTuple* rsp = new PyTuple(3);
     rsp->SetItem(0, new PyDict);

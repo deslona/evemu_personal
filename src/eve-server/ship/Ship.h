@@ -227,6 +227,16 @@ public:
     void Dock();
     void Undock();
 
+	/**
+	 * CalculateRechargeRate
+	 * Calculate the recharge rate of capacitor or shields.
+	 * @param Capacity The maximum capacity of the item.
+	 * @param RechargeTimeMS The time in ms that it takes to fully recharge the item.
+	 * @param Current The current charge of the item.
+	 * @return The rate of charge for the item.
+	 */
+	double CalculateRechargeRate(double Capacity, double RechargeTimeMS, double Current);
+
     /* begin new module manager interface */
 	InventoryItemRef GetModule(EVEItemFlags flag);
 	InventoryItemRef GetModule(uint32 itemID);

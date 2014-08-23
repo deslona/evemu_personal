@@ -129,7 +129,6 @@ CharacterData::CharacterData(   //uses v4
     double _balance,
     double _aurBalance,
     double _securityRating,
-	uint64 _loginTime,
     uint32 _logonMinutes,
     double _skillPoints,
     uint32 _corporationID,
@@ -155,7 +154,6 @@ CharacterData::CharacterData(   //uses v4
   balance(_balance),
   aurBalance(_aurBalance),
   securityRating(_securityRating),
-  loginTime(_loginTime),
   logonMinutes(_logonMinutes),
   skillPoints(_skillPoints),
   corporationID(_corporationID),
@@ -1039,9 +1037,6 @@ void Character::AddItem(InventoryItemRef item) {
 void Character::SaveCharacter() {
     _log( ITEM__TRACE, "Saving character %u.", itemID() );
 
-    // Calculate total Skill Points trained at this time to save to DB:
-    _CalculateTotalSPTrained();
-
     // Set current m_logonMinutes
     _GetLogonMinutes();
 
@@ -1059,7 +1054,7 @@ void Character::SaveCharacter() {
             aurBalance(),
             securityRating(),
             logonMinutes(),
-            m_totalSPtrained.get_float(),
+            GetTotalSP().get_float(),
             corporationID(),
             allianceID(),
             warFactionID(),
@@ -1100,7 +1095,7 @@ void Character::SaveFullCharacter() {
 	// First save basic character info:
 	SaveCharacter();
 
-    // Save this character's own attributes:
+    // Save this character's attributes:
     SaveAttributes();
 
     // Save currently training skill:
@@ -1188,7 +1183,6 @@ void Character::_SetLoginTime() {
 
 void Character::_GetLogonMinutes() {
     //  get login time and set _logonMinutes       -allan
-    //uint32 loginTime = m_db.GetLoginTime(itemID());
     uint32 loginMinutes = ( (Win32TimeNow() - loginTime() ) / 1000000000);  // * 2;
 
     // some checks are done < 1m, so if this check has no minutes, keep original time and exit
@@ -1220,46 +1214,12 @@ void Character::chkDynamicSystemID(uint32 systemID) {
   *        really should trunicate table on restart after everything is working.
   */
 
-void Character::AddJumpToDynamicData(uint32 systemID) {
+void Character::AddJumpToDynamicData(uint32 systemID) {  /**jumpsHour, jumps24Hours */
   m_db.AddJumpToDynamicData(systemID);
 }
 
-/**  will need to rewrite based on client data from ui/shared/maps/starmodehandler.py(427) ColorStarsByNumPilots
- *   very odd formula for tracking systems and players.
- *
- *   NOTE:  this is not correct.  needs deeper understanding and re-write.   -allan 5Aug14
- */
-void Character::AddPilotToDynamicData(uint32 systemID, bool isDocked, bool isLogin) {
-
-    uint32 docked, space;
-	m_db.AddPilotToDynamicData(systemID, isDocked, isLogin, &docked, &space);
-
-  /**
-        sta = solarsystem - 30000000;
-        sol = total;
-        statDivisor = sta / docked;
-
-        InSpace = sol - sta / statDivisor;
-        docked = sta / statDivisor;
-        */
-  /**  not working right....*/
-  /*
-  float divisor = 0;
-  uint16 sta = systemID - 30000000;
-  uint32 sol = &docked + &space;
-  if(docked)
-      divisor = sta / docked;
-  else
-	  sLog.Error("DynamicData", "PilotDocked = 0");
-
-  if(divisor < 1) {
-	  sLog.Error("DynamicData", "divisor = 0");
-	  divisor = 1;
-	  sta = 0;
-	  sol = 0;
-  }
-  m_db.SaveSolStaToDynamicData(systemID, sol, sta, divisor);
-  */
+void Character::AddPilotToDynamicData(uint32 systemID, bool isDocked, bool isLogin) {  /**pilotsDocked, pilotsInSpace */
+	m_db.AddPilotToDynamicData(systemID, isDocked, isLogin);
 }
 
 void Character::AddKillToDynamicData(uint32 systemID) {  /**killsHour, kills24Hours */

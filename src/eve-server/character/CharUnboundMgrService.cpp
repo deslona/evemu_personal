@@ -206,7 +206,7 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
 
     //Set the character's career based on the school they picked.
     if( m_db.GetCareerBySchool( cdata.schoolID, cdata.careerID ) ) {
-        // Right now we don't know what causes the specialization switch, so just make both values the same
+        //  The Specialization has been taken out in Crucible.  set to same as Career (default)
         cdata.careerSpecialityID = cdata.careerID;
     } else {
         codelog(SERVICE__WARNING, "Could not find default School ID %u. Using Caldari Military.", cdata.schoolID);
@@ -286,12 +286,23 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
 
     //load skills
     CharSkillMap startingSkills;
-    if( !m_db.GetSkillsByRace(char_type->race(), startingSkills) ) {
-        codelog(CLIENT__ERROR, "Failed to load char create skills. Bloodline %u, Ancestry %u.",
+	//  Base Skills
+    if( !m_db.GetBaseSkills(startingSkills) ) {
+        codelog(CLIENT__ERROR, "Failed to load char Base skills. Bloodline %u, Ancestry %u.",
             char_type->bloodlineID(), cdata.ancestryID);
         return NULL;
     }
-
+	//  Race Skills
+    if( !m_db.GetSkillsByRace(char_type->race(), startingSkills) ) {
+        codelog(CLIENT__ERROR, "Failed to load char Race skills. Bloodline %u, Ancestry %u.",
+            char_type->bloodlineID(), cdata.ancestryID);
+        return NULL;
+    }
+	//  Career Skills
+    if( !m_db.GetSkillsByCareer(cdata.careerID, startingSkills) ) {
+        codelog(CLIENT__ERROR, "Failed to load char speciality skills for %u.", cdata.careerSpecialityID);
+        return NULL;
+    }
     //now we have all the data we need, stick it in the DB
     //create char item
     CharacterRef char_item = m_manager->item_factory.SpawnCharacter(idata, cdata, corpData);

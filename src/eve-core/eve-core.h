@@ -20,7 +20,8 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Aim, Captnoord, Zhur, Bloody.Rabbit
+    Author:     Aim, Captnoord, Zhur, Bloody.Rabbit
+    Updates:	Allan
 */
 
 #ifndef __EVE_CORE_H__INCL__
@@ -73,6 +74,7 @@
 
 // Standard Template Library includes
 #include <algorithm>
+#include <iostream>
 #include <list>
 #include <map>
 #include <memory>
@@ -132,7 +134,6 @@
 #   include <dirent.h>
 #   include <execinfo.h>
 #   include <pthread.h>
-#   include <unistd.h>
 #endif /* !HAVE_WINDOWS_H */
 
 #ifdef HAVE_WINSOCK2_H
@@ -158,6 +159,8 @@
 #include <GaPreReqs.h>
 #include <GaMath.h>
 #include <GaTypes.h>
+// Lua
+#include <lua.h>
 // MySQL
 #include <mysql.h>
 #include <mysqld_error.h>
@@ -166,6 +169,14 @@
 #include <tinyxml.h>
 // zlib
 #include <zlib.h>
+
+/*************************************************************************/
+/* MMGR - Memory Manager                                                 */
+/*	Memory managing & tracking software                                  */
+/*	This code is designed to track and log memory leaks                  */
+/*************************************************************************/
+//   having problems with dependecy loading order and void pointer references
+//#include "mmgr.h"
 
 /*************************************************************************/
 /* Other stuff included by default                                       */

@@ -68,14 +68,11 @@ PyResult NetService::Handle_GetInitVals(PyCallArgs &call) {
         dict->SetItemString("tutorialSvc", new PyString("station"));
         dict->SetItemString("slash", new PyString("station"));
         dict->SetItemString("wormholeMgr", new PyString("station"));
-
         dict->SetItemString("LSC", new PyString("location"));
         dict->SetItemString("station", new PyString("location"));
         dict->SetItemString("config", new PyString("locationPreferred"));
-
         dict->SetItemString("scanMgr", new PyString("solarsystem"));
         dict->SetItemString("keeper", new PyString("solarsystem"));
-
 		dict->SetItemString("agentMgr", new PyNone());
 		dict->SetItemString("aggressionMgr", new PyNone());
 		dict->SetItemString("alert", new PyNone());
@@ -86,6 +83,7 @@ PyResult NetService::Handle_GetInitVals(PyCallArgs &call) {
 		dict->SetItemString("beyonce", new PyNone());
 		dict->SetItemString("BSD", new PyNone());
 		dict->SetItemString("cache", new PyNone());
+		dict->SetItemString("CalendarProxy", new PyNone());
 		dict->SetItemString("corporationSvc", new PyNone());
 		dict->SetItemString("corpStationMgr", new PyNone());
 		dict->SetItemString("corpmgr", new PyNone());
@@ -129,6 +127,7 @@ PyResult NetService::Handle_GetInitVals(PyCallArgs &call) {
 		dict->SetItemString("lookupSvc", new PyNone());
 		dict->SetItemString("lootSvc", new PyNone());
 		dict->SetItemString("LPSvc", new PyNone());
+		dict->SetItemString("LPStore", new PyNone());
 		dict->SetItemString("machoNet", new PyNone());
 		dict->SetItemString("map", new PyNone());
 		dict->SetItemString("market", new PyNone());
@@ -142,6 +141,7 @@ PyResult NetService::Handle_GetInitVals(PyCallArgs &call) {
 		dict->SetItemString("pathfinder", new PyNone());
 		dict->SetItemString("petitioner", new PyNone());
 		dict->SetItemString("planetMgr", new PyNone());
+		dict->SetItemString("search", new PyNone());
 		dict->SetItemString("sessionMgr", new PyNone());
 		dict->SetItemString("ship", new PyNone());
 		dict->SetItemString("skillMgr", new PyNone());
@@ -176,7 +176,46 @@ PyResult NetService::Handle_GetTime(PyCallArgs &call) {
 
 PyResult NetService::Handle_GetClusterSessionStatistics(PyCallArgs &call) {
     DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT sol, sta, statDivisor FROM mapDynamicData" );
+    sDatabase.RunQuery(res, "SELECT solarSystemID, pilotsDocked, pilotsInSpace FROM mapDynamicData");
 
     return DBResultToRowset(res);
+
+  /**
+        sta = solarsystem - 30000000;
+        sol = total;
+        statDivisor = sta / docked;
+
+        InSpace = sol - sta / statDivisor;
+        docked = sta / statDivisor;
+        */
+  /**  not working right....*/
+  /*
+    DBResultRow row;
+    uint16 system = 0, docked = 0, space = 0;
+    if(res.GetRow(row)) {
+		system = row.GetUInt(0);
+        pilotsDocked = row.GetUInt(1);
+        pilotsInSpace = row.GetUInt(2);
+    }
+  float divisor = 0;
+  uint16 sta = system - 30000000;
+  uint32 sol = docked + space;
+  if(docked)
+      divisor = sta / docked;
+  else
+	  sLog.Error("DynamicData", "PilotDocked = 0");
+
+  if(divisor < 1) {
+	  sLog.Error("DynamicData", "divisor = 0");
+	  divisor = 1;
+	  sta = 0;
+	  sol = 0;
+  }
+    PyTuple* rsp = new PyTuple(3);
+    rsp->SetItem(0, new PyDict);
+    rsp->SetItem(1, new PyDict);
+    rsp->items[2] = new BuiltinSet();
+
+    return rsp;
+  */
 }

@@ -23,18 +23,18 @@
     Author:        Allan
 */
 
-#ifndef __CALENDAR__H__INCL__
-#define __CALENDAR__H__INCL__
+
+#ifndef __CALENDAR_H_INCL__
+#define __CALENDAR_H_INCL__
 
 
 class Calendar {
   public:
-    /**
     Calendar();
-    */
+     virtual ~Calendar();
 
-  private:
+  protected:
 
 };
 
-#endif /* !__CALENDAR__H__INCL__ */
+#endif /* !__CALENDAR_H_INCL__*/

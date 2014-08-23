@@ -565,12 +565,21 @@
               <int name="startDate" />
           </dictInlineEntry>
           <dictInlineEntry key="endDate">
-              <bool name="endDate" />
+              <int name="endDate" />
           </dictInlineEntry>
           <dictInlineEntry key="fraction">
               <int name="fraction" />
           </dictInlineEntry>
       </dictInline>
+  </elementDef>
+
+  <elementDef name="Rsp_GetInsureShip">
+      <tupleInline>
+          <int name="shipID" />
+          <real name="amount" />
+          <bool name="isCorp" />
+          <bool name="voidOld" />
+      </tupleInline>
   </elementDef>
 
   <elementDef name="Call_SearchQuery">
@@ -590,5 +599,14 @@
       </listInline>
     </tupleInline>
   </elementDef>
-
+<!--
+  <elementDef name="Rsp_SearchQuery">
+    <dictInline>
+	  <int key="key">
+	  <dictInlineEntry key="id">
+		<int name="int1" />
+	  </dictInlineEntry>
+    </dictInline>
+  </elementDef>
+-->
  </elements>

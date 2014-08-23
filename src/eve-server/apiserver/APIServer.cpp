@@ -43,6 +43,8 @@ APIServer::APIServer()
     std::stringstream urlBuilder;
     urlBuilder << "http://" << sConfig.net.apiServer << ":" << (sConfig.net.apiServerPort) << "/";
     _url = urlBuilder.str();
+
+    sLog.Log("       ServerInit", "API Server URL: %s", _url.c_str());
 }
 
 void APIServer::CreateServices(const PyServiceMgr &services)

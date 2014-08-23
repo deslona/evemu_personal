@@ -242,6 +242,10 @@ public:
      */
 	uint32 GetNextEntityID();
 
+	uint32 Count()		{ return(m_items.size()); }
+
+	void SaveItems();
+
 protected:
     InventoryDB m_db;
 
@@ -272,7 +276,7 @@ protected:
 
 	// ID Authority:
 	// holds the next valid ID for in-memory only objects of EVEDB::invCategories::Entity
-	static uint32 m_nextEntityID;		
+	static uint32 m_nextEntityID;
 };
 
 #endif

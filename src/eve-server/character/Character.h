@@ -207,7 +207,6 @@ public:
         double _balance = 0.0,
         double _aurBalance = 0.0,
         double _securityRating = 0.0,
-		uint64 _loginTime = 0,
         uint32 _logonMinutes = 0,
         double _skillPoints = 0,
         uint32 _corporationID = 0,
@@ -236,7 +235,6 @@ public:
     double balance;
     double aurBalance;
     double securityRating;
-	uint64 loginTime;
     uint32 logonMinutes;
     double skillPoints;
 

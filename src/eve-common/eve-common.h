@@ -21,6 +21,7 @@
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
     Author:     Bloody.Rabbit
+    Updates:	Allan
 */
 
 #ifndef __EVE_COMMON_H__INCL__
@@ -31,11 +32,17 @@
 /************************************************************************/
 #include "eve-core.h"
 
+/************************************************************************/
+/* eve-common includes                                                  */
+/************************************************************************/
 // database
+#include "database/dbcore.h"
 #include "database/dbtype.h"
 // log
-#include "log/logsys.h"
 #include "log/LogNew.h"
+#include "log/logsys.h"
+#include "log/Basic_Log.h"
+#include "log/HTML_Log.h"
 // network
 #include "network/Socket.h"
 #include "network/StreamPacketizer.h"
@@ -45,18 +52,21 @@
 #include "utils/Buffer.h"
 #include "utils/crc32.h"
 #include "utils/Deflate.h"
+#include "utils/EvilNumber.h"
+#include "utils/gpoint.h"
 #include "utils/misc.h"
 #include "utils/RefPtr.h"
-#include "utils/Singleton.h"
+#include "utils/Seperator.h"
+//#include "utils/Singleton.h"
 #include "utils/timer.h"
 #include "utils/utils_hex.h"
 #include "utils/utils_string.h"
 #include "utils/utils_time.h"
 #include "utils/Util.h"
 
-/************************************************************************/
-/* eve-common includes                                                  */
-/************************************************************************/
+//  cannot move these to eve-core.h for correct load order.
+// /usr/local/src/eve/cruc/src/eve-core/eve-core.h:191:26: fatal error: <Base64.h>: No such file or directory
+
 // Base64 encoding utilities
 #include <Base64.h>
 // Utility for reading trifiles.

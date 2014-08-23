@@ -166,7 +166,7 @@ bool SystemManager::_LoadSystemCelestials() {
                     continue;
                 }
                 m_entities[se->GetID()] = se;
-                //bubbles.Add(se, false);
+                bubbles.Add(se, false);
                 m_entityChanged = true;
             }
         }

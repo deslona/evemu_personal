@@ -91,6 +91,7 @@ void SystemGPoint::GetRandMoon(uint32 systemID) {
 }
 
 void SystemGPoint::GetRandPointInSystem(uint32 systemID, uint64 distance) {
+    // get system max diameter, verify distance is within system.
 
 }
 

@@ -531,48 +531,34 @@ bool CharacterDB::GetAttributesFromAncestry(uint32 ancestryID, uint8 &intelligen
 bool CharacterDB::GetCareerBySchool(uint32 schoolID, uint32 &careerID) {
     DBQueryResult res;
     if (!sDatabase.RunQuery(res,
-     "SELECT "
-     "  careerID, "
-     "  schoolID, "
-     "  raceID "
-     " FROM careers"
-     " WHERE schoolID = %u", schoolID))
-    {
+     "SELECT careerID FROM careers WHERE schoolID = %u", schoolID))  {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return (false);
     }
-
 
     DBResultRow row;
     if(!res.GetRow(row)) {
         codelog(SERVICE__ERROR, "Failed to find matching career for school %u", schoolID);
         return false;
     }
-
     careerID = row.GetInt(0);
-
     return (true);
 }
 
-bool CharacterDB::GetCorporationBySchool(uint32 schoolID, uint32 &corporationID)
-{
+bool CharacterDB::GetCorporationBySchool(uint32 schoolID, uint32 &corporationID) {
     DBQueryResult res;
 
-    if(!sDatabase.RunQuery(res, "SELECT corporationID FROM chrSchools WHERE schoolID = %u", schoolID))
-    {
+    if(!sDatabase.RunQuery(res, "SELECT corporationID FROM chrSchools WHERE schoolID = %u", schoolID)) {
         codelog(SERVICE__ERROR, "Error in query: %S", res.error.c_str());
         return false;
     }
 
     DBResultRow row;
-    if(!res.GetRow(row))
-    {
+    if(!res.GetRow(row)) {
         codelog(SERVICE__ERROR, "Failed to find matching corporation for school %u", schoolID);
         return false;
     }
-
     corporationID = row.GetInt(0);
-
     return true;
 }
 
@@ -748,13 +734,32 @@ void CharacterDB::SetAvatarSculpts(uint32 charID, PyRep* sculptLocationID, PyRep
 	}
 }
 
+bool CharacterDB::GetBaseSkills(std::map<uint32, uint32> &into) {
+    DBQueryResult res;
+
+    if (!sDatabase.RunQuery(res,
+        "SELECT "
+        "  skillTypeID, level"
+        " FROM sklBaseSkills "))
+    {
+        _log(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        return false;
+    }
+
+    DBResultRow row;
+    while(res.GetRow(row)) {
+        into[row.GetUInt(0)] == row.GetUInt(1);
+    }
+    return true;
+}
+
 bool CharacterDB::GetSkillsByRace(uint32 raceID, std::map<uint32, uint32> &into) {
     DBQueryResult res;
 
     if (!sDatabase.RunQuery(res,
         "SELECT "
-        "  skillTypeID, levels"
-        " FROM raceSkills "
+        "  skillTypeID, level"
+        " FROM sklRaceSkills "
         " WHERE raceID = %u ", raceID))
     {
         _log(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
@@ -767,7 +772,7 @@ bool CharacterDB::GetSkillsByRace(uint32 raceID, std::map<uint32, uint32> &into)
             into[row.GetUInt(0)] = row.GetUInt(1);
         else
             into[row.GetUInt(0)] += row.GetUInt(1);
-        //check to avoid more than 5 levels by skill
+        //check to avoid more than 5 levels of a skill
         if(into[row.GetUInt(0)] > 5)
             into[row.GetUInt(0)] = 5;
     }
@@ -780,8 +785,8 @@ bool CharacterDB::GetSkillsByCareer(uint32 careerID, std::map<uint32, uint32> &i
 
     if (!sDatabase.RunQuery(res,
         "SELECT "
-        "  skillTypeID, levels"
-        " FROM careerSkills"
+        "  skillTypeID, level"
+        " FROM sklCareerSkills"
         " WHERE careerID = %u", careerID))
     {
         _log(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
@@ -794,34 +799,7 @@ bool CharacterDB::GetSkillsByCareer(uint32 careerID, std::map<uint32, uint32> &i
             into[row.GetUInt(0)] = row.GetUInt(1);
         else
             into[row.GetUInt(0)] += row.GetUInt(1);
-        //check to avoid more than 5 levels by skill
-        if(into[row.GetUInt(0)] > 5)
-            into[row.GetUInt(0)] = 5;
-    }
-
-    return true;
-}
-
-bool CharacterDB::GetSkillsByCareerSpeciality(uint32 careerSpecialityID, std::map<uint32, uint32> &into) {
-    DBQueryResult res;
-
-    if (!sDatabase.RunQuery(res,
-        "SELECT "
-        "  skillTypeID, levels"
-        " FROM specialitySkills"
-        " WHERE specialityID = %u", careerSpecialityID))
-    {
-        _log(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
-        return false;
-    }
-
-    DBResultRow row;
-    while(res.GetRow(row)) {
-        if(into.find(row.GetUInt(0)) == into.end())
-            into[row.GetUInt(0)] = row.GetUInt(1);
-        else
-            into[row.GetUInt(0)] += row.GetUInt(1);
-        //check to avoid more than 5 levels by skill
+        //check to avoid more than 5 levels of a skill
         if(into[row.GetUInt(0)] > 5)
             into[row.GetUInt(0)] = 5;
     }
@@ -1286,22 +1264,26 @@ void CharacterDB::addOwnerCache(uint32 ownerID, std::string ownerName, uint32 ty
 
 PyRep* CharacterDB::GetBounty(uint32 charID, uint32 ownerID) {
     DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT characterID, ownerID, bounty FROM bounties");
+    sDatabase.RunQuery(res, "SELECT characterID, ownerID, bounty FROM chrBounties");
     return(DBResultToRowset(res));
 }
 
 PyRep* CharacterDB::GetTopBounties() {
     DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT characterID, bounty FROM bounties ORDER BY bounty DESC LIMIT 15");
+    sDatabase.RunQuery(res, "SELECT characterID, bounty FROM chrBounties ORDER BY bounty DESC LIMIT 15");
     return(DBResultToRowset(res));
 }
 
 void CharacterDB::AddBounty(uint32 charID, uint32 ownerID, uint32 amount) {
     DBerror err;
     sDatabase.RunQuery(err,
-        "INSERT INTO bounties(characterID, ownerID, bounty, timePlaced)"
+        "INSERT INTO chrBounties(characterID, ownerID, bounty, timePlaced)"
         " VALUES (%u, %u, %u, %" PRIu64 ")",
         charID, ownerID, amount, Win32TimeNow() );
+
+    DBerror err2;
+    sDatabase.RunQuery(err2,
+        "UPDATE Character_ SET bounty = %u WHERE characterID = %u", amount, charID);
 }
 
 void CharacterDB::VisitSystem(uint32 solarSystemID, uint32 charID) {
@@ -1355,26 +1337,16 @@ void CharacterDB::chkDynamicSystemID(uint32 systemID) {
   *   the function is as follows and is declared above...
   *         void SystemDB::chkDynamicSystemID(uint32 systemID)
   *
-  *  NOTE: these will have to be reset each server start.
+  *  NOTE: these will have to be reset each server start for true dynamic data tracking
   *        really should trunicate table on restart after everything is working.
   */
 
 void CharacterDB::AddJumpToDynamicData(uint32 solarSystemID) {
-    DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT jumpsHour FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
-
-    DBResultRow row;
-    uint16 jumps = 0;
-    if(res.GetRow(row)) jumps = row.GetUInt(0);
-    jumps ++;
-
     DBerror err;
-    sDatabase.RunQuery(err,
-        "UPDATE mapDynamicData SET jumpsHour = %u WHERE solarSystemID = %u",
-        jumps, solarSystemID );
+    sDatabase.RunQuery(err, "UPDATE mapDynamicData SET jumpsHour = jumpsHour + 1 WHERE solarSystemID = %u", solarSystemID );
 }
 
-void CharacterDB::AddPilotToDynamicData(uint32 solarSystemID, bool isDocked, bool isLogin, uint32 *pilotsDocked, uint32 *pilotsInSpace) {
+void CharacterDB::AddPilotToDynamicData(uint32 solarSystemID, bool isDocked, bool isLogin) {
     DBQueryResult res;
     sDatabase.RunQuery(res, "SELECT pilotsDocked, pilotsInSpace FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
 
@@ -1402,9 +1374,25 @@ void CharacterDB::AddPilotToDynamicData(uint32 solarSystemID, bool isDocked, boo
 
     DBerror err;
     sDatabase.RunQuery(err, "UPDATE mapDynamicData SET pilotsDocked = %u, pilotsInSpace = %u, pilotsDateTime = %" PRIu64 " WHERE solarSystemID = %u", docked, space, Win32TimeNow(), solarSystemID );
+}
 
-	//*pilotsDocked = docked;
-	//*pilotsInSpace = space;
+void CharacterDB::AddKillToDynamicData(uint32 solarSystemID) {  /**killsHour, kills24Hours */
+    DBerror err;
+    sDatabase.RunQuery(err,
+        "UPDATE mapDynamicData SET killsHour = killsHour + 1, kills24Hours = kills24Hours + 1, kills24DateTime = %" PRIu64 " WHERE solarSystemID = %u",
+        Win32TimeNow(), solarSystemID );
+}
+
+void CharacterDB::AddPodKillToDynamicData(uint32 solarSystemID) {   /**podKillsHour, podKills24Hour */
+    DBerror err;
+    sDatabase.RunQuery(err,
+        "UPDATE mapDynamicData SET podKillsHour = podKillsHour + 1, podKills24Hour = podKills24Hour + 1, pod24DateTime = %" PRIu64 " WHERE solarSystemID = %u", Win32TimeNow(), solarSystemID );
+}
+
+void CharacterDB::AddFactionKillToDynamicData(uint32 solarSystemID) {     /**factionKills*/
+    DBerror err;
+    sDatabase.RunQuery(err,
+        "UPDATE mapDynamicData SET factionKills = factionKills + 1, factionKills24Hour = factionKills24Hour + 1, faction24DateTime = %" PRIu64 " WHERE solarSystemID = %u", Win32TimeNow(), solarSystemID );
 }
 
 uint16 CharacterDB::GetActivePilotsFromDynamicData(uint32 solarSystemID) {
@@ -1418,69 +1406,4 @@ uint16 CharacterDB::GetActivePilotsFromDynamicData(uint32 solarSystemID) {
         pilotsInSpace = row.GetUInt(1);
     }
     return(pilotsDocked, pilotsInSpace);
-
-}
-
-void CharacterDB::SaveSolStaToDynamicData(uint32 solarSystemID, uint16 sol, uint16 sta, float divisor) {
-    DBerror err;
-    sDatabase.RunQuery(err,
-		"UPDATE mapDynamicData SET sol = %u, sta = %u, statDivisor = %f WHERE solarSystemID = %u",
-		sol, sta, divisor, solarSystemID );
-}
-
-void CharacterDB::AddKillToDynamicData(uint32 solarSystemID) {  /**killsHour, kills24Hours */
-    DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT killsHour, kills24Hours FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
-
-    DBResultRow row;
-    uint16 killsHour = 0, kills24Hours = 0;
-    if(res.GetRow(row)) {
-        killsHour = row.GetUInt(0);
-        kills24Hours = row.GetUInt(1);
-    }
-    killsHour ++;
-    kills24Hours ++;
-
-    DBerror err;
-    sDatabase.RunQuery(err,
-        "UPDATE mapDynamicData SET killsHour = %u, kills24Hours = %u, killsDateTime = %" PRIu64 ", kills24DateTime = %" PRIu64 " WHERE solarSystemID = %u",
-        killsHour, kills24Hours, Win32TimeNow(), Win32TimeNow(), solarSystemID );
-}
-
-void CharacterDB::AddPodKillToDynamicData(uint32 solarSystemID) {   /**podKillsHour, podKills24Hour */
-    DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT podKillsHour, podKills24Hour FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
-
-    DBResultRow row;
-    uint16 podKillsHour = 0, podKills24Hour = 0;
-    if(res.GetRow(row)) {
-        podKillsHour = row.GetUInt(0);
-        podKills24Hour = row.GetUInt(1);
-    }
-    podKillsHour ++;
-    podKills24Hour ++;
-
-    DBerror err;
-    sDatabase.RunQuery(err,
-        "UPDATE mapDynamicData SET podKillsHour = %u, podKills24Hour = %u, podDateTime = %" PRIu64 ", pod24DateTime = %" PRIu64 " WHERE solarSystemID = %u",
-        podKillsHour, podKills24Hour, Win32TimeNow(), Win32TimeNow(), solarSystemID );
-}
-
-void CharacterDB::AddFactionKillToDynamicData(uint32 solarSystemID) {     /**factionKills*/
-    DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT factionKills, factionKills24Hour FROM mapDynamicData WHERE solarSystemID = %u", solarSystemID );
-
-    DBResultRow row;
-    uint16 factionKills = 0, factionKills24Hour = 0;
-    if(res.GetRow(row)) {
-        factionKills = row.GetUInt(0);
-        factionKills24Hour = row.GetUInt(1);
-    }
-    factionKills ++;
-    factionKills24Hour ++;
-
-    DBerror err;
-    sDatabase.RunQuery(err,
-        "UPDATE mapDynamicData SET factionKills = %u, factionKills24Hour = %u, factionDateTime = %" PRIu64 ", faction24DateTime = %" PRIu64 " WHERE solarSystemID = %u",
-        factionKills, factionKills24Hour, Win32TimeNow(), Win32TimeNow(), solarSystemID );
 }

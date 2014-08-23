@@ -49,7 +49,9 @@
 // apiserver services
 #include "apiserver/APIServer.h"
 // calendar services
+#include "system/Calendar.h"
 #include "system/CalendarMgrService.h"
+#include "system/CalendarProxy.h"
 // cache services
 #include "cache/BulkMgrService.h"
 #include "cache/ObjCacheService.h"
@@ -78,6 +80,7 @@
 #include "corporation/CorpRegistryService.h"
 #include "corporation/CorpStationMgrService.h"
 #include "corporation/LPService.h"
+#include "corporation/LPStore.h"
 // dogmaim services
 #include "dogmaim/DogmaIMService.h"
 #include "dogmaim/DogmaService.h"
@@ -112,6 +115,7 @@
 #include "planet/PlanetMgr.h"
 // pos services
 #include "pos/PosMgrService.h"
+#include "pos/Structure.h"
 // scanning services
 #include "scanning/ScanMgrService.h"
 // ship services
@@ -141,6 +145,8 @@
 #include "system/ScenarioService.h"
 #include "system/WormholeMgr.h"
 #include "system/WrecksAndLoot.h"
+//console commands
+#include "ConsoleCommands.h"
 
 static void SetupSignals();
 static void CatchSignal( int sig_num );
@@ -166,39 +172,35 @@ int main( int argc, char* argv[] )
     }
 
     sLog.InitializeLogging(sConfig.files.logDir);
-    sLog.Log("server init", "Loading server...");
-    sLog.Log("SERVER VERSION", "EVEmu 0.7.41-allan" );
-	sLog.Log("SERVER REVISION", "EVEmu " EVEMU_VERSION );
-    sLog.Log("BUILD DATE", "5 August 2014" );
-    sLog.Log("SOURCE", "get at " EVEMU_REPOSITORY );
-    sLog.Log("SERVER INIT", "\n"
-        "\tSupported Client: %s\n"
-        "\tVersion %.2f\n"
-        "\tBuild %d\n"
-        "\tMachoNet %u",
-        EVEProjectVersion,
-        EVEVersionNumber,
-        EVEBuildVersion,
-        MachoNetVersion
-    );
+    sLog.Log("       ServerInit", "Loading server...");
+	sLog.Log("", "");
+	sLog.Log("  Server Revision", " " EVEMU_REVISION );
+    sLog.Log("         Based on", " " EVEMU_VERSION );
+    sLog.Log("       Build Date", " " EVEMU_BUILD_DATE );
+    sLog.Log("      This Source", " " EVEMU_REPOSITORY );
+    sLog.Log(" Supported Client"," %s", EVEProjectVersion);
+    sLog.Log("          Version"," %.2f", EVEVersionNumber);
+    sLog.Log("            Build"," %d", EVEBuildVersion);
+    sLog.Log("         MachoNet"," %u", MachoNetVersion);
+    sLog.Log("", "");
 
     //it is important to do this before doing much of anything, in case they use it.
     Timer::SetCurrentTime();
 
     // Load server log settings ( will be removed )
     if( load_log_settings( sConfig.files.logSettings.c_str() ) )
-        sLog.Success( "server init", "Log settings loaded from %s", sConfig.files.logSettings.c_str() );
+        sLog.Log( "       ServerInit", "Log settings loaded from %s", sConfig.files.logSettings.c_str() );
     else
-        sLog.Warning( "server init", "Unable to read %s (this file is optional)", sConfig.files.logSettings.c_str() );
+        sLog.Warning( "       ServerInit", "Unable to read %s (this file is optional)", sConfig.files.logSettings.c_str() );
 
     // open up the log file if specified ( will be removed )
     if( !sConfig.files.logDir.empty() )
     {
         std::string logFile = sConfig.files.logDir + "eve-server.log";
         if( log_open_logfile( logFile.c_str() ) )
-            sLog.Success( "server init", "Found log directory %s", sConfig.files.logDir.c_str() );
+            sLog.Log( "       ServerInit", "Found log directory %s", sConfig.files.logDir.c_str() );
         else
-            sLog.Warning( "server init", "Unable to find log directory '%s', only logging to the screen now.", sConfig.files.logDir.c_str() );
+            sLog.Warning( "       ServerInit", "Unable to find log directory '%s', only logging to the screen now.", sConfig.files.logDir.c_str() );
     }
 
     //connect to the database...
@@ -210,7 +212,7 @@ int main( int argc, char* argv[] )
         sConfig.database.db.c_str(),
         sConfig.database.port ) )
     {
-        sLog.Error( "server init", "Unable to connect to the database: %s", err.c_str() );
+        sLog.Error( "       ServerInit", "Unable to connect to the database: %s", err.c_str() );
         std::cout << std::endl << "press any key to exit...";  std::cin.get();
         return 1;
     }
@@ -222,32 +224,35 @@ int main( int argc, char* argv[] )
     char errbuf[ TCPCONN_ERRBUF_SIZE ];
     if( tcps.Open( sConfig.net.port, errbuf ) )
     {
-        sLog.Success( "server init", "TCP listener started on port %u.", sConfig.net.port );
+        sLog.Log( "       ServerInit", "TCP listener started on port %u.", sConfig.net.port );
     }
     else
     {
-        sLog.Error( "server init", "Failed to start TCP listener on port %u: %s.", sConfig.net.port, errbuf );
+        sLog.Error( "       ServerInit", "Failed to start TCP listener on port %u: %s.", sConfig.net.port, errbuf );
         std::cout << std::endl << "press any key to exit...";  std::cin.get();
         return 1;
     }
 
     //make the item factory
     ItemFactory item_factory( sEntityList );
-	sLog.Log("server init", "starting item factory");
+	sLog.Log("       ServerInit", "starting item factory");
 
     //now, the service manager...
     PyServiceMgr services( 888444, sEntityList, item_factory );
-	sLog.Log("server init", "starting service manager");
+	sLog.Log("       ServerInit", "starting service manager");
 
     //setup the command dispatcher
     CommandDispatcher command_dispatcher( services );
     RegisterAllCommands( command_dispatcher );
 
+	// start console command interperter
+	sCommand.Init();
+
     /*
      * Service creation and registration.
      *
      */
-    sLog.Log("server init", "Creating services.");
+    sLog.Log("       ServerInit", "Creating services.");
 
     // Please keep the services list clean so it's easier to find things
 
@@ -261,6 +266,7 @@ int main( int argc, char* argv[] )
     services.RegisterService(new BookmarkService(&services));
     services.RegisterService(new BrowserLockdownService(&services));
     services.RegisterService(new BulkMgrService(&services));
+    services.RegisterService(new CalendarProxy(&services));
     services.RegisterService(new CalendarMgrService(&services));
     services.RegisterService(new CertificateMgrService(&services));
     services.RegisterService(new CharFittingMgrService(&services));
@@ -296,6 +302,7 @@ int main( int argc, char* argv[] )
     services.RegisterService(new LocalizationServerService(&services));
     services.RegisterService(new LookupService(&services));
     services.RegisterService(new LPService(&services));
+    services.RegisterService(new LPStore(&services));
     services.RegisterService(services.lsc_service = new LSCService(&services, &command_dispatcher));
     services.RegisterService(new MailMgrService(&services));
     services.RegisterService(new MailingListMgrService(&services));
@@ -332,48 +339,52 @@ int main( int argc, char* argv[] )
     services.RegisterService(new WarRegistryService(&services));
     services.RegisterService(new WormHoleSvc(&services));
 
-    sLog.Warning("server init", "Priming cached objects.");
+    sLog.Log("       ServerInit", "Priming cached objects.");
     services.cache_service->PrimeCache();
-    sLog.Success("server init", "finished priming");
 
     // start up the image server
+	sLog.Log("       ServerInit", "Booting Image Server");
     sImageServer.Run();
-	sLog.Log("server init", "started image server");
 
     // start up the api server
+	sLog.Log("       ServerInit", "Booting API Server");
     sAPIServer.CreateServices( services );
     sAPIServer.Run();
-	sLog.Log("server init", "started API server");
 
-    // start up the image server
-    sLog.Log("server init", "Loading Dynamic Database Table Objects...");
+	//  this gives the imageserver and api server time to load so the dynamic database msgs are in order
+	Sleep( MAIN_LOOP_DELAY * 80 );
+/*hold off on this for memory debugging.  -allan 19Aug14
+	sLog.Log("       ServerInit", "Loading Dynamic Database Table Objects...");
 
-	// Create In-Memory Database Objects for Critical Systems, such as ModuleManager:
-	sLog.Log("server init", "---> sDGM_Effects_Table: Loading...");
+	// Create In-Memory Database Objects for Critical and HighUse Systems, such as ModuleManager and Wrecks:
+	sLog.Log("       ServerInit", "Effects_Table");
 	sDGM_Effects_Table.Initialize();
-    sLog.Log("server init", "---> sDGM_Type_Effects_Table: Loading...");
+    sLog.Log("       ServerInit", "Type_Effects");
     sDGM_Type_Effects_Table.Initialize();
-	sLog.Log("server init", "---> sDGM_Skill_Bonus_Modifiers_Table: Loading...");
+	sLog.Log("       ServerInit", "Skill_Modifiers");
 	sDGM_Skill_Bonus_Modifiers_Table.Initialize();
-	//sLog.Log("server init", "---> sDGM_Ship_Bonus_Modifiers_Table: Loading...");
-	//sDGM_Ship_Bonus_Modifiers_Table.Initialize();
-    //sLog.Log("server init", "---> sDGM_Implant_Bonus_Modifiers_Table: Loading...");
-    //sDGM_Implant_Bonus_Modifiers_Table.Initialize();
-    sLog.Log("server init", "---> sDGM_Types_to_Wrecks_Table: Loading...");
+	sLog.Log("       ServerInit", "Ship_Modifiers");
+	sDGM_Ship_Bonus_Modifiers_Table.Initialize();
+    sLog.Log("       ServerInit", "Implant_Modifiers");
+	sLog.Log("Implant_Modifiers","Not Avalible");
+    //sDGM_Implant_Modifiers_Table.Initialize();
+    sLog.Log("       ServerInit", "Wrecks_Table");
     sDGM_Types_to_Wrecks_Table.Initialize();
-    //sLog.Log("server init", "---> sDGM_Wrecks_to_Salvage_Table: Loading...");
+    sLog.Log("       ServerInit", "Salvage_Table");
+    sLog.Log("    Salvage_Table","Not Avalible");
     //sDGM_Wrecks_to_Salvage_Table.Initialize();
 
     //sLog.Warning("server init", "Adding NPC Market Orders.");
     //NPCMarket::CreateNPCMarketFromFile("/etc/npcMarket.xml");
+*/
+    sLog.Log("       ServerInit", "Done.");
 
-    sLog.Success("server init", "Init done.");
+	services.serviceDB().SetServerOnlineStatus(true);
+	sLog.Success("       ServerInit", "Alasiya EvEmu Server is Online.");
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	//     !!!  DO NOT PUT ANY INITIALIZATION CODE OR CALLS BELOW THIS LINE   !!!
 	/////////////////////////////////////////////////////////////////////////////////////
-	services.serviceDB().SetServerOnlineStatus(true);
-	sLog.Success("server init", "SERVER IS NOW [ONLINE]");
 
     /*
      * THE MAIN LOOP
@@ -385,14 +396,7 @@ int main( int argc, char* argv[] )
     /* program events system */
     SetupSignals();
 
-    uint32 start;
-    uint32 etime;
-    uint32 last_time = GetTickCount();
-
-	#define BUFLEN 256
-	char buf[BUFLEN];
-	fd_set fds;
-	struct timeval tv;
+    uint32 start = 0, etime = 0;
 
     EVETCPConnection* tcpc;
     while( RunLoops == true )
@@ -412,67 +416,42 @@ int main( int argc, char* argv[] )
         sEntityList.Process();
         services.Process();
 
+		//  process console commands, if any, and check for 'exit' command
+		RunLoops = sCommand.Process();
+
         /* UPDATE */
-        last_time = GetTickCount();
-        etime = last_time - start;
+        etime = GetTickCount() - start;
 
         // do the stuff for thread sleeping
         if( MAIN_LOOP_DELAY > etime )
             Sleep( MAIN_LOOP_DELAY - etime );
-
-		tv.tv_sec = 0;
-		tv.tv_usec = 0;
-		FD_ZERO(&fds);
-		FD_SET(STDIN_FILENO, &fds);
-		// check for input.
-		select(STDIN_FILENO+1, &fds, NULL, NULL, &tv);
-		if (FD_ISSET(STDIN_FILENO, &fds)) {
-		    if (fgets(buf,BUFLEN, stdin)) {
-			    sLog.Log( "STDIN", "Received command: %s", buf );
-				// check for command exit.
-				if (strncmp(buf, "exit", 4) == 0)
-				    RunLoops = false;
-				else if (strncmp(buf, "help", 4) == 0)
-				    sLog.Success("STDIN", "Command recognzed but not avalible at this time: %s", buf);
-				else if (strncmp(buf, "clients", 7) == 0)
-				    sLog.Success("STDIN", "Command recognzed but not avalible at this time: %s", buf);
-				else if (strncmp(buf, "memory", 6) == 0)
-				    sLog.Success("STDIN", "Command recognzed but not avalible at this time: %s", buf);
-				else if (strncmp(buf, "save", 4) == 0)
-				    sLog.Success("STDIN", "Command recognzed but not avalible at this time: %s", buf);
-				else if (strncmp(buf, "say", 3) == 0)
-				    sLog.Success("STDIN", "Command recognzed but not avalible at this time: %s", buf);
-				else
-				    sLog.Warning("STDIN", "Command not recognized: (%d)%s", strlen(buf), buf);
-			}
-		}
     }
 
-    sLog.Warning("server shutdown", "Main loop stopped" );
+    sLog.Warning("   ServerShutdown", "Main loop stopped" );
 
     // Shutting down EVE Client TCP listener
     tcps.Close();
-    sLog.Warning("server shutdown", "TCP listener stopped." );
+    sLog.Warning("   ServerShutdown", "TCP listener stopped." );
 
     // Shutting down API Server:
     sAPIServer.Stop();
-    sLog.Warning("server shutdown", "Image Server TCP listener stopped." );
+    sLog.Warning("   ServerShutdown", "Image Server stopped." );
 
     // Shutting down Image Server:
     sImageServer.Stop();
-    sLog.Warning("server shutdown", "API Server TCP listener stopped." );
+    sLog.Warning("   ServerShutdown", "API Server stopped." );
 
     services.serviceDB().SetServerOnlineStatus(false);
-	sLog.Error("server shutdown", "SERVER IS NOW [OFFLINE]");
 
-    sLog.Warning("server shutdown", "Cleanup db cache" );
+    sLog.Warning("   ServerShutdown", "Cleanup db cache" );
     delete _sDgmTypeAttrMgr;
 
-    log_close_logfile();
-
 	// Shut down the Item system ensuring ALL items get saved to the database:
-	sLog.Warning("server shutdown", "Shutting down Item Factory." );
+	sLog.Warning("   ServerShutdown", "Shutting down Item Factory." );
 
+	sLog.Warning("   ServerShutdown", "Alasiya EvEmu is Offline.  Saving Items...");
+
+    log_close_logfile();
 	return 0;
 }
 

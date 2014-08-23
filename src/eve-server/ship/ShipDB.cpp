@@ -20,7 +20,7 @@ this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 ------------------------------------------------------------------------------------
-Author: Zhur
+Author: Zhur, Allan
 */
 
 #include "eve-server.h"
@@ -80,68 +80,54 @@ PyTuple* ShipDB::GetFormations()
     return res;
 }
 
-PyResult ShipDB::GetInsuranceInfoByShipID(uint32 shipID) {
+PyResult ShipDB::GetInsuranceByShipID(uint32 shipID) {
     DBQueryResult res;
-
-    if(!sDatabase.RunQuery(res,
-        "SELECT e.ownerID, i.fraction, i.startDate, i.endDate"
-        " FROM chrInsurance AS i"
-        "  LEFT JOIN entity e ON i.shipID=e.itemID"
-        " WHERE shipID=%d", shipID ))
-    {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
-        return NULL;
-    }
-/*
-    CRowSet *rowSet = (CRowSet*)DBResultToCRowset(res);
-
-    // do we have an Insurance?
-    if(rowSet->GetRowCount()<1)
-      return NULL;
-
-    PyPackedRow *row = rowSet->GetRow(0);
-
-    return row;
-    */
-    return(DBResultToRowset(res));
-}
-
-PyResult ShipDB::GetInsuranceContractsByOwnerID(uint32 ownerID) {
-    DBQueryResult res;
-    if(!sDatabase.RunQuery(res,
-        "SELECT i.shipID, i.startDate, i.endDate, i.fraction"
-        " FROM chrInsurance AS i"
-        "  LEFT JOIN entity AS e ON i.shipID = e.itemID "
-        " WHERE e.ownerID=%d", ownerID ))
-    {
-        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
-        return new PyNone;
-    }
+    sDatabase.RunQuery(res,
+        "SELECT shipID, startDate, endDate, fraction"
+        " FROM chrInsurance"
+        " WHERE shipID = %d", shipID );
 
     DBResultRow row;
     if(!res.GetRow(row)) return NULL;
 
     Rsp_GetInsuranceContracts rsp;
     rsp.shipID = row.GetUInt( 0 );
-    rsp.startDate = row.GetUInt( 1 );
-    rsp.endDate = row.GetUInt( 2 );
+    rsp.startDate = row.GetUInt64( 1 );
+    rsp.endDate = row.GetUInt64( 2 );
     rsp.fraction = row.GetUInt( 3 );
 
     return(rsp.Encode());
-
-    //return(DBResultToRowset(res));      // this gives "Assertion `DBTYPE_ERROR != result' failed." when there are active contracts.
 }
 
-bool ShipDB::InsertInsuranceByShipID(uint32 shipID, double fraction) {
-    uint64 startDate = Win32TimeNow();
-    uint64 endDate = startDate + (Win32Time_Day * 84);
+PyResult ShipDB::GetInsuranceByOwnerID(uint32 ownerID) {
+    DBQueryResult res;
+    sDatabase.RunQuery(res,
+        "SELECT i.shipID, i.startDate, i.endDate, i.fraction"
+        " FROM chrInsurance AS i"
+        "  LEFT JOIN entity AS e ON e.itemID = i.shipID"
+        " WHERE e.ownerID = %d", ownerID );
+
+    DBResultRow row;
+    if(!res.GetRow(row)) return NULL;
+
+    Rsp_GetInsuranceContracts rsp;
+    rsp.shipID = row.GetUInt( 0 );
+    rsp.startDate = row.GetUInt64( 1 );
+    rsp.endDate = row.GetUInt64( 2 );
+    rsp.fraction = row.GetUInt( 3 );
+
+    return(rsp.Encode());
+}
+
+bool ShipDB::InsertInsuranceByShipID(uint32 shipID, float fraction, bool isCorpItem) {
+    uint64 endDate = Win32TimeNow() + (Win32Time_Day * 90);
 
     DBerror err;
     if(!sDatabase.RunQuery(err,
       "INSERT INTO "
-      "  chrInsurance (shipID, startDate, endDate, fraction)"
-      " VALUES (%d, %" PRIu64 ", %" PRIu64 ", %.4f)",
-      shipID, startDate, endDate, fraction ))
+      "  chrInsurance (shipID, isCorpItem, startDate, endDate, fraction)"
+      " VALUES (%d, %u, %" PRIu64 ", %" PRIu64 ", %.3f)",
+      shipID, isCorpItem, Win32TimeNow(), endDate, fraction ))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", err.c_str());
         return false;
@@ -150,14 +136,7 @@ bool ShipDB::InsertInsuranceByShipID(uint32 shipID, double fraction) {
     return true;
 }
 
-bool ShipDB::DeleteInsuranceByShipID(uint32 shipID) {
+void ShipDB::DeleteInsuranceByShipID(uint32 shipID) {
     DBerror err;
-
-    if(!sDatabase.RunQuery(err, "DELETE FROM chrInsurance WHERE shipID=%d", shipID))
-    {
-        codelog(SERVICE__ERROR, "Error in query: %s", err.c_str());
-        return false;
-    }
-
-    return true;
+    sDatabase.RunQuery(err, "DELETE FROM chrInsurance WHERE shipID=%d", shipID);
 }

@@ -44,9 +44,6 @@ void SystemEntity::Process() {
 
 uint32 SystemEntity::GetLocationID()
 {
-    //uint32 itemID = se->GetID();
-
-    //return (SystemDB::GetObjectLocationID( itemID ) );
 	return (Item()->locationID());
 }
 
@@ -81,18 +78,6 @@ void ItemSystemEntity::_SetSelf(InventoryItemRef self) {
     }
 
     m_self = self;
-
-    // DEPRECATED NOW WITH THE USE OF NEW ATTRIBUTE SYSTEM AND SAVING OF THOSE ATTRIBUTES TO THE DB -- Aknor Jaden
-    //I am not sure where the right place to do this is, but until
-    //we properly persist ship attributes into the DB, we are just
-    //going to do it here. Could be exploited. oh well.
-    // TODO: use the ship aggregate value.
-    /*int sc = m_self->shieldCapacity();
-    if( sc > 0 )    //avoid polluting the attribute list with worthless entries.
-        m_self->Set_shieldCharge( sc );*/
-    //EvilNumber sc = m_self->GetAttribute(AttrShieldCapacity);
-    //if (sc > 0)
-    //    m_self->SetAttribute(AttrShieldCharge, sc);
 }
 
 const char *ItemSystemEntity::GetName() const {
@@ -103,8 +88,7 @@ const char *ItemSystemEntity::GetName() const {
 
 float ItemSystemEntity::GetRadius() const {
     if(!m_self)
-        return(1.0f);
-    //return(m_self->radius());
+        return(10.0f);
     return static_cast<float>(m_self->GetAttribute(AttrRadius).get_float());
 }
 

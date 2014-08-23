@@ -66,16 +66,6 @@ call.client->SendNotifyMsg("This Service is Not Implemented at this time.");
     return NULL;
 }
 
-/*
-            damageReports = self.repairSvc.GetDamageReports(itemIDs)
-
-                    self.repairSvc.RepairItems(itemIDs, amount['qty'])
-
-
-                itemIDAndAmountOfDamageList.append((item.itemID, amount))
-                self.repairSvc.DamageModules(itemIDAndAmountOfDamageList)
-*/
-
 /**
                 sm.RemoteSvc('repairSvc').UnasembleItems(dict(validIDsByStationID), skipChecks)
 
@@ -91,6 +81,14 @@ repackableGroups = (groupCargoContainer,
  groupFreightContainer,
  groupTool,
  groupMobileWarpDisruptor)
-
-
  */
+
+/*
+            damageReports = self.repairSvc.GetDamageReports(itemIDs)
+
+                    self.repairSvc.RepairItems(itemIDs, amount['qty'])
+
+
+                itemIDAndAmountOfDamageList.append((item.itemID, amount))
+                self.repairSvc.DamageModules(itemIDAndAmountOfDamageList)
+*/

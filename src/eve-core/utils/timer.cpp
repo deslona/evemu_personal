@@ -26,7 +26,6 @@
 #include "eve-core.h"
 
 #include "utils/timer.h"
-#include <ctime>
 
 static uint32 currentTime = 0;
 static uint32 currentSeconds = 0;
@@ -37,7 +36,7 @@ Timer::Timer(uint32 inTimerTime, bool useAcurateTiming) {
     m_startTime = currentTime;
     m_setAtTrigger = m_timerTime;
     m_useAcurateTiming = useAcurateTiming;
-    
+
 	if (m_timerTime == 0) {
         m_enabled = false;
     }
@@ -51,7 +50,7 @@ Timer::Timer(uint32 start, uint32 timer, bool useAcurateTiming = false) {
     m_startTime = start;
     m_setAtTrigger = m_timerTime;
     m_useAcurateTiming = useAcurateTiming;
-    
+
 	if (m_timerTime == 0) {
         m_enabled = false;
     }

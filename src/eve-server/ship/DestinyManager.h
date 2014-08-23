@@ -72,9 +72,13 @@ public:
 
     void Process();
 
-    void SendSingleDestinyUpdate(PyTuple **up, bool self_only=false) const;
-    void SendDestinyUpdate(std::vector<PyTuple *> &updates, bool self_only) const;
-    void SendDestinyUpdate(std::vector<PyTuple *> &updates, std::vector<PyTuple *> &events, bool self_only) const;
+	void SendSelfDestinyUpdate(PyTuple **up) const;
+	void SendSelfDestinyEvent(PyTuple **up) const;
+	void SendDestinyUpdate(PyTuple **up, bool self_only=false) const;
+	void SendDestinyEvent(PyTuple **up, bool self_only=false) const;
+	void SendDestinyUpdate(std::vector<PyTuple *> &updates, bool self_only) const;
+	void SendDestinyEvent(std::vector<PyTuple *> &events, bool self_only) const;
+	void SendDestinyUpdate(std::vector<PyTuple *> &updates, std::vector<PyTuple *> &events, bool self_only) const;
 
 	// Information query functions:
     const GPoint &GetPosition() 	const { return(m_position); }
@@ -99,7 +103,7 @@ public:
     void Orbit(SystemEntity *who, double distance, bool update=true);
     void OrbitingCruise(SystemEntity *who, double distance, bool update=true, double cruiseSpeed=-1.0);
     void SetSpeedFraction(double fraction, bool update=true);
-    void AlignTo(const GPoint &direction, bool update=true);
+    void AlignTo(SystemEntity *ent, bool update=true);
     void GotoDirection(const GPoint &direction, bool update=true);
     PyResult AttemptDockOperation();
 

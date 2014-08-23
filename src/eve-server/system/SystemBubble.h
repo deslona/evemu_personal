@@ -38,10 +38,12 @@ public:
     const GPoint m_center;
     const double m_radius;
 
-    void BubblecastDestiny(std::vector<PyTuple *> &updates, std::vector<PyTuple *> &events, const char *desc) const;
-    void BubblecastDestinyUpdate(PyTuple **payload, const char *desc) const;
-    void BubblecastDestinyEvent(PyTuple **payload, const char *desc) const;
-    void BubblecastDestinyUpdateExclusive(PyTuple **payload, const char *desc, SystemEntity *ent) const;
+	void BubblecastDestiny(std::vector<PyTuple *> &updates, std::vector<PyTuple *> &events, const char *desc) const;
+	void BubblecastDestinyUpdate(std::vector<PyTuple *> &updates, const char *desc) const;
+	void BubblecastDestinyEvent(std::vector<PyTuple *> &events, const char *desc) const;
+	void BubblecastDestinyUpdate(PyTuple **payload, const char *desc) const;
+	void BubblecastDestinyEvent(PyTuple **payload, const char *desc) const;
+	void BubblecastDestinyUpdateExclusive(PyTuple **payload, const char *desc, SystemEntity *ent) const;
 
     bool ProcessWander(std::vector<SystemEntity *> &wanderers);
 
@@ -53,11 +55,13 @@ public:
     bool IsEmpty() const { return(m_entities.empty()); }
     SystemEntity * const GetEntity(uint32 entityID) const;
     void GetEntities(std::set<SystemEntity *> &into) const;
-    uint32 GetBubbleID() { return m_bubbleID; };
+    uint32 GetBubbleID() { return m_bubbleID; }
 
     //void AppendBalls(DoDestiny_SetState &ss, std::vector<uint8> &setstate_buffer) const;
 
     bool InBubble(const GPoint &pt) const;
+
+	uint32 Count()		{ return(m_bubbleIncrementer); }
 
 protected:
     void _SendAddBalls(SystemEntity *to_who);

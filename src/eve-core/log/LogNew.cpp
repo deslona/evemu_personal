@@ -94,7 +94,7 @@ void NewLog::InitializeLogging( std::string logPath )
 
     SetLogfileDefault(logPath);
 
-    Debug( "Log", "Log system initiated" );
+    Debug( "       ServerInit", "NewLog initialized." );
 }
 
 void NewLog::Log( const char* source, const char* fmt, ... )

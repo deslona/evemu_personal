@@ -117,7 +117,7 @@ void Basic_Log::InitializeLogging(std::string logPath, std::string logSubdirecto
 
 	SetLogfileDefault(mLogPath + mLogFilename);
 
-    Debug( "Log", "Log system initiated" );
+    Debug( "       ServerInit", "BasicLog initialized." );
 }
 
 void Basic_Log::Log( const char* source, const char* fmt, ... )

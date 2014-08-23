@@ -1,6 +1,18 @@
-*****   This will be my main update file.  the format will change to a 'real' update list as i get more time.  **********
-*****   all main code updates are updated here, too, so i wont list them.  *******
-*****       a more comprehensive list can be found at my main eve site, http://eve.alasiya.net/?p=op_status  *******
+*****   This will be my main update file.  the format will change to a 'real' update list as i get more time.  *******
+*****                  all main code updates are updated here, too, so i wont list them.                       *******
+*****       a more comprehensive list can be found at my main eve site, http://eve.alasiya.net/?p=op_status    *******
+*****            and a topic on the fourms at http://eve.alasiya.net/phpBB3/viewtopic.php?f=1&t=2              *******
+
+UPDATES AS OF 16 AUGUST 2014:
+bounties working.  difficult to add without search system working correctly.
+SkillHistory complete (shows starts, stops, complete, initial skills, gm gifts)
+interactive console (see misc_ss in gallery for pics)
+map browser (F11) working
+region and constellation info page working
+updated market search code (faster)
+updated starting skills (http://eve.alasiya.net/phpBB3/viewtopic.php?f=1&t=43)
+undocking working better (still not complete)
+
 
 UPDATES AS OF 18 APRIL 2014:
 manufacturing fixed and working
@@ -8,6 +20,7 @@ text search (buggy)
 market fixed and working
 SkillHistory working (only shows completed skills)
 POS deployable and anchorable (but cannot put online)
+bookmark vouchers created in hangar (need either relog or undock/dock to update hangar)
 
 
 UPDATES AS OF 23 MARCH 2014:
@@ -34,4 +47,4 @@ bookmarks
 skill queue time on character select screen
 pause skill training is fixed
 corp naming problem fixed
-starmap show visited systems working
+starmap show visited systems

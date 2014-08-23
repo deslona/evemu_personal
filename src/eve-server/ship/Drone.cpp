@@ -146,3 +146,5 @@ void DroneEntity::MakeDamageState(DoDestinyDamageState &into) const
     into.structure = 1.0 - (m_self->GetAttribute(AttrDamage).get_float() / m_self->GetAttribute(AttrHp).get_float());
 }
 
+
+//OnDroneStateChange(droneID, ownerID, controllerID, activityState, droneTypeID, controllerOwnerID, targetID)

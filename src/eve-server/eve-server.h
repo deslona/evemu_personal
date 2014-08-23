@@ -21,47 +21,20 @@
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
     Author:     Zhur
+    Updates:	Allan  (updated dependecy loading order)
 */
 
 #ifndef __EVE_SERVER_H__INCL__
 #define __EVE_SERVER_H__INCL__
 
 /************************************************************************/
-/* eve-core includes                                                    */
-/************************************************************************/
-#include "eve-core.h"
-
-// database
-#include "database/dbcore.h"
-// log
-#include "log/LogNew.h"
-#include "log/logsys.h"
-#include "log/Basic_Log.h"
-#include "log/HTML_Log.h"
-// network
-#include "network/StreamPacketizer.h"
-#include "network/TCPConnection.h"
-#include "network/TCPServer.h"
-// threading
-#include "threading/Mutex.h"
-// utils
-#include "utils/crc32.h"
-#include "utils/Deflate.h"
-#include "utils/EvilNumber.h"
-#include "utils/gpoint.h"
-#include "utils/misc.h"
-#include "utils/RefPtr.h"
-#include "utils/Seperator.h"
-#include "utils/timer.h"
-#include "utils/utils_time.h"
-#include "utils/utils_string.h"
-#include "utils/XMLParserEx.h"
-#include "utils/Util.h"
-
-/************************************************************************/
-/* eve-common includes                                                  */
+/* eve-common includes (also includes eve-core.h)                       */
 /************************************************************************/
 #include "eve-common.h"
+
+/************************************************************************/
+/* eve-server includes                                                  */
+/************************************************************************/
 
 #include "EVEVersion.h"
 // auth
@@ -85,6 +58,7 @@
 #include "marshal/EVEUnmarshal.h"
 // packets
 #include "packets/AccountPkts.h"
+//#include "packets/Bookmarks.h"
 #include "packets/CorporationPkts.h"
 #include "packets/Crypto.h"
 #include "packets/Character.h"
@@ -118,14 +92,11 @@
 // tables
 #include "tables/invCategories.h"
 #include "tables/invGroups.h"
+// threading
+#include "threading/Mutex.h"
 // utils
 #include "utils/EVEUtils.h"
-#include "utils/EvilNumber.h"
+#include "utils/XMLParserEx.h"
 
-/************************************************************************/
-/* eve-server includes                                                  */
-/************************************************************************/
-// Lua
-#include <lua.h>
 
 #endif /* !__EVE_SERVER_H__INCL__ */

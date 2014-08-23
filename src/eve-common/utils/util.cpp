@@ -17,9 +17,7 @@
  *
  */
 
-#include "eve-common.h" // I don't want to include this here..
-#include "eve-core.h"
-//#include "Threading/Threading.h"
+#include "eve-common.h"
 
 using namespace std;
 

@@ -61,7 +61,7 @@ void HTML_Log::InitializeLogging( std::string logPath )
 
     SetLogfileDefault(logPath + mLogFilename);
 
-	Debug( mLogFilename.c_str(), "Log system initiated" );
+	Debug( mLogFilename.c_str(), "HTMLLog initiated" );
 }
 
 void HTML_Log::Log( const char* source, const char* fmt, ... )
@@ -245,7 +245,7 @@ void HTML_Log::SetLogfileDefault(std::string logPath)
     //          t.tm_mday, t.tm_mon + 1, t.tm_year + 1900, t.tm_hour, t.tm_min );
 
     if( SetLogfile( filename ) )
-        Success( "Log", "Opened logfile '%s'.", filename );
+        Success( "       ServerInit", "Opened logfile '%s'.", filename );
     else
-        Warning( "Log", "Unable to open logfile '%s': %s", filename, strerror( errno ) );
+        Warning( "       ServerInit", "Unable to open logfile '%s': %s", filename, strerror( errno ) );
 }

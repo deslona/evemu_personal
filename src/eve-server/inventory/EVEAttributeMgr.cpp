@@ -387,6 +387,11 @@ bool AttributeMap::SetAttribute( uint32 attributeId, EvilNumber &num, bool nofit
 
 bool AttributeMap::Change( uint32 attributeID, EvilNumber& old_val, EvilNumber& new_val )
 {
+    // attributes greater than 10000 are not supported by the client.
+	// these are for private internal server use only!
+	if(attributeID >= 10000)
+	    return true;
+
    Notify_OnModuleAttributeChange modChange;
 
 	modChange.ownerID = mItem.ownerID();
@@ -401,6 +406,11 @@ bool AttributeMap::Change( uint32 attributeID, EvilNumber& old_val, EvilNumber& 
 
 bool AttributeMap::Add( uint32 attributeID, EvilNumber& num )
 {
+    // attributes greater than 10000 are not supported by the client.
+	// these are for private internal server use only!
+	if(attributeID >= 10000)
+	    return true;
+
   Notify_OnModuleAttributeChange modChange;
 
 	modChange.ownerID = mItem.ownerID();
@@ -432,11 +442,12 @@ bool AttributeMap::SendAttributeChanges( PyTuple* attrChange )
     else
     {
         Client *client = sEntityList.FindCharacter(mItem.ownerID());
-        //Client *client = this->mItem.GetItemFactory()->GetUsingClient();
+        if (client == NULL)
+            Client *client = this->mItem.GetItemFactory()->GetUsingClient();
 
         if (client == NULL)
         {
-            sLog.Error("AttributeMap::SendAttributeChanges()", "unable to find client:%u", mItem.ownerID());
+            //sLog.Error("AttributeMap::SendAttributeChanges()", "unable to find client:%u", mItem.ownerID());
             //return false;
             return true;
         }

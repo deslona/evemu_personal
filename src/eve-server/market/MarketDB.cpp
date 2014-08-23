@@ -136,9 +136,9 @@ PyRep *MarketDB::GetOrders( uint32 regionID, uint32 typeID )
     //TODO: consider the `jumps` field... is it actually used? might be a pain in the ass if we need to actually populate it based on each queryier's location
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        "    price, volRemaining, typeID, orderRange, orderID,"
+        "    price, volRemaining, typeID, orderRange AS `range`, orderID,"
         "   volEntered, minVolume, bid, issued as issueDate, duration,"
-        "   stationID, regionID, solarSystemID, jumps, orderRange AS range"
+        "   stationID, regionID, solarSystemID, jumps"
         " FROM market_orders "
         " WHERE regionID=%u AND typeID=%u AND bid=%d", regionID, typeID, TransactionTypeSell))
     {
@@ -155,7 +155,7 @@ PyRep *MarketDB::GetOrders( uint32 regionID, uint32 typeID )
     //query buy orders
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        "    price, volRemaining, typeID, orderRange, orderID,"
+        "    price, volRemaining, typeID, orderRange AS `range`, orderID,"
         "   volEntered, minVolume, bid, issued as issueDate, duration,"
         "   stationID, regionID, solarSystemID, jumps"
         " FROM market_orders "
@@ -180,7 +180,7 @@ PyRep *MarketDB::GetCharOrders(uint32 characterID) {
     if(!sDatabase.RunQuery(res,
         "SELECT"
         "   orderID, typeID, charID, regionID, stationID,"
-        "   orderRange, bid, price, volEntered, volRemaining,"
+        "   orderRange AS `range`, bid, price, volEntered, volRemaining,"
         "   issued as issueDate, orderState, minVolume, contraband,"
         "   accountID, duration, isCorp, solarSystemID,"
         "   escrow"
@@ -199,7 +199,7 @@ PyRep *MarketDB::GetOrderRow(uint32 orderID) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
-        "    price, volRemaining, typeID, orderRange, orderID,"
+        "    price, volRemaining, typeID, orderRange AS `range`, orderID,"
         "   volEntered, minVolume, bid, issued as issueDate, duration,"
         "   stationID, regionID, solarSystemID, jumps"
         " FROM market_orders"

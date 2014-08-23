@@ -125,11 +125,12 @@ public:
 
     uint32 GetShipID() const                        { return m_shipId; }
     uint32 GetGangRole() const                      { return mSession.GetCurrentInt( "gangrole" ); }
+    //uint8 GetFleetRole() const                      { return mSession.GetCurrentInt( "fleetrole" ); }
 
     // character data
     CharacterRef GetChar() const                    { return m_char; }
     ShipRef GetShip() const                         { return ShipRef::StaticCast( Item() ); }
-    bool InPod() const                              { return ( GetShip()->typeID() == 670 ); }
+    bool InPod() const                              { return ( GetShip()->groupID() == EVEDB::invGroups::Capsule ); }
 
     bool IsInSpace() const                          { return ( GetStationID() == 0 ); }
     double x() const                                { return GetPosition().x; }    //this is terribly inefficient.
@@ -142,6 +143,8 @@ public:
     double GetSecurityRating() const                { return GetChar() ? GetChar()->securityRating() : 0.0; }
     double GetBalance() const                       { return GetChar() ? GetChar()->balance() : 0.0; }
     double GetAurBalance() const                    { return GetChar() ? GetChar()->aurBalance() : 0.0; }
+
+    std::string GetSystemName() const               { return(m_systemName); }
 
     bool AddBalance(double amount);
 
@@ -157,6 +160,7 @@ public:
     void SavePosition();
     void SaveAllToDatabase();
     void UpdateSkillTraining();
+	void SpawnNewRookieShip();
 
     double GetPropulsionStrength() const;
 
@@ -174,20 +178,25 @@ public:
     void GetDockingPoint(GPoint *dockPoint);
     bool GetPendingDockOperation() { return m_needToDock; };
     void SetPendingDockOperation(bool needToDock) { m_needToDock = needToDock; }
+	void SetAutoPilot(bool);
+	// set true for using autopilot.
+	bool m_autoPilot = false;
 
-    // THESE FUNCTIONS ARE HACKS AS WE DONT KNOW WHY THE CLIENT CALLS STOP AT UNDOCK
     void SetJustUndocking(bool justUndocking)
     {
-        if(justUndocking)
-            m_justUndocked = true;
-		else
-            m_justUndocked = false;
+        if( m_justUndockedCount == 0 )
+            m_justUndockedCount = 1;
+        else
+            m_justUndockedCount--;
+
+        if( m_justUndockedCount == 1 )
+            m_justUndocked = justUndocking;
     }
     bool GetJustUndocking() { return m_justUndocked; };
-    void SetUndockAlignToPoint(GPoint dest);
-    void GetUndockAlignToPoint(GPoint *dest);
-    // --- END HACK FUNCTIONS FOR UNDOCK ---
+    void SetUndockAlignToPoint(GPoint &dest);
+    void GetUndockAlignToPoint(GPoint &dest);
 
+    //messages and LSC
     void SendErrorMsg(const char *fmt, ...);
     void SendErrorMsg(const char *fmt, va_list args);
     void SendNotifyMsg(const char *fmt, ...);
@@ -202,9 +211,9 @@ public:
     void EnableKennyTranslator() { bKennyfied = true; };
     void DisableKennyTranslator() { bKennyfied = false; };
 
-    /** character notification messages  */
-    void OnCharNoLongerInStation();
+    // character notification messages
     void OnCharNowInStation();
+    void OnCharNoLongerInStation();
 
     /********************************************************************/
     /* DynamicSystemEntity interface                                    */
@@ -235,10 +244,6 @@ public:
     /********************************************************************/
     void DisconnectClient();
     void BanClient();
-
-	void SetAutoPilot(bool);
-	// set true for using autopilot.
-	bool m_autoPilot = false;
 
 protected:
     void _ReduceDamage(Damage &d);
@@ -279,18 +284,9 @@ protected:
 
     uint32 m_shipId;
 
-    // THESE VARIABLES ARE HACKS AS WE DONT KNOW WHY THE CLIENT CALLS STOP AT UNDOCK
-    // Capt: the reason why the client sends stop is because we undock with the shit already
-    // having a speed. This results in the client taking action and tells the server to stop
-    // the ship. This is because of sync behaviored of the destiny system. Every entry regardless
-    // of its type starts stopped. When the next destiny packet tells the object that it got a
-    // certain speed it starts to move. The thing is we send 1 packet and they send 2. The reason
-    // why is rather obvious, if they always spawn objects not moving its easier to sync movements.
-    // It all makes more sense this way.
-
     bool m_justUndocked;
+    int m_justUndockedCount;
     GPoint m_undockAlignToPoint;
-    // --- END HACK VARIABLES FOR UNDOCK ---
 
     EvilNumber m_timeEndTrain;
 
@@ -335,6 +331,8 @@ private:
 
     bool DoDestinyUpdate();
     std::list<PyTuple*> mDogmaMessages;
+
+	std::string m_systemName;
 
 };
 

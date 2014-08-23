@@ -32,6 +32,7 @@
 #include "station/Station.h"
 #include "system/Container.h"
 #include "system/SolarSystem.h"
+#include "inventory/ItemFactory.h"
 
 // Initialize ID Authority variables:
 uint32 ItemFactory::m_nextEntityID = EVEMU_MINIMUM_ENTITY_ID;
@@ -44,7 +45,7 @@ ItemFactory::~ItemFactory() {
         std::map<uint32, InventoryItemRef>::const_iterator cur, end;
 		uint32 total_item_count = m_items.size();
 		uint32 items_saved = 0;
-		float current_percent_items_saved = 0.0;
+		float current_percent_items_saved = 0.0f;
         cur = m_items.begin();
         end = m_items.end();
         for(; cur != end; cur++) {
@@ -56,11 +57,11 @@ ItemFactory::~ItemFactory() {
 			if( ((float)items_saved / (float)total_item_count) > (current_percent_items_saved + 0.05) )
 			{
 				current_percent_items_saved = (float)items_saved / (float)total_item_count;
-				sLog.Warning( "Saving Items", " %3.2f%%", (current_percent_items_saved * 100.0) );
+				sLog.Warning( "     Saving Items", " %3.2f%%", (current_percent_items_saved * 100.0f) );
 			}
         }
-		sLog.Warning( "Saving Items", "%u Items Saved.", items_saved );
-		sLog.Success( "Saving Items", " COMPLETE!" );
+		sLog.Warning("   ServerShutdown", "Saved %u of %u Loaded Items.", items_saved, total_item_count );
+		sLog.Success("   ServerShutdown", " Complete.");
     }
     // types
     {
@@ -89,6 +90,29 @@ ItemFactory::~ItemFactory() {
 
     // Set Client pointer to NULL
     m_pClient = NULL;
+}
+
+void ItemFactory::SaveItems() {
+    std::map<uint32, InventoryItemRef>::const_iterator cur, end;
+	uint32 total_item_count = m_items.size();
+	uint32 items_saved = 0;
+	float current_percent_items_saved = 0.0f;
+    cur = m_items.begin();
+    end = m_items.end();
+    for(; cur != end; cur++) {
+        // save attributes of item
+		if( IsNonStaticItem(cur->second->itemID()) )
+			cur->second->SaveItem();
+
+		items_saved++;
+		if( ((float)items_saved / (float)total_item_count) > (current_percent_items_saved + 0.05) )
+		{
+			current_percent_items_saved = (float)items_saved / (float)total_item_count;
+			sLog.Warning( "     Saving Items", " %3.2f%%", (current_percent_items_saved * 100.0f) );
+		}
+    }
+	sLog.Warning("          SaveAll", " Saved %u of %u Loaded Items.", items_saved, total_item_count );
+	sLog.Success("          SaveAll", "  Complete.");
 }
 
 const ItemCategory *ItemFactory::GetCategory(EVEItemCategories category) {

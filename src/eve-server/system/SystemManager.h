@@ -97,6 +97,8 @@ public:
     ShipRef GetShipFromInventory(uint32 shipID);
     void RemoveItemFromInventory(InventoryItemRef item);
 
+	uint32 Count()	{ return(m_entities.size()); }
+
 protected:
     // Solar System Inventory Functions:
     //uint32 inventoryID() const { return itemID(); }

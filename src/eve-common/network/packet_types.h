@@ -340,7 +340,7 @@ FROM invTypes t, invGroups g, invCategories c
 WHERE g.groupID = t.groupID AND c.categoryID = g.categoryID AND c.categoryID = 16
 ORDER BY g.groupName
 */
-typedef enum {	//thanks positron for this query
+typedef enum {	//thanks positron96 for this query
     skillCorporationManagement		= 3363,		// group = Corporation Management
  	skillStationManagement		= 3364,		// group = Corporation Management
  	skillStarbaseManagement		= 3365,		// group = Corporation Management
@@ -932,25 +932,155 @@ typedef enum {
 
 //these come from dgmEffects.
 typedef enum {
-    effectShieldBoosting            = 4,    //effects.ShieldBoosting
-    effectSpeedBoost                = 7,    //effects.SpeedBoost
-    effectMissileLaunching            = 9,    //effects.MissileDeployment
-    effectTargetAttack                = 10,    //effects.Laser
-    effectLoPower                    = 11,
-    effectHiPower                    = 12,
-    effectMedPower                    = 13,
-    effectOnline                    = 16,
-    effectArmorRepair                = 27,    //effects.ArmorRepair
-    effectProjectileFired            = 34,
-    effectEMPWave                    = 38,
-    effectMiningLaser                = 67,    //effects.Laser
-    effectEmpFieldRange                = 99,
-    effectSkillEffect                = 132,
-    effectAnchorDrop                = 649,
-    effectAnchorLift                = 650,
-    effectOnlineForStructures        = 901,
-    effectAnchorDropForStructures    = 1022,
-    effectAnchorLiftForStructures    = 1023
+	effectShieldBoosting				= 4,	//effects.ShieldBoosting
+	effectSpeedBoost       		        = 7,    //effects.SpeedBoost
+	effectMissileLaunching				= 9,	//effects.MissileDeployment
+	effectTargetAttack					= 10,	//effects.Laser
+    effectLoPower                    	= 11,
+    effectHiPower                    	= 12,
+    effectMedPower                    	= 13,
+    effectOnline                    	= 16,
+	effectMining						= 17,	//effects.Mining
+	effectShieldTransfer				= 18,	//effects.ShieldTransfer
+	effectStructureRepair				= 26, 	//effects.StructureRepair
+	effectArmorRepair					= 27,	//effects.ArmorRepair
+	effectModifyTargetSpeed				= 29,	//effects.ModifyTargetSpeed
+	effectEnergyTransfer				= 31,	//effects.EnergyTransfer
+	effectEnergyVampire					= 32,	//effects.EnergyDestabilization
+	effectProjectileFired				= 34,	//effects.ProjectileFired
+	effectEnergyDestabilization			= 36,	//effects.EnergyDestabilization
+	effectEMPWave						= 38,	//effects.EMPWave
+	effectWarpScramble					= 39,	//effects.WarpScramble
+	effectCargoScan						= 47,	//effects.CargoScan
+	effectECMBurst						= 53,	//effects.ECMBurst
+	effectMiningLaser					= 67,	//effects.Laser
+    effectEmpFieldRange               	= 99,
+	effectSurveyScan					= 81,	//effects.SurveyScan
+	effectFoFMissileLaunching			= 104,	//effects.MissileDeployment
+	effectTurretWeaponRangeTrackingSpeedMultiplyActivate		= 123,	//effects.TurretWeaponRangeTrackingSpeedMultiplyActi...
+	effectScanStrengthBonusTarget		= 124,	//effects.ScanStrengthBonusTarget
+	effectTurretWeaponRangeTrackingSpeedMultiplyTarget			= 126,	//effects.TurretWeaponRangeTrackingSpeedMultiplyTarg...
+	effectTorpedoLaunching				= 127,	//effects.TorpedoDeployment
+    effectSkillEffect                	= 132,
+	effectBarrage						= 263,	//effects.Barrage
+	effectWarpScrambleForEntity			= 563,	//effects.WarpScramble
+	effectModifyTargetSpeed2			= 575,	//effects.ModifyTargetSpeed
+	effectDecreaseTargetSpeed			= 586,	//effects.ModifyTargetSpeed
+	effectTargetArmorRepair				= 592,	//effects.RemoteArmourRepair
+	effectTargetedEMResonanceMultiply	= 597,	//effects.EnergyDestabilization
+	effectCloaking						= 607,	//effects.Cloaking
+	effectTurretWeaponRangeTrackingSpeedMultiplyTargetHostile	= 609,	//effects.ElectronicAttributeModifyTarget
+	effectTargetedKineticResonanceMultiply			= 615,	//effects.EnergyDestabilization
+	effectTargetedThermalResonanceMultiply			= 616,	//effects.EnergyDestabilization
+	effectTargetedExplosiveResonanceMultiply		= 617,	//effects.EnergyDestabilization
+	effectAnchorDrop					= 649,	//effects.AnchorDrop
+	effectAnchorLift					= 650,	//effects.AnchorLift
+	effectStealthActive					= 713,	//effects.ElectronicAttributeModifyActivate
+	effectSensorBoostTargeted			= 716,	//effects.ElectronicAttributeModifyTarget
+	effectSensorBoosterActive			= 720,	//effects.ElectronicAttributeModifyActivate
+	effectSensorBoostTargetedHostile	= 837,	//effects.ElectronicAttributeModifyTarget
+	effectShieldBoostingForEntities		= 876,	//effects.ShieldBoosting
+	effectArmorRepairForEntities		= 878,	//effects.ArmorRepair
+	effectSuicideBomb					= 885,	//effects.EMPWave
+	effectOnlineForStructures			= 901,	//effects.StructureOnline
+	effectDecloakWave					= 902,	//effects.DecloakWave
+	effectCloakingWarpSafe				= 980,	//effects.Cloaking
+	effectAnchorDropForStructures		= 1022,	//effects.AnchorDrop
+	effectAnchorLiftForStructures		= 1023,	//effects.AnchorLift
+	effectProjectileFiredForEntities	= 1086,	//effects.ProjectileFiredForEntities
+	effectTargetAttackForStructures		= 1199,	//effects.ProjectileFiredForEntities
+	effectNewEwTestscanStrengthBonusTargetHostile	= 1271,	//effects.ScanStrengthBonusTarget
+	effectNewEwTestswarpScramble		= 1272,	//effects.WarpScramble
+	effectNewEwTestssensorBoostTargetedHostile		= 1273,	//effects.ElectronicAttributeModifyTarget
+	effectNewEwTeststurretWeaponRangeTrackingSpeedMultiplyTargetHostile			= 1274,	//effects.Target_paint
+	effectNewEwTestsdecreaseTargetSpeed	= 1275,	//effects.ModifyTargetSpeed
+	effectEWTestEffectRsd				= 1354,	//effects.ElectronicAttributeModifyTarget
+	effectEWTestEffectWs				= 1355,	//effects.WarpScramble
+	effectGangBonusSignature			= 1411,	//effects.ElectronicAttributeModifyActivate
+	effectGangArmorHardening			= 1510,	//effects.ElectronicAttributeModifyActivate
+	effectGangPropulsionJammingBoost	= 1546,	//effects.ElectronicAttributeModifyActivate
+	effectGangShieldHardening			= 1548,	//effects.ElectronicAttributeModifyActivate
+	effectEWTargetPaint					= 1549,	//effects.TargetPaint
+	effectGangECCMfixed					= 1648,	//effects.ElectronicAttributeModifyActivate
+	effectOpenSpawnContainer			= 1738,	//effects.TargetScan
+	effectSiegeModeEffectOld			= 1745,	//effects.SiegeMode
+	effectGangArmorRepairSpeedAmplifier	= 1746,	//effects.ElectronicAttributeModifyActivate
+	effectGangArmorRepairCapReducer		= 1747,	//effects.ElectronicAttributeModifyActivate
+	effectEntityCapacitorDrain			= 1872,	//effects.EnergyVampire
+	effectEntityTrackingDisrupt			= 1877,	//effects.ElectronicAttributeModifyTarget
+	effectEntitySensorDampen			= 1878,	//effects.ElectronicAttributeModifyTarget
+	effectSetActiveDamageResonanceMultiplier	= 1938,	//effects.ModifyShieldResonance
+	effecteEMPWaveGrid					= 2071,	//effects.EMPWaveGrid
+	effectModifyActiveArmorResonanceAndNullifyPassiveResonance	= 2098,	//effects.ArmorHardening
+	effectModifyActiveShieldResonanceAndNullifyPassiveResonance	= 2118,	//effects.ModifyShieldResonance
+	effectJumpPortalGeneration			= 2152,	//effects.JumpPortal
+	effectEntityShieldBoostingSmall		= 2192,	//effects.ShieldBoosting
+	effectEntityShieldBoostingMedium	= 2193,	//effects.ShieldBoosting
+	effectEntityShieldBoostingLarge		= 2194,	//effects.ShieldBoosting
+	effectEntityArmorRepairingSmall		= 2195,	//effects.ArmorRepair
+	effectEntityArmorRepairingMedium	= 2196,	//effects.ArmorRepair
+	effectEntityArmorRepairingLarge		= 2197,	//effects.ArmorRepair
+	effectScanStrengthBonusPercentActivate		= 2231,	//effects.ScanStrengthBonusActivate
+	effectTractorBeamCan				= 2255,	//effects.TractorBeam
+	effectScanStrengthBonusPercentPassive		= 2298,	//effects.ScanStrengthBonusActivate
+	effectEnergyDestabilizationNew		= 2303,	//effects.EnergyDestabilization
+	effectEnergyNosferatu				= 2304,	//effects.EnergyVampire
+	effectSnowBallLaunching				= 2413,	//effects.MissileDeployment
+	effectDecreaseTargetSpeedForStructures		= 2480,	//effects.ModifyTargetSpeed
+	effectWarpScrambleForStructure		= 2481,	//effects.WarpScramble
+	effectTorpedoLaunchingIsOffensive	= 2576,	//effects.TorpedoDeployment
+	effectEntityEnvironmentalEffectDamageTest	= 2662,	//effects.EMPWave
+	effectSensorBoosterActivePercentage	= 2670,	//effects.ElectronicAttributeModifyActivate
+	effectMiningClouds					= 2726,	//effects.CloudMining
+	effectSalvaging						= 2757,	//effects.Salvaging
+	effectEnergyDestabilizationNewForStructure	= 2912,	//effects.EnergyDestabilization
+	effectRemoteEcmBurst				= 2913,	//effects.RemoteECM
+	effectBombLaunching					= 2971,	//effects.MissileDeployment
+	effectEnergyDestabilizationForStructure		= 3003,	//effects.EnergyDestabilization
+	effectRemoteHullRepair				= 3041,	//effects.RemoteArmourRepair
+	effectTriageModeEffectWithoutECMBurst		= 3045,	//effects.TriageMode
+	effectSiegeModeEffect				= 3062,	//effects.SiegeMode
+	effectSensorBoostTargetedHostileKali2Test	= 3161,	//effects.ElectronicAttributeModifyTarget
+	effectTriageModeEffect				= 3162,	//effects.TriageMode
+	effectGangArmorRepairCapReducerSelfAndProjected			= 3165,	//effects.ElectronicAttributeModifyActivate
+	effectGangArmorRepairSpeedAmplifierSelfAndProjected		= 3167,	//effects.ElectronicAttributeModifyActivate
+	effectLeech							= 3250,	//effects.EnergyVampire
+	effectIndustrialCoreEffectOLD		= 3282,	//effects.SiegeMode
+	effectLeechNpc						= 3332,	//effects.EnergyVampire
+	effectWarpDisruptSphere				= 3380,	//effects.WarpDisruptFieldGenerating
+	effectIndustrialCoreEffect			= 3492,	//effects.SiegeMode
+	effectTargetTurretWeaponMaxRangeAndTrackingSpeedBonusHostile	= 3552,	//effects.ElectronicAttributeModifyTarget
+	effectTargetGunneryMaxRangeAndTrackingSpeedBonusHostile			= 3555,	//effects.ElectronicAttributeModifyTarget
+	effectTargetGunneryMaxRangeAndTrackingSpeedBonusAssistance		= 3556,	//effects.TurretWeaponRangeTrackingSpeedMultiplyTarg...
+	effectGunneryMaxRangeAndTrackingSpeedBonus						= 3559,	//effects.TurretWeaponRangeTrackingSpeedMultiplyActi...
+	effectTargetMaxTargetRangeAndScanResolutionBonusAssistance		= 3583,	//effects.ElectronicAttributeModifyTarget
+	effectTargetMaxTargetRangeAndScanResolutionBonusHostile			= 3584,	//effects.ElectronicAttributeModifyTarget
+	effectTargetSetWarpScrambleStatusHidden							= 3604,	//effects.WarpScramble
+	effectJumpPortalGenerationBO		= 3674,	//effects.JumpPortalBO
+	effectTargetGunneryMaxRangeAndTrackingSpeedAndFalloffBonusHostile		= 3690,	//effects.ElectronicAttributeModifyTarget
+	effectTurretWeaponRangeFalloffTrackingSpeedMultiplyTargetHostile		= 3697,	//effects.ElectronicAttributeModifyTarget
+	effectConcordWarpScramble			= 3713,	//effects.WarpScramble
+	effectConcordModifyTargetSpeed		= 3714,	//effects.ModifyTargetSpeed
+	effectWarpScrambleTargetMWDBlockActivation						= 3725,	//effects.WarpScramble
+	effectProbeLaunching				= 3793,	//effects.MissileDeployment
+	effectNPCRemoteArmorRepair			= 3852,	//effects.RemoteArmourRepair
+	effectNPCRemoteShieldBoost			= 3855,	//effects.ShieldTransfer
+	effectSuperWeaponTurret				= 4481,	//effects.AnchorLift
+	effectSuperWeaponAmarr				= 4489,	//effects.SuperWeaponAmarr
+	effectSuperWeaponCaldari			= 4490,	//effects.SuperWeaponCaldari
+	effectSuperWeaponGallente			= 4491,	//effects.SuperWeaponGallente
+	effectSuperWeaponMinmatar			= 4492,	//effects.SuperWeaponMinmatar
+	effectGunneryMaxRangeFalloffTrackingSpeedBonus					= 4559,	//effects.TurretWeaponRangeTrackingSpeedMultiplyActi...
+	effectTargetGunneryMaxRangeFalloffTrackingSpeedBonusAssistance	= 4560,	//effects.TurretWeaponRangeTrackingSpeedMultiplyTarg...
+	effectSiegeModeEffect3				= 4568,	//effects.SiegeMode
+	effectSiegeModeEffect4				= 4573,	//effects.SiegeMode
+	effectTriageModeEffect2				= 4574,	//effects.TriageMode
+	effectIndustrialCoreEffect2			= 4575,	//effects.SiegeMode
+	effectNPCGroupShieldAssist			= 4686,	//effects.ElectronicAttributeModifyActivate
+	effectNPCGroupSpeedAssist			= 4687,	//effects.ElectronicAttributeModifyActivate
+	effectNPCGroupPropJamAssist			= 4688,	//effects.ElectronicAttributeModifyActivate
+	effectNPCGroupArmorAssist			= 4689,	//effects.ElectronicAttributeModifyActivate
+	effectFighterMissile				= 4729,	//effects.Lasereffect
 } EVEEffectID;
 
 typedef enum JournalRefType {
@@ -978,7 +1108,8 @@ typedef enum {
 } EVEAccountKeys;
 
 // probe shit
-typedef enum {
+typedef enum ProbeScanGroup
+{
 	Scrap = 1,
 	Signatures = 4,
 	Ships = 8,
@@ -988,7 +1119,8 @@ typedef enum {
 	Anomalies = 128
 } ProbeScanGroup;
 
-typedef enum {
+typedef enum ProbeState
+{
 	Inactive = 0,
 	Idle = 1,
 	Moving = 2,
@@ -999,12 +1131,12 @@ typedef enum {
 
 // wormhole shit
 typedef enum {
-	RegionMin = 11000000,
-	RegionMax = 11999999,
-	ConstellationMin = 21000000,
-	ConstellationMax = 21999999,
-	SystemMin = 31000000,
-	SystemMax = 31999999
+	RegionMin 			= 11000000,
+	RegionMax			= 11999999,
+	ConstellationMin 	= 21000000,
+	ConstellationMax 	= 21999999,
+	SystemMin 			= 31000000,
+	SystemMax 			= 31999999
 } mapWormholeValues;
 
 //  mission states
@@ -1100,44 +1232,44 @@ typedef enum {
 
 // calendar shit
 typedef enum {
-calendarMonday = 0,
-calendarTuesday = 1,
-calendarWednesday = 2,
-calendarThursday = 3,
-calendarFriday = 4,
-calendarSaturday = 5,
-calendarSunday = 6,
-calendarJanuary = 1,
-calendarFebruary = 2,
-calendarMarch = 3,
-calendarApril = 4,
-calendarMay = 5,
-calendarJune = 6,
-calendarJuly = 7,
-calendarAugust = 8,
-calendarSeptember = 9,
-calendarOctober = 10,
-calendarNovember = 11,
-calendarDecember = 12,
-calendarNumDaysInWeek = 7,
-calendarTagPersonal = 1,
-calendarTagCorp = 2,
-calendarTagAlliance = 4,
-calendarTagCCP = 8,
-calendarTagAutomated = 16,
-calendarViewRangeInMonths = 12,
-calendarMaxTitleSize = 40,
-calendarMaxDescrSize = 500,
-calendarMaxInvitees = 50,
-calendarMaxInviteeDisplayed = 100,
-calendarAutoEventPosFuel = 1,
-eventResponseUninvited = 0,
-eventResponseDeleted = 1,
-eventResponseDeclined = 2,
-eventResponseUndecided = 3,
-eventResponseAccepted = 4,
-eventResponseMaybe = 5,
-calendarStartYear = 2003
+	calendarMonday = 0,
+	calendarTuesday = 1,
+	calendarWednesday = 2,
+	calendarThursday = 3,
+	calendarFriday = 4,
+	calendarSaturday = 5,
+	calendarSunday = 6,
+	calendarJanuary = 1,
+	calendarFebruary = 2,
+	calendarMarch = 3,
+	calendarApril = 4,
+	calendarMay = 5,
+	calendarJune = 6,
+	calendarJuly = 7,
+	calendarAugust = 8,
+	calendarSeptember = 9,
+	calendarOctober = 10,
+	calendarNovember = 11,
+	calendarDecember = 12,
+	calendarNumDaysInWeek = 7,
+	calendarTagPersonal = 1,
+	calendarTagCorp = 2,
+	calendarTagAlliance = 4,
+	calendarTagCCP = 8,
+	calendarTagAutomated = 16,
+	calendarViewRangeInMonths = 12,
+	calendarMaxTitleSize = 40,
+	calendarMaxDescrSize = 500,
+	calendarMaxInvitees = 50,
+	calendarMaxInviteeDisplayed = 100,
+	calendarAutoEventPosFuel = 1,
+	calendarStartYear = 2003,
+	eventResponseUninvited = 0,
+	eventResponseDeleted = 1,
+	eventResponseDeclined = 2,
+	eventResponseUndecided = 3,
+	eventResponseAccepted = 4,
+	eventResponseMaybe = 5
 } CalendarDef;
 
 //the constants are made up of:
@@ -1206,25 +1338,46 @@ typedef enum {
     dgmEffOnline = 4,
 } EffectCategories;
 
-typedef enum {
-fleetJobNone = 0,
-fleetJobScout = 1,
-fleetJobCreator = 2
+typedef enum FleetJobs
+{
+	fleetJobNone = 0,
+	fleetJobScout = 1,
+	fleetJobCreator = 2
 } FleetJobs;
 
-typedef enum {
-fleetRoleLeader = 1,
-fleetRoleWingCmdr = 2,
-fleetRoleSquadCmdr = 3,
-fleetRoleMember = 4
+typedef enum FleetRoles
+{
+	fleetRoleLeader = 1,
+	fleetRoleWingCmdr = 2,
+	fleetRoleSquadCmdr = 3,
+	fleetRoleMember = 4
 } FleetRoles;
 
-typedef enum {
-fleetBoosterNone = 0,
-fleetBoosterFleet = 1,
-fleetBoosterWing = 2,
-fleetBoosterSquad = 3
+typedef enum FleetBoosters
+{
+	fleetBoosterNone = 0,
+	fleetBoosterFleet = 1,
+	fleetBoosterWing = 2,
+	fleetBoosterSquad = 3
 } FleetBoosters;
+
+typedef enum EVESearchTypes
+{
+	searchResultAgent = 1,
+	searchResultCharacter = 2,
+	searchResultCorporation = 3,
+	searchResultAlliance = 4,
+	searchResultFaction = 5,
+	searchResultConstellation = 6,
+	searchResultSolarSystem = 7,
+	searchResultRegion = 8,
+	searchResultStation = 9,
+	searchResultInventoryType = 10,
+	//searchResultAllOwners = [1, 2, 3, 4, 5],
+	//searchResultAllLocations = [6, 7, 8, 9],
+	searchMaxResults = 500,
+	searchMinWildcardLength = 3
+} SearchTypes;
 
 /*
  *

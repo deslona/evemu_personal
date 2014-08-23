@@ -53,11 +53,11 @@ PyResult Command_roid( Client* who, CommandDB* db, PyServiceMgr* services, const
     sLog.Log( "Command", "Roid %u of radius %f", typeID, radius );
 
     GPoint position( who->GetPosition() );
-    position.x += radius + 1 + who->GetRadius();    //put it raw enough away to not push us around.
+    position.x += radius + 1 + who->GetRadius();    //put it far enough away to not push us around.
 
     SpawnAsteroid( who->System(), typeID, radius, position );
 
-    return new PyString( "Spawn successsfull." );
+    return new PyString( "Spawn successful." );
 }
 
 PyResult Command_spawnbelt( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args )
@@ -108,7 +108,7 @@ PyResult Command_spawnbelt( Client* who, CommandDB* db, PyServiceMgr* services, 
     double roidradius;
     const double beltangle = M_PI * 2.0 / 3.0;
     uint32 pcs = 0;
-	
+
 	if( customCount > 15 )
 		pcs = customCount + static_cast<uint32>(MakeRandomInt( -10, 10 ));
 	else

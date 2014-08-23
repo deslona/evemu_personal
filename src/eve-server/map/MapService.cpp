@@ -254,8 +254,27 @@ PyResult MapService::Handle_GetDeadspaceComplexMap(PyCallArgs &call)
     return result;
 }
 
-PyResult MapService::Handle_GetIncursionGlobalReport(PyCallArgs &call)
-{
+PyResult MapService::Handle_GetIncursionGlobalReport(PyCallArgs &call) {
+  /**
+            report = sm.RemoteSvc('map').GetIncursionGlobalReport()
+            rewardGroupIDs = [ r.rewardGroupID for r in report ]
+            delayedRewards = sm.GetService('incursion').GetDelayedRewardsByGroupIDs(rewardGroupIDs)
+            scrolllist = []
+            factionsToPrime = set()
+            for data in report:
+                data.jumps = GetJumps(data.stagingSolarSystemID)
+                data.influenceData = util.KeyVal(influence=data.influence, lastUpdated=data.lastUpdated, graceTime=data.graceTime, decayRate=data.decayRate)
+                ssitem = map.GetItem(data.stagingSolarSystemID)
+                data.stagingSolarSystemName = ssitem.itemName
+                data.security = map.GetSecurityStatus(data.stagingSolarSystemID)
+                data.constellationID = ssitem.locationID
+                data.constellationName = map.GetItem(ssitem.locationID).itemName
+                data.factionID = ssitem.factionID or starmap.GetAllianceSolarSystems().get(data.stagingSolarSystemID, None)
+                factionsToPrime.add(data.factionID)
+                rewards = delayedRewards.get(data.rewardGroupID, None)
+                data.loyaltyPoints = rewards[0].rewardQuantity if rewards else 0
+                scrolllist.append(listentry.Get('GlobalIncursionReportEntry', data))
+*/
   sLog.Log( "MapService::Handle_GetIncursionGlobalReport()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
 

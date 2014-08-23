@@ -20,11 +20,44 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Bloody.Rabbit
+    Author:     Bloody.Rabbit
+    Updates:	Allan
 */
 
 #ifndef __UTILS__SINGLETON_H__INCL__
 #define __UTILS__SINGLETON_H__INCL__
+
+#if 0
+#include <boost/utility.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
+
+//#include eve-core.h
+
+//  updated singleton class
+class Singleton : boost::noncopyable {
+public:
+  static boost::shared_ptr<Singleton> Get();
+  ~Singleton() {/*weak ptr does not have to be nulled*/}
+
+private:
+  Singleton() { };
+
+  static boost::weak_ptr<Singleton> singleton_;
+};
+
+boost::shared_ptr<Singleton> Singleton::Get() {
+  boost::shared_ptr<Singleton> instance = singleton_.lock();
+  if (!instance) {
+    instance.reset(new Singleton());
+    singleton_ = instance;
+  }
+  return instance;
+}
+#endif
+
+/*  vvvv  this is original singleton class by Bloody.Rabbit  vvvvvvv   */
+#if 1
 
 /**
  * @brief Template used for singleton classes.
@@ -70,6 +103,6 @@ protected:
 
 template<typename X>
 std::auto_ptr<X> Singleton<X>::mInstance( NULL );
+#endif
 
 #endif /* !__UTILS__SINGLETON_H__INCL__ */
-

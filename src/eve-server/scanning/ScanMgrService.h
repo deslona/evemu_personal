@@ -27,8 +27,8 @@
 #ifndef __SCANMGR_SERVICE_H_INCL__
 #define __SCANMGR_SERVICE_H_INCL__
 
-#include "scanning/ScanningDB.h"
 #include "scanning/Scanning.h"
+#include "scanning/ScanningDB.h"
 #include "PyService.h"
 
 class ScanMgrService : public PyService {

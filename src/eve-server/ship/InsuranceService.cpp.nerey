@@ -1,0 +1,180 @@
+/*
+    ------------------------------------------------------------------------------------
+    LICENSE:
+    ------------------------------------------------------------------------------------
+    This file is part of EVEmu: EVE Online Server Emulator
+    Copyright 2006 - 2011 The EVEmu Team
+    For the latest information visit http://evemu.org
+    ------------------------------------------------------------------------------------
+    This program is free software; you can redistribute it and/or modify it under
+    the terms of the GNU Lesser General Public License as published by the Free Software
+    Foundation; either version 2 of the License, or (at your option) any later
+    version.
+
+    This program is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License along with
+    this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+    Place - Suite 330, Boston, MA 02111-1307, USA, or go to
+    http://www.gnu.org/copyleft/lesser.txt.
+    ------------------------------------------------------------------------------------
+    Author:        Nerey
+*/
+
+#include "eve-server.h"
+
+#include "PyBoundObject.h"
+#include "PyServiceCD.h"
+#include "ship/InsuranceService.h"
+
+class InsuranceBound
+: public PyBoundObject
+{
+friend class InsuranceService;
+public:
+    PyCallable_Make_Dispatcher(InsuranceBound)
+
+    InsuranceBound(PyServiceMgr *mgr, InsuranceService *_isvc)
+    : PyBoundObject(mgr),
+      m_db(isvc->GetMDB()),
+	  i_db(isvc->GetIDB()),
+	  isvc(_isvc),
+      m_dispatch(new Dispatcher(this))
+    {
+        _SetCallDispatcher(m_dispatch);
+
+        PyCallable_REG_CALL(InsuranceBound, GetInsurancePrice)
+		PyCallable_REG_CALL(InsuranceBound, UnInsureShip)
+		PyCallable_REG_CALL(InsuranceBound, GetContracts)
+		PyCallable_REG_CALL(InsuranceBound, InsureShip)
+
+        m_strBoundObjectName = "InsuranceBound";
+    }
+
+    virtual ~InsuranceBound() { delete m_dispatch; }
+    virtual void Release() {
+        //I hate this statement
+        delete this;
+    }
+
+	PyCallable_DECL_CALL(UnInsureShip)
+	PyCallable_DECL_CALL(GetContracts)
+	PyCallable_DECL_CALL(GetInsurancePrice)
+	PyCallable_DECL_CALL(InsureShip)
+
+
+protected:
+	InsuranceDB* i_db;
+    ShipDB* m_db;
+	InsuranceService *isvc;
+    Dispatcher *const m_dispatch;
+};
+
+PyCallable_Make_InnerDispatcher(InsuranceService)
+
+InsuranceService::InsuranceService(PyServiceMgr *mgr)
+: PyService(mgr, "insuranceSvc"),
+  m_dispatch(new Dispatcher(this))
+{
+    _SetCallDispatcher(m_dispatch);
+
+	PyCallable_REG_CALL(InsuranceService, GetInsurancePrice)
+	PyCallable_REG_CALL(InsuranceService, UnInsureShip)
+	PyCallable_REG_CALL(InsuranceService, GetContracts)
+	PyCallable_REG_CALL(InsuranceService, InsureShip)
+    PyCallable_REG_CALL(InsuranceService, GetContractForShip)
+}
+
+InsuranceDB* InsuranceService::GetIDB() { return &i_db; }
+ShipDB* InsuranceService::GetMDB() { return &m_db; }
+
+InsuranceService::~InsuranceService() {
+    delete m_dispatch;
+}
+
+PyBoundObject* InsuranceService::_CreateBoundObject( Client* c, const PyRep* bind_args )
+{
+    _log( CLIENT__MESSAGE, "InsuranceService bind request for:" );
+    bind_args->Dump( CLIENT__MESSAGE, "    " );
+    return new InsuranceBound( m_manager, this);
+}
+
+PyResult InsuranceService::Handle_GetInsurancePrice( PyCallArgs& call )
+{
+    sLog.Debug("InsuranceService", "Called GetInsurancePrice stub" );
+	int typeID = call.tuple->GetItem(0)->AsInt()->value();
+    return i_db.GetInsurancePrice(typeID);
+}
+
+PyResult InsuranceService::Handle_GetContractForShip(PyCallArgs& call)
+{
+	sLog.Debug("InsuranceService", "Called GetContractForShip.");
+	uint32 ownerID = call.client->GetCharacterID();
+	uint32 shipID = (uint32)call.tuple->GetItem(0)->AsInt()->value();
+	return i_db.GetContractForShip(shipID, ownerID);
+}
+
+PyResult InsuranceService::Handle_UnInsureShip( PyCallArgs& call )
+{
+	sLog.Debug( "InsuranceBound", "Called UnInsureShip." );
+	uint32 ownerID = call.client->GetCharacterID();
+	uint32 shipID = (uint32)call.tuple->GetItem(0)->AsInt()->value();
+	return i_db.UnInsureShip(shipID, ownerID);
+}
+
+PyResult InsuranceService::Handle_InsureShip( PyCallArgs& call )
+{
+	sLog.Debug( "InsuranceService", "Called InsureShip." );
+	uint32 ownerID = call.client->GetCharacterID();
+	uint32 shipID = (uint32)call.tuple->GetItem(0)->AsInt()->value();
+	double price = (double)call.tuple->GetItem(1)->AsFloat()->value();
+	uint32 isCorpItem = (uint32)call.tuple->GetItem(2)->AsInt()->value();
+	if(call.client->AddBalance(-price))
+	{
+		uint64 __start = Win32TimeOffset(0, 0);
+		uint64 __end = Win32TimeOffset(90, 0);
+		return i_db.InsureShip(shipID, ownerID, 0, price, isCorpItem, __start, __end);
+	}
+	else { return new PyBool(false); }
+}
+
+PyResult InsuranceService::Handle_GetContracts( PyCallArgs& call )
+{
+	sLog.Debug( "InsuranceService", "Called GetContracts." );
+
+	uint32 ownerID = call.client->GetCharacterID();
+	sLog.Debug("InsuranceBound::GetContracts", "Getting insurance contracts for character %u...", ownerID);
+	PyRep* result = i_db.GetContracts(ownerID);
+	if(result == NULL)
+	{
+		sLog.Error("InsuranceBound::GetContracts", "InsuranceDB::GetContracts(ownerID = %u) returned NULL!", ownerID);
+		return new PyNone();
+	}
+	else
+	{
+		sLog.Debug("InsuranceBound::GetContracts", "Successfully fetched insurance contracts for Character %s", call.client->GetCharacterName().c_str());
+		return result;
+	}
+}
+PyResult InsuranceBound::Handle_GetInsurancePrice( PyCallArgs& call )
+{
+	return isvc->Handle_GetInsurancePrice(call);
+}
+
+PyResult InsuranceBound::Handle_UnInsureShip( PyCallArgs& call )
+{
+	return isvc->Handle_UnInsureShip(call);
+}
+
+PyResult InsuranceBound::Handle_InsureShip( PyCallArgs& call )
+{
+	return isvc->Handle_InsureShip(call);
+}
+
+PyResult InsuranceBound::Handle_GetContracts( PyCallArgs& call )
+{
+	return isvc->Handle_GetContracts(call);
+}
+

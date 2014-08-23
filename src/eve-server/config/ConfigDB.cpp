@@ -503,7 +503,7 @@ PyObject *ConfigDB::GetMapConnections(uint32 id, bool sol, bool reg, bool con, u
     if(sol) key = "fromsol";
     else if(reg) key = "fromreg";
     else if(con) key = "fromcon";
-    else sLog.Error ("ConfigDB::GetMapConnections()", "Bad argument passed to key.");
+    else sLog.Error ("ConfigDB::GetMapConnections()", "Bad argument (id: %u, sol: %u, reg: %u, con: %u) passed to key.", id, sol, reg, con );
 
     DBQueryResult res;
     if(!sDatabase.RunQuery(res,

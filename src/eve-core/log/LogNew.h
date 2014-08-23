@@ -26,8 +26,8 @@
 #ifndef __LOG__LOG_NEW_H__INCL__
 #define __LOG__LOG_NEW_H__INCL__
 
-#include "threading/Mutex.h"
 #include "utils/Singleton.h"
+#include "threading/Mutex.h"
 
 /**
  * @brief a small and simple logging system.

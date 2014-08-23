@@ -1,9 +1,9 @@
 # Introduction
-EVEmu modified to support the latest Crucible client v360229
+EVEmu updated to support the latest Crucible client v360229
 
-***   tested under SLES11.3  GCC4.7 GLIBC2.12***
+***   tested under SLES 11.3  GCC 4.7 GLIBC 2.11     ***
 
-***  no support for winblows ***
+*********  WILL NOT COMPILE UNDER WINDOWS  *************
 
 # Disclaimer
 
@@ -19,15 +19,17 @@ do with the source code downloaded from this project.
 - Character avatar creation is working
 - Walking in station is now possible, yet male characters use female animations.
 - Items and Ships display in station
-- Undocking and Docking is working (not complete.  undock bugs almost fixed)
+- Undocking and Docking is working (not complete.  bugs almost fixed)
 - Skill Training is working (including pause/resume AND Training History)
 - Injecting Skills is working
 - BookMarks are mostly working (no support for delete)
 - All Celestial Information from OverView is working
 - Corporation stuff kinda working
 - Planets and Services Info from StarMap(F10) is working
+- MapBrowser (F11) is working (finally)
+- Empire Regions show Sovereignty
 - Station Info from StarMap working
-- Agents and Converstation working (hard-coded...no data yet)
+- Agents and Converstation working (hard-coded...no mission data yet)
 - SolarSystem, Constellation, and Region information working
 - Most dynamic data working from StarMap(F10) [visited systems, Bookmarked systems, Personal Assets, jumps/hour, ALL killtypes ]
 - Refining/Reprocessing works, using Standings (kinda), and Skills
@@ -36,6 +38,7 @@ do with the source code downloaded from this project.
 - ML/PL research working (but hacked)
 - POS's Deployable and Anchorable (but cant put online)
 - Text-Based Search Partially working (bad return...nothing displayed)
+- Bounties are working, but difficult to set until Search system is working
 
 
 

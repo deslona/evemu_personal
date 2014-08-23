@@ -23,15 +23,11 @@
     Author:        Zhur
 */
 
-
-
-
-
 #ifndef EVE_ENTITY_LIST_H
 #define EVE_ENTITY_LIST_H
 
-#include "threading/Mutex.h"
 #include "utils/Singleton.h"
+#include "threading/Mutex.h"
 
 class Client;
 class PyAddress;
@@ -73,8 +69,8 @@ public:
     Client *FindCharacter(const char *name) const;
     Client *FindByShip(uint32 ship_id) const;
     Client *FindAccount(uint32 account_id) const;
-        void FindByStationID(uint32 stationID, std::vector<Client *> &result) const;
-        void FindByRegionID(uint32 regionID, std::vector<Client *> &result) const;
+    void FindByStationID(uint32 stationID, std::vector<Client *> &result) const;
+    void FindByRegionID(uint32 regionID, std::vector<Client *> &result) const;
     uint32 GetClientCount() const { return(uint32(m_clients.size())); }
 
     SystemManager *FindOrBootSystem(uint32 systemID);
@@ -87,6 +83,7 @@ public:
     void Multicast(const character_set &cset, const char *notifyType, const char *idType, PyTuple **payload, bool seq=true) const;
     void Unicast(uint32 charID, const char *notifyType, const char *idType, PyTuple **payload, bool seq=true);
     void GetClients(const character_set &cset, std::vector<Client *> &result) const;
+    void GetClients(std::list<Client *> &result) const;
 
 protected:
     typedef std::list<Client *> client_list;

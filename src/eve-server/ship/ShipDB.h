@@ -33,13 +33,12 @@ class ShipDB
 : public ServiceDB
 {
 public:
-    PyTuple* GetFormations();
-    static PyObject* GetEffectInformation(std::string effectName);
+    PyTuple *GetFormations();
 
-	PyResult GetInsuranceInfoByShipID(uint32 shipID);
-	PyResult GetInsuranceContractsByOwnerID(uint32 ownerID);
-	bool InsertInsuranceByShipID(uint32 shipID, double fraction);
-	bool DeleteInsuranceByShipID(uint32 shipID);
+	PyResult GetInsuranceByShipID(uint32);
+	PyResult GetInsuranceByOwnerID(uint32);
+	bool InsertInsuranceByShipID(uint32, float, bool = false);
+	void DeleteInsuranceByShipID(uint32);
 
 };
 

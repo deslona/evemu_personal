@@ -60,8 +60,11 @@ Client::Client(PyServiceMgr &services, EVETCPConnection** con)
     m_pingTimer.Start();
 
     m_dockStationID = 0;
-    m_justUndocked = false;
     m_needToDock = false;
+	m_justUndocked = false;
+	m_justUndockedCount = 0;
+
+	m_systemName = "";
 
     bKennyfied = false;     // by default, we do NOT want chat messages kennyfied, LOL
 
@@ -381,6 +384,7 @@ bool Client::EnterSystem(bool login) {
             return false;
         }
         m_system->AddClient(this);
+		m_systemName = m_system->GetName();
 	}
 
     //  add char to Dynamic Data    updated for docked/inspace   -allan 28April14
@@ -402,6 +406,7 @@ bool Client::EnterSystem(bool login) {
 
 bool Client::UpdateLocation(bool login) {
     if(IsStation(GetLocationID())) {
+        sLog.Success( "Client::UpdateLocation()", "Character %s (%u) Docked.", this->GetName(), this->GetCharacterID() );
         //we entered station, delete m_destiny
         delete m_destiny;
         m_destiny = NULL;
@@ -412,7 +417,6 @@ bool Client::UpdateLocation(bool login) {
 		m_system = NULL;
 
         OnCharNowInStation();
-        sLog.Success( "Client::UpdateLocation()", "Character %s (%u) Docked.", this->GetName(), this->GetCharacterID() );
     } else if(IsSolarSystem(GetLocationID())) {
         sLog.Success( "Client::UpdateLocation()", "Character %s (%u) InSpace.", this->GetName(), this->GetCharacterID() );
         //we are in a system, so we need a destiny manager
@@ -420,7 +424,7 @@ bool Client::UpdateLocation(bool login) {
         //ship should never be NULL.
         m_destiny->SetShipCapabilities( GetShip() );
 
-		m_destiny->SetPosition(GetShip()->position(), false);
+		m_destiny->SetPosition(GetShip()->position(), true);
 
         /*if( login )
         {
@@ -467,26 +471,23 @@ void Client::UndockFromStation( uint32 stationID, uint32 systemID, uint32 conste
     GetShip()->Move( systemID, flagAutoFit, true );
 	//set ship.m_position and save
     GetShip()->Relocate( dockPosition );
-
     //set character location to current system, and save.
     GetChar()->SetLocation( 0, systemID, constellationID, regionID );
+    //update char session with new values
+	//need mlocation set to current system before adding destiny manager and updating client with new position.
+    _UpdateSession( GetChar() );
 	//register with system manager...should also update bubble manager to add client to station's bubble.
     EnterSystem( false );
-
     //we are in a system, so we need a destiny manager
     m_destiny = new DestinyManager(this, m_system);
     //ship should never be NULL.
+    m_destiny->SetShipCapabilities( GetShip() );
+	//set position at undock point of station
 	m_destiny->SetPosition(dockPosition, true);
-
-    //update char session with new values  ...this should change mlocation (GetLocationID()) also.   it does not.  23Jul
-	//need mlocation set to sol system before adding destiny manager and updating with new position.
-    _UpdateSession( GetChar() );
-
 	//update client and set session change
+    _SendSessionChange();
 	//TODO: implement and set session change timer .....client knows already.  session change timer = 10s
 	//TODO:  implement and set undock invul until movement(but not on stop)
-    _SendSessionChange();
-    OnCharNoLongerInStation();       //character notification messages wrapper
 
     sLog.Warning( "Client::UndockFromStation()", "Character %s (%u) stationID() = %u  Position = %.2f, %.2f, %.2f  DockPosition = %.2f, %.2f, %.2f.", GetName(), GetCharacterID(), GetChar()->stationID(), x(), y(), z(), dockPosition.x, dockPosition.y, dockPosition.z );
 }
@@ -627,7 +628,8 @@ void Client::_UpdateSession( const CharacterConstRef& character )
         mSession.Clear( "stationid2" );
         mSession.Clear( "worldspaceid" );
 
-        mSession.SetInt( "solarsystemid", character->solarSystemID() );		//  used to tell client they are in space
+		if(!m_autoPilot)
+		    mSession.SetInt( "solarsystemid", character->solarSystemID() );		//  used to tell client they are in space
         mSession.SetInt( "locationid", character->solarSystemID() );
     }
     else
@@ -1046,12 +1048,12 @@ PyDict *Client::MakeSlimItem() const {
 
     slim->SetItemString("charID", new PyInt(GetCharacterID()));
     slim->SetItemString("corpID", new PyInt(GetCorporationID()));
-    slim->SetItemString("allianceID", new PyNone);
-    slim->SetItemString("warFactionID", new PyNone);
+    slim->SetItemString("allianceID", new PyInt(GetAllianceID()));
+    slim->SetItemString("warFactionID", new PyInt(GetWarFactionID()));
 
     //encode the mModulesMgr list, if we have any visible mModulesMgr
     std::vector<InventoryItemRef> items;
-    GetShip()->FindByFlagRange( flagHiSlot0, flagHiSlot7, items );
+    GetShip()->FindByFlagRange( flagLowSlot0, flagHiSlot7, items );
     if( !items.empty() )
     {
         PyList *l = new PyList();
@@ -1135,10 +1137,10 @@ void Client::StargateJump(uint32 fromGate, uint32 toGate) {
 
 	//  show gate animation in both to and from gate.
 	//SendGateActivity is not right....dont work as intended
-    //m_destiny->SendGateActivity(fromGate);
-    //m_destiny->SendGateActivity(toGate);
-    m_destiny->SendJumpOut(fromGate);
-    m_destiny->SendJumpOut(toGate);
+    m_destiny->SendGateActivity(fromGate);
+    m_destiny->SendGateActivity(toGate);
+    //m_destiny->SendJumpOut(fromGate);
+    //m_destiny->SendJumpOut(toGate);
 
     //delay the move so they can see the JumpOut animation
     _postMove(msJump, 5000);
@@ -1158,25 +1160,19 @@ void Client::GetDockingPoint(GPoint *dockPoint)
     dockPoint->z = m_movePoint.z;
 }
 
-// THESE FUNCTIONS ARE HACKS AS WE DONT KNOW WHY THE CLIENT CALLS STOP AT UNDOCK
-// *SetJustUndocking (only in Client.h)
-// *GetJustUndocking
-// *SetUndockAlignToPoint
-// *GetUndockAlignToPoint
-void Client::SetUndockAlignToPoint(GPoint dest)
+void Client::SetUndockAlignToPoint(GPoint &dest)
 {
     m_undockAlignToPoint.x = dest.x;
     m_undockAlignToPoint.y = dest.y;
     m_undockAlignToPoint.z = dest.z;
 }
 
-void Client::GetUndockAlignToPoint(GPoint *dest)
+void Client::GetUndockAlignToPoint(GPoint &dest)
 {
-    dest->x = m_undockAlignToPoint.x;
-    dest->y = m_undockAlignToPoint.y;
-    dest->z = m_undockAlignToPoint.z;
+    dest.x = m_undockAlignToPoint.x;
+    dest.y = m_undockAlignToPoint.y;
+    dest.z = m_undockAlignToPoint.z;
 }
-// --- END HACK FUNCTIONS FOR UNDOCK ---
 
 void Client::_postMove(_MoveState type, uint32 wait_ms) {
     m_moveState = type;
@@ -1249,8 +1245,6 @@ bool Client::SelectCharacter( uint32 char_id )
 
     //johnsus - characterOnline mod
     m_services.serviceDB().SetCharacterOnlineStatus( GetCharacterID(), true );
-
-    //_UpdateSession( GetChar() );
 
     _SendSessionChange();
 
@@ -1394,6 +1388,34 @@ void Client::SaveAllToDatabase() {
     if( GetShip() ) GetShip()->SaveShip();  // Save Ship and Modules' attributes and info to DB
 
     GetChar()->SaveFullCharacter();         // Save Character info to DB
+}
+
+void Client::SpawnNewRookieShip(){
+        EVEItemFlags flag = (EVEItemFlags)flagHangar;
+
+        //create rookie ship of appropriate type
+        uint32 typeID;
+        if(GetChar()->race() == raceAmarr )  typeID = amarrRookie;
+        else if(GetChar()->race() == raceCaldari )  typeID = caldariRookie;
+        else if(GetChar()->race() == raceGallente )  typeID = gallenteRookie;
+        else if(GetChar()->race() == raceMinmatar )  typeID = minmatarRookie;
+
+        //create data for new rookie ship
+        ItemData idata(
+            typeID,
+            GetCharacterID(),
+            0, //temp location
+            flag,
+            1
+        );
+        //spawn rookie ship
+        InventoryItemRef i = services().item_factory.SpawnItem( idata );
+
+        if(!i)
+            throw PyException( MakeCustomError( "Unable to generate rookie ship" ) );
+
+        //move the new rookie ship into the players hanger in station
+        i->Move( GetStationID(), flag, true );
 }
 
 bool Client::LaunchDrone(InventoryItemRef drone) {
@@ -1862,7 +1884,7 @@ bool Client::Handle_CallReq( PyPacket* packet, PyCallStream& req )
         sLog.Warning("Client::BeanCount","BeanCount error reporting and handling is not implemented yet.");
     else
         //  changed log back to debug   -allan 01/11/14
-        sLog.Debug("Server", "%s call made to %s",req.method.c_str(),packet->dest.service.c_str());
+        sLog.Log("Server", "%s call made to %s",req.method.c_str(),packet->dest.service.c_str());
 
     //build arguments
     PyCallArgs args( this, req.arg_tuple, req.arg_dict );

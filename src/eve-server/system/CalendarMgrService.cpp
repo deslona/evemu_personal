@@ -37,10 +37,10 @@ CalendarMgrService::CalendarMgrService(PyServiceMgr *mgr)
     _SetCallDispatcher(m_dispatch);
 
     PyCallable_REG_CALL(CalendarMgrService, GetResponsesForCharacter);
-    PyCallable_REG_CALL(CalendarMgrService, calendarProxy);
 }
 
-CalendarMgrService::~CalendarMgrService() {
+CalendarMgrService::~CalendarMgrService()
+{
     delete m_dispatch;
 }
 
@@ -55,15 +55,5 @@ PyResult CalendarMgrService::Handle_GetResponsesForCharacter( PyCallArgs& call )
 03:31:08 [SvcCall]     Argument 'machoVersion':
 03:31:08 [SvcCall]         Integer field: 1
 */
-    return NULL;
-}
-
-PyResult CalendarMgrService::Handle_calendarProxy( PyCallArgs& call )
-{
-
-  sLog.Log( "CalendarMgrService::Handle_calendarProxy()", "size= %u", call.tuple->size() );
-
-call.Dump(SERVICE__CALLS);
-
     return NULL;
 }

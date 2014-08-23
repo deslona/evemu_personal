@@ -19,6 +19,7 @@ SET( INCLUDE
      "${TARGET_INCLUDE_DIR}/eve-server.h"
      "${TARGET_INCLUDE_DIR}/Client.h"
      "${TARGET_INCLUDE_DIR}/ClientSession.h"
+     "${TARGET_INCLUDE_DIR}/ConsoleCommands.h"
      "${TARGET_INCLUDE_DIR}/EntityList.h"
      "${TARGET_INCLUDE_DIR}/EVEServerConfig.h"
      "${TARGET_INCLUDE_DIR}/LiveUpdateDB.h"
@@ -33,6 +34,7 @@ SET( SOURCE
      "${TARGET_SOURCE_DIR}/eve-server.cpp"
      "${TARGET_SOURCE_DIR}/Client.cpp"
      "${TARGET_SOURCE_DIR}/ClientSession.cpp"
+     "${TARGET_SOURCE_DIR}/ConsoleCommands.cpp"
      "${TARGET_SOURCE_DIR}/EntityList.cpp"
      "${TARGET_SOURCE_DIR}/EVEServerConfig.cpp"
      "${TARGET_SOURCE_DIR}/LiveUpdateDB.cpp"
@@ -202,7 +204,8 @@ SET( corporation_INCLUDE
      "${TARGET_INCLUDE_DIR}/corporation/CorporationService.h"
      "${TARGET_INCLUDE_DIR}/corporation/CorpRegistryService.h"
      "${TARGET_INCLUDE_DIR}/corporation/CorpStationMgrService.h"
-     "${TARGET_INCLUDE_DIR}/corporation/LPService.h" )
+     "${TARGET_INCLUDE_DIR}/corporation/LPService.h"
+     "${TARGET_INCLUDE_DIR}/corporation/LPStore.h" )
 SET( corporation_SOURCE
      "${TARGET_SOURCE_DIR}/corporation/CorpBookmarkMgrService.cpp"
      "${TARGET_SOURCE_DIR}/corporation/CorpMgrService.cpp"
@@ -210,7 +213,8 @@ SET( corporation_SOURCE
      "${TARGET_SOURCE_DIR}/corporation/CorporationService.cpp"
      "${TARGET_SOURCE_DIR}/corporation/CorpRegistryService.cpp"
      "${TARGET_SOURCE_DIR}/corporation/CorpStationMgrService.cpp"
-     "${TARGET_SOURCE_DIR}/corporation/LPService.cpp" )
+     "${TARGET_SOURCE_DIR}/corporation/LPService.cpp"
+     "${TARGET_SOURCE_DIR}/corporation/LPStore.cpp" )
 
 SET( dogmaim_INCLUDE
      "${TARGET_INCLUDE_DIR}/dogmaim/DogmaIMService.h"
@@ -484,6 +488,7 @@ SET( system_INCLUDE
      "${TARGET_INCLUDE_DIR}/system/BookmarkService.h"
      "${TARGET_INCLUDE_DIR}/system/BubbleManager.h"
      "${TARGET_INCLUDE_DIR}/system/Calendar.h"
+     "${TARGET_INCLUDE_DIR}/system/CalendarProxy.h"
      "${TARGET_INCLUDE_DIR}/system/CalendarMgrService.h"
      "${TARGET_INCLUDE_DIR}/system/Celestial.h"
      "${TARGET_INCLUDE_DIR}/system/Container.h"
@@ -509,6 +514,7 @@ SET( system_SOURCE
      "${TARGET_SOURCE_DIR}/system/BookmarkService.cpp"
      "${TARGET_SOURCE_DIR}/system/BubbleManager.cpp"
      "${TARGET_SOURCE_DIR}/system/Calendar.cpp"
+     "${TARGET_SOURCE_DIR}/system/CalendarProxy.cpp"
      "${TARGET_SOURCE_DIR}/system/CalendarMgrService.cpp"
      "${TARGET_SOURCE_DIR}/system/Celestial.cpp"
      "${TARGET_SOURCE_DIR}/system/Container.cpp"

@@ -31,29 +31,7 @@
 #include "system/SystemManager.h"
 
 EntityList::EntityList() : m_services( NULL ) {}
-EntityList::~EntityList() {
-  /*
-    {
-        client_list::iterator cur, end;
-        cur = m_clients.begin();
-        end = m_clients.end();
-        for(; cur != end; cur++)
-        {
-            delete *cur;
-        }
-    }
-
-    {
-        system_list::iterator cur, end;
-        cur = m_systems.begin();
-        end = m_systems.end();
-        for(; cur != end; cur++)
-        {
-            delete cur->second;
-        }
-    }
-    */
-}
+EntityList::~EntityList() {}
 
 void EntityList::Add(Client **client) {
     if(client == NULL || *client == NULL)
@@ -188,7 +166,7 @@ void EntityList::FindByStationID(uint32 stationID, std::vector<Client *> &result
     end = m_clients.end();
     for(; cur != end; cur++) {
         if((*cur)->GetStationID() == stationID) {
-            sLog.Warning( "EntityList::FindByStationID()", "Client %s (%u) added to GuestList for station %u", (*cur)->GetName(), (*cur)->GetID(), stationID );
+            sLog.Warning( "EntityList::FindByStationID()", "Client %s (%u) added to GuestList for station %u", (*cur)->GetName(), (*cur)->GetCharacterID(), stationID );
             result.push_back(*cur);
 		}
     }
@@ -201,7 +179,7 @@ void EntityList::FindByRegionID(uint32 regionID, std::vector<Client *> &result) 
     end = m_clients.end();
     for(; cur != end; cur++) {
         if((*cur)->GetRegionID() == regionID) {
-            sLog.Warning( "EntityList::FindByStationID()", "Client %s (%u) added to GuestList for region %u", (*cur)->GetName(), (*cur)->GetID(), regionID );
+            sLog.Warning( "EntityList::FindByStationID()", "Client %s (%u) added to GuestList for region %u", (*cur)->GetName(), (*cur)->GetCharacterID(), regionID );
             result.push_back(*cur);
 		}
     }
@@ -369,6 +347,15 @@ void EntityList::GetClients(const character_set &cset, std::vector<Client *> &re
         if(res != cset.end()) {
             result.push_back(*cur);
         }
+    }
+}
+
+void EntityList::GetClients(std::list<Client *> &result) const {
+    client_list::const_iterator cur, end;
+    cur = m_clients.begin();
+    end = m_clients.end();
+    for(; cur != end; cur++) {
+        result.push_back(*cur);
     }
 }
 

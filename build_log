@@ -1,0 +1,335 @@
+
+server@x6dhe:/usr/local/src/eve/cruc/build> make clean && make -j4 install
+[  0%] [  0%] [  0%] [  0%] Building CXX object boost_1_49_0/CMakeFiles/boost_system.dir/libs/system/src/error_code.cpp.o
+Building CXX object dep/gangsta/CMakeFiles/gangsta.dir/GaMath.cpp.o
+Building CXX object tinyxml/CMakeFiles/tinyxml.dir/tinystr.cpp.o
+Building CXX object dep/utils/CMakeFiles/utils.dir/Base64.cpp.o
+[  0%] Building CXX object tinyxml/CMakeFiles/tinyxml.dir/tinyxml.cpp.o
+[  1%] Building CXX object dep/utils/CMakeFiles/utils.dir/TriFile.cpp.o
+[  2%] Building CXX object dep/gangsta/CMakeFiles/gangsta.dir/GaTypes.cpp.o
+Linking CXX static library libboost_system.a
+[  2%] Built target boost_system
+[  3%] Building CXX object tinyxml/CMakeFiles/tinyxml.dir/tinyxmlerror.cpp.o
+[  3%] Building CXX object tinyxml/CMakeFiles/tinyxml.dir/tinyxmlparser.cpp.o
+Linking CXX static library libgangsta.a
+[  3%] Built target gangsta
+Linking CXX static library libutils.a
+[  3%] Built target utils
+Linking CXX static library libtinyxml.a
+[  3%] Built target tinyxml
+[  4%] Generating CMakeFiles/eve-core.dir/eve-core.h.gch
+[  4%] [  4%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/eve-compat.cpp.o
+[  5%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/database/dbcore.cpp.o
+[  5%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/database/dbtype.cpp.o
+Building CXX object src/eve-core/CMakeFiles/eve-core.dir/log/Basic_Log.cpp.o
+[  5%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/log/HTML_Log.cpp.o
+[  6%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/log/LogNew.cpp.o
+[  6%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/log/logsys.cpp.o
+[  6%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/network/NetUtils.cpp.o
+[  7%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/network/Socket.cpp.o
+[  7%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/network/StreamPacketizer.cpp.o
+[  7%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/network/TCPConnection.cpp.o
+[  8%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/network/TCPServer.cpp.o
+[  8%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/threading/Mutex.cpp.o
+[  8%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/utils/crc32.cpp.o
+[  9%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/utils/Deflate.cpp.o
+[  9%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/utils/DirWalker.cpp.o
+[  9%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/utils/misc.cpp.o
+[ 10%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/utils/Seperator.cpp.o
+[ 10%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/utils/str2conv.cpp.o
+[ 10%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/utils/timer.cpp.o
+[ 11%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/utils/utils_hex.cpp.o
+[ 11%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/utils/utils_string.cpp.o
+[ 11%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/utils/utils_time.cpp.o
+[ 12%] Building CXX object src/eve-core/CMakeFiles/eve-core.dir/utils/XMLParser.cpp.o
+Linking CXX static library libeve-core.a
+[ 12%] Built target eve-core
+[ 13%] Generating CMakeFiles/eve-xmlpktgen.dir/eve-xmlpktgen.h.gch
+[ 13%] [ 13%] Building CXX object src/eve-xmlpktgen/CMakeFiles/eve-xmlpktgen.dir/eve-xmlpktgen.cpp.o
+[ 14%] [ 14%] Building CXX object src/eve-xmlpktgen/CMakeFiles/eve-xmlpktgen.dir/Generator.cpp.o
+Building CXX object src/eve-xmlpktgen/CMakeFiles/eve-xmlpktgen.dir/CloneGenerator.cpp.o
+Building CXX object src/eve-xmlpktgen/CMakeFiles/eve-xmlpktgen.dir/ConstructGenerator.cpp.o
+[ 14%] Building CXX object src/eve-xmlpktgen/CMakeFiles/eve-xmlpktgen.dir/DecodeGenerator.cpp.o
+[ 15%] Building CXX object src/eve-xmlpktgen/CMakeFiles/eve-xmlpktgen.dir/DestructGenerator.cpp.o
+[ 15%] Building CXX object src/eve-xmlpktgen/CMakeFiles/eve-xmlpktgen.dir/DumpGenerator.cpp.o
+[ 15%] Building CXX object src/eve-xmlpktgen/CMakeFiles/eve-xmlpktgen.dir/EncodeGenerator.cpp.o
+[ 16%] Building CXX object src/eve-xmlpktgen/CMakeFiles/eve-xmlpktgen.dir/HeaderGenerator.cpp.o
+[ 16%] Building CXX object src/eve-xmlpktgen/CMakeFiles/eve-xmlpktgen.dir/XMLPacketGen.cpp.o
+Linking CXX executable eve-xmlpktgen
+[ 16%] Built target eve-xmlpktgen
+[ 16%] [ 16%] Generating CMakeFiles/eve-common.dir/eve-common.h.gch
+Generating packet files...
+Scanning dependencies of target eve-common
+[ 17%] [ 17%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/auth/PasswordModule.cpp.o
+[ 17%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/cache/CachedObjectMgr.cpp.o
+[ 18%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/database/RowsetReader.cpp.o
+Building CXX object src/eve-common/CMakeFiles/eve-common.dir/database/EVEDBUtils.cpp.o
+[ 18%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/database/RowsetToSQL.cpp.o
+[ 18%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/destiny/DestinyBinDump.cpp.o
+[ 19%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/marshal/EVEMarshal.cpp.o
+[ 19%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/marshal/EVEMarshalStringTable.cpp.o
+[ 19%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/marshal/EVEUnmarshal.cpp.o
+[ 20%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/network/EVEPktDispatch.cpp.o
+[ 20%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/network/EVESession.cpp.o
+[ 20%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/network/EVETCPConnection.cpp.o
+[ 21%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/AccountPkts.cpp.o
+[ 21%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/Character.cpp.o
+[ 21%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/CorporationPkts.cpp.o
+[ 22%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/Crypto.cpp.o
+[ 22%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/Destiny.cpp.o
+[ 22%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/DogmaIM.cpp.o
+[ 23%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/General.cpp.o
+[ 23%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/Inventory.cpp.o
+[ 23%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/LSCPkts.cpp.o
+[ 24%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/Language.cpp.o
+[ 24%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/Mail.cpp.o
+[ 24%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/Map.cpp.o
+[ 25%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/Manufacturing.cpp.o
+[ 25%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/Market.cpp.o
+[ 25%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/Missions.cpp.o
+[ 26%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/ObjectCaching.cpp.o
+[ 26%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/Sovereignty.cpp.o
+[ 26%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/Standing.cpp.o
+[ 27%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/Trade.cpp.o
+[ 27%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/Tutorial.cpp.o
+[ 27%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/packets/Wallet.cpp.o
+[ 28%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/python/PyDumpVisitor.cpp.o
+[ 28%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/python/PyLookupDump.cpp.o
+[ 28%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/python/PyPacket.cpp.o
+[ 29%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/python/PyRep.cpp.o
+[ 29%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/python/PyVisitor.cpp.o
+[ 29%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/python/PyXMLGenerator.cpp.o
+[ 30%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/python/classes/PyDatabase.cpp.o
+[ 30%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/python/classes/PyExceptions.cpp.o
+[ 30%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/python/classes/PyUtils.cpp.o
+[ 31%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/utils/EVEUtils.cpp.o
+[ 31%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/utils/EvilNumber.cpp.o
+[ 31%] Building CXX object src/eve-common/CMakeFiles/eve-common.dir/utils/util.cpp.o
+Linking CXX static library libeve-common.a
+[ 31%] Built target eve-common
+[ 32%] Generating CMakeFiles/eve-tool.dir/eve-tool.h.gch
+[ 32%] Generating CMakeFiles/eve-test.dir/eve-test.h.gch
+[ 32%] Generating CMakeFiles/eve-server.dir/eve-server.h.gch
+Scanning dependencies of target eve-tool
+[ 32%] [ 32%] [ 32%] Building CXX object src/eve-test/CMakeFiles/eve-test.dir/eve-test.cpp.o
+Building CXX object src/eve-tool/CMakeFiles/eve-tool.dir/eve-tool.cpp.o
+Building CXX object src/eve-tool/CMakeFiles/eve-tool.dir/Commands.cpp.o
+[ 32%] [ 33%] Building CXX object src/eve-test/CMakeFiles/eve-test.dir/marshal/EVEMarshalTest.cpp.o
+Building CXX object src/eve-test/CMakeFiles/eve-test.dir/auth/PasswordModuleTest.cpp.o
+Linking CXX executable eve-tool
+[ 33%] Building CXX object src/eve-test/CMakeFiles/eve-test.dir/utils/EvilNumberTest.cpp.o
+Linking CXX executable eve-test
+[ 33%] Built target eve-test
+[ 33%] Built target eve-tool
+Scanning dependencies of target eve-server
+[ 33%] [ 34%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/eve-server.cpp.o
+[ 34%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/Client.cpp.o
+[ 34%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ClientSession.cpp.o
+Building CXX object src/eve-server/CMakeFiles/eve-server.dir/EntityList.cpp.o
+[ 34%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/EVEServerConfig.cpp.o
+[ 35%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/LiveUpdateDB.cpp.o
+[ 35%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/NetService.cpp.o
+[ 35%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/PyBoundObject.cpp.o
+[ 36%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/PyCallable.cpp.o
+[ 36%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/PyService.cpp.o
+[ 36%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/PyServiceMgr.cpp.o
+[ 37%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ServiceDB.cpp.o
+[ 37%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/account/AccountDB.cpp.o
+[ 37%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/account/AccountService.cpp.o
+[ 38%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/account/AuthService.cpp.o
+[ 38%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/account/BrowserLockdownSvc.cpp.o
+[ 38%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/account/ClientStatMgrService.cpp.o
+[ 39%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/account/InfoGatheringMgr.cpp.o
+[ 39%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/account/TutorialDB.cpp.o
+[ 39%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/account/TutorialService.cpp.o
+[ 40%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/account/UserService.cpp.o
+[ 40%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/admin/AlertService.cpp.o
+[ 40%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/admin/AllCommands.cpp.o
+[ 41%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/admin/ClientStatLogger.cpp.o
+[ 41%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/admin/CommandDB.cpp.o
+[ 41%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/admin/CommandDispatcher.cpp.o
+[ 42%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/admin/DevToolsProviderService.cpp.o
+[ 42%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/admin/GMCommands.cpp.o
+[ 42%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/admin/PetitionerService.cpp.o
+[ 43%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/admin/SlashService.cpp.o
+[ 43%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/agents/Agent.cpp.o
+[ 43%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/agents/AgentDB.cpp.o
+[ 44%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/agents/AgentMgrService.cpp.o
+[ 44%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/apiserver/APIAccountDB.cpp.o
+[ 44%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/apiserver/APIAccountManager.cpp.o
+[ 45%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/apiserver/APIAdminManager.cpp.o
+[ 45%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/apiserver/APICacheManager.cpp.o
+[ 45%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/apiserver/APICharacterDB.cpp.o
+[ 46%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/apiserver/APICharacterManager.cpp.o
+[ 46%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/apiserver/APICorporationManager.cpp.o
+[ 46%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/apiserver/APIEveSystemManager.cpp.o
+[ 47%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/apiserver/APIMapManager.cpp.o
+[ 47%] [ 47%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/apiserver/APIServer.cpp.o
+Building CXX object src/eve-server/CMakeFiles/eve-server.dir/apiserver/APIServerConnection.cpp.o
+[ 48%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/apiserver/APIServerListener.cpp.o
+[ 48%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/apiserver/APIServerManager.cpp.o
+[ 48%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/apiserver/APIServiceDB.cpp.o
+[ 49%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/apiserver/APIServiceManager.cpp.o
+[ 49%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/cache/BulkMgrService.cpp.o
+[ 49%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/cache/ObjCacheDB.cpp.o
+[ 50%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/cache/ObjCacheService.cpp.o
+[ 50%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/character/AggressionMgrService.cpp.o
+[ 50%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/character/CertificateMgrDB.cpp.o
+[ 51%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/character/CertificateMgrService.cpp.o
+[ 51%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/character/Character.cpp.o
+[ 51%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/character/CharacterDB.cpp.o
+[ 52%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/character/CharFittingMgrService.cpp.o
+[ 52%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/character/CharMgrService.cpp.o
+[ 52%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/character/CharUnboundMgrService.cpp.o
+[ 53%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/character/PaperDollDB.cpp.o
+[ 53%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/character/PaperDollService.cpp.o
+[ 53%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/character/PhotoUploadService.cpp.o
+[ 54%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/character/Skill.cpp.o
+[ 54%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/character/SkillMgrService.cpp.o
+[ 54%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/chat/kenny.cpp.o
+[ 55%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/chat/LookupService.cpp.o
+[ 55%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/chat/LSCDB.cpp.o
+[ 55%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/chat/LSCChannel.cpp.o
+[ 56%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/chat/LSCService.cpp.o
+[ 56%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/chat/OnlineStatusService.cpp.o
+[ 56%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/chat/VoiceMgrService.cpp.o
+[ 57%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/config/ConfigDB.cpp.o
+[ 57%] [ 57%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/config/ConfigService.cpp.o
+Building CXX object src/eve-server/CMakeFiles/eve-server.dir/config/LanguageService.cpp.o
+[ 58%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/config/LocalizationServerService.cpp.o
+[ 58%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/corporation/CorpBookmarkMgrService.cpp.o
+[ 58%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/corporation/CorpMgrService.cpp.o
+[ 59%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/corporation/CorporationDB.cpp.o
+[ 59%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/corporation/CorporationService.cpp.o
+[ 59%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/corporation/CorpRegistryService.cpp.o
+[ 59%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/corporation/CorpStationMgrService.cpp.o
+[ 60%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/corporation/LPService.cpp.o
+[ 60%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/dogmaim/DogmaIMService.cpp.o
+[ 60%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/dogmaim/DogmaDB.cpp.o
+[ 61%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/dogmaim/DogmaService.cpp.o
+[ 61%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/imageserver/ImageServer.cpp.o
+[ 61%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/imageserver/ImageServerConnection.cpp.o
+[ 62%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/imageserver/ImageServerListener.cpp.o
+[ 62%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/inventory/AttributeModifier.cpp.o
+[ 62%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/inventory/EVEAttributeMgr.cpp.o
+[ 63%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/inventory/InvBrokerService.cpp.o
+[ 63%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/inventory/Inventory.cpp.o
+[ 63%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/inventory/InventoryBound.cpp.o
+[ 64%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/inventory/InventoryDB.cpp.o
+[ 64%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/inventory/InventoryItem.cpp.o
+[ 64%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/inventory/ItemDB.cpp.o
+[ 65%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/inventory/ItemFactory.cpp.o
+[ 65%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/inventory/ItemType.cpp.o
+[ 65%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/inventory/Owner.cpp.o
+[ 66%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/inventory/Voucher.cpp.o
+[ 66%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/mail/MailDB.cpp.o
+[ 66%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/mail/MailingListMgrService.cpp.o
+[ 67%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/mail/MailMgrService.cpp.o
+[ 67%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/mail/NotificationMgrService.cpp.o
+[ 67%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/manufacturing/Blueprint.cpp.o
+[ 68%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/manufacturing/FactoryDB.cpp.o
+[ 68%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/manufacturing/FactoryService.cpp.o
+[ 68%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/manufacturing/RamProxyDB.cpp.o
+[ 69%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/manufacturing/RamProxyService.cpp.o
+[ 69%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/map/MapDB.cpp.o
+[ 69%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/map/MapService.cpp.o
+[ 70%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/market/BillMgrService.cpp.o
+[ 70%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/market/ContractMgrService.cpp.o
+[ 70%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/market/ContractProxy.cpp.o
+[ 71%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/market/MarketDB.cpp.o
+[ 71%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/market/MarketProxyService.cpp.o
+[ 71%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/market/NPCMarket.cpp.o
+[ 72%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/market/TradeService.cpp.o
+[ 72%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/mining/Asteroid.cpp.o
+[ 72%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/mining/AsteroidBeltManager.cpp.o
+[ 73%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/mining/MiningCommands.cpp.o
+[ 73%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/mining/ReprocessingDB.cpp.o
+[ 73%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/mining/ReprocessingService.cpp.o
+[ 74%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/missions/DungeonExplorationMgrService.cpp.o
+[ 74%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/missions/MissionDB.cpp.o
+[ 74%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/missions/MissionMgrService.cpp.o
+[ 75%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/npc/NPC.cpp.o
+[ 75%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/npc/NPCAI.cpp.o
+[ 75%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/npc/SpawnDB.cpp.o
+[ 76%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/npc/SpawnManager.cpp.o
+[ 76%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/planet/Planet.cpp.o
+[ 76%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/planet/PlanetMgr.cpp.o
+[ 77%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/pos/PosMgrDB.cpp.o
+[ 77%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/pos/PosMgrService.cpp.o
+[ 77%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/pos/Structure.cpp.o
+[ 78%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/scanning/Scanning.cpp.o
+[ 78%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/scanning/ScanningDB.cpp.o
+[ 78%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/scanning/ScanMgrService.cpp.o
+[ 79%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/BeyonceService.cpp.o
+[ 79%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/DestinyManager.cpp.o
+[ 79%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/dgmtypeattributeinfo.cpp.o
+[ 80%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/Drone.cpp.o
+[ 80%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/FleetObject.cpp.o
+[ 80%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/FleetProxy.cpp.o
+[ 81%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/InsuranceService.cpp.o
+[ 81%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/ModuleManager.cpp.o
+[ 81%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/RepairService.cpp.o
+[ 82%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/Ship.cpp.o
+[ 82%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/ShipDB.cpp.o
+[ 82%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/ShipOperatorInterface.cpp.o
+[ 83%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/ShipService.cpp.o
+[ 83%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/TargetManager.cpp.o
+[ 83%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/modules/ActiveModules.cpp.o
+[ 84%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/modules/ModuleDB.cpp.o
+[ 84%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/modules/ModuleEffects.cpp.o
+[ 84%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/modules/PassiveModules.cpp.o
+[ 84%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/modules/RigModule.cpp.o
+[ 85%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/modules/SubSystemModules.cpp.o
+[ 85%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/modules/armor_modules/ArmorRepairer.cpp.o
+[ 85%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/modules/mining_modules/MiningLaser.cpp.o
+[ 86%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/modules/propulsion_modules/Afterburner.cpp.o
+[ 86%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/modules/weapon_modules/EnergyTurret.cpp.o
+[ 86%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/modules/weapon_modules/HybridTurret.cpp.o
+[ 87%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/modules/weapon_modules/MissileLauncher.cpp.o
+[ 87%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/modules/weapon_modules/ProjectileTurret.cpp.o
+[ 87%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/modules/components/ActiveModuleProcessingComponent.cpp.o
+[ 88%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/ship/modules/components/ModifyShipAttributesComponent.cpp.o
+[ 88%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/standing/FactionWarMgrDB.cpp.o
+[ 88%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/standing/FactionWarMgrService.cpp.o
+[ 89%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/standing/SovereigntyMgrService.cpp.o
+[ 89%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/standing/Standing.cpp.o
+[ 89%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/standing/StandingDB.cpp.o
+[ 90%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/standing/WarRegistryService.cpp.o
+[ 90%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/station/HoloscreenMgrService.cpp.o
+[ 90%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/station/JumpCloneService.cpp.o
+[ 91%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/station/Station.cpp.o
+[ 91%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/station/StationDB.cpp.o
+[ 91%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/station/StationService.cpp.o
+[ 92%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/station/StationSvcService.cpp.o
+[ 92%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/station/Trade.cpp.o
+[ 92%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/BookmarkDB.cpp.o
+[ 93%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/BookmarkService.cpp.o
+[ 93%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/BubbleManager.cpp.o
+[ 93%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/Calendar.cpp.o
+[ 94%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/CalendarMgrService.cpp.o
+[ 94%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/Celestial.cpp.o
+[ 94%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/Container.cpp.o
+[ 95%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/Damage.cpp.o
+[ 95%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/Deployable.cpp.o
+[ 95%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/DungeonService.cpp.o
+[ 96%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/IndexManager.cpp.o
+[ 96%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/KeeperService.cpp.o
+[ 96%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/Search.cpp.o
+[ 97%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/SearchDB.cpp.o
+[ 97%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/ScenarioService.cpp.o
+[ 97%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/SolarSystem.cpp.o
+[ 98%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/SystemBubble.cpp.o
+[ 98%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/SystemDB.cpp.o
+[ 98%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/SystemEntities.cpp.o
+[ 99%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/SystemEntity.cpp.o
+[ 99%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/SystemManager.cpp.o
+[ 99%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/WormholeMgr.cpp.o
+[100%] Building CXX object src/eve-server/CMakeFiles/eve-server.dir/system/WrecksAndLoot.cpp.o
+Linking CXX executable eve-server
+[100%] Built target eve-server
+Install the project...
+-- Install configuration: "Debug"
+-- Installing: /srv/games/eve-cruc/bin/eve-server
+-- Up-to-date: /srv/games/eve-cruc/etc/devtools.raw
+-- Installing: /srv/games/eve-cruc/bin/eve-tool
+server@x6dhe:/usr/local/src/eve/cruc/build>

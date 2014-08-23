@@ -20,15 +20,19 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:     Allan
+    Author:        Allan
 */
+
 
 #include "eve-server.h"
 
 #include "system/Calendar.h"
 
-/**
 Calendar::Calendar()
 {
 }
-*/
+
+Calendar::~Calendar()
+{
+}
+

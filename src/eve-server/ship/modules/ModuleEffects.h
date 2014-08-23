@@ -26,9 +26,9 @@
 #ifndef MODULE_EFFECTS_H
 #define MODULE_EFFECTS_H
 
+#include "utils/Singleton.h"
 #include "ship/modules/ModuleDB.h"
 #include "ship/modules/ModuleDefs.h"
-#include "utils/Singleton.h"
 
 
 // ////////////////////// Effects Class ////////////////////////////

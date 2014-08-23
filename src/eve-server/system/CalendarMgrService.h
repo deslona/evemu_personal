@@ -30,17 +30,18 @@
 #include "system/Calendar.h"
 #include "PyService.h"
 
-class CalendarMgrService : public PyService {
-public:
+class CalendarMgrService
+ : public PyService
+{
+  public:
     CalendarMgrService(PyServiceMgr *mgr);
-    virtual ~CalendarMgrService();
+     ~CalendarMgrService();
 
-protected:
+  protected:
     class Dispatcher;
     Dispatcher *const m_dispatch;
 
     PyCallable_DECL_CALL(GetResponsesForCharacter);
-    PyCallable_DECL_CALL(calendarProxy);
 };
 
-#endif
+#endif /* !__CALENDARMGR_SERVICE_H_INCL__ */

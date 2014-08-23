@@ -909,34 +909,73 @@ void Ship::RemoveRig( InventoryItemRef item, uint32 inventoryID )
     item->Delete();
 }
 
+double Ship::CalculateRechargeRate(double Capacity, double RechargeTimeMS, double Current)
+{
+    // prevent divide by zero.
+    RechargeTimeMS = RechargeTimeMS < 1 ? 1 : RechargeTimeMS;
+    Current = Current < 1 ? 1 : Current;
+    double Cmax = Capacity < 1 ? 1 : Capacity;
+    // tau = "cap recharge time" / 5.0
+    double tau = RechargeTimeMS / 5000.0;
+    // (2*Cmax) / tau
+    double Cmax2_tau = (Cmax * 2) / tau;
+    double C = Current;
+    // C / Cmax
+    double C_Cmax = C / Cmax;
+    // sqrt( C / Cmax )
+    double sC_Cmax = sqrt(C_Cmax);
+    // charge rate in Gj / sec
+    return Cmax2_tau * (sC_Cmax - C_Cmax);
+}
+
 void Ship::Process()
 {
+   // Do Automatic Shield and Capacitor Recharge:
+   if( !IsStation(locationID()) )
+   {
+      if( m_processTimer.Check() )
+      {
+            // Get capacitor and shield information.  Do this once for fewer function calls.
+            double capCharge = GetAttribute(AttrCharge).get_float();
+            double capRechargeRate = GetAttribute(AttrRechargeRate).get_float() / 1000.0;
+            double capCapacity = GetAttribute(AttrCapacitorCapacity).get_float();
+            double shieldCharge = GetAttribute(AttrShieldCharge).get_float();
+            double shieldRechargeRate = GetAttribute(AttrShieldRechargeRate).get_float() / 1000.0;
+            double shieldCapacity = GetAttribute(AttrShieldCapacity).get_float();
+            // Get the elapsed interval.
+            double interval = m_processTimerTick / 1000.0;
+         // shield
+         if( AttrShieldCharge < AttrShieldCapacity )
+         {
+            double newCharge = shieldCharge + (interval *
+                        CalculateRechargeRate(shieldCapacity, shieldRechargeRate, shieldCharge));
+            if( newCharge > shieldCapacity )
+               newCharge = shieldCapacity;
+                // if capacity is very close to full charge set to full to prevent lots of VERY small updates.
+                if( shieldCapacity - newCharge < 0.05)
+                    newCharge = shieldCapacity;
+            SetAttribute(AttrShieldCharge, newCharge);
+         }
+
+         // capacitor
+         if( capCharge < capCapacity )
+         {
+            double newCharge = capCharge + (interval *
+                        CalculateRechargeRate(capCapacity, capRechargeRate, capCharge));
+            if( newCharge > capCapacity )
+               newCharge = capCapacity;
+                // if capacity is very close to full charge set to full to prevent lots of VERY small updates.
+                if( capCapacity - newCharge < 0.05)
+                    newCharge = capCapacity;
+            SetAttribute(AttrCharge, newCharge);
+         }
+      }
+   }
+
+    // now, process the modules.
+    // Do this last so repair modules don't degrade shield recharge rate.
+    // Although, cap recharge would benefit from the power use by modules.
     m_ModuleManager->Process();
-
-	// Do Automatic Shield and Capacitor Recharge:
-	if( !IsStation(locationID()) )
-	{
-		if( m_processTimer.Check() )
-		{
-			// shield
-			if( GetAttribute(AttrShieldCharge) < GetAttribute(AttrShieldCapacity) )
-			{
-				EvilNumber newCharge = GetAttribute(AttrShieldCharge) + ((EvilNumber(m_processTimerTick/1000.0)) * GetAttribute(AttrShieldCapacity)/(GetAttribute(AttrShieldRechargeRate)/1000.0));
-				if( newCharge > GetAttribute(AttrShieldCapacity) )
-					newCharge = GetAttribute(AttrShieldCapacity);
-				SetAttribute(AttrShieldCharge, newCharge);
-			}
-
-			// capacitor
-			if( GetAttribute(AttrCharge) < GetAttribute(AttrCapacitorCapacity) )
-			{
-				EvilNumber newCharge = GetAttribute(AttrCharge) + ((EvilNumber(m_processTimerTick/1000.0)) * GetAttribute(AttrCapacitorCapacity)/(GetAttribute(AttrRechargeRate)/1000.0));
-				if( newCharge > GetAttribute(AttrCapacitorCapacity) )
-					newCharge = GetAttribute(AttrCapacitorCapacity);
-				SetAttribute(AttrCharge, newCharge);
-			}
-		}
-	}
 }
 
 void Ship::OnlineAll()

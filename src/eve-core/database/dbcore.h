@@ -29,9 +29,9 @@
 //this whole file could be interface-ized to support a different database
 //if you can get over the SQL incompatibilities and mysql auto increment problems.
 
+#include "utils/Singleton.h"
 #include "database/dbtype.h"
 #include "threading/Mutex.h"
-#include "utils/Singleton.h"
 
 class DBcore;
 

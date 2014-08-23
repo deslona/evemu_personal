@@ -322,17 +322,9 @@ bool ServiceDB::GetStationInfo(uint32 stationID, uint32 *systemID, uint32 *const
         );
     if(dockPosition != NULL)
         *dockPosition = GPoint(
-        /*    i need offset for dockPosition, and this is best way to get it....cannot use position of station from DB, as station moves.
-		         this change **SHOULD NOT** affect anything but undocking   -allan  23Jul14
-		         */
             row.GetDouble(3) + row.GetDouble(6),
             row.GetDouble(4) + row.GetDouble(7),
             row.GetDouble(5) + row.GetDouble(8)
-            /*
-            row.GetDouble(6),
-            row.GetDouble(7),
-            row.GetDouble(8)
-            */
         );
     if(dockOrientation != NULL) {
         *dockOrientation = GVector(
@@ -462,97 +454,63 @@ void ServiceDB::ProcessIntChange(const char * key, uint32 oldValue, uint32 newVa
     }
 }
 
-//johnsus - characterOnline mod
-void ServiceDB::SetCharacterOnlineStatus(uint32 char_id, bool onoff_status) {
+void ServiceDB::SetCharacterOnlineStatus(uint32 char_id, bool online) {
     DBerror err;
+    sDatabase.RunQuery(err, "UPDATE character_ SET online = %d WHERE characterID = %u", online, char_id);
 
-    _log(CLIENT__TRACE, "ChrStatus: Setting character %u %s.", char_id, onoff_status ? "Online" : "Offline");
-
-    if(!sDatabase.RunQuery(err,
-        "UPDATE character_"
-        " SET online = %d"
-        " WHERE characterID = %u",
-        onoff_status, char_id))
-    {
-        codelog(SERVICE__ERROR, "Error in query: %s", err.c_str());
-    }
-
-    if( onoff_status )
-    {
-        _log(CLIENT__TRACE, "SrvStatus: Incrementing ConnectSinceStartup.");
-
-        if(!sDatabase.RunQuery(err, "UPDATE srvStatus SET config_value = config_value + 1 WHERE config_name = 'connectSinceStartup'"))
-        {
-            codelog(SERVICE__ERROR, "Error in query: %s", err.c_str());
-        }
-    }
+    if( online )
+        sDatabase.RunQuery(err, "UPDATE srvStatus SET Connections = Connections + 1");
 }
 
-//johnsus - serverStartType mod
-void ServiceDB::SetServerOnlineStatus(bool onoff_status) {
+void ServiceDB::SetServerOnlineStatus(bool online) {
     DBerror err;
+    sDatabase.RunQuery(err,
+        "UPDATE srvStatus SET Online = %u, Connections = %u, startTime = %" PRIu64 " WHERE AI = %u",
+        online, 0, online ? Win32TimeNow() : 0, 1 );
 
-    _log(onoff_status ? SERVER__INIT : SERVER__SHUTDOWN, "SrvStatus: Server is %s, setting serverStartTime.", onoff_status ? "coming Online" : "going Offline");
-
-    if(!sDatabase.RunQuery(err,
-        "REPLACE INTO srvStatus (config_name, config_value)"
-        " VALUES ('%s', %s)",
-        "serverStartTime",
-        onoff_status ? "UNIX_TIMESTAMP(CURRENT_TIMESTAMP)" : "0"))
-    {
-        codelog(SERVICE__ERROR, "Error in query: %s", err.c_str());
-    }
-
-    _log(SERVER__INIT, "SrvStatus: Resetting ConnectSinceStartup.");
-
-    if(!sDatabase.RunQuery(err, "REPLACE INTO srvStatus (config_name, config_value)"
-        " VALUES ('%s', '0')",
-        "connectSinceStartup"))
-    {
-        codelog(SERVICE__ERROR, "Error in query: %s", err.c_str());
-    }
-
-    _log(CLIENT__TRACE, "ChrStatus: Setting all characters and accounts offline.");
-
-    if(!sDatabase.RunQuery(err,
-        "UPDATE character_, account"
+    sDatabase.RunQuery(err,
+		"UPDATE character_, account"
         " SET character_.online = 0,"
-        "     account.online = 0"))
-        {
-                codelog(SERVICE__ERROR, "Error in query: %s", err.c_str());
-        }
+        "     account.online = 0");
 }
 
-void ServiceDB::SetAccountOnlineStatus(uint32 accountID, bool onoff_status) {
+void ServiceDB::SetAccountOnlineStatus(uint32 accountID, bool online) {
     DBerror err;
-
-    _log(CLIENT__TRACE, "AccStatus: Setting account %u %s.", accountID, onoff_status ? "Online" : "Offline");
-
     if(!sDatabase.RunQuery(err,
         "UPDATE account "
         " SET account.online = %d "
         " WHERE accountID = %u ",
-        onoff_status, accountID))
+        online, accountID))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", err.c_str());
     }
 }
 
-void ServiceDB::SetAccountBanStatus(uint32 accountID, bool onoff_status) {
+void ServiceDB::SetAccountBanStatus(uint32 accountID, bool banned) {
     DBerror err;
-
-    _log(CLIENT__TRACE, "AccStatus: %s account %u.", onoff_status ? "Banned" : "Removed ban on", accountID );
-
     if(!sDatabase.RunQuery(err,
         " UPDATE account "
         " SET account.banned = %d "
         " WHERE accountID = %u ",
-        onoff_status, accountID))
+        banned, accountID))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", err.c_str());
     }
 }
 
+uint32 ServiceDB::GetServerUpTime() {
+    DBQueryResult res;
+    if(!sDatabase.RunQuery(res,	"SELECT startTime FROM srvStatus"))
+    {
+        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+    }
 
+    DBResultRow row;
+	res.GetRow(row);
+	uint64 time = Win32TimeNow() - row.GetUInt64(0);
+	time /= 10000000;
+
+	return(time);
+}
 
 
