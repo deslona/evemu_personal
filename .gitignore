@@ -85,3 +85,9 @@ zlib/
 
 # evemu output
 build/
+
+# files on my machines
+.*
+*.tar.gz
+*.kdev4
+dep/
