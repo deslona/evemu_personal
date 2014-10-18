@@ -28,7 +28,7 @@
 
 /*
  * This object is the home for common DB operations which may be needed by many
- * different service objects. It should be inherited by each service DB
+ * different service objects. It should be inherited by each serviceDB
  * implementation.
  *
  */
@@ -86,7 +86,8 @@ public:
     void SetAccountOnlineStatus(uint32 accountID, bool onoff_status);
     void SetAccountBanStatus(uint32 accountID, bool onoff_status);
 
-	uint32 GetServerUpTime();
+    uint32 GetServerUpTime();
+    void SaveServerStats(double, float, float, float, float, uint32, uint32, uint32);
 
 protected:
     void ProcessStringChange(const char * key, const std::string & oldValue, const std::string & newValue, PyDict * notif, std::vector<std::string> & dbQ);

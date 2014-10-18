@@ -568,7 +568,7 @@
               <int name="endDate" />
           </dictInlineEntry>
           <dictInlineEntry key="fraction">
-              <int name="fraction" />
+              <real name="fraction" />
           </dictInlineEntry>
       </dictInline>
   </elementDef>

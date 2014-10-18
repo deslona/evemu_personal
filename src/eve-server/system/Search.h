@@ -30,12 +30,15 @@
 #include "PyService.h"
 #include "system/SearchDB.h"
 
-class Search : public PyService {
-public:
+class Search
+: public PyService {
+  public:
     Search(PyServiceMgr *mgr);
     virtual ~Search();
 
-protected:
+	//void ReplaceWith(std::string &s, char find, char replace);
+
+  protected:
     class Dispatcher;
     Dispatcher *const m_dispatch;
 
@@ -43,12 +46,16 @@ protected:
 
     PyCallable_DECL_CALL(Query);
     PyCallable_DECL_CALL(QuickQuery);
+
+  private:
+	void Replace(std::string &s);
+
 };
 
 #endif
 
 
-/**
+/**  from client...
 searchResultAgent = 1
 searchResultCharacter = 2
 searchResultCorporation = 3
@@ -59,15 +66,8 @@ searchResultSolarSystem = 7
 searchResultRegion = 8
 searchResultStation = 9
 searchResultInventoryType = 10
-searchResultAllOwners = [1,
- 2,
- 3,
- 4,
- 5]
-searchResultAllLocations = [6,
- 7,
- 8,
- 9]
+searchResultAllOwners = [1, 2, 3, 4, 5]
+searchResultAllLocations = [6, 7, 8, 9]
 searchMaxResults = 500
 searchMinWildcardLength = 3
 */

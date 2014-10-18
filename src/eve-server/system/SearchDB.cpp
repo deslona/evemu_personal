@@ -145,22 +145,23 @@ PyDict *SearchDB::Query(std::string string, int32 searchID, uint32 charID) {
 		id = "typeID";
         break;
 	}
+/*
+    DBRowDescriptor *header = new DBRowDescriptor( res );
 
-    DBRowDescriptor *header = new DBRowDescriptor( result );
-
-    PyDict *res = new PyDict();
+    PyDict *result = new PyDict();
 
     DBResultRow row;
-    for( uint32 i = 0; result.GetRow( row ); i++ )
+    for( uint32 i = 0; res.GetRow( row ); i++ )
     {
-        res->SetItem( DBColumnToPyRep(row, key_index), CreatePackedRow( row, header ) );
+        result->SetItem( DBColumnToPyRep(row, searchID), CreatePackedRow( row, header ) );
         PyIncRef( header );
     }
 
     PyDecRef( header );
-    return res;
+    return result;
+    */
 
-	//return DBResultToPackedRowDict(res, searchID);
+	return DBResultToPackedRowDict(res, searchID);
 	/*
     DBResultRow row;
     if(res.GetRow(row))
