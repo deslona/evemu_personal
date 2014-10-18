@@ -1,13 +1,13 @@
 # Introduction
 EVEmu updated to support the latest Crucible client v360229
 
-***   tested under SLES 11.3  GCC 4.7 GLIBC 2.11     ***
+***   tested under Mageia 4  GCC 4.8  GLIBC 2.18     ***
 
 *********  WILL NOT COMPILE UNDER WINDOWS  *************
 
 # Disclaimer
 
-***EVEmu is an educational project.***
+           ***EVEmu is an educational project.***
  This means, our primary interest is to learn and teach us
 and our users more about C++ project development in a large
 scale. Our software is not intended for running public servers,
@@ -17,7 +17,7 @@ do with the source code downloaded from this project.
 # Status
 - Character selection and creation is working
 - Character avatar creation is working
-- Walking in station is now possible, yet male characters use female animations.
+- Walking in station is now possible.
 - Items and Ships display in station
 - Undocking and Docking is working (not complete.  bugs almost fixed)
 - Skill Training is working (including pause/resume AND Training History)
