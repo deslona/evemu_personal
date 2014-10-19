@@ -85,3 +85,16 @@ zlib/
 
 # evemu output
 build/
+
+# DS_Store stuff
+.DS_Store
+._.DS_Store
+
+
+# files on my machines
+.*
+*.tar.gz
+*.kdev4
+dep/
+doc/developer/
+src/eve-core/memory/
