@@ -221,6 +221,16 @@
       <int name="stationID" />
     </tupleInline>
   </elementDef>
+  
+  <elementDef name="Call_AddContact">
+    <tupleInline>
+      <int name="charID" />
+      <int name="standing" />
+      <int name="inWatchlist" />
+      <int name="notify" />
+      <wstring name="note" soft="true" />
+    </tupleInline>
+  </elementDef>
 </elements>
 
 

@@ -582,31 +582,20 @@
       </tupleInline>
   </elementDef>
 
-  <elementDef name="Call_SearchQuery">
-    <tupleInline>
-      <wstring name="string" />
-      <listInline>
-        <int name="int1" />
-      </listInline>
-    </tupleInline>
+  <elementDef name="Call_IntWStringArg">
+      <tupleInline>
+          <int name="arg1" />
+          <wstring name="arg2" />
+      </tupleInline>
   </elementDef>
 
-  <elementDef name="Call_SearchQuickQuery">
-    <tupleInline>
-      <wstring name="string" />
-      <listInline>
-        <listInt name="ints" />
-      </listInline>
-    </tupleInline>
+  <elementDef name="Call_SearchQuery">
+      <tupleInline>
+          <wstring name="string" />
+          <listInline>
+              <int name="int1" />
+          </listInline>
+      </tupleInline>
   </elementDef>
-<!--
-  <elementDef name="Rsp_SearchQuery">
-    <dictInline>
-	  <int key="key">
-	  <dictInlineEntry key="id">
-		<int name="int1" />
-	  </dictInlineEntry>
-    </dictInline>
-  </elementDef>
--->
+
  </elements>

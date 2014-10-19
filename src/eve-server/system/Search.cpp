@@ -96,12 +96,6 @@ PyResult Search::Handle_QuickQuery( PyCallArgs& call )  //called from starmap  a
   call.Dump(SERVICE__CALLS);
 
     std::string str = call.tuple->GetItem( 0 )->AsWString()->content();
-
-    //  this removes the '*' that is sent from client in query string for wildcard....see examples above...
-    //str.erase(boost::remove_if(str, boost::is_any_of("*")), str.end());
-	//   instead of removing, as above function does, mysql uses '%' as a wildcard matching any # of chars.
-    //boost::fusion::replace_if(str, boost::is_any_of("*"), '%');
-	/** replaced boost::remove_if and boost::replace_if with my own replace method.  */
 	Replace(str);
 
   /*  may not need this....using same python xml decode as above searchquery
