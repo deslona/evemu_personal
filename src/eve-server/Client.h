@@ -331,8 +331,7 @@ private:
 
     bool DoDestinyUpdate();
     std::list<PyTuple*> mDogmaMessages;
-
-	std::string m_systemName;
+    std::string m_systemName;
 
 };
 
