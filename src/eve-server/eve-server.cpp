@@ -343,30 +343,29 @@ int main( int argc, char* argv[] )
     services.cache_service->PrimeCache();
 
     // start up the image server
-	sLog.Log("       ServerInit", "Booting Image Server");
+    sLog.Log("       ServerInit", "Booting Image Server");
     sImageServer.Run();
 
     // start up the api server
-	sLog.Log("       ServerInit", "Booting API Server");
+    sLog.Log("       ServerInit", "Booting API Server");
     sAPIServer.CreateServices( services );
     sAPIServer.Run();
 
-	//  this gives the imageserver and api server time to load so the dynamic database msgs are in order
-	Sleep( MAIN_LOOP_DELAY * 80 );
-/*hold off on this for memory debugging.  -allan 19Aug14
-	sLog.Log("       ServerInit", "Loading Dynamic Database Table Objects...");
+    //  this gives the imageserver and api server time to load so the dynamic database msgs are in order
+    Sleep( MAIN_LOOP_DELAY * 80 );
+    sLog.Log("       ServerInit", "Loading Dynamic Database Table Objects...");
 
-	// Create In-Memory Database Objects for Critical and HighUse Systems, such as ModuleManager and Wrecks:
-	sLog.Log("       ServerInit", "Effects_Table");
-	sDGM_Effects_Table.Initialize();
+    // Create In-Memory Database Objects for Critical and HighUse Systems, such as ModuleManager and Wrecks:
+    sLog.Log("       ServerInit", "Effects_Table");
+    sDGM_Effects_Table.Initialize();
     sLog.Log("       ServerInit", "Type_Effects");
     sDGM_Type_Effects_Table.Initialize();
-	sLog.Log("       ServerInit", "Skill_Modifiers");
-	sDGM_Skill_Bonus_Modifiers_Table.Initialize();
-	sLog.Log("       ServerInit", "Ship_Modifiers");
-	sDGM_Ship_Bonus_Modifiers_Table.Initialize();
+    sLog.Log("       ServerInit", "Skill_Modifiers");
+    sDGM_Skill_Bonus_Modifiers_Table.Initialize();
+    sLog.Log("       ServerInit", "Ship_Modifiers");
+    sDGM_Ship_Bonus_Modifiers_Table.Initialize();
     sLog.Log("       ServerInit", "Implant_Modifiers");
-	sLog.Log("Implant_Modifiers","Not Avalible");
+    sLog.Log("Implant_Modifiers","Not Avalible");
     //sDGM_Implant_Modifiers_Table.Initialize();
     sLog.Log("       ServerInit", "Wrecks_Table");
     sDGM_Types_to_Wrecks_Table.Initialize();
@@ -376,15 +375,14 @@ int main( int argc, char* argv[] )
 
     //sLog.Warning("server init", "Adding NPC Market Orders.");
     //NPCMarket::CreateNPCMarketFromFile("/etc/npcMarket.xml");
-*/
     sLog.Log("       ServerInit", "Done.");
 
-	services.serviceDB().SetServerOnlineStatus(true);
-	sLog.Success("       ServerInit", "Alasiya EvEmu Server is Online.");
+    services.serviceDB().SetServerOnlineStatus(true);
+    sLog.Success("       ServerInit", "Alasiya EvEmu Server is Online.");
 
-	/////////////////////////////////////////////////////////////////////////////////////
-	//     !!!  DO NOT PUT ANY INITIALIZATION CODE OR CALLS BELOW THIS LINE   !!!
-	/////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////
+    //     !!!  DO NOT PUT ANY INITIALIZATION CODE OR CALLS BELOW THIS LINE   !!!
+    /////////////////////////////////////////////////////////////////////////////////////
 
     /*
      * THE MAIN LOOP
@@ -392,9 +390,6 @@ int main( int argc, char* argv[] )
      * Everything except IO should happen in this loop, in this thread context.
      *
      */
-
-    /* program events system */
-    SetupSignals();
 
     uint32 start = 0, etime = 0;
 
@@ -416,8 +411,8 @@ int main( int argc, char* argv[] )
         sEntityList.Process();
         services.Process();
 
-		//  process console commands, if any, and check for 'exit' command
-		RunLoops = sCommand.Process();
+	//  process console commands, if any, and check for 'exit' command
+	RunLoops = sCommand.Process();
 
         /* UPDATE */
         etime = GetTickCount() - start;
@@ -451,32 +446,7 @@ int main( int argc, char* argv[] )
 
 	sLog.Warning("   ServerShutdown", "Alasiya EvEmu is Offline.  Saving Items...");
 
-    log_close_logfile();
+	log_close_logfile();
 	return 0;
 }
 
-static void SetupSignals()
-{
-    ::signal( SIGINT, CatchSignal );
-    ::signal( SIGTERM, CatchSignal );
-    ::signal( SIGABRT, CatchSignal );
-
-#ifdef SIGABRT_COMPAT
-    ::signal( SIGABRT_COMPAT, CatchSignal );
-#endif /* SIGABRT_COMPAT */
-
-#ifdef SIGBREAK
-    ::signal( SIGBREAK, CatchSignal );
-#endif /* SIGBREAK */
-
-#ifdef SIGHUP
-    ::signal( SIGHUP, CatchSignal );
-#endif /* SIGHUP */
-}
-
-static void CatchSignal( int sig_num )
-{
-    sLog.Log( "Signal system", "Caught signal: %d", sig_num );
-
-    RunLoops = false;
-}

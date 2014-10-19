@@ -94,7 +94,7 @@ PyResult ShipDB::GetInsuranceByShipID(uint32 shipID) {
     rsp.shipID = row.GetUInt( 0 );
     rsp.startDate = row.GetUInt64( 1 );
     rsp.endDate = row.GetUInt64( 2 );
-    rsp.fraction = row.GetUInt( 3 );
+    rsp.fraction = row.GetDouble( 3 );
 
     return(rsp.Encode());
 }
@@ -114,7 +114,7 @@ PyResult ShipDB::GetInsuranceByOwnerID(uint32 ownerID) {
     rsp.shipID = row.GetUInt( 0 );
     rsp.startDate = row.GetUInt64( 1 );
     rsp.endDate = row.GetUInt64( 2 );
-    rsp.fraction = row.GetUInt( 3 );
+    rsp.fraction = row.GetDouble( 3 );
 
     return(rsp.Encode());
 }

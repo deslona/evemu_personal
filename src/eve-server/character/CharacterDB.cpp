@@ -1280,8 +1280,8 @@ void CharacterDB::AddBounty(uint32 charID, uint32 ownerID, uint32 amount) {
     DBerror err;
     sDatabase.RunQuery(err,
         "INSERT INTO chrBounties(characterID, ownerID, bounty, timePlaced)"
-        " VALUES (%u, %u, %u, %" PRIu64 ")",
-        charID, ownerID, amount, Win32TimeNow() );
+	" VALUES (%u, %u, %u, UNIX_TIMESTAMP(CURRENT_TIMESTAMP) )",
+        charID, ownerID, amount );
 
     DBerror err2;
     sDatabase.RunQuery(err2,
@@ -1313,11 +1313,6 @@ void CharacterDB::VisitSystem(uint32 solarSystemID, uint32 charID) {
         );
     }
 }
-
-
-
-
-
 
 void CharacterDB::chkDynamicSystemID(uint32 systemID) {
   /**  this ensures mapDynamicData.solarSystemID for `systemID` is in the DB for later calls. -allan 16Mar14 */

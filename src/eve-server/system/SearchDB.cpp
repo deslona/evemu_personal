@@ -145,21 +145,8 @@ PyDict *SearchDB::Query(std::string string, int32 searchID, uint32 charID) {
 		id = "typeID";
         break;
 	}
-
-    DBRowDescriptor *header = new DBRowDescriptor( result );
-
-    PyDict *res = new PyDict();
-
-    DBResultRow row;
-    for( uint32 i = 0; result.GetRow( row ); i++ )
-    {
-        res->SetItem( DBColumnToPyRep(row, key_index), CreatePackedRow( row, header ) );
-        PyIncRef( header );
-    }
-
-    PyDecRef( header );
-    return res;
-
+	
+	return DBResultToPackedRowDict(res, searchID);
 }
 
 //  this needs work....

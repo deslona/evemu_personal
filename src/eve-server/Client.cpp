@@ -629,7 +629,7 @@ void Client::_UpdateSession( const CharacterConstRef& character )
         mSession.Clear( "worldspaceid" );
 
 		if(!m_autoPilot)
-		    mSession.SetInt( "solarsystemid", character->solarSystemID() );		//  used to tell client they are in space
+		    mSession.SetInt( "solarsystemid", character->solarSystemID() );	//  used to tell client they are in space
         mSession.SetInt( "locationid", character->solarSystemID() );
     }
     else
@@ -716,8 +716,8 @@ void Client::_UpdateSession2( uint32 characterID )
         mSession.Clear( "stationid2" );
         mSession.Clear( "worldspaceid" );
 
-		//  used to tell client they are in space.
-		//also used as current system in following menus:  JumpPortalBridgeMenu, GetHybridBeaconJumpMenu, GetHybridBridgeMenu,
+	//  used to tell client they are in space.
+	//also used as current system in following menus:  JumpPortalBridgeMenu, GetHybridBeaconJumpMenu, GetHybridBridgeMenu,
         mSession.SetInt( "solarsystemid", solarSystemID );
         mSession.SetInt( "locationid", solarSystemID );
     }

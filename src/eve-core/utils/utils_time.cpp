@@ -71,3 +71,10 @@ uint64 Win32TimeNow() {
     return(UnixTimeToWin32Time(time(NULL), 0));
 #endif /* !HAVE_WINDOWS_H */
 }
+
+/*
+uint32 timeNow()
+{
+  return(time(NULL));
+}
+*/
