@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `mapDynamicData` (
   `structureCnt` int(10) NOT NULL DEFAULT '0',
   `jumpsHour` int(10) NOT NULL DEFAULT '0',
   `killsHour` int(10) NOT NULL DEFAULT '0',
-  `kills24Hours` int(10) NOT NULL DEFAULT '0',
+  `kills24Hour` int(10) NOT NULL DEFAULT '0',
   `pilotsDocked` int(10) NOT NULL DEFAULT '0',
   `pilotsInSpace` int(10) NOT NULL DEFAULT '0',
   `podKillsHour` int(10) NOT NULL DEFAULT '0',

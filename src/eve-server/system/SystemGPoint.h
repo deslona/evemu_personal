@@ -32,8 +32,9 @@
 
 
 class SystemGPoint {
-public:
-
+  public:
+    void GetPlanets(uint32);
+    void GetMoons(uint32);
 	void GetRandPointOnPlanet(uint32);
 	void GetRandPointOnMoon(uint32);
 	void GetRandPlanet(uint32);
@@ -42,9 +43,10 @@ public:
 	void GetRandMoon(uint32);
 	void GetRandPointInSystem(uint32, uint64);
 
-protected:
-
+  protected:
     SystemDB m_db;
+
+
 };
 
 #endif

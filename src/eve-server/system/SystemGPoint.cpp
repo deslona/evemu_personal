@@ -30,16 +30,22 @@
 #include "system/SystemGPoint.h"
 
 /**
- *  pupose of this class is to have a common location for methods used to define random points in solar systems.
- *   there are 3 sets of methods used to work with random points in a solarsystem.
- *   one set will query solar systems for planets, pick a random planet, and define a coordnate within that planet's bubble.
- *   the second set is used to pick a random coordnate off a plants moon, for complexes, signatures, and anomolies.
- *   the third set will pick a random point between either 2 or 3 planets, for warp-out/warp-in and other things as we see fit.
+ *   the pupose of this class is to have a common location with methods used to define
+ *      random points in solar systems.
+ *   GetRandPointOnPlanet() will query solar systems for planets, pick a random planet,
+ *      and define a coordnate within that planet's bubble.
+ *   GetRandPointOnMoon() does same as above, but using moons.  NOTE: the given point
+ *      will be in the bubble of the planet the moon belongs to.
+ *   Get2RandPlanets() will pick a random point between 2 planets, for warp-out/warp-in
+ *      and other things as we see fit.
+ *   Get3RandPlanets() does same as above, but using 3 planets.
+ *   GetRandPointInSystem() will define a random point within a given system.
  *
- *   this can (and should) be used for positioning mission space, cosmic signatures,  anomolies, complexes, and other things needing a random
- *       position in a given system.
+ *   this class of methods should be used for positioning mission space, cosmic signatures,
+ *      anomolies, complexes, and other things needing a random position in a given system.
  *
- *		class DBGPointEntity has index, itemID, and position, and is found in SystemDB.   see class decelaration below
+ *   class DBGPointEntity has index, itemID, and position, and is found in SystemDB.
+ *      see copy of class decelaration below
  *
  *  NOTE i remember reading *somewhere* that ALL SPAWNS are within *some distance* from planets.   cant find that info now.  -allan 31Jul14
  */
@@ -47,46 +53,72 @@
 
 /// int64 MakeRandomInt( int64 low, int64 high )
 /// double MakeRandomFloat( double low, double high )
-/*
-namespace SystemDB:
-class DBGPointEntity {
-  public:
-	uint8 idx;
-    uint32 itemID;
-    GPoint position;
-};
+
+/*   copied from system/SystemDB.cpp
+ * namespace SystemDB:
+ * class DBGPointEntity {
+ *  public:
+ *	   uint8 idx;
+ *    uint32 itemID;
+ *    GPoint position;
+ *    double x;
+ *    double y;
+ *    double z;
+ * };
+ *
 */
 
-void SystemGPoint::GetRandPointOnPlanet(uint32 systemID) {
-	uint8 total;
-    std::vector<DBGPointEntity> planetIDs;
+void SystemGPoint::GetPlanets(uint32 systemID) {
+  uint8 total;
+  std::vector<DBGPointEntity> planetIDs;
 
-    m_db.GetPlanets(systemID, &planetIDs, &total);
-	//  add code to manipulate coords here....
+  m_db.GetPlanets(systemID, &planetIDs, &total);
+}
+
+void SystemGPoint::GetMoons(uint32 systemID) {
+  uint8 total;
+  std::vector<DBGPointEntity> moonIDs;
+
+  m_db.GetMoons(systemID, &moonIDs, &total);
+}
+
+void SystemGPoint::GetRandPointOnPlanet(uint32 systemID) {
+
 }
 
 void SystemGPoint::GetRandPointOnMoon(uint32 systemID) {
-	uint8 total;
-    std::vector<DBGPointEntity> moonIDs;
-
-    m_db.GetMoons(systemID, &moonIDs, &total);
-	//  add code to manipulate coords here....
 
 }
 
 void SystemGPoint::GetRandPlanet(uint32 systemID) {
+	uint8 total;
+    std::vector<DBGPointEntity> planetIDs;
+
+    m_db.GetPlanets(systemID, &planetIDs, &total);
 
 }
 
 void SystemGPoint::Get2RandPlanets(uint32 systemID) {
+  uint8 total;
+  std::vector<DBGPointEntity> planetIDs;
+
+  m_db.GetPlanets(systemID, &planetIDs, &total);
 
 }
 
 void SystemGPoint::Get3RandPlanets(uint32 systemID) {
+  uint8 total;
+  std::vector<DBGPointEntity> planetIDs;
+
+  m_db.GetPlanets(systemID, &planetIDs, &total);
 
 }
 
 void SystemGPoint::GetRandMoon(uint32 systemID) {
+	uint8 total;
+    std::vector<DBGPointEntity> moonIDs;
+
+    m_db.GetMoons(systemID, &moonIDs, &total);
 
 }
 
