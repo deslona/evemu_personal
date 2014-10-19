@@ -1,6 +1,5 @@
 -- Source: Code_Red
 
-INSERT INTO dgmTypeEffects (typeID, effectID) VALUES (30188, 2197);
 INSERT INTO dgmTypeEffects (typeID, effectID) VALUES (30188, 569);
 INSERT INTO dgmTypeEffects (typeID, effectID) VALUES (30188, 10);
 INSERT INTO dgmTypeEffects (typeID, effectID) VALUES (30189, 2197);

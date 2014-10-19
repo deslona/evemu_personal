@@ -120,9 +120,9 @@ void Search::Replace(std::string &s) {
     int i;
     for (i = 0; i < s.length(); ++i) {
         switch (s[i]) {
-        case '*':
-            s[i] = '%';
-        }
+			case '*':
+				s[i] = '%';
+		}
     }
 }
 

@@ -8,9 +8,9 @@ x
 
 host="localhost"	#Database Host
 port="3306"		#Database Port
-user="evemu"		#Database Username
+user="allan"		#Database Username
 pass="changeme"		#Database Password
-database="evemu"	#Database name
+database="EvE_Cruc"	#Database name
 
 #######################
 # Dont Edit Past Here #
@@ -45,15 +45,15 @@ until [ "${option}" = "x" ]; do
 	    read -p " Enter option:  " basefile
 
 	    if [ ${#filearray[@]} -gt ${basefile} ]; then
-	        echo 
+	        echo
 		echo "[+] [1] Importing base database (${filearray[$basefile]}) please wait.."
-		
+
 		#TODO Add a check for gzip
 
 		mysql -h ${host} --user=${user} --port=${port} --password=${pass} ${database} < "${filearray[$basefile]}"
 
 		echo "[+] [1] Base database complete"
-		
+
 		echo "[+] [2] Importing dynamic dump"
 		mysql -h ${host} --user=${user} --port=${port} --password=${pass} ${database} < "evemu_dynamic-dump.sql"
 		echo "[+] [2] Importing dynamic dump Complete"
@@ -72,18 +72,26 @@ until [ "${option}" = "x" ]; do
 
 		echo "[+] [4] Importing ofic dump Complete"
 
-		echo "[+] [5] Primeing Database"
+		echo "[+] [5] Priming Database"
 		mysql -h ${host} --user=${user} --port=${port} --password=${pass} ${database} < "prime_db.sql"
-		echo "[+] [5] Primeing Database Complete"
+		echo "[+] [5] Priming Database Complete"
 
-		echo "[+] [5] Live updates Database"
+		echo "[+] [6] Live updates Database"
 		mysql -h ${host} --user=${user} --port=${port} --password=${pass} ${database} < "liveupdates.sql"
-		echo "[+] [5] Live updates Database Complete"
+		echo "[+] [6] Live updates Database Complete"
+
+        echo "[+] [7] Installing Allan's updates"
+        mysql -h ${host} --user=${user} --port=${port} --password=${pass} ${database} < "allans_updates.sql"
+        echo "[+] [7] Allan's Updates Install Complete"
+
+        echo "[+] [8] Installing Allan's Updates Data"
+        mysql -h ${host} --user=${user} --port=${port} --password=${pass} ${database} < "allans_updates_data.sql"
+        echo "[+] [8] Allan's Updates Data Install Complete"
 
 	    else
-	        echo 
+	        echo
 	        echo "[-] The number you selected was not found"
-	        echo 
+	        echo
 	    fi
 
 	else
