@@ -16063,3 +16063,6 @@ INSERT INTO `sklCareerSkills` (`careerID`, `skillTypeID`, `level`) VALUES
 (87, 3418, 3),
 (87, 3443, 2),
 (87, 22536, 1);
+
+INSERT INTO `srvStatus` (`AI`, `Online`, `Connections`) VALUES
+(1, 0, 0);

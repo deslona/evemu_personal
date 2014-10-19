@@ -118,8 +118,6 @@ bool SystemDB::LoadSystemDynamicEntities(uint32 systemID, std::vector<DBSystemDy
 }
 
 uint32 SystemDB::GetObjectLocationID( uint32 itemID ) {
-
-    //TODO: test database logic and query       -allan 22Jan14
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,

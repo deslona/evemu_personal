@@ -43,7 +43,7 @@ bool ServiceDB::GetAccountInformation( const char* username, const char* passwor
     }
 
     DBResultRow row;
-    if (!res.GetRow( row )) 
+    if (!res.GetRow( row ))
     {
 	// account not found, create new one if autoAccountRole is not zero (0)
 	if(sConfig.account.autoAccountRole > 0) {
@@ -160,7 +160,7 @@ PyObject *ServiceDB::GetSolRow(uint32 systemID) const
     }
 
     DBResultRow row;
-    if(!res.GetRow(row)) 
+    if(!res.GetRow(row))
     {
         _log(SERVICE__ERROR, "Error in GetSolRow query: unable to find sol info for system %d", systemID);
         return(0);
@@ -170,7 +170,7 @@ PyObject *ServiceDB::GetSolRow(uint32 systemID) const
 }
 
 //this function is temporary, I dont plan to keep this crap in the DB.
-PyObject *ServiceDB::GetSolDroneState(uint32 systemID) const 
+PyObject *ServiceDB::GetSolDroneState(uint32 systemID) const
 {
     DBQueryResult res;
 
@@ -232,7 +232,7 @@ bool ServiceDB::GetSystemInfo(uint32 systemID, uint32 *constellationID, uint32 *
     return true;
 }
 
-bool ServiceDB::GetStaticItemInfo(uint32 itemID, uint32 *systemID, uint32 *constellationID, uint32 *regionID, GPoint *position) 
+bool ServiceDB::GetStaticItemInfo(uint32 itemID, uint32 *systemID, uint32 *constellationID, uint32 *regionID, GPoint *position)
 {
     if(       systemID == NULL
         && constellationID == NULL
@@ -343,7 +343,7 @@ bool ServiceDB::GetStationInfo(uint32 stationID, uint32 *systemID, uint32 *const
     return true;
 }
 
-uint32 ServiceDB::GetDestinationStargateID(uint32 fromSystem, uint32 toSystem) 
+uint32 ServiceDB::GetDestinationStargateID(uint32 fromSystem, uint32 toSystem)
 {
     DBQueryResult res;
 
@@ -376,7 +376,7 @@ uint32 ServiceDB::GetDestinationStargateID(uint32 fromSystem, uint32 toSystem)
     return row.GetUInt(2);
 }
 
-bool ServiceDB::GetConstant(const char *name, uint32 &into) 
+bool ServiceDB::GetConstant(const char *name, uint32 &into)
 {
     DBQueryResult res;
 
@@ -396,7 +396,7 @@ bool ServiceDB::GetConstant(const char *name, uint32 &into)
     }
 
     DBResultRow row;
-    if(!res.GetRow(row)) 
+    if(!res.GetRow(row))
     {
         codelog(SERVICE__ERROR, "Unable to find constant %s", name);
         return false;
@@ -408,7 +408,7 @@ bool ServiceDB::GetConstant(const char *name, uint32 &into)
 }
 
 void ServiceDB::ProcessStringChange(const char * key, const std::string & oldValue, const std::string & newValue, PyDict * notif, std::vector<std::string> & dbQ) {
-    if (oldValue != newValue) 
+    if (oldValue != newValue)
     {
         std::string newEscValue;
         std::string qValue(key);
@@ -426,9 +426,9 @@ void ServiceDB::ProcessStringChange(const char * key, const std::string & oldVal
     }
 }
 
-void ServiceDB::ProcessRealChange(const char * key, double oldValue, double newValue, PyDict * notif, std::vector<std::string> & dbQ) 
+void ServiceDB::ProcessRealChange(const char * key, double oldValue, double newValue, PyDict * notif, std::vector<std::string> & dbQ)
 {
-    if (oldValue != newValue) 
+    if (oldValue != newValue)
     {
         // add to notification
         std::string qValue(key);
@@ -446,9 +446,9 @@ void ServiceDB::ProcessRealChange(const char * key, double oldValue, double newV
     }
 }
 
-void ServiceDB::ProcessIntChange(const char * key, uint32 oldValue, uint32 newValue, PyDict * notif, std::vector<std::string> & dbQ) 
+void ServiceDB::ProcessIntChange(const char * key, uint32 oldValue, uint32 newValue, PyDict * notif, std::vector<std::string> & dbQ)
 {
-    if (oldValue != newValue) 
+    if (oldValue != newValue)
     {
         // add to notification
         PyTuple * val = new PyTuple(2);
@@ -466,7 +466,7 @@ void ServiceDB::ProcessIntChange(const char * key, uint32 oldValue, uint32 newVa
     }
 }
 
-void ServiceDB::SetCharacterOnlineStatus(uint32 char_id, bool online) 
+void ServiceDB::SetCharacterOnlineStatus(uint32 char_id, bool online)
 {
     DBerror err;
     sDatabase.RunQuery(err, "UPDATE character_ SET online = %d WHERE characterID = %u", online, char_id);
@@ -475,7 +475,7 @@ void ServiceDB::SetCharacterOnlineStatus(uint32 char_id, bool online)
         sDatabase.RunQuery(err, "UPDATE srvStatus SET Connections = Connections + 1");
 }
 
-void ServiceDB::SetServerOnlineStatus(bool online) 
+void ServiceDB::SetServerOnlineStatus(bool online)
 {
     DBerror err;
     sDatabase.RunQuery(err,
@@ -488,7 +488,7 @@ void ServiceDB::SetServerOnlineStatus(bool online)
         "     account.online = 0");
 }
 
-void ServiceDB::SetAccountOnlineStatus(uint32 accountID, bool online) 
+void ServiceDB::SetAccountOnlineStatus(uint32 accountID, bool online)
 {
     DBerror err;
     if(!sDatabase.RunQuery(err,
@@ -501,7 +501,7 @@ void ServiceDB::SetAccountOnlineStatus(uint32 accountID, bool online)
     }
 }
 
-void ServiceDB::SetAccountBanStatus(uint32 accountID, bool banned) 
+void ServiceDB::SetAccountBanStatus(uint32 accountID, bool banned)
 {
     DBerror err;
     if(!sDatabase.RunQuery(err,
@@ -514,7 +514,7 @@ void ServiceDB::SetAccountBanStatus(uint32 accountID, bool banned)
     }
 }
 
-uint32 ServiceDB::GetServerUpTime() 
+uint32 ServiceDB::GetServerUpTime()
 {
     DBQueryResult res;
     if(!sDatabase.RunQuery(res,	"SELECT startTime FROM srvStatus"))

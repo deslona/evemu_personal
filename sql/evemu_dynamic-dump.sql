@@ -776,18 +776,6 @@ CREATE TABLE `rentalInfo` (
 
 /*Data for the table `rentalInfo` */
 
-/*Table structure for table `srvStatus` */
-
-DROP TABLE IF EXISTS `srvStatus`;
-
-CREATE TABLE `srvStatus` (
-  `config_name` varchar(32) NOT NULL,
-  `config_value` varchar(64) NOT NULL,
-  UNIQUE KEY `config_name` (`config_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-/*Data for the table `srvStatus` */
-
 /*Table structure for table `accountApi` */
 
 DROP TABLE IF EXISTS `accountApi`;

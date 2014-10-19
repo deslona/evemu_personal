@@ -28,8 +28,8 @@
 #define __CONSOLE_COMMANDS__H__
 
 #define BUFLEN 256
-#define EVEMU_REVISION "0.7.46-allan"
-#define EVEMU_BUILD_DATE "19 August 2014"
+#define EVEMU_REVISION "0.7.47-allan"
+#define EVEMU_BUILD_DATE "19 October 2014"
 
 #include "eve-server.h"
 
@@ -40,9 +40,6 @@
 #include "system/SystemBubble.h"
 #include "system/SystemManager.h"
 
-
-//class SystemBubble;
-//class SystemManager;
 
 class ConsoleCommand
 : public Singleton<ConsoleCommand>

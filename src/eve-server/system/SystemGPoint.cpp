@@ -94,33 +94,3 @@ void SystemGPoint::GetRandPointInSystem(uint32 systemID, uint64 distance) {
     // get system max diameter, verify distance is within system.
 
 }
-
-/**  not working right yet......test later
-		******   based on new data, this is not needed....client automagically vectors closer.  *********
-    // verify that they are actually close to 'fromGate'  -allan 24Jul14
-	// this is based on a system manager for current system.
-	//   system->stargate->position, then verify client is within jump distance of stargate, else move closer.
-    SystemManager *sm = m_system;
-	SystemEntity *stargate = sm->get(fromGate);
-    GPoint endPoint(stargate->GetPosition());
-    GPoint startPoint(GetShip()->position());
-    GVector direction(startPoint, endPoint);
-    double rangeTostargate = direction.length();
-        sLog.Warning( "Client::StargateJump()", "Range to Stargate = %u.", rangeTostargate );
-
-    // Verify range to stargate is within jumping perimeter of 1500 meters:
-    if( (rangeTostargate - stargate->GetRadius()) > 1500 )
-    {
-        sLog.Warning( "Client::StargateJump()", "Not within Gate Activation Distance." );
-	    this->SendNotifyMsg("Not within Gate Activation Distance.  Moving closer.  Please Stand By.");
-        m_destiny->GotoDirection( direction, true );   // Turn ship and move toward stargate.
-		m_fromGate = fromGate;
-		m_toGate = toGate;
-        //delay the jump until closer to gate
-        _postMove(msMove, 4000);
-        return;
-    }
-
-	m_fromGate = 0;
-	m_toGate = 0;
-*/

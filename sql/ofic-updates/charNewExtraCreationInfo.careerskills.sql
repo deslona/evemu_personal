@@ -5,6 +5,6 @@ DROP TABLE IF EXISTS careerSkills;
 CREATE TABLE careerSkills (
 	careerID INT,
 	skillTypeID INT,
-	levels TINYINT UNSIGNED,
+	level TINYINT UNSIGNED,
 	PRIMARY KEY (careerID, skillTypeID)
 );

@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS `chrVisitedSystems` (
 /*  Table structure for table `chrSkillHistory`  */
 
 CREATE TABLE IF NOT EXISTS `chrSkillHistory` (
-  `eventID` smallint(6) NOT NULL,
+  `eventTypeID` smallint(6) NOT NULL,
   `characterID` int(11) NOT NULL,
   `logDate` bigint(20) NOT NULL,
   `skillTypeID` int(8) NOT NULL,
@@ -163,6 +163,9 @@ CREATE TABLE IF NOT EXISTS `asteroidDistribution` (
   `percent` double NOT NULL,
   KEY `systemSec` (`systemSec`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
+DROP TABLE IF EXISTS `srvStatus`;
 
 /* Table structure for table `srvStatus */
 
@@ -220,4 +223,5 @@ UPDATE `dgmTypeAttributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `attributeID
 UPDATE `entity_attributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `attributeID`=280 AND `valueFloat`=0;
 UPDATE `entity_default_attributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `attributeID`=280 AND `valueFloat`=0;
 
+ALTER TABLE entity AUTO_INCREMENT=140000000;
 
