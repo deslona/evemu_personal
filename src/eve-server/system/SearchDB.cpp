@@ -160,98 +160,9 @@ PyDict *SearchDB::Query(std::string string, int32 searchID, uint32 charID) {
     PyDecRef( header );
     return res;
 
-	//return DBResultToPackedRowDict(res, searchID);
-	/*
-    DBResultRow row;
-    if(res.GetRow(row))
-	else {
-	//if(!res.GetRow(row)){
-	    sLog.Error("SearchDB::Query", "res = NULL : string = %s", string.c_str() );
-		return NULL;
-	}
-	*/
-/*
-	Rsp_SearchQuery rsq;
-	rsq.group = searchID;
-	if(searchID == 1)
-		while(res.GetRow(row)) {
-			rsq.key		= id.c_str();
-			rsq.typeID = row.GetUInt(0);
-			sLog.Success("SearchDB::Query", "Search Result: id = %u, value = %u", searchID, row.GetUInt(0) );
-		}
-	else if( (searchID == 2) || (searchID == 3) || (searchID == 4) || (searchID == 5) )
-		while(res.GetRow(row)) {
-			rsq.key		= id.c_str();
-			rsq.typeID = row.GetUInt(0);
-			sLog.Success("SearchDB::Query", "Search Result: id = %u, value = %u", searchID, row.GetUInt(0) );
-		}
-	else if( (searchID == 6) || (searchID == 7) || (searchID == 8) || (searchID == 9) )
-		while(res.GetRow(row)) {
-			rsq.key		= id.c_str();
-			rsq.typeID = row.GetUInt(0);
-			sLog.Success("SearchDB::Query", "Search Result: id = %u, value = %u", searchID, row.GetUInt(0) );
-		}
-	else
-		while(res.GetRow(row)) {
-			rsq.key		= id.c_str();
-			rsq.typeID = row.GetUInt(0);
-			sLog.Success("SearchDB::Query", "Search Result: id = %u, value = %u", searchID, row.GetUInt(0) );
-		}
-		/*
-      <int name="group" />
-      <listInline>
-        <string name="key" />
-        <int name="value" />
-*/
-		/*
-	Rsp_SearchQuery rsq;
-	rsq.key = searchID;
-	rsq.id		= id.c_str();
-	rsq.int1 = row.GetUInt(0);
-	PyDict *r = rsq.Encode();
-	return(r);
-	*/
-/*
-		uint8 count = res.GetRowCount();
-		sLog.Warning("SearchDB::Query", "count = %u", count );
-		PyDict *rsp = new PyDict;
-          PyDict *list = new PyDict;
-		    PyTuple *items = new PyTuple(count);
-		      //for (int i = 0; i < count; i++) {
-			  uint8 item = 0;
-			  while(item < count) {
-		        items->SetItem(item, new PyInt(row.GetUInt(0)));
-		sLog.Warning("SearchDB::Query", "items = %u", count );
-				item ++;
-		      }
-		    list->SetItemString(id.c_str(), items);
-        rsp->SetItem(new PyInt(searchID), list);
-		*/
-				/*  these both return TypeError: unhashable instance because a pylist is not hashable.
-					this yeilds a 'TypeError: An Interger is required' error in the client  **check map shit!!**  */
-					 //DBResultToPackedRowList(res));
-					 //DBResultToRowset(res));
-
-		//return(rsp);
-
-	/**
-22:23:21 W SearchDB::Query: Search : String = allan%, ID = 2
-22:23:21 W SearchDB::Query: count = 2
-22:23:21 W SearchDB::Query: while() - count = 0
-22:23:21 [SvcCallTrace] Call Query returned:
-22:23:21 [SvcCallTrace]       Dictionary: 1 entries
-22:23:21 [SvcCallTrace]         [ 0] Key: Integer field: 2
-22:23:21 [SvcCallTrace]         [ 0] Value: Dictionary: 1 entries
-22:23:21 [SvcCallTrace]         [ 0] Value:   [ 0] Key: String: 'ownerID'
-22:23:21 [SvcCallTrace]         [ 0] Value:   [ 0] Value: Tuple: 2 elements
-22:23:21 [SvcCallTrace]         [ 0] Value:   [ 0] Value:   [ 0] Integer field: 140000000
-
-Program received signal SIGSEGV, Segmentation fault.
-
-*/
 }
 
-//  this needs work....use all above querys and append Rsp_SearchQuery when matches are found.
+//  this needs work....
 PyDict *SearchDB::QueryAll(std::string string, uint32 charID) {
     sLog.Warning("SearchDB::QueryAll", "Search String = %s", string.c_str() );
     DBQueryResult res;
@@ -263,30 +174,6 @@ PyDict *SearchDB::QueryAll(std::string string, uint32 charID) {
         " AND ownerID = 1"
         " LIMIT 0, 10", string.c_str() );
 
-	return DBResultToPackedRowDict(res, 2); //DBResultToIntRowDict(res,"k");
-
-
-	/*
-    DBResultRow row;
-    if(res.GetRow(row))
-	else {
-	//if(!res.GetRow(row)){
-	    sLog.Error("SearchDB::QueryAll", "res = NULL : string = %s", string.c_str() );
-		return NULL;
-	}
-	*/
-
-/*
-	Rsp_SearchQuery rsq;
-	rsq.key = 2;
-    while(res.GetRow(row)) {
-	    rsq.int1 = row.GetUInt(0);
-        sLog.Success("SearchDB::QueryAll", "Search Result: id = %u", row.GetUInt(0) );
-	}
-
-	PyDict *r = rsq.Encode();
-	return(r);
-	*/
 }
 
 //PyObject *SearchDB::QuickQuery(std::string string, int32 int1, int32 int2, int32 int3, int32 hideNPC, int32 onlyAltName, uint32 charID) {
@@ -323,3 +210,4 @@ PyDict *SearchDB::QuickQuery(std::string string, uint32 charID) {
     if(res.GetRow(row)) return DBResultToPackedRowDict(res, 2);  else { sLog.Error("SearchDB::QuickQuery", "res = NULL : string = %s", string.c_str() ); return NULL; }
 
 }
+
