@@ -87,16 +87,17 @@ void ArmorRepairer::Activate(SystemEntity * targetEntity)
 	// Activate active processing component timer:
 	m_ActiveModuleProc->ActivateCycle();
 	m_ModuleState = MOD_ACTIVATED;
-	_ShowCycle();
+    //_ShowCycle();
+    m_ActiveModuleProc->ProcessActiveCycle();
 }
 
-void ArmorRepairer::Deactivate() 
+void ArmorRepairer::Deactivate()
 {
 	m_ModuleState = MOD_DEACTIVATING;
 	m_ActiveModuleProc->DeactivateCycle();
 }
 
-void ArmorRepairer::StopCycle()
+void ArmorRepairer::StopCycle(bool abort)
 {
 	Notify_OnGodmaShipEffect shipEff;
 	shipEff.itemID = m_Item->itemID();
@@ -111,8 +112,8 @@ void ArmorRepairer::StopCycle()
 	env->AddItem(new PyInt(m_Ship->itemID()));
 	env->AddItem(new PyNone);
 	env->AddItem(new PyNone);
-	env->AddItem(new PyNone);
-	env->AddItem(new PyInt(10));
+    env->AddItem(new PyNone);
+    env->AddItem(new PyInt(shipEff.effectID));
 
 	shipEff.environment = env;
 	shipEff.startTime = shipEff.when;
@@ -131,6 +132,8 @@ void ArmorRepairer::StopCycle()
 
 	m_Ship->GetOperator()->SendDogmaNotification("OnMultiEvent", "clientID", &tmp);
 
+    m_ActiveModuleProc->DeactivateCycle();
+
 	// Create Special Effect:
 	m_Ship->GetOperator()->GetDestiny()->SendSpecialEffect
 	(
@@ -144,7 +147,7 @@ void ArmorRepairer::StopCycle()
 		0,
 		0,
 		1.0,
-		1
+		0
 	);
 
 	m_ActiveModuleProc->DeactivateCycle();
@@ -183,8 +186,8 @@ void ArmorRepairer::_ShowCycle()
 	env->AddItem(new PyInt(m_Ship->itemID()));
 	env->AddItem(new PyNone);
 	env->AddItem(new PyNone);
-	env->AddItem(new PyNone);
-	env->AddItem(new PyInt(10));
+    env->AddItem(new PyNone);
+    env->AddItem(new PyInt(shipEff.effectID));
 
 	shipEff.environment = env;
 	shipEff.startTime = shipEff.when;
@@ -204,7 +207,7 @@ void ArmorRepairer::_ShowCycle()
 	std::vector<PyTuple*> updates;
 	//updates.push_back(dmgChange.Encode());
 
-	m_Ship->GetOperator()->GetDestiny()->SendDestinyUpdate(updates, events, true);
+	m_Ship->GetOperator()->GetDestiny()->SendDestinyUpdate(updates, events, false);
 
 	// Create Special Effect:
 	m_Ship->GetOperator()->GetDestiny()->SendSpecialEffect

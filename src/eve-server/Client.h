@@ -125,7 +125,7 @@ public:
 
     uint32 GetShipID() const                        { return m_shipId; }
     uint32 GetGangRole() const                      { return mSession.GetCurrentInt( "gangrole" ); }
-    //uint8 GetFleetRole() const                      { return mSession.GetCurrentInt( "fleetrole" ); }
+    uint8 GetFleetRole() const                      { return mSession.GetCurrentInt( "fleetrole" ); }
 
     // character data
     CharacterRef GetChar() const                    { return m_char; }

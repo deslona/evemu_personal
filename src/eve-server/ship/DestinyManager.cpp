@@ -284,7 +284,6 @@ void DestinyManager::ProcessTic() {
     case DSTBALL_MINIBALL:		// used for missiles
     case DSTBALL_FIELD:
     case DSTBALL_FORMATION:
-        break;
     case DSTBALL_RIGID:
         break;
     //no default on purpose
@@ -782,6 +781,114 @@ void DestinyManager::_Warp() {
         Stop(true);
     }
 }
+
+void DestinyManager::TractorBeamFollow(SystemEntity *who, double mass, double maxVelocity, double distance, bool update) {
+   if (State == DSTBALL_FOLLOW && m_targetEntity.second == who && m_targetDistance == distance)
+   return;
+
+   State = DSTBALL_FOLLOW;
+   m_targetEntity.first = who->GetID();
+   m_targetEntity.second = who;
+   m_targetDistance = distance;
+   if (m_userSpeedFraction == 0.0f)
+   m_userSpeedFraction = 1.0f;
+   if (m_activeSpeedFraction != m_userSpeedFraction) {
+     m_activeSpeedFraction = m_userSpeedFraction;
+     _UpdateDerrived();
+     }
+
+     //Clear any pending docking operation since the user set a new course:
+     if (m_self->IsClient())
+     m_self->CastToClient()->SetPendingDockOperation(false);
+
+     std::vector<PyTuple *> updates;
+
+     if (update) {
+       DoDestiny_SetMaxSpeed maxspeed1;
+       maxspeed1.entityID = m_self->GetID();
+       maxspeed1.speedValue = maxVelocity;
+       updates.push_back(maxspeed1.Encode());
+
+       DoDestiny_SetBallFree ballfree;
+       ballfree.entityID = m_self->GetID();
+       ballfree.is_free = 1;
+       updates.push_back(ballfree.Encode());
+
+       DoDestiny_SetBallMass ballmass;
+       ballmass.entityID = m_self->GetID();
+       ballmass.mass = mass;
+       updates.push_back(ballmass.Encode());
+
+       DoDestiny_SetMaxSpeed maxspeed2;
+       maxspeed2.entityID = m_self->GetID();
+       maxspeed2.speedValue = maxVelocity;
+       updates.push_back(maxspeed2.Encode());
+
+       DoDestiny_CmdSetSpeedFraction speedfrac;
+       speedfrac.entityID = m_self->GetID();
+       speedfrac.fraction = 1.0;
+       updates.push_back(speedfrac.Encode());
+
+       DoDestiny_CmdFollowBall followball;
+       followball.entityID = m_self->GetID();
+       followball.ballID = who->GetID();
+       followball.unknown = uint32(distance);
+       updates.push_back(followball.Encode());
+
+       SendDestinyUpdate(updates, false); //consumed
+       }
+
+       sLog.Debug("DestinyManager::TractorBeamFollow()", "SystemEntity '%s' following SystemEntity '%s' at velocity %f",
+                   + m_self->GetName(), who->GetName(), m_maxVelocity);
+
+       // Forcibly set Speed since it doesn't get updated when Following upon Undock from stations:
+       SetSpeedFraction(m_activeSpeedFraction, true);
+      }
+
+void DestinyManager::TractorBeamHalt(bool update)
+{
+    m_targetEntity.first = 0;
+    m_targetEntity.second = NULL;
+    m_velocity = GVector(0, 0, 0);
+    m_activeSpeedFraction = 0.0f;
+    _UpdateDerrived();
+
+    //Clear any pending docking operation since the user halted ship movement:
+    if (m_self->IsClient())
+        m_self->CastToClient()->SetPendingDockOperation(false);
+
+    State = DSTBALL_STOP;
+
+    //ensure that our bubble is correct.
+    m_system->bubbles.UpdateBubble(m_self);
+
+    std::vector<PyTuple *> updates;
+
+    if (update) {
+        DoDestiny_SetMaxSpeed maxspeed1;
+        maxspeed1.entityID = m_self->GetID();
+        maxspeed1.speedValue = 0;
+        updates.push_back(maxspeed1.Encode());
+
+        DoDestiny_SetBallFree ballfree;
+        ballfree.entityID = m_self->GetID();
+        ballfree.is_free = 0;
+        updates.push_back(ballfree.Encode());
+
+        DoDestiny_SetBallMass ballmass;
+        ballmass.entityID = m_self->GetID();
+        ballmass.mass = 10000000000;
+        updates.push_back(ballmass.Encode());
+
+        DoDestiny_SetMaxSpeed maxspeed2;
+        maxspeed2.entityID = m_self->GetID();
+        maxspeed2.speedValue = 1000000;
+        updates.push_back(maxspeed2.Encode());
+
+        SendDestinyUpdate(updates, false); //consumed
+    }
+}
+
 
 //this is still under construction. Its not working well right now.
 void DestinyManager::_Orbit() {

@@ -17,11 +17,11 @@ SET( TARGET_SOURCE_DIR  "${PROJECT_SOURCE_DIR}/src/${TARGET_NAME}" )
 SET( INCLUDE
      "${TARGET_INCLUDE_DIR}/eve-core.h"
      "${TARGET_INCLUDE_DIR}/eve-compat.h" )
-     #"${TARGET_INCLUDE_DIR}/mmgr.h"
-     #"${TARGET_INCLUDE_DIR}/nommgr.h"  )
+#"${TARGET_INCLUDE_DIR}/mmgr.h"
+#"${TARGET_INCLUDE_DIR}/nommgr.h"  )
 SET( SOURCE
      "${TARGET_SOURCE_DIR}/eve-compat.cpp" )
-     #"${TARGET_SOURCE_DIR}/mmgr.cpp" )
+#"${TARGET_SOURCE_DIR}/mmgr.cpp" )
 
 SET( database_INCLUDE
      "${TARGET_INCLUDE_DIR}/database/dbcore.h"

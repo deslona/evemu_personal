@@ -46,9 +46,9 @@ public:
 	void Activate(SystemEntity * targetEntity);
 	void Deactivate();
 
-	// Calls Reserved for components usage only!
+    // Calls Reserved for components usage only!
 	void DoCycle();
-	void StopCycle();
+    void StopCycle(bool abort = false);
 
 protected:
 	void _ProcessCycle() {}

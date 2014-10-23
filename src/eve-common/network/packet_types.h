@@ -1021,7 +1021,7 @@ typedef enum {
 	effectEntityArmorRepairingMedium	= 2196,	//effects.ArmorRepair
 	effectEntityArmorRepairingLarge		= 2197,	//effects.ArmorRepair
 	effectScanStrengthBonusPercentActivate		= 2231,	//effects.ScanStrengthBonusActivate
-	effectTractorBeamCan				= 2255,	//effects.TractorBeam
+	effectTractorBeam   				= 2255,	//effects.TractorBeam
 	effectScanStrengthBonusPercentPassive		= 2298,	//effects.ScanStrengthBonusActivate
 	effectEnergyDestabilizationNew		= 2303,	//effects.EnergyDestabilization
 	effectEnergyNosferatu				= 2304,	//effects.EnergyVampire

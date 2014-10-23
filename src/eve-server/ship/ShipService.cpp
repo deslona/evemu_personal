@@ -111,12 +111,7 @@ PyBoundObject *ShipService::_CreateBoundObject(Client *c, const PyRep *bind_args
 }
 
 PyResult ShipBound::Handle_Board(PyCallArgs &call) {
-    //Call_SingleIntegerArg args;
     Call_TwoIntegerArgs args;
-
-	// args: two integers in this packet
-	//     .arg1  -  itemID of the ship to be boarded
-	//     .arg2  -  itemID of the ship this client is currently piloting
 
     // Save position for old ship
     GPoint shipPosition = call.client->GetPosition();
