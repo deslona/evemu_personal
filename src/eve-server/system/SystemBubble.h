@@ -31,7 +31,7 @@ class DoDestiny_SetState;
 
 class SystemBubble {
 public:
-    SystemBubble(const GPoint &center, double radius);
+    SystemBubble(const GPoint &center, double radius, int32 system);
     ~SystemBubble() { m_bubbleID--; };
 
 
@@ -57,7 +57,7 @@ public:
     void GetEntities(std::set<SystemEntity *> &into) const;
     uint32 GetBubbleID() { return m_bubbleID; }
 
-    //void AppendBalls(DoDestiny_SetState &ss, std::vector<uint8> &setstate_buffer) const;
+    void AppendBalls(DoDestiny_SetState &ss, std::vector<uint8> &setstate_buffer) const;
 
     bool InBubble(const GPoint &pt) const;
 
@@ -74,6 +74,7 @@ protected:
     const double m_radius2;    //radius squared.
     const double m_position_check_radius_sqrd;  // (radius + BUBBLE_HYSTERESIS_METERS) squared
     static uint32 m_bubbleIncrementer;
+	uint32 m_system;
     uint32 m_bubbleID;
     std::map<uint32, SystemEntity *> m_entities;    //we do not own these.
     std::set<SystemEntity *> m_dynamicEntities;    //entities which may move. we do not own these.

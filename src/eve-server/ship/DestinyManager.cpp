@@ -751,7 +751,7 @@ void DestinyManager::_Warp() {
         //    m_self->GetID(), velocity_magnitude, dist_remaining);
 
         // Put ourself back into a bubble once we reach the outer edge of the bubble's radius:
-        if( dist_remaining <= (0.6 * BUBBLE_RADIUS_METERS) )
+        if( dist_remaining <=  BUBBLE_RADIUS_METERS )
         {
             // This MUST be called BEFORE SetPosition() since SetPosition does not
             // currently support passing in the isPostWarp boolean nor the isWarping boolean

@@ -691,10 +691,11 @@ PyResult Command_location( Client* who, CommandDB* db, PyServiceMgr* services, c
     if( NULL == who->Destiny() )
         throw PyException( MakeCustomError( "You have no Destiny manager." ) );
 
-    DestinyManager* dm = who->Destiny();
+    DestinyManager *dm = who->Destiny();
+    SystemBubble *b = who->Bubble();
 
-    const GPoint& loc = dm->GetPosition();
-    const GVector& vel = dm->GetVelocity();
+    const GPoint &loc = dm->GetPosition();
+    const GVector &vel = dm->GetVelocity();
 
     char reply[128];
     snprintf( reply, 128,
@@ -702,9 +703,10 @@ PyResult Command_location( Client* who, CommandDB* db, PyServiceMgr* services, c
         "x: %lf<br>"
         "y: %lf<br>"
         "z: %lf<br>"
-        "speed: %lf",
+        "speed: %lf<br>"
+        "bubble: %li",
         loc.x, loc.y, loc.z,
-        vel.length()
+        vel.length(), b->GetBubbleID()
     );
 
     who->SendInfoModalMsg( reply );

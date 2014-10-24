@@ -1120,6 +1120,12 @@ void NPC::Killed(Damage &fatal_blow)
 
 void NPC::_DropLoot(SystemEntity *owner) {
 
+  /*  loot system data manager is singleton.
+   *   sDGM_Wrecks_to_Loot_Table
+   *  will have more info as i get it implemented
+   * 		allan 24Oct14
+   */
+
     //entityLootValueMin
     //entityLootValueMax
     //entityLootCountMin

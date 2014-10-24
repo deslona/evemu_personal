@@ -21,13 +21,14 @@
 #include "GaTypes.h"
 
 using namespace Ga;
-
+/*
 GaVec3 GaVec3::ZERO = GaVec3(0.0);
 GaVec3 GaVec3::ONE = GaVec3(1.0);
 GaVec3 GaVec3::UNIT_X = GaVec3(1,0,0);
 GaVec3 GaVec3::UNIT_Y = GaVec3(0,1,0);
 GaVec3 GaVec3::UNIT_Z = GaVec3(0,0,1);
 
+*/
 GaQuat GaQuat::IDENTITY = GaQuat(1,0,0,0);
 GaQuat GaQuat::ZERO = GaQuat(0,0,0,0);
 

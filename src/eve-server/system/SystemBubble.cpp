@@ -34,14 +34,15 @@
 
 uint32 SystemBubble::m_bubbleIncrementer = 0;
 
-SystemBubble::SystemBubble(const GPoint &center, double radius)
+SystemBubble::SystemBubble(const GPoint &center, double radius, uint32 system)
 : m_center(center),
   m_radius(radius),
   m_radius2(radius*radius),
-  m_position_check_radius_sqrd((radius+BUBBLE_HYSTERESIS_METERS) * (radius+BUBBLE_HYSTERESIS_METERS))
+  m_position_check_radius_sqrd((radius+BUBBLE_HYSTERESIS_METERS) * (radius+BUBBLE_HYSTERESIS_METERS)),
+  m_system(system)
 {
     m_bubbleID = m_bubbleIncrementer;
-    _log(DESTINY__BUBBLE_DEBUG, "SystemBubble::Constructor - Created new bubble %u (%p) at (%.2f,%.2f,%.2f) with radius %.2f", m_bubbleID, this, m_center.x, m_center.y, m_center.z, m_radius);
+    _log(DESTINY__BUBBLE_DEBUG, "SystemBubble::Constructor - Created new bubble %u (%p) at (%.2f,%.2f,%.2f) with radius %.2f in system %u", m_bubbleID, this, m_center.x, m_center.y, m_center.z, m_radius, m_system);
     m_bubbleIncrementer++;
 }
 
