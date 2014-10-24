@@ -87,3 +87,64 @@ uint32 DGM_Types_to_Wrecks_Table::GetWreckID(uint32 typeID)
         return mWrecksMapIterator->second;
     }
 }
+
+
+
+// ////////////////////// DGM_Wrecks_to_Loot_Table Class ////////////////////////////
+DGM_Wrecks_to_Loot_Table::DGM_Wrecks_to_Loot_Table()
+{
+  m_WrecksToLootMap.clear();
+}
+
+DGM_Wrecks_to_Loot_Table::~DGM_Wrecks_to_Loot_Table()
+{
+}
+
+int DGM_Wrecks_to_Loot_Table::Initialize()
+{
+  _Populate();
+
+  return 1;
+}
+
+void DGM_Wrecks_to_Loot_Table::_Populate()
+{
+  uint32 wreckID, lootID;
+
+  //first get list of all effects from dgmEffects table
+  DBQueryResult *res = new DBQueryResult();
+  SystemDB::GetWrecksToLoot(*res);
+
+  //counter
+  uint32 total_loot_count = 0;
+  uint32 error_count = 0;
+
+  //go through and populate each effect
+  DBResultRow row;
+  while( res->GetRow(row) )
+  {
+	wreckID = row.GetInt(0);
+	lootID = row.GetInt(1);
+	m_WrecksToLootMap.insert(std::pair<uint32, uint32>(wreckID,lootID));
+
+	total_loot_count++;
+  }
+
+  sLog.Log("     Loot_Table", "%u total loot objects loaded", total_loot_count);
+
+  //cleanup
+  delete res;
+  res = NULL;
+}
+
+uint32 DGM_Wrecks_to_Loot_Table::GetLootID(uint32 wreckID)
+{
+  std::map<uint32, uint32>::iterator mLootMapIterator;
+
+  if( (mLootMapIterator = m_WrecksToLootMap.find(wreckID)) == m_WrecksToLootMap.end() )
+	return 0;
+  else
+  {
+	return mLootMapIterator->second;
+  }
+}

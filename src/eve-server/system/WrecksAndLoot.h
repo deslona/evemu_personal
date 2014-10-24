@@ -29,7 +29,8 @@
 
 // //////////////// Permanent Memory Object Classes //////////////////////
 
-// This class is a singleton object, containing all Effects loaded from dgmEffects table as memory objects of type MEffect:
+// This class is a singleton object, containing all Effects loaded from dgmEffects table
+//     as memory objects of type MEffect:
 class DGM_Types_to_Wrecks_Table
 : public Singleton< DGM_Types_to_Wrecks_Table >
 {
@@ -40,7 +41,8 @@ public:
     // Initializes the Table:
     int Initialize();
 
-    // Returns typeID of wreck that is appropriate for the given typeID, returns 0 if no match
+    // Returns typeID of wreck that is appropriate for the given typeID,
+	//  returns 0 if no match
     uint32 GetWreckID(uint32 typeID);
 
 protected:
@@ -51,6 +53,33 @@ protected:
 
 #define sDGM_Types_to_Wrecks_Table \
     ( DGM_Types_to_Wrecks_Table::get() )
+// -----------------------------------------------------------------------
+
+
+// This class is a singleton object, containing all Effects loaded from dgmEffects table
+//     as memory objects of type MEffect:
+class DGM_Wrecks_to_Loot_Table
+: public Singleton< DGM_Wrecks_to_Loot_Table >
+{
+public:
+  DGM_Wrecks_to_Loot_Table();
+  ~DGM_Wrecks_to_Loot_Table();
+
+  // Initializes the Table:
+  int Initialize();
+
+  // Returns typeID of wreck that is appropriate for the given typeID,
+  //  returns 0 if no match
+  uint32 GetLootID(uint32 typeID);
+
+protected:
+  void _Populate();
+
+  std::map<uint32, uint32> m_WrecksToLootMap;
+};
+
+#define sDGM_Wrecks_to_Loot_Table \
+( DGM_Wrecks_to_Loot_Table::get() )
 // -----------------------------------------------------------------------
 
 

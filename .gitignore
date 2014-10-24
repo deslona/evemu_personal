@@ -31,6 +31,7 @@ Desktop.ini
 *.tmp
 *.vspscc
 .builds
+*.cmake
 
 # Visual C++ cache files
 ipch/
@@ -97,3 +98,4 @@ build/
 dep/
 doc/developer/
 src/eve-core/memory/
+/CMakeFiles/

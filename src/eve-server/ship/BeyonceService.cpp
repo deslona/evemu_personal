@@ -611,10 +611,7 @@ PyResult BeyonceBound::Handle_CmdWarpToStuff(PyCallArgs &call) {
         }
     }
     else
-    {
         sLog.Error( "BeyonceService::Handle_WarpToStuff()", "Unexpected arg.type value: '%s'.", arg.type.c_str() );
-        return NULL;
-    }
 
     return NULL;
 }

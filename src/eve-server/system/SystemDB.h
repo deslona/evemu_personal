@@ -59,12 +59,25 @@ public:
 
 class DBGPointEntity {
   public:
+	DBGPointEntity(
+	  uint8 idx_,
+	  uint32 itemID_,
+	  GPoint position_,
+	  double x_,
+	  double y_,
+	  double z_ )
+	  : idx(idx_),
+		itemID(itemID_),
+		position(position_),
+		x(x_),
+		y(y_),
+		z(z_) { }
 	uint8 idx;
-    uint32 itemID;
-    GPoint position;
-    double x;
-    double y;
-    double z;
+	uint32 itemID;
+	GPoint position;
+	double x;
+	double y;
+	double z;
 };
 
 class SystemDB
@@ -74,7 +87,8 @@ public:
     bool LoadSystemEntities(uint32 systemID, std::vector<DBSystemEntity> &into);
     bool LoadSystemDynamicEntities(uint32 systemID, std::vector<DBSystemDynamicEntity> &into);
     static bool GetWrecksToTypes(DBQueryResult &res);
-    static uint32 GetObjectLocationID( uint32 itemID );
+	static bool GetWrecksToLoot(DBQueryResult &res);
+	static uint32 GetObjectLocationID( uint32 itemID );
 
     PyObject *ListFactions();
     PyObject *ListJumps(uint32);

@@ -364,7 +364,9 @@ int main( int argc, char* argv[] )
     sLog.Log("Implant_Modifiers","Not Avalible");
     //sDGM_Implant_Modifiers_Table.Initialize();
     sLog.Log("       ServerInit", "Wrecks_Table");
-    //sDGM_Types_to_Wrecks_Table.Initialize();
+	//sDGM_Types_to_Wrecks_Table.Initialize();
+	sLog.Log("       ServerInit", "Loot_Table");
+	//sDGM_Wrecks_to_Loot_Table.Initialize();
     sLog.Log("       ServerInit", "Salvage_Table");
     sLog.Log("    Salvage_Table","Not Avalible");
     //sDGM_Wrecks_to_Salvage_Table.Initialize();

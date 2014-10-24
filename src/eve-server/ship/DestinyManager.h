@@ -195,6 +195,7 @@ protected:
     double m_maxShipVelocity;			//in m/s
     double m_shipAgility;				//unitless
     double m_shipInertia;
+    double m_maxAcceleration;
 	//GVector m_inertia;
 
     bool _Turn();						//compare m_targetDirection and m_direction, and turn as needed.
@@ -209,8 +210,19 @@ private:
     //internal state variables used during warp.
     class WarpState {
     public:
-        WarpState(uint32 start_stamp_, double total_distance_, double speed_, double acceleration_time_, double slow_time_, const GVector &normvec_them_to_us_)
-            : start_stamp(start_stamp_), total_distance(total_distance_), speed(speed_), acceleration_time(acceleration_time_), slow_time(slow_time_), normvec_them_to_us(normvec_them_to_us_) {}
+        WarpState(
+		  uint32 start_stamp_,
+		  double total_distance_,
+		  double speed_,
+		  double acceleration_time_,
+		  double slow_time_,
+		  const GVector &normvec_them_to_us_)
+            : start_stamp(start_stamp_),
+            total_distance(total_distance_),
+            speed(speed_),
+            acceleration_time(acceleration_time_),
+            slow_time(slow_time_),
+            normvec_them_to_us(normvec_them_to_us_) { }
         uint32 start_stamp;				//destiny stamp of when the warp started.
         double total_distance;
         double speed;

@@ -812,7 +812,7 @@ typedef enum {    //chrStandingChanges.eventTypeID
 } EVEStandingEventTypeID;
 
 
-enum {
+enum:uint64 {
     ROLE_CL                    = 549755813888LL,
     ROLE_CR                    = 1099511627776LL,
     ROLE_CM                    = 2199023255552LL,
@@ -871,7 +871,7 @@ enum {
     corpRoleLocationTypeOther = 3
 };
 
-typedef enum {
+typedef enum:uint64 {
     corpRoleDirector 		= 1LL,
     corpRolePersonnelManager 	= 128LL,
     corpRoleAccountant 		= 256LL,

@@ -138,6 +138,14 @@ bool SystemDB::GetWrecksToTypes(DBQueryResult &res) {
     return true;
 }
 
+bool SystemDB::GetWrecksToLoot(DBQueryResult &res) {
+  if(!sDatabase.RunQuery(res, "SELECT * FROM invTypesToWrecks")) {
+	sLog.Error("SystemDB::GetWrecksToTypes()", "Error in query: %s", res.error.c_str());
+	return false;
+  }
+  return true;
+}
+
 PyObject *SystemDB::ListFactions() {
     DBQueryResult res;
 

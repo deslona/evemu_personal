@@ -12,13 +12,13 @@
 --  Table errors?
 --  It is very possible "x" doesn't drop from "y" NPC. Or "z"'s drop rate is too high. This would require intensive testing and player feedback. However alterations and additions to the table can be made easily enough.
 
---  About the chance and quantity of drops. 
---  It may be better to keep the chance minquantity, maxquantity in the lootGroup table. This means there is a statistical possibility that several similar items could drop. 
+--  About the chance and quantity of drops.
+--  It may be better to keep the chance minquantity, maxquantity in the lootGroup table. This means there is a statistical possibility that several similar items could drop.
 --  What would happen is a npcGroupLoot would make a chance to produce a drop. If that chance is successful it would roll again from the npcGroupLootType table. If unsuccessful it would move to the next groupID and chance on the list.
---  The sum of all the 'like' lootGroupID's (all of lootGroupID 7) in the chance field is 1 (100%). Alternatively the combined total of all the chances and then a random roll to select from one of them. 
+--  The sum of all the 'like' lootGroupID's (all of lootGroupID 7) in the chance field is 1 (100%). Alternatively the combined total of all the chances and then a random roll to select from one of them.
 
 --  Drop rates?
---  Drop rates appear to be low. This is deliberate and will definitely need tweaking as testing becomes possible. This is due to prevent multiple similar drops. 
+--  Drop rates appear to be low. This is deliberate and will definitely need tweaking as testing becomes possible. This is due to prevent multiple similar drops.
 
 --  What's up with the npcGroupLootItems?
 --  That's for future DB maintenance reference. It would not be used in the server.
@@ -386,7 +386,7 @@ CREATE TABLE `npcLootGroupType` (
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 INSERT INTO `npcLootGroupType` (`LootGroupID`, `typeID`, `typename`, `chance`, `minquantity`, `maxquantity`, `metalevel`) VALUES
-														
+
 ('9999', '25', 'Test Corpse', '1', '1', '1', '0'),
 ('1', '15331', 'Metal Scraps', '1', '1', '2', '0'),
 ('2', '15331', 'Metal Scraps', '1', '1', '4', '0'),
@@ -510,7 +510,7 @@ INSERT INTO `npcLootGroupType` (`LootGroupID`, `typeID`, `typename`, `chance`, `
 ('31', '1826', 'Scourge Auto-Targeting Cruise Missile I', '0.2', '100', '100', '0'),
 ('31', '1830', 'Nova Auto-Targeting Cruise Missile I', '0.2', '100', '100', '0'),
 ('31', '1828', 'Mjolnir Auto-Targeting Cruise Missile I', '0.2', '100', '100', '0'),
-														
+
 ('102', '3707', 'Blue Pill', '1', '10', '10', '0'),
 ('103', '3705', 'Crash', '1', '10', '10', '0'),
 ('104', '3824', 'Crystal Egg', '1', '10', '10', '0'),
@@ -522,7 +522,7 @@ INSERT INTO `npcLootGroupType` (`LootGroupID`, `typeID`, `typename`, `chance`, `
 ('110', '3820', 'Sooth Sayer', '1', '10', '10', '0'),
 ('111', '3713', 'Vitoc', '1', '10', '10', '0'),
 ('112', '3711', 'X-Instinct', '1', '10', '10', '0'),
-														
+
 ('200', '561', '75mm Gatling Rail I', '0.2', '1', '1', '0'),
 ('200', '7247', '75mm Prototype Gauss Gun', '0.2', '1', '1', '4'),
 ('200', '7249', '75mm Scout Accelerator Cannon', '0.2', '1', '1', '2'),
@@ -804,7 +804,7 @@ INSERT INTO `npcLootGroupType` (`LootGroupID`, `typeID`, `typename`, `chance`, `
 ('257', '33442', 'Malkuth Rapid Heavy Missile Launcher I', '0.12', '1', '1', '1'),
 ('257', '33466', 'YO-5000 Rapid Heavy Missile Launcher', '0.12', '1', '1', '3'),
 ('257', '33440', 'Arbalest Rapid Heavy Missile Launcher I', '0.12', '1', '1', '4'),
-														
+
 ('300', '12274', 'Ballistic Control System I', '0.4', '1', '1', '0'),
 ('300', '16457', 'Cross-linked Bolt Array I', '0.15', '1', '1', '1'),
 ('300', '16459', 'Muon Coil Bolt Array I', '0.15', '1', '1', '2'),
@@ -860,7 +860,7 @@ INSERT INTO `npcLootGroupType` (`LootGroupID`, `typeID`, `typename`, `chance`, `
 ('306', '5339', 'F-293 Nutation Remote Tracking Computer', '0.2', '1', '1', '2'),
 ('306', '5342', 'Alfven Surface Remote Tracking Computer', '0.2', '1', '1', '3'),
 ('306', '5340', 'Phase Switching Remote Tracking Computer', '0.2', '1', '1', '4'),
-														
+
 ('400', '11291', '50mm Reinforced Steel Plates I', '0.2', '1', '1', '0'),
 ('400', '11337', '50mm Reinforced Nanofiber Plates I', '0.2', '1', '1', '1'),
 ('400', '11331', '50mm Reinforced Titanium Plates I', '0.2', '1', '1', '2'),
@@ -1076,7 +1076,7 @@ INSERT INTO `npcLootGroupType` (`LootGroupID`, `typeID`, `typename`, `chance`, `
 ('441', '16419', 'Limited Energized Armor Layering Membrane I', '0.2', '1', '1', '2'),
 ('441', '16421', 'Experimental Energized Armor Layering Membrane I', '0.2', '1', '1', '3'),
 ('441', '16423', 'Prototype Energized Armor Layering Membrane I', '0.2', '1', '1', '4'),
-														
+
 ('500', '434', '1MN Microwarpdrive I', '0.2', '1', '1', '0'),
 ('500', '5971', 'Upgraded 1MN Microwarpdrive I', '0.2', '1', '1', '1'),
 ('500', '5973', 'Limited 1MN Microwarpdrive I', '0.2', '1', '1', '2'),
@@ -1116,7 +1116,7 @@ INSERT INTO `npcLootGroupType` (`LootGroupID`, `typeID`, `typename`, `chance`, `
 ('507', '6005', 'Experimental 10MN Afterburner I', '0.2', '1', '1', '3'),
 ('508', '12066', '100MN Afterburner I', '0.2', '1', '1', '0'),
 ('508', '5955', 'Experimental 100MN Afterburner I', '0.2', '1', '1', '3'),
-														
+
 ('600', '9750', 'Micro Notos Explosive Charge I', '0.2', '1', '1', '0'),
 ('600', '9706', 'Micro Vehemence Shockwave Charge', '0.2', '1', '1', '0'),
 ('607', '3913', 'Micro EMP Smartbomb I', '0.2', '1', '1', '0'),
@@ -1156,7 +1156,7 @@ INSERT INTO `npcLootGroupType` (`LootGroupID`, `typeID`, `typename`, `chance`, `
 ('603', '9668', 'Large Rudimentary Concussion Bomb I', '0.2', '1', '1', '1'),
 ('603', '9808', 'Large YF-12a Smartbomb', '0.2', '1', '1', '1'),
 ('603', '9772', 'Large Notos Explosive Charge I', '0.2', '1', '1', '2'),
-														
+
 ('700', '393', 'Shield Recharger I', '0.2', '1', '1', '0'),
 ('700', '6491', 'Passive Barrier Compensator I', '0.2', '1', '1', '1'),
 ('700', '6487', 'Supplemental Screen Generator I', '0.2', '1', '1', '2'),
@@ -1303,7 +1303,7 @@ INSERT INTO `npcLootGroupType` (`LootGroupID`, `typeID`, `typename`, `chance`, `
 ('728', '16539', 'Micro B88 Core Augmentation', '0.2', '1', '1', '2'),
 ('728', '16541', 'Micro K-Exhaust Core Augmentation', '0.2', '1', '1', '3'),
 ('728', '16543', 'Micro Vigor Core Augmentation', '0.2', '1', '1', '4'),
-														
+
 ('800', '530', 'Small Nosferatu I', '0.2', '1', '1', '0'),
 ('800', '5141', 'Small Ghoul Energy Siphon I', '0.2', '1', '1', '1'),
 ('800', '5137', 'Small Knave Energy Drain', '0.2', '1', '1', '2'),
@@ -1421,7 +1421,7 @@ INSERT INTO `npcLootGroupType` (`LootGroupID`, `typeID`, `typename`, `chance`, `
 ('820', '5053', 'Heavy Tapered Capacitor Infusion I', '0.2', '1', '1', '2'),
 ('820', '5047', 'Heavy F-RX Prototype Capacitor Boost', '0.2', '1', '1', '3'),
 ('820', '5051', 'Heavy Electrochemical Capacitor Booster I', '0.2', '1', '1', '4'),
-														
+
 ('900', '6310', 'Acolyth Signal Booster', '0.2', '1', '1', '0'),
 ('900', '6309', 'Amplitude Signal Enhancer', '0.2', '1', '1', '0'),
 ('900', '1949', 'Basic Signal Amplifier', '0.2', '1', '1', '0'),
@@ -1638,7 +1638,7 @@ INSERT INTO `npcLootGroupType` (`LootGroupID`, `typeID`, `typename`, `chance`, `
 ('931', '19814', 'Phased Weapon Navigation Array Generation Extron', '0.2', '1', '1', '4'),
 ('932', '28654', 'Warp Disruption Field Generator I', '0.2', '1', '1', '0'),
 ('933', '4409', 'Target Spectrum Breaker', '0.2', '1', '1', '0'),
-														
+
 ('1000', '21857', 'Civilian Afterburner', '0.2', '1', '1', '0'),
 ('1001', '21853', 'Civilian Armor Repairer', '0.2', '1', '1', '0'),
 ('1002', '21855', 'Civilian Expanded Cargohold', '0.2', '1', '1', '0'),
@@ -1714,7 +1714,7 @@ INSERT INTO `npcLootGroupType` (`LootGroupID`, `typeID`, `typename`, `chance`, `
 ('1020', '5245', 'Cu Vapor Particle Bore Stream I', '0.2', '1', '1', '4'),
 ('1021', '17482', 'Strip Miner I', '0.2', '1', '1', '0'),
 ('1022', '25861', 'Salvager I', '0.2', '1', '1', '0'),
-														
+
 ('1100', '2464', 'Hornet I', '0.2', '1', '1', '0'),
 ('1101', '2454', 'Hobgoblin I', '0.2', '1', '1', '0'),
 ('1102', '2486', 'Warrior I', '0.2', '1', '1', '0'),
@@ -1734,7 +1734,7 @@ INSERT INTO `npcLootGroupType` (`LootGroupID`, `typeID`, `typename`, `chance`, `
 DROP TABLE IF EXISTS `npcLootGroup`;
 CREATE TABLE IF NOT EXISTS `npcLootGroup` (
   `groupID` INT(10) UNSIGNED NOT NULL,
-  `lootGroupID` INT(10) UNSIGNED NOT NULL,  
+  `lootGroupID` INT(10) UNSIGNED NOT NULL,
   `dropChance` DECIMAL(6,4) UNSIGNED NOT NULL DEFAULT '0.0',
   KEY `groupID` (`groupID`,`lootGroupID`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -1743,46 +1743,46 @@ CREATE TABLE IF NOT EXISTS `npcLootGroup` (
 INSERT INTO npcLootGroup (groupID,lootGroupID,dropChance) VALUES
 
 ('562', '1', '0.12'),		 -- Asteroid Guristas Frigate
-('562', '5', '0.08'),		
-('562', '19', '0.05'),		
-('562', '200', '0.05'),		
-('562', '201', '0.04'),		
-('562', '209', '0.05'),		
-('562', '210', '0.04'),		
-('562', '249', '0.03'),		
+('562', '5', '0.08'),
+('562', '19', '0.05'),
+('562', '200', '0.05'),
+('562', '201', '0.04'),
+('562', '209', '0.05'),
+('562', '210', '0.04'),
+('562', '249', '0.03'),
 ('562', '300', '0.03'),
 ('562', '608', '0.03'),
-('562', '714', '0.03'),		
-('562', '721', '0.03'),		
-('562', '9999', '1'),	 -- test drop to be removed later	
-('579', '1', '0.12'),		
+('562', '714', '0.03'),
+('562', '721', '0.03'),
+('562', '9999', '1'),	 -- test drop to be removed later
+('579', '1', '0.12'),
 ('579', '5', '0.08'),
 ('579', '19', '0.05'),
-('579', '20', '0.05'),	 -- Asteroid Guristas Destroyer  
-('579', '201', '0.05'),	
-('579', '210', '0.05'),	
-('579', '211', '0.04'),	
-('579', '250', '0.05'),	
+('579', '20', '0.05'),	 -- Asteroid Guristas Destroyer
+('579', '201', '0.05'),
+('579', '210', '0.05'),
+('579', '211', '0.04'),
+('579', '250', '0.05'),
 ('579', '300', '0.03'),
 ('579', '608', '0.03'),
-('579', '714', '0.03'),	
-('579', '721', '0.03'),	
-('579', '9999', '1');	 -- test drop to be removed later	
+('579', '714', '0.03'),
+('579', '721', '0.03'),
+('579', '9999', '1');	 -- test drop to be removed later
 
 -- This table links npclootgrouptype to the ship ID (typeID) that will spawn the loot in the wreck (a separate typeID) used for special occasions
 -- Create NPCSpeciallootGroup table
 DROP TABLE IF EXISTS `npcSpecialLootGroup`;
 CREATE TABLE IF NOT EXISTS `npcSpecialLootGroup` (
   `typeID` INT(10) UNSIGNED NOT NULL,
-  `lootGroupID` INT(10) UNSIGNED NOT NULL,  
+  `lootGroupID` INT(10) UNSIGNED NOT NULL,
   `dropChance` DECIMAL(6,4) UNSIGNED NOT NULL DEFAULT '0.0',
-  `dungeon` INT(10) UNSIGNED  NULL, 
+  `dungeon` INT(10) UNSIGNED  NULL,
   KEY `typeID` (`typeID`,`lootGroupID`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-/* -- npcSpeciallootGroup
+-- npcSpeciallootGroup
 INSERT INTO npcSpecialLootGroup (typeID,LootGroupID,dropChance,dungeon) VALUES
--- Asteroid Guristas Frigate 
+-- Asteroid Guristas Frigate
 ('238', '1', '0.12', '0'),
 ('562', '5', '0.08', '0'),
 ('562', '19', '0.05', '0'),
@@ -1790,4 +1790,4 @@ INSERT INTO npcSpecialLootGroup (typeID,LootGroupID,dropChance,dungeon) VALUES
 ('562', '55', '0.04', '0'),
 ('562', '64', '0.05', '0'),
 ('562', '65', '0.04', '0'),
-('562', '9999', '1', '0'); */
+('562', '9999', '1', '0'); 

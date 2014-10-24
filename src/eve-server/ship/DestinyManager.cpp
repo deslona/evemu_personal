@@ -59,7 +59,7 @@ DestinyManager::DestinyManager(SystemEntity *self, SystemManager *system)
   m_maxVelocity(1.0f),
   m_accelerationFactor(0.0),
   m_velocityAdjuster(0.0),
-//  m_maxAcceleration(1.0),
+  m_maxAcceleration(1.0),
   State(DSTBALL_STOP),
   m_userSpeedFraction(0.0f),
   m_activeSpeedFraction(0.0f),
@@ -605,10 +605,10 @@ void DestinyManager::_InitWarp() {
 
     m_targetPoint = stop_point;
     _log(PHYSICS__TRACE, "DestinyManager::_InitWarp():Calculate - Entity %u: Calculate has determined we will exit warp at %f, %f, %f at a distance of %f.",
-        m_self->GetName(), m_self->GetID(), m_targetPoint.x, m_targetPoint.y, m_targetPoint.z, warp_distance);
+		 m_self->GetName(), m_self->GetID(), m_targetPoint.x, m_targetPoint.y, m_targetPoint.z, warp_distance/ONE_AU_IN_METERS);
 
     //the client clears massive during warp,  (massive means object is solid)
-//#   pragma message( "TODO: set massive to false!" )      ---works....13July14
+    //  set massive to false!" )      ---works....13July14
     std::vector<PyTuple *> updates;
     DoDestiny_SetBallMassive sbmassive;
     sbmassive.entityID = m_self->GetID();
@@ -745,7 +745,7 @@ void DestinyManager::_Warp() {
         //double delta_t = (m_warpState->acceleration_time * 3.0f) - ((seconds_into_warp * 3.0f)+1.0f);
         //double delta_s = (m_warpState->speed * delta_t)/(-3.0f);
         //dist_remaining = m_warpState->total_distance - (velocity_magnitude * exp(-1.0 * seconds_into_warp) + (m_warpState->slow_time * m_warpState->speed));
-        dist_remaining = velocity_magnitude * 10;// / 2.5;//m_warpDecelerateFactor;
+        dist_remaining = velocity_magnitude * m_warpDecelerateFactor;
 
         //_log(PHYSICS__TRACE, "DestinyManager::_Warp():Slow - Entity %u: Warp Slowing: velocity %f m/s with %f m left to go.",
         //    m_self->GetID(), velocity_magnitude, dist_remaining);
@@ -783,67 +783,68 @@ void DestinyManager::_Warp() {
 }
 
 void DestinyManager::TractorBeamFollow(SystemEntity *who, double mass, double maxVelocity, double distance, bool update) {
-   if (State == DSTBALL_FOLLOW && m_targetEntity.second == who && m_targetDistance == distance)
-   return;
+	if (State == DSTBALL_FOLLOW && m_targetEntity.second == who && m_targetDistance == distance)
+		return;
 
-   State = DSTBALL_FOLLOW;
-   m_targetEntity.first = who->GetID();
-   m_targetEntity.second = who;
-   m_targetDistance = distance;
-   if (m_userSpeedFraction == 0.0f)
-   m_userSpeedFraction = 1.0f;
-   if (m_activeSpeedFraction != m_userSpeedFraction) {
-     m_activeSpeedFraction = m_userSpeedFraction;
-     _UpdateDerrived();
-     }
+	State = DSTBALL_FOLLOW;
+	m_targetEntity.first = who->GetID();
+	m_targetEntity.second = who;
+	m_targetDistance = distance;
 
-     //Clear any pending docking operation since the user set a new course:
-     if (m_self->IsClient())
-     m_self->CastToClient()->SetPendingDockOperation(false);
+	if (m_userSpeedFraction == 0.0f)
+		m_userSpeedFraction = 1.0f;
+	if (m_activeSpeedFraction != m_userSpeedFraction) {
+		m_activeSpeedFraction = m_userSpeedFraction;
+		_UpdateDerrived();
+	}
 
-     std::vector<PyTuple *> updates;
+	//Clear any pending docking operation since the user set a new course:
+	if (m_self->IsClient())
+		m_self->CastToClient()->SetPendingDockOperation(false);
 
-     if (update) {
-       DoDestiny_SetMaxSpeed maxspeed1;
-       maxspeed1.entityID = m_self->GetID();
-       maxspeed1.speedValue = maxVelocity;
-       updates.push_back(maxspeed1.Encode());
+	std::vector<PyTuple *> updates;
 
-       DoDestiny_SetBallFree ballfree;
-       ballfree.entityID = m_self->GetID();
-       ballfree.is_free = 1;
-       updates.push_back(ballfree.Encode());
+	if (update) {
+		DoDestiny_SetMaxSpeed maxspeed1;
+		maxspeed1.entityID = m_self->GetID();
+		maxspeed1.speedValue = maxVelocity;
+		updates.push_back(maxspeed1.Encode());
 
-       DoDestiny_SetBallMass ballmass;
-       ballmass.entityID = m_self->GetID();
-       ballmass.mass = mass;
-       updates.push_back(ballmass.Encode());
+		DoDestiny_SetBallFree ballfree;
+		ballfree.entityID = m_self->GetID();
+		ballfree.is_free = 1;
+		updates.push_back(ballfree.Encode());
 
-       DoDestiny_SetMaxSpeed maxspeed2;
-       maxspeed2.entityID = m_self->GetID();
-       maxspeed2.speedValue = maxVelocity;
-       updates.push_back(maxspeed2.Encode());
+		DoDestiny_SetBallMass ballmass;
+		ballmass.entityID = m_self->GetID();
+		ballmass.mass = mass;
+		updates.push_back(ballmass.Encode());
 
-       DoDestiny_CmdSetSpeedFraction speedfrac;
-       speedfrac.entityID = m_self->GetID();
-       speedfrac.fraction = 1.0;
-       updates.push_back(speedfrac.Encode());
+		DoDestiny_SetMaxSpeed maxspeed2;
+		maxspeed2.entityID = m_self->GetID();
+		maxspeed2.speedValue = maxVelocity;
+		updates.push_back(maxspeed2.Encode());
 
-       DoDestiny_CmdFollowBall followball;
-       followball.entityID = m_self->GetID();
-       followball.ballID = who->GetID();
-       followball.unknown = uint32(distance);
-       updates.push_back(followball.Encode());
+		DoDestiny_CmdSetSpeedFraction speedfrac;
+		speedfrac.entityID = m_self->GetID();
+		speedfrac.fraction = 1.0;
+		updates.push_back(speedfrac.Encode());
 
-       SendDestinyUpdate(updates, false); //consumed
-       }
+		DoDestiny_CmdFollowBall followball;
+		followball.entityID = m_self->GetID();
+		followball.ballID = who->GetID();
+		followball.unknown = uint32(distance);
+		updates.push_back(followball.Encode());
 
-       sLog.Debug("DestinyManager::TractorBeamFollow()", "SystemEntity '%s' following SystemEntity '%s' at velocity %f",
-                   + m_self->GetName(), who->GetName(), m_maxVelocity);
+		SendDestinyUpdate(updates, false); //consumed
+	}
 
-       // Forcibly set Speed since it doesn't get updated when Following upon Undock from stations:
-       SetSpeedFraction(m_activeSpeedFraction, true);
-      }
+	sLog.Debug("DestinyManager::TractorBeamFollow()", "SystemEntity '%s' following SystemEntity '%s' at velocity %f",
+		m_self->GetName(), who->GetName(), m_maxVelocity);
+
+	// Forcibly set Speed since it doesn't get updated when Following upon Undock from stations:
+	SetSpeedFraction(m_activeSpeedFraction, true);
+}
 
 void DestinyManager::TractorBeamHalt(bool update)
 {

@@ -25,7 +25,7 @@
 #ifndef __BUBBLEMANAGER_H_INCL__
 #define __BUBBLEMANAGER_H_INCL__
 
-#define BUBBLE_RADIUS_METERS 500000.0       // EVE retail uses 250km and allows grid manipulation, for simplicity we dont and have our grid much larger
+#define BUBBLE_RADIUS_METERS 250000.0       // EVE retail uses 250km and allows grid manipulation, for simplicity we dont and have our grid much larger
 #define BUBBLE_HYSTERESIS_METERS 5000.0     // How far out of the existing bubble a ship needs to fly before being placed into a new or different bubble
 
 class SystemEntity;
