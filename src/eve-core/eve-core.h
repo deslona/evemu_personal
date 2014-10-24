@@ -170,13 +170,6 @@
 // zlib
 #include <zlib.h>
 
-/*************************************************************************/
-/* MMGR - Memory Manager                                                 */
-/*	Memory managing & tracking software                                  */
-/*	This code is designed to track and log memory leaks                  */
-/*************************************************************************/
-//   having problems with dependecy loading order and void pointer references
-//#include "mmgr.h"
 
 /*************************************************************************/
 /* Other stuff included by default                                       */
@@ -185,5 +178,12 @@
 // utils
 #include "utils/FastInt.h"
 #include "utils/SafeMem.h"
+
+/*************************************************************************/
+/* MMGR - Memory Manager                                                 */
+/*	Memory managing & tracking software                                  */
+/*	This code is designed to track and log memory leaks                  */
+/*************************************************************************/
+//#include "mmgr.h"
 
 #endif /* !__EVE_CORE_H__INCL__ */

@@ -150,8 +150,8 @@ void	*operator new(size_t reportedSize);
 void	*operator new[](size_t reportedSize);
 void	*operator new(size_t reportedSize, const char *sourceFile, int sourceLine);
 void	*operator new[](size_t reportedSize, const char *sourceFile, int sourceLine);
-//void	operator delete(void *reportedAddress);
-//void	operator delete[](void *reportedAddress);
+void	operator delete(void *reportedAddress);
+void	operator delete[](void *reportedAddress);
 
 #endif // _H_MMGR
 

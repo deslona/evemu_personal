@@ -181,7 +181,7 @@ void SystemDB::GetPlanets(uint32 systemID, std::vector<DBGPointEntity> *planetID
 
     DBResultRow row;
     DBGPointEntity entry;
-	int8 itr = 1;
+	int8 itr = 0;
     while(res.GetRow(row)) {
 	    entry.idx = itr;
         entry.itemID = row.GetInt(0);
@@ -203,7 +203,7 @@ void SystemDB::GetMoons(uint32 systemID, std::vector<DBGPointEntity> *moonIDs, u
 
     DBResultRow row;
     DBGPointEntity entry;
-	int8 itr = 1;
+	int8 itr = 0;
     while(res.GetRow(row)) {
 	    entry.idx = itr;
         entry.itemID = row.GetInt(0);

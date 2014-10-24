@@ -59,6 +59,7 @@ public:
 
 class DBGPointEntity {
   public:
+	/*
 	DBGPointEntity(
 	  uint8 idx_,
 	  uint32 itemID_,
@@ -72,6 +73,7 @@ class DBGPointEntity {
 		x(x_),
 		y(y_),
 		z(z_) { }
+		*/
 	uint8 idx;
 	uint32 itemID;
 	GPoint position;
