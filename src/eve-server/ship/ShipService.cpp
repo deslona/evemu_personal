@@ -283,28 +283,17 @@ PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
         return NULL;
     }
 
-    //do session change...
-	//call.client->UndockFromStation( stationID, systemID, constellationID, regionID, dockPosition );
-    call.client->MoveToLocation(call.client->GetSystemID(), dockPosition);
-
-    call.client->OnCharNoLongerInStation();
-
-    //calculate undock movement
     GPoint dest =
         GPoint
         (
             dockOrientation.x,
             dockOrientation.y,
-            dockOrientation.z// * (-1.0)
+            dockOrientation.z
         );
 	dest.normalize();
-    //move away from dock
-	call.client->Destiny()->SetSpeedFraction( 1.0f, true );
-	call.client->Destiny()->GotoDirection( dest, true );
-	call.client->Destiny()->Stop(true);
 
-    //call.client->SetUndockAlignToPoint( dest );
-    //call.client->SetJustUndocking( true );
+    //do session change...
+	call.client->UndockFromStation( stationID, systemID, constellationID, regionID, dockPosition, dest );
 
     return NULL;
 }

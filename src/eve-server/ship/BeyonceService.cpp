@@ -379,13 +379,19 @@ PyResult BeyonceBound::Handle_CmdOrbit(PyCallArgs &call) {
 PyResult BeyonceBound::Handle_CmdWarpToStuff(PyCallArgs &call) {
   /**
 21:05:18 L BeyonceBound: Handle_CmdWarpToStuff
-21:05:18 [SvcCall]   Call Arguments:
-21:05:18 [SvcCall]       Tuple: 2 elements
-21:05:18 [SvcCall]         [ 0] String: 'item'
-21:05:18 [SvcCall]         [ 1] Integer field: 50014076
-21:05:18 [SvcCall]   Call Named Arguments:
-21:05:18 [SvcCall]     Argument 'machoVersion':
-21:05:18 [SvcCall]         Integer field: 1
+item, id
+epinstance, instanceid
+scan, resultid, minrange, fleet(bool)
+[warpfleet] item, id, minrange, fleet=1
+[warptomember] char, charid, minrange
+[warpfleettomember] char, charid, minrange, fleet=1
+bookmark, bmid, minrange, fleet(bool)
+[toItem] item, id, minrange
+tutorial, none
+bookmark, bmid
+[hiddendungeon] epinstance, instanceid
+[launchpickup] launch, launchid
+
 */
         sLog.Warning( "BeyonceBound", "Handle_CmdWarpToStuff" );
     CallWarpToStuff arg;
@@ -396,35 +402,32 @@ PyResult BeyonceBound::Handle_CmdWarpToStuff(PyCallArgs &call) {
 
     if( arg.type == "item" )
     {
-        // This section handles Warping to any object in the Overview
-        double distance;
-        std::map<std::string, PyRep *>::const_iterator res = call.byname.find("minRange");
-        if(res == call.byname.end()) {
-            //Not needed, this is the correct behavior
-            //codelog(CLIENT__ERROR, "%s: range not found, using 15 km.", call.client->GetName());
-            distance = 0.0;
-        } else if(!res->second->IsInt() && !res->second->IsFloat()) {
-            codelog(CLIENT__ERROR, "%s: range of invalid type %s, expected Integer or Real; using 15 km.", call.client->GetName(), res->second->TypeString());
-            distance = 0.0;
-        } else {
-            distance =
-                res->second->IsInt()
-                ? res->second->AsInt()->value()
-                : res->second->AsFloat()->value();
-        }
-
-        //we need to delay the destiny updates until after we return
-
         SystemManager *sm = call.client->System();
         if(sm == NULL) {
             codelog(CLIENT__ERROR, "%s: no system manager found", call.client->GetName());
             return NULL;
         }
-        SystemEntity *se = sm->get(arg.ID);
+
+        SystemEntity *se = sm->get(arg.id);
         if(se ==  NULL) {
-            codelog(CLIENT__ERROR, "%s: unable to find location %d", call.client->GetName(), arg.ID);
+            codelog(CLIENT__ERROR, "%s: unable to find location %d", call.client->GetName(), arg.id);
             return NULL;
         }
+
+        // This section handles Warping to any object in the Overview
+        double distance;
+        std::map<std::string, PyRep *>::const_iterator res = call.byname.find("minRange");
+		if(res == call.byname.end()) {
+            distance = 15000.0;
+		} else if(!res->second->IsInt() && !res->second->IsFloat()) {
+            codelog(CLIENT__ERROR, "%s: range of invalid type %s, expected Integer or Real; using 15 km.", call.client->GetName(), res->second->TypeString());
+            distance = 15000.0;
+        } else {
+            distance =
+                  res->second->IsInt()
+                ? res->second->AsInt()->value()
+				: res->second->AsFloat()->value();
+		}
 
         GPoint origin(0.0,0.0,0.0);
         double distanceFromBodyOrigin = 0.0;
@@ -514,10 +517,12 @@ PyResult BeyonceBound::Handle_CmdWarpToStuff(PyCallArgs &call) {
         else
             distance += call.client->GetRadius() + se->GetRadius();
 
+		if(!distance) distance = 5000;
+
         call.client->WarpTo( warpToPoint, distance );
     }
     else if( arg.type == "bookmark" )
-    {
+	{ //  bookmark, bmid, minrange, fleet(bool)
         // This section handles Warping to any Bookmark:
         double distance = 0.0;
         double x,y,z;
@@ -534,7 +539,7 @@ PyResult BeyonceBound::Handle_CmdWarpToStuff(PyCallArgs &call) {
         }
         else
         {
-            bkSrvc->LookupBookmark( call.client->GetCharacterID(),arg.ID,itemID,typeID,x,y,z );
+            bkSrvc->LookupBookmark( call.client->GetCharacterID(),arg.id,itemID,typeID,x,y,z );
 
             // Calculate the warp-to distance specified by the client and add this to the final warp-to distance
             std::map<std::string, PyRep *>::const_iterator res = call.byname.find("minRange");
@@ -606,18 +611,43 @@ PyResult BeyonceBound::Handle_CmdWarpToStuff(PyCallArgs &call) {
                 // Add radiuses for ship and destination object:
                 distance += call.client->GetRadius() + se->GetRadius();
 
+				/*  check for fleet warp here
+				 * else client warp solo
+				 *
+				 * std::map<std::string, PyRep *>::const_iterator res = call.byname.find("fleet");
+				 * res->second->AsBool()->value()
+				 */
+
                 call.client->WarpTo( se->GetPosition(), distance );
             }
-        }
-    }
+		}
+	}
+	// none of the systems below are implemented.  hold on coding till systems are working.
+	else if( arg.type == "launch" )
+	{ // launchpickup - launch, launchid
+	}
+	else if( arg.type == "scan" )
+	{//  scan, resultid, minrange, fleet(bool)
+	}
+	else if( arg.type == "epinstance" )
+	{// epinstance, instanceid
+	}
+	else if( arg.type == "tutorial" )
+	{ // tutorial, none
+	}
+	//  fleet warping
+	else if( arg.type == "char" )
+	{// [warptomember] char, charid, minrange
+	 // [warpfleettomember] char, charid, minrange, fleet=1
+	}
     else
-        sLog.Error( "BeyonceService::Handle_WarpToStuff()", "Unexpected arg.type value: '%s'.", arg.type.c_str() );
+        sLog.Error( "BeyonceService::Handle_WarpToStuff()", "Unhandled arg.type value: '%s'.", arg.type.c_str() );
 
     return NULL;
 }
 
 PyResult BeyonceBound::Handle_CmdWarpToStuffAutopilot(PyCallArgs &call) {
-  //  sends targeted celestial itemID as arg.
+  //  sends targeted celestial itemID as arg.destID
         sLog.Warning( "BeyonceBound", "Handle_CmdWarpToStuffAutopilot" );
     CallWarpToStuffAutopilot arg;
 
@@ -634,9 +664,9 @@ PyResult BeyonceBound::Handle_CmdWarpToStuffAutopilot(PyCallArgs &call) {
         codelog(CLIENT__ERROR, "%s: no system manager found", call.client->GetName());
         return NULL;
     }
-    SystemEntity *se = sm->get(arg.item);
+    SystemEntity *se = sm->get(arg.destID);
     if(se ==  NULL) {
-        codelog(CLIENT__ERROR, "%s: unable to find location %d", call.client->GetName(), arg.item);
+	  codelog(CLIENT__ERROR, "%s: unable to find destinationID %u", call.client->GetName(), arg.destID);
         return NULL;
     }
     // autopilot check

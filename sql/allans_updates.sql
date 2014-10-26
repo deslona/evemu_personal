@@ -222,6 +222,7 @@ CREATE TABLE IF NOT EXISTS `sklRaceSkills` (
 UPDATE `dgmTypeAttributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `attributeID`=280 AND `valueFloat`=0;
 UPDATE `entity_attributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `attributeID`=280 AND `valueFloat`=0;
 UPDATE `entity_default_attributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `attributeID`=280 AND `valueFloat`=0;
+UPDATE `dgmTypeAttributes` SET `valueInt`=1,`valueFloat`=NULL WHERE `typeid`=10124;
 
 ALTER TABLE entity AUTO_INCREMENT=140000000;
 

@@ -31,7 +31,7 @@ class DoDestiny_SetState;
 
 class SystemBubble {
 public:
-    SystemBubble(const GPoint &center, double radius, int32 system);
+    SystemBubble(const GPoint &center, double radius); //, uint32 system);
     ~SystemBubble() { m_bubbleID--; };
 
 

@@ -129,24 +129,23 @@ void BubbleManager::Add(SystemEntity *ent, bool notify, bool isPostWarp) {
         _log(DESTINY__BUBBLE_TRACE, "BubbleManager::Add() - SystemEntity '%s' being added to existing Bubble %u", ent->GetName(), in_bubble->GetBubbleID() );
         return;
     }
-//    // this System Entity is not in any existing bubble, so let's make a new bubble
-//    // using the current position of this System Entity, however, we want to create this
-//    // new bubble's center further along the direction of travel from the position of this
-//    // System Entity by the amount specified by BUBBLE_HYSTERESIS_METERS and BUBBLE_RADIUS_METERS:
-//    GPoint newBubbleCenter(ent->GetPosition());
-//    GVector shipVelocity(ent->GetVelocity());
-//    NewBubbleCenter( shipVelocity, newBubbleCenter );   // Calculate new bubble's center based on entity's velocity and current position
+    // this System Entity is not in any existing bubble, so let's make a new bubble
+    // using the current position of this System Entity, however, we want to create this
+    // new bubble's center further along the direction of travel from the position of this
+    // System Entity by the amount specified by BUBBLE_HYSTERESIS_METERS and BUBBLE_RADIUS_METERS:
 
-in_bubble = new SystemBubble(newBubbleCenter, BUBBLE_RADIUS_METERS, ent->GetLocationID());
-_log(DESTINY__BUBBLE_TRACE, "BubbleManager::Add() - SystemEntity '%s' being added to NEW Bubble %u for system %u", ent->GetName(), in_bubble->GetBubbleID(), ent->GetLocationID() );
-    //TODO: think about bubble collision. should we merge them?
+    // TODO check edges of bubbles....should NOT overlap.
+    in_bubble = new SystemBubble(newBubbleCenter, BUBBLE_RADIUS_METERS);  //, ent->GetLocationID());
+	_log(DESTINY__BUBBLE_TRACE, "BubbleManager::Add() - SystemEntity '%s' being added to NEW Bubble %u for system %u", ent->GetName(), in_bubble->GetBubbleID(), ent->GetLocationID() );
+
+	//TODO: think about bubble collision. should we merge them?
     m_bubbles.push_back(in_bubble);
     in_bubble->Add(ent, notify);
 }
 
 void BubbleManager::NewBubbleCenter(GVector shipVelocity, GPoint & newBubbleCenter)
-{//TODO:  check for existing bubble in this space....if so, find existing center, move new bubble center m_radius away, then create new bubble so edges touch
-    shipVelocity.normalize();
+{
+	shipVelocity.normalize();
     newBubbleCenter.x += shipVelocity.x * BUBBLE_RADIUS_METERS;
     newBubbleCenter.y += shipVelocity.y * BUBBLE_RADIUS_METERS;
     newBubbleCenter.z += shipVelocity.z * BUBBLE_RADIUS_METERS;

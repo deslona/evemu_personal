@@ -462,7 +462,7 @@ bool Client::UpdateLocation(bool login) {
     return true;
 }
 
-void Client::UndockFromStation( uint32 stationID, uint32 systemID, uint32 constellationID, uint32 regionID, GPoint dockPosition )
+void Client::UndockFromStation( uint32 stationID, uint32 systemID, uint32 constellationID, uint32 regionID, GPoint dockPosition, GPoint dest )
 {   // made specific for undocking instead of 'generic' move function below
 
 	// tell ship its' undocking, which only sets shields and cap to full for now  (which was moved from aknor's original commit)
@@ -486,6 +486,9 @@ void Client::UndockFromStation( uint32 stationID, uint32 systemID, uint32 conste
 	m_destiny->SetPosition(dockPosition, true);
 	//update client and set session change
     _SendSessionChange();
+	OnCharNoLongerInStation();
+	//set destination and ship movement
+	m_destiny->GotoDirection(dest, true);
 	//TODO: implement and set session change timer .....client knows already.  session change timer = 10s
 	//TODO:  implement and set undock invul until movement(but not on stop)
 
@@ -1082,11 +1085,11 @@ PyDict *Client::MakeSlimItem() const {
 
 void Client::WarpTo(const GPoint &to, double distance) {
     if(m_moveState != msIdle || m_moveTimer.Enabled()) {
-        sLog.Log("Client","%s: WarpTo called when a move is already pending. Ignoring.", GetName());
+        sLog.Log("Client","%s: Warp called when a move is already pending. Ignoring.", GetName());
         return;
     }
 
-    m_destiny->WarpTo(to, distance);
+    m_destiny->WarpTo(to, distance, true);
     //TODO: OnModuleAttributeChange with attribute 18 for capacitor decharge
 }
 
@@ -1106,8 +1109,7 @@ void Client::StargateJump(uint32 fromGate, uint32 toGate) {
     uint32 solarSystemID;
     GPoint position;
     if(!m_services.serviceDB().GetStaticItemInfo(
-        toGate,
-        &solarSystemID, NULL, NULL, &position
+        toGate, &solarSystemID, NULL, NULL, &position
     )) {
         sLog.Error("Client","%s: Failed to query information for stargate %u", GetName(), toGate);
         return;

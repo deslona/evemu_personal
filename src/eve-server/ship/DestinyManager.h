@@ -164,7 +164,7 @@ protected:
     GVector m_velocity;					//in m/s
 	//GVector m_direction;				//normalized, `m_velocity` stores our magnitude
 	//double m_velocity;				//in m/s, the magnitude of direction
-	//double m_acceleration;			//in m/s^2, should probably be using a vector here too.
+	uint32 m_acceleration;				//in m/s^2, should probably be using a vector here too.
 
     //derrived from other params:
     void _UpdateDerrived();
@@ -196,6 +196,7 @@ protected:
     double m_shipAgility;				//unitless
     double m_shipInertia;
     double m_maxAcceleration;
+	float m_shipWarpSpeed;
 	//GVector m_inertia;
 
     bool _Turn();						//compare m_targetDirection and m_direction, and turn as needed.

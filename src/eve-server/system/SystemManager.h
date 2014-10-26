@@ -35,6 +35,7 @@
 //   based on client code...
 #define ONE_AU_IN_METERS 149597870700.0
 #define ONE_LIGHTYEAR = 9460000000000000.0
+#define EULERS_NUMBER = 2.7182818284590452353602874713527		//  we dont need this accuracy, but it was avalible.
 
 class PyRep;
 class PyDict;
