@@ -571,23 +571,6 @@ int Character::GetSkillLevel(uint32 skillTypeID, bool zeroForNotInjected) const 
     return requiredSkill->GetAttribute(AttrSkillLevel).get_int() ;
 }
 
-float Character::GetAgilitySkills(bool cap) {
-	/*    Evasive Maneuvering  5% improved ship agility for all ships per skill level.
-	 *    Spaceship Command   2% improved ship agility for all ships per skill level.
-	 *    Advanced Spaceship Command    5% Bonus per skill level to the agility of ships requiring Advanced Spaceship Command
-	 *    Capital Ships   5% bonus per skill level to the agility of ships requiring Capital Ships
-	 */
-	float modifier = 0.0f;
-	modifier += ( 5 * GetSkillLevel(skillEvasiveManeuvering, true));  //5%
-	modifier += ( 2 * GetSkillLevel(skillSpaceshipCommand, true));  //2%
-	if(cap) {
-		modifier += ( 5 * GetSkillLevel(skillAdvancedSpaceshipCommand, true));  //5%
-		modifier += ( 5 * GetSkillLevel(skillCapitalShips, true));    //5%
-	}
-	modifier /= 100;
-	return (modifier);
-}
-
 SkillRef Character::GetSkillInTraining() const {
     InventoryItemRef item;
     if (!FindSingleByFlag(flagSkillInTraining, item)) sLog.Debug("Character","  Unable to find skill in training");

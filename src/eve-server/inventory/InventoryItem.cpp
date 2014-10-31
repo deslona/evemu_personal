@@ -705,7 +705,7 @@ void InventoryItem::GetItemStatusRow( PyPackedRow* into ) const {
     into->SetField( "instanceID",    new PyLong( itemID() ) );
     into->SetField( "online",        new PyBool( (mAttributeMap.HasAttribute(AttrIsOnline, attrib) ? attrib.get_int() : 0) ) );
     into->SetField( "damage",        new PyFloat( (mAttributeMap.HasAttribute(AttrDamage, attrib) ? attrib.get_float() : 0) ) );
-	into->SetField( "charge",        new PyFloat( (mAttributeMap.HasAttribute(AttrCapacitorCharge, attrib) ? attrib.get_float() : 0) ) );
+    into->SetField( "charge",        new PyFloat( (mAttributeMap.HasAttribute(AttrCharge, attrib) ? attrib.get_float() : 0) ) );
     into->SetField( "skillPoints",   new PyInt( (mAttributeMap.HasAttribute(AttrSkillPoints, attrib) ? attrib.get_int() : 0) ) );
     into->SetField( "armorDamage",   new PyFloat( (mAttributeMap.HasAttribute(AttrArmorDamageAmount, attrib) ? attrib.get_float() : 0.0) ) );
     into->SetField( "shieldCharge",  new PyFloat( (mAttributeMap.HasAttribute(AttrShieldCharge, attrib) ? attrib.get_float() : 0.0) ) );

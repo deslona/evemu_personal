@@ -421,9 +421,8 @@ bool Client::UpdateLocation(bool login) {
         sLog.Success( "Client::UpdateLocation()", "Character %s (%u) InSpace.", this->GetName(), this->GetCharacterID() );
         //we are in a system, so we need a destiny manager
         m_destiny = new DestinyManager(this, m_system);
-		//ship should never be NULL.
-		m_destiny->SetShipVariables( GetShip() );
-		m_destiny->SetShipCapabilities( GetShip() );
+        //ship should never be NULL.
+        m_destiny->SetShipCapabilities( GetShip() );
 
 		m_destiny->SetPosition(GetShip()->position(), true);
 
@@ -612,10 +611,8 @@ void Client::BoardShip(ShipRef new_ship) {
     if((m_system != NULL) && (IsInSpace()))
         m_system->AddClient(this);
 
-	if(m_destiny != NULL) {
-		m_destiny->SetShipVariables( GetShip() );
-	    m_destiny->SetShipCapabilities( GetShip() );
-	}
+    if(m_destiny != NULL)
+        m_destiny->SetShipCapabilities( GetShip() );
 
 }
 
@@ -1092,7 +1089,8 @@ void Client::WarpTo(const GPoint &to, double distance) {
         return;
     }
 
-    m_destiny->WarpTo(to, distance);
+    m_destiny->WarpTo(to, distance, true);
+    //TODO: OnModuleAttributeChange with attribute 18 for capacitor decharge
 }
 
 void Client::SetAutoPilot(bool autoPilot) {

@@ -66,7 +66,7 @@ NPC::NPC(
     self->SetAttribute(AttrVolume,              self->type().attributes.volume(), true);			// Volume
     self->SetAttribute(AttrCapacity,            self->type().attributes.capacity(), true);			// Capacity
     self->SetAttribute(AttrInertia,             1, true);											// Inertia
-	self->SetAttribute(AttrCapacitorCharge,   self->GetAttribute(AttrCapacitorCapacity), true);	// Set Capacitor Charge to the Capacitor Capacity
+    self->SetAttribute(AttrCharge,              self->GetAttribute(AttrCapacitorCapacity), true);	// Set Capacitor Charge to the Capacitor Capacity
 	self->SetAttribute(AttrShieldCharge,        self->GetAttribute(AttrShieldCapacity), true);		// Shield Charge
 
 	// Agility - WARNING!  NO NPC Ships have Agility, so we're setting it to 1 for ALL NPC ships
