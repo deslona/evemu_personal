@@ -337,7 +337,7 @@ PyResult Command_tr( Client* who, CommandDB* db, PyServiceMgr* services, const S
 
     p_targetClient->Destiny()->SendJumpOutEffect("effects.JumpOut", solarSystemID);
     p_targetClient->MoveToLocation(solarSystemID, destinationPoint);
-    p_targetClient->Destiny()->SendJumpInEffect("effects.JumpIn");
+    //p_targetClient->Destiny()->SendJumpInEffect("effects.JumpIn");
 
 /*
     uint32 loc = atoi( args.arg( 2 ).c_str() );
@@ -989,9 +989,9 @@ PyResult Command_giveallskills( Client* who, CommandDB* db, PyServiceMgr* servic
                                         character->GetTotalSP().get_float());
         }
         // END LOOP
+        //  put here command to make client reload skills
         return new PyString ( "Gifting skills complete" );
-    } else
-        throw PyException( MakeCustomError( "ERROR: Unable to validate character object, it was found to be NULL!" ) );
+    }
 
     return new PyString ("Skill Gifting Failure");
 }
@@ -1085,10 +1085,12 @@ PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, 
         character->SaveSkillHistory(39, EvilTimeNow().get_float(), ownerID, skillID.get_int(), level,
                                     skill->GetAttribute(AttrSkillPoints).get_float(), character->GetTotalSP().get_float());
 
-        return new PyString ( "Skill Gifting Complete" );
-    }
+	//  put here command to make client reload skills
 
-    throw PyException( MakeCustomError( "ERROR: Unable to validate character object, it was found to be NULL!" ) );
+        return new PyString ( "Skill Gifting Complete" );
+    } else
+        throw PyException( MakeCustomError( "ERROR: Unable to validate character object, it was found to be NULL!" ) );
+
     return new PyString ("Skill Gifting Failure - Character Ref = NULL");
 }
 
@@ -1183,7 +1185,7 @@ PyResult Command_heal( Client* who, CommandDB* db, PyServiceMgr* services, const
         who->GetShip()->SetAttribute(AttrDamage, 0);
         EvilNumber shield_charge = who->GetShip()->GetAttribute(AttrShieldCapacity);
         who->GetShip()->SetAttribute(AttrShieldCharge, shield_charge);
-        who->GetShip()->SetAttribute(AttrCharge, who->GetShip()->GetAttribute(AttrCapacitorCapacity) );
+        who->GetShip()->SetAttribute(AttrCapacitorCharge, who->GetShip()->GetAttribute(AttrCapacitorCapacity) );
     }
     if( args.argCount() == 2 )
     {

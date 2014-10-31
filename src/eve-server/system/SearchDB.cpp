@@ -146,7 +146,7 @@ PyDict *SearchDB::Query(std::string string, int32 searchID, uint32 charID) {
         break;
 	}
 	
-	return DBResultToPackedRowDict(res, searchID);
+	return NULL;  //DBResultToPackedRowDict(res, searchID);
 }
 
 //  this needs work....

@@ -149,7 +149,7 @@ public:
     bool AddBalance(double amount);
 
     void BoardShip(ShipRef new_ship);
-    void UndockFromStation( uint32, uint32, uint32, uint32, GPoint );
+    void UndockFromStation( uint32, uint32, uint32, uint32, GPoint, GPoint );
     void MoveToLocation(uint32 location, const GPoint &pt);
     void MoveToPosition(const GPoint &pt);
     void MoveItem(uint32 itemID, uint32 location, EVEItemFlags flag);

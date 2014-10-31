@@ -115,8 +115,8 @@ PyResult KeeperService::Handle_ActivateAccelerationGate(PyCallArgs &call) {
         Client * who = call.client;
 
         who->Destiny()->SendSpecialEffect10(args.arg, who->GetShip(), 0, "effects.WarpGateEffect", 0, 1, 0);
-        double distance = 10 * ONE_AU_IN_METERS;
-        GPoint currentPosition(who->GetPosition());
+		double distance = MakeRandomFloat(5, 25) * ONE_AU_IN_METERS;
+		GPoint currentPosition(who->GetPosition());
         GPoint deltaPosition;
         deltaPosition.x = MakeRandomFloat(-1.0, 1.0) * distance;
         deltaPosition.y = MakeRandomFloat(-1.0, 1.0) * distance;

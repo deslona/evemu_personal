@@ -197,7 +197,7 @@ void SpawnEntry::_DoSpawn(SystemManager &mgr, PyServiceMgr &svc) {
 	{
 		spawn_point.x += 100000000;			// Put spawn point actually out away from intended spawn point by 100,000,000 meters in all three dimensions
 		spawn_point.y += 100000000;
-		spawn_point.z += 100000000;
+		spawn_point.z += 100000;
 	}
 
     // Spin through our spawn group of typeIDs and quantities and create all ships/structures in the spawn:
@@ -278,7 +278,7 @@ void SpawnEntry::_DoSpawn(SystemManager &mgr, PyServiceMgr &svc) {
         mgr.AddNPC(*curn);
 
 		if( warpThisSpawnIn )
-			(*curn)->Destiny()->WarpTo(warp_in_point,0.0,true);
+			(*curn)->Destiny()->WarpTo(warp_in_point,0.0);
     }
 
     //timer is disabled while the spawn is up.
@@ -408,10 +408,10 @@ bool SpawnManager::DoInitialSpawn() {
 
 		if( currentBubble != NULL )
 		{
-			// We found a bubble at our spawn!  Let's see if it has ships 
+			// We found a bubble at our spawn!  Let's see if it has ships
 			entitiesInBubble.clear();
 			currentBubble->GetEntities( entitiesInBubble );
-			
+
 			if( !(entitiesInBubble.empty()) )
 			{
 				// Bubble at our spawn has ships!  Let's see if one or more are from OUR spawn:

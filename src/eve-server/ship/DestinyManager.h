@@ -44,7 +44,6 @@ extern const double SPACE_FRICTION_SQUARED;
 extern const double TIC_DURATION_IN_SECONDS;
 
 //this object manages an entity's position in the system.
-//NOTE: we currently have no inertial mass
 class DestinyManager {
 public:
 
@@ -92,12 +91,13 @@ public:
 
     //Configuration:
     void SetShipCapabilities(InventoryItemRef ship);
+	void SetShipVariables(InventoryItemRef ship);
     void SetMaxVelocity(double maxVelocity) { m_maxShipVelocity = maxVelocity; }
     void SetPosition(const GPoint &pt, bool update=true, bool isWarping=false, bool isPostWarp=false);
 
     //Global Actions:
     void Stop(bool update=true);
-    void Halt(bool update=true);    //like stop with no de-acceleration.
+    void Halt(bool update=true);    //like stop with no decceleration.
     void TractorBeamHalt(bool update = true);
 
     //Local Movement:
@@ -114,7 +114,7 @@ public:
 	void UnCloak();
 
     //bigger movement:
-    void WarpTo(const GPoint &where, double distance, bool update=true);
+    void WarpTo(const GPoint &where, double distance);
 
 	//Ship State Query functions:
 	bool IsMoving() { return (((State == Destiny::DSTBALL_GOTO) || (State == Destiny::DSTBALL_FOLLOW) || (State == Destiny::DSTBALL_ORBIT)) ? true : false); }
@@ -147,7 +147,7 @@ public:
 	void SendSpecialEffect10(uint32 entityID, const ShipRef shipRef, uint32 targetID, std::string effectString, bool isOffensive, bool start, bool isActive) const;
 
 protected:
-    void ProcessTic();
+    void ProcessState();
 
     SystemEntity *const m_self;			//we do not own this.
     SystemManager *const m_system;		//we do not own this.
@@ -164,7 +164,7 @@ protected:
     GVector m_velocity;					//in m/s
 	//GVector m_direction;				//normalized, `m_velocity` stores our magnitude
 	//double m_velocity;				//in m/s, the magnitude of direction
-	uint32 m_acceleration;				//in m/s^2, should probably be using a vector here too.
+	double m_acceleration;				//in m/s^2s
 
     //derrived from other params:
     void _UpdateDerrived();
@@ -194,10 +194,11 @@ protected:
     double m_mass;						//in kg
     double m_maxShipVelocity;			//in m/s
     double m_shipAgility;				//unitless
-    double m_shipInertia;
-    double m_maxAcceleration;
+    double m_shipInertiaModifier;
+    double m_avgWarpAcceleration;
 	float m_shipWarpSpeed;
-	//GVector m_inertia;
+	double m_warpCapacitorNeed;
+	double m_warpAccelTime;
 
     bool _Turn();						//compare m_targetDirection and m_direction, and turn as needed.
     void _Move();						//apply our velocity and direction to our position for 1 unit of time (a second)
