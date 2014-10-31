@@ -38,7 +38,7 @@ enum EveAttrEnum {
     AttrMedSlots = 13,
     AttrHiSlots = 14,
     AttrPowerLoad = 15,
-    AttrCharge = 18,
+    AttrCapacitorCharge = 18,
     AttrPowerToSpeed = 19,
     AttrSpeedFactor = 20,
     AttrWarpFactor = 21,

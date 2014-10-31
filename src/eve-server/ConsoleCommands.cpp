@@ -129,7 +129,7 @@ bool ConsoleCommand::Process() {
 				sLog.Log("   Active Bubbles", " %u", p_bubbles->Count());
 			} else if (strncmp(buf, "a", 1) == 0) {
 			    sLog.Warning("  Alasiya's EvEMu", "Server SaveAll:");
-				p_factory->SaveItems();
+				//p_factory->SaveItems();
 			} else if (strncmp(buf, "b", 1) == 0) {
 			    sLog.Warning("  Alasiya's EvEMu", "Server Broadcast:");
 				sLog.Log("     Chat Message", " Not Avalible Yet." );

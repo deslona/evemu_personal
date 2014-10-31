@@ -29,13 +29,9 @@
 #include "system/BubbleManager.h"
 #include "system/SystemDB.h"
 
-//#define ONE_AU_IN_METERS 1.495978707e11     // 1 astronomical unit in meters
-//#define ONE_AU_IN_METERS 149598000000.0     // 1 astronomical unit in meters, per EVElopedia: http://wiki.eveonline.com/en/wiki/Astronomical_Unit
-#define BASE_WARP_SPEED 3.0                 // base default max warp speed of 3.0 AU/s
 //   based on client code...
-#define ONE_AU_IN_METERS 149597870700.0
-#define ONE_LIGHTYEAR = 9460000000000000.0
-#define EULERS_NUMBER = 2.7182818284590452353602874713527		//  we dont need this accuracy, but it was avalible.
+static const uint64 ONE_LIGHTYEAR = 9460000000000000;  // in meters
+static const uint64 ONE_AU_IN_METERS = 149597870700;     // 1 astronomical unit in meters, per EVElopedia: http://wiki.eveonline.com/en/wiki/Astronomical_Unit
 
 class PyRep;
 class PyDict;
@@ -47,7 +43,7 @@ class InventoryItem;
 class SystemEntity;
 class SystemBubble;
 class DoDestiny_SetState;
-
+class DestinyManager;
 
 class SpawnManager;
 class PyServiceMgr;

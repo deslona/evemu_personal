@@ -447,8 +447,8 @@ public:
     void            UpdateSkillQueue();
     void            UpdateSkillQueueEndTime( const SkillQueue &queue);
     PyObject*       GetSkillHistory();
-    EvilNumber      GetTotalSP();
-
+	EvilNumber      GetTotalSP();
+	float 			GetAgilitySkills(bool cap=false);
 
     /** GrantCertificate( uint32 certificateID )
      *

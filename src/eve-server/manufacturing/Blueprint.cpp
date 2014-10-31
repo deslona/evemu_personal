@@ -338,6 +338,33 @@ PyDict *Blueprint::GetBlueprintAttributes() {
         rsp.quantity = row.GetUInt(1);
 
     }
+    if(!sDatabase.RunQuery(res,
+		"SELECT materialTypeID AS requiredTypeID, quantity"
+		" FROM invTypeMaterials"
+		" WHERE typeID = %u",
+		productTypeID())) {
+		_log(DATABASE__ERROR, "Could not retrieve bp raw materials for type %u : %s", blueprintTypeID, res.error.c_str());
+	return NULL;
+}
+
+/*
+ *	PyList *list = new PyList;
+ *	Rsp_GetBlueprintMaterialList bpml;
+ *
+ *    DBResultRow row;
+ *    while(res.GetRow(row)) {
+ *		bpml.requiredTypeID = row.GetUInt(0); //   rsp.requiredTypeID
+ *		bpml.quantity = row.GetUInt(1); //   rsp.quantity
+ *
+ *		list->AddItem( bpml.Encode() );
+}
+
+rsp.materialList = list.Encode();  //AddItem( DBResultToCRowset( res ) );
+
+
+rsp.materialList->AddItem( DBResultToRowset( res ) );
+return(rsp.Encode());
+
 */
     return(rsp.Encode());
 }

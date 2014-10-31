@@ -44,7 +44,7 @@ ActiveModuleProcessingComponent::~ActiveModuleProcessingComponent()
 /****************************************************
 	A little note about the timer:
 		Timer.Check() has two functions:
-			1. It checks if the timer has expired out 
+			1. It checks if the timer has expired out
 			2. It subtracts from the start time
 	Don't be fooled by it's name because if you don't
 	call it in a loop, you won't get the time moving.
@@ -89,7 +89,7 @@ void ActiveModuleProcessingComponent::Process()
 			m_Mod->StopCycle();
 		}
 	}
-		
+
 }
 
 void ActiveModuleProcessingComponent::ActivateCycle()
@@ -133,7 +133,7 @@ bool ActiveModuleProcessingComponent::ShouldProcessActiveCycle()
 		return false;
 
 	//check that we have enough capacitor avaiable
-	if(m_Ship->GetAttribute(AttrCharge) > m_Mod->GetAttribute(AttrCapacitorNeed))
+	if(m_Ship->GetAttribute(AttrCapacitorCharge) > m_Mod->GetAttribute(AttrCapacitorNeed))
 	{
 		//having enough capacitor to activate the module
 		return true;
@@ -153,11 +153,11 @@ void ActiveModuleProcessingComponent::ProcessActiveCycle()
         return;
 
     //else consume capacitor
-	EvilNumber capCapacity = m_Ship->GetAttribute(AttrCharge);
+	EvilNumber capCapacity = m_Ship->GetAttribute(AttrCapacitorCharge);
 	EvilNumber capNeed = m_Mod->GetAttribute(AttrCapacitorNeed);
 	capCapacity -= capNeed;
 
-	m_Ship->SetAttribute(AttrCharge, capCapacity);
+	m_Ship->SetAttribute(AttrCapacitorCharge, capCapacity);
 
     //then check if we are targeting another ship or not and apply attribute changes
 	//maybe we can have a check for modules that repeat the same attributes so we
@@ -174,7 +174,7 @@ void ActiveModuleProcessingComponent::ProcessActiveCycle()
 void ActiveModuleProcessingComponent::ProcessDeactivateCycle()
 {
 	//check to see who is the target
-	
+
 	//--pseudocode--
 	//if(target != self)
 	//	m_ShipAttrComp->ModifyTargetShipAttribute();

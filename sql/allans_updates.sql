@@ -31,8 +31,7 @@ CREATE TABLE IF NOT EXISTS `chrPausedSkillQueue` (
   `characterID` int(10) unsigned NOT NULL,
   `orderIndex` int(10) unsigned NOT NULL,
   `typeID` int(10) unsigned NOT NULL,
-  `level` int(10) unsigned NOT NULL,
-  PRIMARY KEY  (`characterID`)
+  `level` int(10) unsigned NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Data for the table `chrPausedSkillQueue` */
@@ -218,11 +217,20 @@ CREATE TABLE IF NOT EXISTS `sklRaceSkills` (
 
 
 
-
+/* set skill level from float to int */
 UPDATE `dgmTypeAttributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `attributeID`=280 AND `valueFloat`=0;
 UPDATE `entity_attributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `attributeID`=280 AND `valueFloat`=0;
 UPDATE `entity_default_attributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `attributeID`=280 AND `valueFloat`=0;
+
+/* dont remember */
 UPDATE `dgmTypeAttributes` SET `valueInt`=1,`valueFloat`=NULL WHERE `typeid`=10124;
+
+/* set base warp speed for ALL ships to 3.0 AU/s */
+UPDATE `dgmTypeAttributes` SET `valueInt`=3,`valueFloat`=NULL WHERE `attributeID`=1281;
+UPDATE `entity_attributes` SET `valueInt`=3,`valueFloat`=NULL WHERE `attributeID`=1281;
+
+/* reset rifter cap recharge rate */
+UPDATE `dgmTypeAttributes` SET `valueFloat` = '125000' WHERE `typeID` = 587 AND `attributeID` = 55;
 
 ALTER TABLE entity AUTO_INCREMENT=140000000;
 
