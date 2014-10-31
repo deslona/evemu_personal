@@ -1,0 +1,51 @@
+
+<elements>
+<!--
+    This is where all scanning-related packets will go.
+    this includes anomolies, wh, hacking,  etc.
+
+
+[PyList 2 items]
+	[PyDict 9 kvp]
+		[PyString "itemID"]
+		[PyIntegerVar 9000000000000023045]
+		[PyString "typeID"]
+		[PyInt 30584]
+		[PyString "otherSolarSystemClass"]
+		[PyInt 3]
+		[PyString "wormholeSize"]
+		[PyFloat 1]
+		[PyString "wormholeAge"]
+		[PyInt 1]
+		[PyString "count"]
+		[PyInt 1]
+		[PyString "dunSpawnID"]
+		[PyInt 92]
+		[PyString "ownerID"]
+		[PyInt 500021]
+		[PyString "nebulaType"]
+		[PyInt 253]
+	[PyDict 4 kvp]
+		[PyString "itemID"]
+		[PyIntegerVar 9000000000000016526]
+		[PyString "typeID"]
+		[PyInt 19728]
+		[PyString "dungeonDataID"]
+		[PyInt 2990651]
+		[PyString "ownerID"]
+		[PyInt 500021]
+
+-->
+
+  <!-- dont know if this is call or rsp -->
+  <elementDef name="WormHole">
+    <listInline>
+	  <dictInline>
+	  </dictInline>
+	  <dictInline>
+	  </dictInline>
+	</listInline>
+  </elementDef>
+
+
+</elements>

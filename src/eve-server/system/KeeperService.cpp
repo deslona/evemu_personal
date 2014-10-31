@@ -73,7 +73,8 @@ KeeperService::KeeperService(PyServiceMgr *mgr)
     _SetCallDispatcher(m_dispatch);
 
     PyCallable_REG_CALL(KeeperService, GetLevelEditor);
-    PyCallable_REG_CALL(KeeperService, ActivateAccelerationGate);
+	PyCallable_REG_CALL(KeeperService, ActivateAccelerationGate);
+	PyCallable_REG_CALL(KeeperService, CanWarpToPathPlex);
 }
 
 KeeperService::~KeeperService() {
@@ -97,6 +98,14 @@ PyResult KeeperService::Handle_GetLevelEditor(PyCallArgs &call) {
     result = m_manager->BindObject(call.client, ib);
 
     return result;
+}
+
+PyResult KeeperService::Handle_CanWarpToPathPlex(PyCallArgs &call) {
+//resp = sm.RemoteSvc('keeper').CanWarpToPathPlex(node.rec.instanceID)
+	sLog.Log( "KeeperService", "Handle_CanWarpToPathPlex" );
+	call.Dump(SERVICE__CALLS);
+
+	return NULL;
 }
 
 /**  Hard-coded to random location....just to play with right now.

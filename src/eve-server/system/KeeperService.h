@@ -42,8 +42,9 @@ protected:
 
     SystemDB m_db;
 
-    PyCallable_DECL_CALL(GetLevelEditor)
-    PyCallable_DECL_CALL(ActivateAccelerationGate)
+    PyCallable_DECL_CALL(GetLevelEditor);
+	PyCallable_DECL_CALL(ActivateAccelerationGate);
+	PyCallable_DECL_CALL(CanWarpToPathPlex);
 
     //overloaded in order to support bound objects:
     virtual PyBoundObject *_CreateBoundObject(Client *c, const PyRep *bind_args);

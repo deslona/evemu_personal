@@ -683,6 +683,7 @@ void DestinyManager::_InitWarp() {
 		 m_self->GetName(), m_self->GetID(), m_targetPoint.x, m_targetPoint.y, m_targetPoint.z, m_targetDistance/ONE_AU_IN_METERS);
 /*
 
+// per client  ..... minWarpDistance = 150000
     if(warp_distance < warp_speed) {
         warp_speed = warp_distance;
         _log(PHYSICS__TRACE, "DestinyManager::_InitWarp():Calculate - Adjusting warp speed to %f for short warp.", warp_speed);
@@ -731,10 +732,10 @@ void DestinyManager::_InitWarp() {
 	{
         //the client clears massive during warp,  (massive means object is solid)
         //  set massive to false!" )      ---works....13July14
-		DoDestiny_SetBallMassive sbmassive;
-		sbmassive.entityID = m_self->GetID();
-		sbmassive.is_massive = 0;
-		updates.push_back(sbmassive.Encode());
+		DoDestiny_SetBallMassive du;
+		du.entityID = m_self->GetID();
+		du.is_massive = 0;
+		updates.push_back(du.Encode());
 	}
 
 	SendDestinyUpdate(updates, true);
@@ -830,7 +831,7 @@ void DestinyManager::_Warp() {
 		 * 50% of sub-warp max speed, or 100m/s, whichever is the lower.
 		 */
 
-        if(velocity_magnitude < m_maxShipVelocity) {
+        if(velocity_magnitude < (m_maxShipVelocity / 2)) {
         //note, this should actually be checked AFTER we change new_velocity.
         //but hey, it doesn't get copied into ball.velocity until later anyhow.
             stop = true;
