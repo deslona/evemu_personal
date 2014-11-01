@@ -1356,19 +1356,18 @@ void DestinyManager::SetShipCapabilities(InventoryItemRef ship)
 	double ln_speed = fabs (EULERS_NUMBER * (1 - ((m_maxShipVelocity * 0.75) / warpSpeedInMeters)));
 	m_warpAccelTime = (m_shipInertiaModifier * massMKg * ln_speed);
 
-	/* find average accel based on time to accel from entering warp (75% of max_velocity) to m_shipWarpSpeed.
+	/* find average accel based on time to accel from entering warp (75% of max_velocity) to m_shipWarpSpeed (in meters).
 	 * accel = final speed - initial speed / time
 	 *   this will be used in _InitWarp
 	 */
 
-	m_avgWarpAcceleration = (((m_maxShipVelocity * 0.75) / warpSpeedInMeters) / m_warpAccelTime);
+	m_avgWarpAcceleration = (( warpSpeedInMeters / (m_maxShipVelocity * 0.75) ) / m_warpAccelTime);
 
 	_log(PHYSICS__TRACE, "DestinyManager::SetShipCapabilities - Entity %s(%u) has set ship attributes:"
 	     "Radius=%f, Mass=%f, maxVelocity=%f, agility=%f, inertia=%f, warpSpeed=%u, accel=%f",
 		 m_self->GetName(), m_self->GetID(), m_radius, m_mass, m_maxShipVelocity, m_shipAgility,
 		 m_shipInertiaModifier, m_shipWarpSpeed, m_avgWarpAcceleration);
 
-	//ship->Reload();
     _UpdateDerrived();
 }
 
