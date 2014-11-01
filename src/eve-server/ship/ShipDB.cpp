@@ -84,7 +84,7 @@ PyResult ShipDB::GetInsuranceByShipID(uint32 shipID) {
     DBQueryResult res;
     sDatabase.RunQuery(res,
         "SELECT shipID, startDate, endDate, fraction"
-        " FROM chrInsurance"
+		" FROM shipInsurance"
         " WHERE shipID = %d", shipID );
 
     DBResultRow row;
@@ -103,7 +103,7 @@ PyResult ShipDB::GetInsuranceByOwnerID(uint32 ownerID) {
     DBQueryResult res;
     sDatabase.RunQuery(res,
         "SELECT i.shipID, i.startDate, i.endDate, i.fraction"
-        " FROM chrInsurance AS i"
+		" FROM shipInsurance AS i"
         "  LEFT JOIN entity AS e ON e.itemID = i.shipID"
         " WHERE e.ownerID = %d", ownerID );
 
@@ -125,7 +125,7 @@ bool ShipDB::InsertInsuranceByShipID(uint32 shipID, float fraction, bool isCorpI
     DBerror err;
     if(!sDatabase.RunQuery(err,
       "INSERT INTO "
-      "  chrInsurance (shipID, isCorpItem, startDate, endDate, fraction)"
+	  "  shipInsurance (shipID, isCorpItem, startDate, endDate, fraction)"
       " VALUES (%d, %u, %" PRIu64 ", %" PRIu64 ", %.3f)",
       shipID, isCorpItem, Win32TimeNow(), endDate, fraction ))
     {
@@ -138,5 +138,5 @@ bool ShipDB::InsertInsuranceByShipID(uint32 shipID, float fraction, bool isCorpI
 
 void ShipDB::DeleteInsuranceByShipID(uint32 shipID) {
     DBerror err;
-    sDatabase.RunQuery(err, "DELETE FROM chrInsurance WHERE shipID=%d", shipID);
+	sDatabase.RunQuery(err, "DELETE FROM shipInsurance WHERE shipID=%d", shipID);
 }

@@ -164,7 +164,6 @@ protected:
     GVector m_velocity;					//in m/s
 	//GVector m_direction;				//normalized, `m_velocity` stores our magnitude
 	//double m_velocity;				//in m/s, the magnitude of direction
-	double m_acceleration;				//in m/s^2s
 
     //derrived from other params:
     void _UpdateDerrived();
@@ -196,7 +195,7 @@ protected:
     double m_shipAgility;				//unitless
     double m_shipInertiaModifier;
     double m_avgWarpAcceleration;
-	float m_shipWarpSpeed;
+	uint8 m_shipWarpSpeed;
 	double m_warpCapacitorNeed;
 	double m_warpAccelTime;
 
@@ -233,7 +232,7 @@ private:
         GVector normvec_them_to_us;
     };
     const WarpState *m_warpState;		//we own this. Allocated so we can have consts.
-    void _InitWarp();
+    bool _InitWarp();		// various checks added.  now returns bool for continuing warp.
 };
 
 #endif

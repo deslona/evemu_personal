@@ -132,7 +132,7 @@ ShipRef Ship::Spawn(ItemFactory &factory, ItemData &data) {
     sShipRef->SetAttribute(AttrVolume,              sShipRef->type().attributes.volume(), true);			// Volume
     sShipRef->SetAttribute(AttrCapacity,            sShipRef->type().attributes.capacity(), true);			// Capacity
     sShipRef->SetAttribute(AttrInertia,             1, true);												// Inertia
-    sShipRef->SetAttribute(AttrCapacitorCharge,              sShipRef->GetAttribute(AttrCapacitorCapacity), true);	// Set Capacitor Charge to the Capacitor Capacity
+    sShipRef->SetAttribute(AttrCapacitorCharge,     sShipRef->GetAttribute(AttrCapacitorCapacity), true);	// Set Capacitor Charge to the Capacitor Capacity
 
     // Check for existence of some attributes that may or may not have already been loaded and set them
     // to default values:
@@ -937,10 +937,10 @@ void Ship::Process()
       {
             // Get capacitor and shield information.  Do this once for fewer function calls.
 			double capCharge = GetAttribute(AttrCapacitorCharge).get_float();
-            double capRechargeRate = GetAttribute(AttrRechargeRate).get_float() / 1000.0;
+            double capRechargeRate = GetAttribute(AttrRechargeRate).get_float();
             double capCapacity = GetAttribute(AttrCapacitorCapacity).get_float();
             double shieldCharge = GetAttribute(AttrShieldCharge).get_float();
-            double shieldRechargeRate = GetAttribute(AttrShieldRechargeRate).get_float() / 1000.0;
+            double shieldRechargeRate = GetAttribute(AttrShieldRechargeRate).get_float();
             double shieldCapacity = GetAttribute(AttrShieldCapacity).get_float();
             // Get the elapsed interval.
             double interval = m_processTimerTick / 1000.0;
@@ -952,7 +952,7 @@ void Ship::Process()
             if( newCharge > shieldCapacity )
                newCharge = shieldCapacity;
             // if capacity is very close to full charge set to full to prevent lots of VERY small updates.
-            if( shieldCapacity - newCharge < 0.05)
+            if( shieldCapacity - newCharge < 0.1)
                newCharge = shieldCapacity;
             SetAttribute(AttrShieldCharge, newCharge);
          }
@@ -965,7 +965,7 @@ void Ship::Process()
             if( newCharge > capCapacity )
                newCharge = capCapacity;
             // if capacity is very close to full charge set to full to prevent lots of VERY small updates.
-            if( capCapacity - newCharge < 0.05)
+            if( capCapacity - newCharge < 0.1)
                newCharge = capCapacity;
 			SetAttribute(AttrCapacitorCharge, newCharge);
          }

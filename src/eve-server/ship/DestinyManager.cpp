@@ -43,6 +43,7 @@ static const double DESTINY_UPDATE_RANGE = 1.0e8;    //totally made up. a more c
 static const double FOLLOW_BAND_WIDTH = 100.0f;    //totally made up
 
 static const double EULERS_NUMBER = 2.7182818284590452353;
+static const uint32 minWarpDistance = 150000;  // per client  minWarpDistance = 150000
 
 uint32 DestinyManager::m_stamp(40000);    //completely arbitrary starting point.
 Timer DestinyManager::m_stampTimer(static_cast<int32>(TIC_DURATION_IN_SECONDS * 1000), true);    //accurate timing is essential.
@@ -57,7 +58,6 @@ DestinyManager::DestinyManager(SystemEntity *self, SystemManager *system)
 //  m_direction(0, 0, 0),
 //  m_velocity(0),
   m_velocity(0, 0, 0),
-  m_acceleration(0.0),
   m_maxVelocity(1.0f),
   m_accelerationFactor(0.0),
   m_velocityAdjuster(0.0),
@@ -69,6 +69,7 @@ DestinyManager::DestinyManager(SystemEntity *self, SystemManager *system)
   m_targetDistance(0.0),
   m_radius(1.0),
   m_mass(1.0),
+  m_shipWarpSpeed(0),
   m_maxShipVelocity(1.0),
   m_shipAgility(1.0),
   m_shipInertiaModifier(1.0),
@@ -171,6 +172,8 @@ void DestinyManager::SendDestinyUpdate( std::vector<PyTuple*>& updates, std::vec
 }
 
 void DestinyManager::_UpdateDerrived() {
+	// maxVelocity=388.299988, velocityAdjuster=0.746080, accelerationFactor=113.741771
+
     m_maxVelocity = m_maxShipVelocity * m_activeSpeedFraction;
     m_velocityAdjuster = exp(- (SPACE_FRICTION * TIC_DURATION_IN_SECONDS) / (m_mass * m_shipAgility));
     m_accelerationFactor = (SPACE_FRICTION * m_maxVelocity) / (m_mass * m_shipAgility);
@@ -260,8 +263,8 @@ void DestinyManager::ProcessState() {
         }
 
         //ok, we are starting the warp!
-        _InitWarp();
-        _Warp();
+		if(_InitWarp())
+			_Warp();
 
         } break;
 
@@ -285,25 +288,11 @@ void DestinyManager::ProcessState() {
 //Global Actions:
 void DestinyManager::Stop(bool update) {
     if( m_self->IsClient() ) {
-	    Client *c = m_self->CastToClient();
-	    c->m_autoPilot = false;
+	    Client *p_Client = m_self->CastToClient();
+		p_Client->m_autoPilot = false;
 
-    //Clear any pending docking operation since the user stopped ship movement:
-		c->SetPendingDockOperation( false );
-
-    // THIS IS A HACK AS WE DONT KNOW WHY THE CLIENT CALLS STOP AT UNDOCK
-		if( c->GetJustUndocking() )
-		{
-			// Client just undocked from a station so DO NOT STOP:
-			c->SetJustUndocking( false );
-			GPoint dest;
-			c->GetUndockAlignToPoint( dest );
-			dest.normalize();
-			GotoDirection( dest, true );
-			SetSpeedFraction( 1.0, true );
-			_UpdateDerrived();
-			return;
-		}
+		//Clear any pending docking operation since the user stopped ship movement:
+		p_Client->SetPendingDockOperation( false );
 	}
 
 	if(State == DSTBALL_STOP)
@@ -319,8 +308,6 @@ void DestinyManager::Stop(bool update) {
 
 	m_targetEntity.first = 0;
 	m_targetEntity.second = NULL;
-	//redude velocity to 0, applying reverse thrust until we get there.
-//    m_targetPoint = m_position - (m_velocity * 1.0e6);    //opposite direction
     m_userSpeedFraction = 0.0f;
 	m_activeSpeedFraction = 0.0f;
 	_UpdateDerrived();
@@ -577,7 +564,17 @@ void DestinyManager::_MoveAccel(const GVector &calc_acceleration) {
 #endif
 }
 
-void DestinyManager::_InitWarp() {
+bool DestinyManager::_InitWarp() {
+
+	if(m_targetDistance < minWarpDistance) {
+		// warp distance too close.  cancel and return
+		if(m_self->IsClient())
+			m_self->CastToClient()->SendErrorMsg("That is too close for your Warp Drive.");
+
+		State = DSTBALL_STOP;
+		delete m_warpState;
+		return false;
+	}
 
     //init warp:
     //destiny_WARP_Math....work in progress.   allan 24Oct14
@@ -623,8 +620,13 @@ void DestinyManager::_InitWarp() {
 
 */
 
-	GVector warp_vector(m_position, m_targetPoint);
-	warp_vector.normalize();
+	/*
+	{
+		warp_speed = warp_distance;
+		_log(PHYSICS__TRACE, "DestinyManager::_InitWarp():Calculate - Adjusting warp speed to %f for short warp.", warp_speed);
+	} else
+		_log(PHYSICS__TRACE, "DestinyManager::_InitWarp():Calculate - Warp speed in system %u is %f", m_system->GetID(), warp_speed);
+	*/
 
 	if(m_self->IsClient()) {
 		Client *p_Client = m_self->CastToClient();
@@ -645,7 +647,7 @@ void DestinyManager::_InitWarp() {
 		double capNeeded = adjDistance * m_mass * adjWarpCapNeed;
 
 		//  check if ship has enough capacitor to warp full distance
-		if(capNeeded > currentShipCap){
+		if(capNeeded > currentShipCap) {
 			//  nope...reset distance based on avalible capacitor
 			m_targetDistance = currentShipCap / (m_mass * adjWarpCapNeed);
 			capNeeded = currentShipCap;
@@ -655,6 +657,10 @@ void DestinyManager::_InitWarp() {
 		//drain cap
 		ship->SetAttribute(AttrCapacitorCharge, capNeeded, true);
 	}
+
+	GVector warp_vector(m_position, m_targetPoint);
+	double new_distance = warp_vector.length();
+	warp_vector.normalize();
 
 	// set time in warp, from enter to exit
 	double accelDistance = m_avgWarpAcceleration * m_warpAccelTime;  //this is in meters (accel=m/s^2, time=s)
@@ -668,32 +674,25 @@ void DestinyManager::_InitWarp() {
      *  For the acceleration phase, k is equal to the ship's maximum warp speed (in AU/s).
      *  x = e^(k.t)
      *  v = k.e^(k.t)
-     *  distance = EULERS_NUMBER *(k*s)
-     *  speed = k*EULERS_NUMBER * (k*s)
+     *  distance = e^(k*s)
+     *  speed = k*e^(k*s)
 	 *
 	 * min time = 7.5s
 	 * max time = 15s
+	 *
+	 * Calculate Time Check.  AccelDistance = 0.000000, distance = 141.847989
+	 *
 	 */
 
 	//  this is to check my math so far.....
-	double acceldistance_check = EULERS_NUMBER * (m_shipWarpSpeed * m_warpAccelTime);
-	sLog.Log("DestinyManager::_InitWarp()","Calculate Time Check.  AccelDistance = %f, distance = %f", accelDistance, acceldistance_check);
+	double acceldistance_check = log(m_shipWarpSpeed * m_warpAccelTime);
+	sLog.Log("DestinyManager::_InitWarp()","Calculate Time Check.  newDistance = %f, AccelDistance = %f, distance = %f", new_distance, accelDistance, acceldistance_check);
 
-    _log(PHYSICS__TRACE, "DestinyManager::_InitWarp():Calculate - Entity %u: Calculate has determined we will exit warp at %f, %f, %f at a distance of %f.",
+    _log(PHYSICS__TRACE, "DestinyManager::_InitWarp():Calculate - Entity %s(%u): Calculate has determined we will exit warp at %f, %f, %f at a distance of %f.",
 		 m_self->GetName(), m_self->GetID(), m_targetPoint.x, m_targetPoint.y, m_targetPoint.z, m_targetDistance/ONE_AU_IN_METERS);
-/*
 
-// per client  ..... minWarpDistance = 150000
-    if(warp_distance < warp_speed) {
-        warp_speed = warp_distance;
-        _log(PHYSICS__TRACE, "DestinyManager::_InitWarp():Calculate - Adjusting warp speed to %f for short warp.", warp_speed);
-    } else
-        _log(PHYSICS__TRACE, "DestinyManager::_InitWarp():Calculate - Warp speed in system %u is %f", m_system->GetID(), warp_speed);
+    //_log(PHYSICS__TRACE, "DestinyManager::_InitWarp():Calculate - Warp will accelerate for %fs, then slow down at %fs", warp_acceleration_time, warp_slow_time);
 
-
-
-    _log(PHYSICS__TRACE, "DestinyManager::_InitWarp():Calculate - Warp will accelerate for %fs, then slow down at %fs", warp_acceleration_time, warp_slow_time);
-*/
     delete m_warpState;
     m_warpState = new WarpState(
         GetStamp(),
@@ -711,7 +710,7 @@ void DestinyManager::_InitWarp() {
 		du.dest_x = m_targetPoint.x;
 		du.dest_y = m_targetPoint.y;
 		du.dest_z = m_targetPoint.z;
-		du.distance = m_targetDistance; //static_cast<int32>(distance);
+		du.distance = m_targetDistance;
 		du.warpSpeed = m_shipWarpSpeed * 10;  // client expects speed x 10.  dumb ccp shit again
 
 		updates.push_back(du.Encode());
@@ -722,23 +721,23 @@ void DestinyManager::_InitWarp() {
 		DoDestiny_OnSpecialFX10 du;
 		du.effect_type = "effects.Warping";
 		du.entityID = m_self->GetID();
-		du.isOffensive = 0;
-		du.start = 1;
-		du.active = 0;
+		du.isOffensive = false;
+		du.start = true;
+		du.active = false;
 
 		updates.push_back(du.Encode());
 	}
 
 	{
         //the client clears massive during warp,  (massive means object is solid)
-        //  set massive to false!" )      ---works....13July14
 		DoDestiny_SetBallMassive du;
 		du.entityID = m_self->GetID();
-		du.is_massive = 0;
+		du.is_massive = false;
 		updates.push_back(du.Encode());
 	}
 
 	SendDestinyUpdate(updates, true);
+	return true;
 }
 
 void DestinyManager::_Warp() {
@@ -764,13 +763,12 @@ void DestinyManager::_Warp() {
     //variables set by the current stage
     double dist_remaining;
     double velocity_magnitude;
-    bool stop = false;
 
     if(seconds_into_warp < m_warpState->acceleration_time) {
         double warp_progress = exp( 3.0 * seconds_into_warp );
         dist_remaining = m_warpState->total_distance - warp_progress;
 
-        velocity_magnitude = warp_progress * 3.0;
+        velocity_magnitude = warp_progress * 3.0;	//wtf is this??
 
         // Remove ship from bubble only when distance traveled takes the ship beyond the bubble's radius
         m_system->bubbles.UpdateBubble(m_self,true,true);   // use optional 2nd param to indicate ship is warping so as to not add to or create new bubble while accelerating into warp.
@@ -826,16 +824,23 @@ void DestinyManager::_Warp() {
 			//  need to find a way to update existing clients in bubble to this entity's true posistion
         }
 
-        /*
+        /*  per https://forums.eveonline.com/default.aspx?g=posts&m=3912843   post#103
+		 *
 		 * Ships will exit warp mode when their warping speed drops below
 		 * 50% of sub-warp max speed, or 100m/s, whichever is the lower.
 		 */
+		float speedToDropWarp = m_maxShipVelocity / 2;
+		if(speedToDropWarp > 100) speedToDropWarp = 100.0f;
 
-        if(velocity_magnitude < (m_maxShipVelocity / 2)) {
-        //note, this should actually be checked AFTER we change new_velocity.
-        //but hey, it doesn't get copied into ball.velocity until later anyhow.
-            stop = true;
-            //SetPosition( GetPosition(), true );
+		if(velocity_magnitude < speedToDropWarp) {
+			_log(PHYSICS__TRACE, "DestinyManager::_Warp():Complete - Entity %s(%u): Warp completed. Exit velocity %f m/s with %f m left to go.",
+				m_self->GetName(), m_self->GetID(), velocity_magnitude, dist_remaining);
+
+			delete m_warpState;
+			m_warpState = NULL;
+			SetSpeedFraction( 0.0f, true );
+
+			return;
         }
     }
 
@@ -844,15 +849,6 @@ void DestinyManager::_Warp() {
     m_position = m_targetPoint + vector_to_us;
 	m_velocity = m_warpState->normvec_them_to_us * (-velocity_magnitude);
 	//SetPosition( m_position );
-
-    if(stop) {
-        _log(PHYSICS__TRACE, "DestinyManager::_Warp():Complete - Entity %s(%u): Warp completed. Exit velocity %f m/s with %f m left to go.",
-            m_self->GetName(), m_self->GetID(), velocity_magnitude, dist_remaining);
-        delete m_warpState;
-        m_warpState = NULL;
-        SetSpeedFraction( 0.0f, true );
-        Stop(true);
-    }
 }
 
 void DestinyManager::TractorBeamFollow(SystemEntity *who, double mass, double maxVelocity, double distance, bool update) {
@@ -1260,8 +1256,8 @@ void DestinyManager::SetShipVariables(InventoryItemRef ship)
 	 *   AttrRechargeRateMultiplier = 1500,
 	 */
 
-	float capCapacity = ship->GetAttribute(AttrCapacitorCapacity).get_float();	// initial value from loaded data
-	float capChargeRate = ship->GetAttribute(AttrRechargeRate).get_float();	// initial value from loaded data, in ms.
+	float capCapacity = ship->GetDefaultAttribute(AttrCapacitorCapacity).get_float();	// default value from db
+	float capChargeRate = ship->GetDefaultAttribute(AttrRechargeRate).get_float();	// default value from db
 
 	if( m_self->IsClient() ) {
 		Character *p_Char = m_self->CastToClient()->GetChar().get();
@@ -1281,23 +1277,21 @@ void DestinyManager::SetShipVariables(InventoryItemRef ship)
 //  called from Client::BoardShip, Client::UndockFromStation, NPC::NPC
 void DestinyManager::SetShipCapabilities(InventoryItemRef ship)
 {
+	SetShipVariables(ship);
 	/* this now sets variables needed for correct warp math.
 	 * noted modifiers to look into later, after everything is working
 	 * skill bonuses to agility and velocity are now implemented.
-	 *
-	 * also check warp capacitor need here, setting modifiers as needed
-	 * noted supercap variables for later
 	 */
 
 	// AttrWarpCapacitorNeed(153)
-	double warpCapNeed = ship->GetAttribute(AttrWarpCapacitorNeed).get_float();
+	double warpCapNeed = ship->GetDefaultAttribute(AttrWarpCapacitorNeed).get_float();
 
 	float massMKg = m_mass / 1000000;  //changes mass from Kg to MillionKg (10^-6)
 
-	double adjInertiaModifier = ship->GetAttribute(AttrAgility).get_float();
-	float adjShipMaxVelocity = ship->GetAttribute(AttrMaxVelocity).get_float();
+	double adjInertiaModifier = ship->GetDefaultAttribute(AttrAgility).get_float();
+	float adjShipMaxVelocity = ship->GetDefaultAttribute(AttrMaxVelocity).get_float();
 	float warpSpeedMultiplier = 1.0f;
-	float shipBaseWarpSpeed = 3.0f;
+	float shipBaseWarpSpeed = 1.0f;
 
 	// skill bonuses to agility and velocity and warpCapacitorNeed
 	if( m_self->IsClient() ) {
@@ -1308,7 +1302,7 @@ void DestinyManager::SetShipCapabilities(InventoryItemRef ship)
 		adjShipMaxVelocity += ( adjShipMaxVelocity * ( 5 * (p_Char->GetSkillLevel(skillNavigation, true)))/100);
 		shipBaseWarpSpeed = ship->GetAttribute(AttrBaseWarpSpeed).get_float();
 		warpSpeedMultiplier = ship->GetAttribute(AttrWarpSpeedMultiplier).get_float();
-		warpCapNeed -= ( warpCapNeed * ( 10 * (p_Char->GetSkillLevel(skillWarpDriveOperation, true))));
+		warpCapNeed *=  1 + ( 0.1 * (p_Char->GetSkillLevel(skillWarpDriveOperation, true)));
 		// TODO check for implants  AttrWarpCapacitorNeedBonus(319)
 		//warpCapNeed -= ( warpCapNeed * p_Char->GetAttribute(AttrBaseWarpSpeed).get_float());
 	} else {
@@ -1320,7 +1314,11 @@ void DestinyManager::SetShipCapabilities(InventoryItemRef ship)
 
 	m_maxShipVelocity = adjShipMaxVelocity;
 	m_shipInertiaModifier = adjInertiaModifier;
+	ship->SetAttribute(AttrAgility, adjInertiaModifier);
+	ship->SetAttribute(AttrMaxVelocity, adjShipMaxVelocity);
+
 	m_warpCapacitorNeed = warpCapNeed;
+	ship->SetAttribute(AttrWarpCapacitorNeed, warpCapNeed);
 
 	/* The product of Mass and the Inertia Modifier gives the ship's agility
 	 * Agility = Mass x Inertia Modifier
@@ -1368,8 +1366,9 @@ void DestinyManager::SetShipCapabilities(InventoryItemRef ship)
 	_log(PHYSICS__TRACE, "DestinyManager::SetShipCapabilities - Entity %s(%u) has set ship attributes:"
 	     "Radius=%f, Mass=%f, maxVelocity=%f, agility=%f, inertia=%f, warpSpeed=%u, accel=%f",
 		 m_self->GetName(), m_self->GetID(), m_radius, m_mass, m_maxShipVelocity, m_shipAgility,
-		 m_shipInertiaModifier, m_shipWarpSpeed, m_acceleration);
+		 m_shipInertiaModifier, m_shipWarpSpeed, m_avgWarpAcceleration);
 
+	//ship->Reload();
     _UpdateDerrived();
 }
 
@@ -1441,10 +1440,9 @@ void DestinyManager::GotoDirection(const GPoint &direction, bool update) {
 
     State = DSTBALL_GOTO;
     m_targetPoint = m_position + (direction * 1.0e16);
-    bool process = false;
+
     if(m_userSpeedFraction == 0.0f) {
         m_userSpeedFraction = 1.0f;
-        process = true;
     }
 
     if(m_activeSpeedFraction != m_userSpeedFraction)
@@ -1478,11 +1476,11 @@ PyResult DestinyManager::AttemptDockOperation()
         return NULL;
 	}
 
-	GPoint stationOrigin = static_cast< StationEntity* >( station )->GetPosition();
+	GPoint stationOrigin = station->GetPosition();
     GPoint position = who->GetPosition();
 
     GVector direction(position, stationOrigin);
-    double rangeToStationPerimiter = direction.length() - station->GetRadius();
+    double rangeToStationPerimiter = direction.length() /*- station->GetRadius()*/;
 
     // WARNING: DO NOT uncomment the following line as it for some reason causes HEAP corruption to occur on auto-docking
     //if( !(who->GetPendingDockOperation()) )
@@ -1538,7 +1536,8 @@ PyResult DestinyManager::AttemptDockOperation()
 	    who->SpawnNewRookieShip();
 
     // Save all Character, Ship, Module data to Database on dock:
-    who->SaveAllToDatabase();
+	//  really hit the db everytime a ship docks??
+    //who->SaveAllToDatabase();
 
     // Docking was accepted, so send the OnDockingAccepted packet:
     // Packet::Notification
@@ -1603,6 +1602,9 @@ void DestinyManager::WarpTo(const GPoint &where, double distance) {
     m_targetEntity.second = NULL;
     m_targetPoint = where;
 	m_targetDistance = distance;
+
+	sLog.Warning("DestinyManager::WarpTo()", "m_targetPoint: %f,%f,%f  m_targetDistance: %f", m_targetPoint.x, m_targetPoint.y, m_targetPoint.z , m_targetDistance);
+
 }
 
 bool DestinyManager::_Turn() {
@@ -1796,7 +1798,7 @@ void DestinyManager::SendBallInfoOnUndock(bool update) const {
 
     DoDestiny_SetBallMassive sbmassive;
     sbmassive.entityID = m_self->GetID();
-    sbmassive.is_massive = 0;
+    sbmassive.is_massive = true;
     updates.push_back(sbmassive.Encode());
 
     DoDestiny_SetBallMass sbmass;
@@ -1810,6 +1812,11 @@ void DestinyManager::SendBallInfoOnUndock(bool update) const {
     sbvelocity.y = m_velocity.y;
     sbvelocity.z = m_velocity.z;
     updates.push_back(sbvelocity.Encode());
+
+	DoDestiny_SetBallRadius sbradius;
+	sbradius.entityID = m_self->GetID();
+	sbradius.radius = m_self->GetRadius();
+	updates.push_back(sbradius.Encode());
 
     SendDestinyUpdate(updates, true);    //consumed
 }

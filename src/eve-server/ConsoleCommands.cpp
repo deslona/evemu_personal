@@ -127,6 +127,7 @@ bool ConsoleCommand::Process() {
 				//sLog.Log("   Active Systems", " %u", p_systems->Count());		// TODO: this is wrong...
 				//  loaded bubbles
 				sLog.Log("   Active Bubbles", " %u", p_bubbles->Count());
+				//m_db.SaveServerStats(threads, rss, vm, user, kernel, p_factory->Count() , 3 /*systems*/, p_bubbles->Count());
 			} else if (strncmp(buf, "a", 1) == 0) {
 			    sLog.Warning("  Alasiya's EvEMu", "Server SaveAll:");
 				//p_factory->SaveItems();

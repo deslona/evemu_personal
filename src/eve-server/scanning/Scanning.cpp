@@ -35,4 +35,11 @@ Scanning::ScanningData()
   scanSvc.GetActiveProbes (probeID)
   scanSvc.GetProbeLabel(probe.probeID)
 }
+
+AttrScanGravimetricStrengthBonus = 238,
+AttrScanLadarStrengthBonus = 239,
+AttrScanMagnetometricStrengthBonus = 240,
+AttrScanRadarStrengthBonus = 241,
+AttrScanSpeedMultiplier = 242,
+
 */

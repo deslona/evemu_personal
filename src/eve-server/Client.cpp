@@ -422,7 +422,6 @@ bool Client::UpdateLocation(bool login) {
         //we are in a system, so we need a destiny manager
         m_destiny = new DestinyManager(this, m_system);
 		//ship should never be NULL.
-		m_destiny->SetShipVariables( GetShip() );
 		m_destiny->SetShipCapabilities( GetShip() );
 
 		m_destiny->SetPosition(GetShip()->position(), true);
@@ -481,7 +480,7 @@ void Client::UndockFromStation( uint32 stationID, uint32 systemID, uint32 conste
     EnterSystem( false );
     //we are in a system, so we need a destiny manager
     m_destiny = new DestinyManager(this, m_system);
-    //ship should never be NULL.
+	//ship should never be NULL.
     m_destiny->SetShipCapabilities( GetShip() );
 	//set position at undock point of station
 	m_destiny->SetPosition(dockPosition, true);
@@ -490,6 +489,10 @@ void Client::UndockFromStation( uint32 stationID, uint32 systemID, uint32 conste
 	OnCharNoLongerInStation();
 	//set destination and ship movement
 	m_destiny->GotoDirection(dest, true);
+	//tell client it's moving from station's dock ramp
+	m_destiny->SendBallInfoOnUndock(true);
+	//tell server ship is stopping  ...not working right....
+	m_destiny->Stop();
 	//TODO: implement and set session change timer .....client knows already.  session change timer = 10s
 	//TODO:  implement and set undock invul until movement(but not on stop)
 
@@ -613,7 +616,8 @@ void Client::BoardShip(ShipRef new_ship) {
         m_system->AddClient(this);
 
 	if(m_destiny != NULL) {
-		m_destiny->SetShipVariables( GetShip() );
+		//  this needs to be updated to NOT use destiny
+		//  players that board ships in stations WILL NEED updated ship stats for fitting and cargo.
 	    m_destiny->SetShipCapabilities( GetShip() );
 	}
 
@@ -737,7 +741,8 @@ void Client::_UpdateSession2( uint32 characterID )
     }
     mSession.SetInt( "cloneLocationID", locationID );   // This is a CUSTOM key-value-pair that is NOT defined by CCP, so the question is, will this mess up the client?    - no.  it is not defined in the client, therefore is ignored.
 
-    // solarsystemid2 is used by client to determine current system.  NOTE:  *MUST* be set to current system.
+    // solarsystemid2 is used by client to determine current system.
+	//NOTE:  *MUST* be set to current system.
     mSession.SetInt( "solarsystemid2", solarSystemID );
     mSession.SetInt( "constellationid", constellationID );
     mSession.SetInt( "regionid", regionID );

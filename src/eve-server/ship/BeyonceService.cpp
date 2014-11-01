@@ -415,24 +415,12 @@ bookmark, bmid
         }
 
         // This section handles Warping to any object in the Overview
-        double distance;
-        std::map<std::string, PyRep *>::const_iterator res = call.byname.find("minRange");
-		if(res == call.byname.end()) {
-            distance = 15000.0;
-		} else if(!res->second->IsInt() && !res->second->IsFloat()) {
-            codelog(CLIENT__ERROR, "%s: range of invalid type %s, expected Integer or Real; using 15 km.", call.client->GetName(), res->second->TypeString());
-            distance = 15000.0;
-        } else {
-            distance =
-                  res->second->IsInt()
-                ? res->second->AsInt()->value()
-				: res->second->AsFloat()->value();
-		}
-
+        //  minRange is NOT sent with type "item"
+        double distance = 1500;  //  set a default distance here.  modify it later.
         GPoint origin(0.0,0.0,0.0);
         double distanceFromBodyOrigin = 0.0;
         double distanceFromSystemOrigin = 0.0;
-        GPoint warpToPoint(se->GetPosition());                                // Make a warp-in point variable
+        GPoint warpToPoint(se->GetPosition());      // Make a warp-in point variable
         if( IsStaticMapItem(se->GetID()) )
         {
             switch( ((SimpleSystemEntity *)(se))->data.groupID )
@@ -448,7 +436,7 @@ bookmark, bmid
 
                     // Calculate final warp-to point along common vector from celestial body's origin and add randomized position adjustment for multiple ships coming out of warp to not bump
                     GPoint celestialOrigin(se->GetPosition());                            // Make a celestial body origin point variable
-                    GVector vectorFromOrigin(celestialOrigin, origin);                    // Make a celestial body TO system origin origin vector variable
+                    GVector vectorFromOrigin(celestialOrigin, origin);                    // Make a celestial body TO system origin vector variable
                     if( vectorFromOrigin.length() == 0 )
                     {
                         // This is the special case where we are warping to the Star, so we have to construct
@@ -509,21 +497,26 @@ bookmark, bmid
                     break;
                 }
                 default:
-                    // For all other objects, simply just add radius of ship and object:
-                    distance += call.client->GetRadius() + se->GetRadius();
+					distance += call.client->GetRadius() + se->GetRadius();
                     break;
             }
         }
         else
             distance += call.client->GetRadius() + se->GetRadius();
 
-		if(!distance) distance = 5000;
+		// we dont have a method to subtract a single number to a GVector
+		warpToPoint.x -= distance;
+		warpToPoint.y -= distance;
 
-        call.client->WarpTo( warpToPoint, distance );
+		GVector warp_distance(call.client->GetPosition(), warpToPoint);
+		//warp_distance.normalize();
+		double new_distance = warp_distance.length();
+
+		call.client->WarpTo( warpToPoint, new_distance );
     }
     else if( arg.type == "bookmark" )
-	{ //  bookmark, bmid, minrange, fleet(bool)
-        // This section handles Warping to any Bookmark:
+	{ 	//  bookmark, bmid, minrange, fleet(bool)
+        // This section handles Warping to any Bookmark
         double distance = 0.0;
         double x,y,z;
         uint32 itemID;
@@ -590,7 +583,7 @@ bookmark, bmid
                     case 6: // target object is a SUN
                     case 7: // target object is a PLANET
                     case 8: // target object is a MOON
-                        //distance += 200000;
+                        distance += 20000;
                         break;
                     default:
                         break;
@@ -616,6 +609,7 @@ bookmark, bmid
 				 *
 				 * std::map<std::string, PyRep *>::const_iterator res = call.byname.find("fleet");
 				 * res->second->AsBool()->value()
+				 * call.client->FleetWarp( se->GetPosition(), distance );
 				 */
 
                 call.client->WarpTo( se->GetPosition(), distance );
@@ -625,20 +619,25 @@ bookmark, bmid
 	// none of the systems below are implemented.  hold on coding till systems are working.
 	else if( arg.type == "launch" )
 	{ // launchpickup - launch, launchid
+		call.client->SendErrorMsg("WarpToLaunch is not implemented at this time.  See Allan for updates.");
 	}
 	else if( arg.type == "scan" )
 	{//  scan, resultid, minrange, fleet(bool)
+		call.client->SendErrorMsg("WarpToScan is not implemented at this time.  See Allan for updates.");
 	}
 	else if( arg.type == "epinstance" )
 	{// epinstance, instanceid
+		call.client->SendErrorMsg("WarpToInstance is not implemented at this time.  See Allan for updates.");
 	}
 	else if( arg.type == "tutorial" )
 	{ // tutorial, none
+		call.client->SendErrorMsg("WarpToTutorial is not implemented at this time.  See Allan for updates.");
 	}
 	//  fleet warping
 	else if( arg.type == "char" )
 	{// [warptomember] char, charid, minrange
-	 // [warpfleettomember] char, charid, minrange, fleet=1
+		// [warpfleettomember] char, charid, minrange, fleet=1
+		call.client->SendErrorMsg("WarpToChar is not implemented at this time.  See Allan for updates.");
 	}
     else
         sLog.Error( "BeyonceService::Handle_WarpToStuff()", "Unhandled arg.type value: '%s'.", arg.type.c_str() );

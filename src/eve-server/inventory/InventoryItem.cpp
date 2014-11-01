@@ -35,7 +35,6 @@
 #include "system/Celestial.h"
 #include "system/Container.h"
 
-//const uint32 SKILL_BASE_POINTS = 250;
 const EvilNumber EVIL_SKILL_BASE_POINTS(250);
 const int32 ITEM_DB_SAVE_TIMER_EXPIRY(10);
 
@@ -379,6 +378,16 @@ InventoryItemRef InventoryItem::Spawn(ItemFactory &factory, ItemData &data)
                 //    return InventoryItemRef();
                 //return InventoryItem::Load( factory, itemID );
             }
+            /*  put a check in here for beacons,
+			 * groupid 310::typeid 
+			 *   Large_Collidable_Structure::
+			 * groupid 226::typeid 10124
+			 *   Large_Collidable_Object::
+			 * groupID 319   Beacon   typeid 29189
+			 * groupID 920    Effect_Beacon
+			 *
+			 *  then use SetAttribute(AttrIsGlobal, 1)    (1207)
+			 */
             else
             {
                 // Spawn new Celestial Object

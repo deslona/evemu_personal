@@ -89,7 +89,7 @@ const char *ItemSystemEntity::GetName() const {
 float ItemSystemEntity::GetRadius() const {
     if(!m_self)
         return(10.0f);
-    return static_cast<float>(m_self->GetAttribute(AttrRadius).get_float());
+    return (m_self->GetAttribute(AttrRadius).get_float());
 }
 
 const GPoint &ItemSystemEntity::GetPosition() const {

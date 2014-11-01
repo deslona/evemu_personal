@@ -23,26 +23,6 @@
     Author:        Zhur
 */
 
-/*
-
-some_factor = exp(- (space_friction * num1) / (mass * agility))
-
-Vector vector_to_goal(current_position, goal_point);
-distance_to_goal = vector_to_goal.length();
-delta = ((num1 * speed_fraction * maxVelocity) + radius);
-accel = (space_friction*speed_fraction*maxVelocity) / (agility * mass);
-if(delta*delta >= distance_to_goal*distance_to_goal) {
-    // we are going to reach our goal
-    tmp = distance_to_goal/(delta*delta);
-    accel *= tmp*tmp;
-} else {
-    vector_to_goal /= distance_to_goal; //normalize
-}
-Vector acceleration = vector_to_goal * accel;
-
-
-*/
-
 #ifndef __DESTINY_STRUCTS_H__
 #define __DESTINY_STRUCTS_H__
 
