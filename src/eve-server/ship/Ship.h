@@ -206,6 +206,11 @@ public:
     const ShipType & type() const { return static_cast<const ShipType &>(InventoryItem::type()); }
 
     /*
+	 *  placeholder for invul timer for undock/gate jump
+	 */
+	bool IsInvul() {return false;}
+
+    /*
      * Primary public packet builders:
      */
     PyDict *ShipGetInfo();

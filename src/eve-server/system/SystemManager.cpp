@@ -745,7 +745,7 @@ void SystemManager::RemoveNPC(NPC *who) {
 void SystemManager::AddEntity(SystemEntity *who) {
     m_entities[who->GetID()] = who;
     m_entityChanged = true;
-    bubbles.Add(who, false);
+    bubbles.Add(who, true);
 
     // Add Entity's Item Ref to Solar System Dynamic Inventory:
     AddItemToInventory( this->itemFactory().GetItem( who->GetID() ) );

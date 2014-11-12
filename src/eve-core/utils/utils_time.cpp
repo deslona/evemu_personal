@@ -78,3 +78,39 @@ uint32 timeNow()
   return(time(NULL));
 }
 */
+
+uint64 GetTimeMSeconds() {
+	/*  higher resolution times....the 'GetTimeSeconds' defined above with interger resolution suxs for
+	 *  speed/time data manipulation
+	 *
+	 * win32timenow returns tenths resolution.
+	 * 1305821829.40000000
+	 *
+	 * this resolution was from math concerning skill queue.  cant reproduce it easily.
+	 * 1305921995.74550448
+	 *
+	 * resolution of double will give 1 ten-millionth precision (5 places, or 1/100000)
+	 *   using milliseconds should be high enough for warp distance calculations
+	 */
+
+	// WINDOWS USERS......this should get ms precision, but i have no way to test it.
+
+	//  NOTE  std::chrono and system_clock::now() require C++11
+	auto now = std::chrono::system_clock::now();
+	auto duration = now.time_since_epoch();		// return in nanoseconds
+	uint64 millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+	//double mst = (millis/1000);
+	return (millis);
+}
+
+/*
+ *
+ *
+ * static windows version......untested
+ *
+ * static const hires_clock<platform_clock_impl> __clock_state;
+ * std::uint64_t timestamp(void)
+ * {
+ *     return __clock_state.now();
+ * }
+ */

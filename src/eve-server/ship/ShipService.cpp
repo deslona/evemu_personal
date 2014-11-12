@@ -263,7 +263,6 @@ PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
 21:44:59 [Debug]     Argument 'onlineModules':
 21:44:59 [Debug]         Dictionary: Empty
 */
-        sLog.Error("ShipBound::Handle_Undock()", "%s is Undocking", call.client->GetName());
 
     Call_IntBoolArg args;
     if(!args.Decode(&call.tuple)) {
@@ -283,17 +282,17 @@ PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
         return NULL;
     }
 
-    GPoint dest =
+    GPoint direction =
         GPoint
         (
             dockOrientation.x,
             dockOrientation.y,
             dockOrientation.z
         );
-	dest.normalize();
+	direction.normalize();
 
     //do session change...
-	call.client->UndockFromStation( stationID, systemID, constellationID, regionID, dockPosition, dest );
+		call.client->UndockFromStation( stationID, systemID, constellationID, regionID, dockPosition, direction );
 
     return NULL;
 }

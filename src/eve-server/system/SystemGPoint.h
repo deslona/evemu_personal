@@ -23,8 +23,8 @@
     Author:        Allan   31Jul14
 */
 
-#ifndef __SYSTEM_G_POINT_H__
-#define __SYSTEM_G_POINT_H__
+#ifndef EVEMU_SYSTEM_SYSTEMGPOINT_H__
+#define EVEMU_SYSTEM_SYSTEMGPOINT_H__
 
 #include "system/SystemDB.h"
 
@@ -49,7 +49,7 @@ class SystemGPoint {
 
 };
 
-#endif
+#endif  // EVEMU_SYSTEM_SYSTEMGPOINT_H__
 
 
 

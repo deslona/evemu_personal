@@ -23,8 +23,8 @@
     Author:        Allan
 */
 
-#ifndef _WORMHOLES_H
-#define _WORMHOLES_H
+#ifndef EVEMU_SYSTEM_WORMHOLESVC_H_
+#define EVEMU_SYSTEM_WORMHOLESVC_H_
 
 #include "PyService.h"
 //#include "system/SystemDB.h"
@@ -44,7 +44,7 @@ protected:
     PyCallable_DECL_CALL(WormholeJump);
 };
 
-#endif
+#endif  // EVEMU_SYSTEM_WORMHOLESVC_H_
 /**
                 wormholeClasses = {0: 'UI/Wormholes/Classes/Space',
                  1: 'UI/Wormholes/Classes/UnknownSpace',

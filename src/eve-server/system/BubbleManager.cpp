@@ -136,7 +136,7 @@ void BubbleManager::Add(SystemEntity *ent, bool notify, bool isPostWarp) {
 
     // TODO check edges of bubbles....should NOT overlap.
     in_bubble = new SystemBubble(newBubbleCenter, BUBBLE_RADIUS_METERS);  //, ent->GetLocationID());
-	_log(DESTINY__BUBBLE_TRACE, "BubbleManager::Add() - SystemEntity '%s' being added to NEW Bubble %u for system %u", ent->GetName(), in_bubble->GetBubbleID(), ent->GetLocationID() );
+	_log(DESTINY__BUBBLE_TRACE, "BubbleManager::Add() - SystemEntity '%s' being added to NEW Bubble %u", ent->GetName(), in_bubble->GetBubbleID() );
 
 	//TODO: think about bubble collision. should we merge them?
     m_bubbles.push_back(in_bubble);

@@ -23,8 +23,8 @@
     Author:        Allan
 */
 
-#ifndef fleetMgr_h__
-#define fleetMgr_h__
+#ifndef EVEMU_SHIP_FLEETMGR_H_
+#define EVEMU_SHIP_FLEETMGR_H_
 
 #include "PyService.h"
 
@@ -47,7 +47,7 @@ protected:
     PyCallable_DECL_CALL(BroadcastToSystem);
 };
 
-#endif
+#endif  // EVEMU_SHIP_FLEETMGR_H_
 
 /*
 fleetGroupingRange = 300

@@ -153,8 +153,8 @@ public:
     void MoveToLocation(uint32 location, const GPoint &pt);
     void MoveToPosition(const GPoint &pt);
     void MoveItem(uint32 itemID, uint32 location, EVEItemFlags flag);
-    bool EnterSystem(bool login);
-    bool UpdateLocation(bool login);
+    bool EnterSystem(bool login = false);
+    bool UpdateLocation(bool login = false);
     bool SelectCharacter( uint32 char_id );
     void JoinCorporationUpdate(uint32 corp_id);
     void SavePosition();

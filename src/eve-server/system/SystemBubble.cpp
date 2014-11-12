@@ -93,8 +93,8 @@ void SystemBubble::BubblecastDestinyUpdate( PyTuple** payload, const char* desc 
         if( NULL == up_dup )
             up_dup = new PyTuple( *up );
 
-	    (*cur)->QueueDestinyUpdate( &up_dup );
         _log( DESTINY__BUBBLE_TRACE, "Bubblecast %s update to %s (%u)", desc, (*cur)->GetName(), (*cur)->GetID() );
+	    (*cur)->QueueDestinyUpdate( &up_dup );
     }
 
     PySafeDecRef( up_dup );

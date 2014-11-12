@@ -26,6 +26,8 @@
 #ifndef __UTILS_TIME_H__INCL__
 #define __UTILS_TIME_H__INCL__
 
+#include <chrono>
+
 /*
 SEC = 10000000L
 MIN = (SEC * 60L)
@@ -46,5 +48,7 @@ extern uint64 Win32TimeNow();
 extern void Win32TimeToUnixTime( uint64 win32t, time_t &unix_time, uint32 &nsec );
 extern std::string Win32TimeToString(uint64 win32t);
 //extern uint32 timeNow();
+
+extern uint64 GetTimeMSeconds();
 
 #endif /* !__UTILS_TIME_H__INCL__ */

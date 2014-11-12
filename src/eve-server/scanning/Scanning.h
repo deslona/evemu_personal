@@ -23,8 +23,8 @@
     Author:        Allan
 */
 
-#ifndef __SCANNING__H__INCL__
-#define __SCANNING__H__INCL__
+#ifndef EVEMU_SCANING_SCANING_H_
+#define EVEMU_SCANING_SCANING_H_
 
 #include "scanning/ScanningDB.h"
 
@@ -38,4 +38,4 @@ class Scanning {
 
 };
 
-#endif /* !__SCANNING__H__INCL__ */
+#endif // EVEMU_SCANING_SCANING_H_

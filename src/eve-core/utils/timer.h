@@ -51,7 +51,7 @@ public:
 
     static const uint32 SetCurrentTime();
     static const uint32 GetCurrentTime();
-    static const uint32 GetTimeSeconds();
+	static const uint32 GetTimeSeconds();
 
 private:
     uint32		m_startTime;

@@ -114,6 +114,24 @@ namespace Ga
 			return *this;
 		}
 
+		GaExpInl GaVec3& operator+=(GaFloat s)
+		{
+			x += s;
+			y += s;
+			z += s;
+
+			return *this;
+		}
+
+		GaExpInl GaVec3& operator-=(GaFloat s)
+		{
+			x -= s;
+			y -= s;
+			z -= s;
+
+			return *this;
+		}
+
 		GaExpInl GaVec3& operator*=(GaFloat s)
 		{
 			x *= s;

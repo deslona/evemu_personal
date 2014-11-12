@@ -37,7 +37,7 @@ struct AddBall_header {
 
 typedef enum {
     DSTBALL_GOTO        = 0,    // Also used for AlignTo
-    DSTBALL_FOLLOW      = 1,
+    DSTBALL_FOLLOW      = 1,	// Also used for Approach
     DSTBALL_STOP        = 2,
     DSTBALL_WARP        = 3,
     DSTBALL_ORBIT       = 4,
@@ -59,7 +59,7 @@ enum ball_sub_type
     IsGlobal = 0x02,        // set if ball should be visible from all
     IsMassive = 0x04,       // set if ball is solid
     IsInteractive = 0x08,   // set if ball is interactive
-    IsMoribund = 0x10,      // set if ball is dieing.. this is a rough guess..
+    IsMoribund = 0x10,      // set if ball is dying.. this is a rough guess..
     HasMiniBalls = 0x40,    // if set, the reader tries to read extra mini balls
 };
 

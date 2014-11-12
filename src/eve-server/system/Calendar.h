@@ -24,8 +24,8 @@
 */
 
 
-#ifndef __CALENDAR_H_INCL__
-#define __CALENDAR_H_INCL__
+#ifndef EVEMU_SYSTEM_CALENDAR_H_
+#define EVEMU_SYSTEM_CALENDAR_H_
 
 
 class Calendar {
@@ -37,4 +37,4 @@ class Calendar {
 
 };
 
-#endif /* !__CALENDAR_H_INCL__*/
+#endif // EVEMU_SYSTEM_CALENDAR_H_

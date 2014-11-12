@@ -23,8 +23,8 @@
     Author:        Allan
 */
 
-#ifndef fleetObject_h__
-#define fleetObject_h__
+#ifndef EVEMU_SHIP_FLEETOBJ_H_
+#define EVEMU_SHIP_FLEETOBJ_H_
 
 #include "PyService.h"
 
@@ -41,4 +41,4 @@ protected:
     PyCallable_DECL_CALL(CreateFleet);
 };
 
-#endif
+#endif  // EVEMU_SHIP_FLEETOBJ_H_

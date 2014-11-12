@@ -397,6 +397,12 @@ int main( int argc, char* argv[] )
         Timer::SetCurrentTime();
         start = GetTickCount();
 
+		/*		start of timer code....maybe
+		 *    unsigned now = read_clock();
+		 *    float duration = (float)(now – last) / (float)freq;
+		 *    last = now;
+		 */
+
         //check for timeouts in other threads
         //timeout_manager.CheckTimeouts();
         while( ( tcpc = tcps.PopConnection() ) )

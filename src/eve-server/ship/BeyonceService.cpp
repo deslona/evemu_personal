@@ -166,9 +166,11 @@ PyResult BeyonceBound::Handle_CmdFollowBall(PyCallArgs &call) {
     DestinyManager *destiny = call.client->Destiny();
     if(destiny == NULL) {
         codelog(CLIENT__ERROR, "%s: Client has no destiny manager!", call.client->GetName());
-        return NULL;
-    }
-
+		return NULL;
+	} else if(destiny->GetState() == Destiny::DSTBALL_WARP) {
+		call.client->SendNotifyMsg( "You can't do this while warping");
+		return NULL;
+	}
     SystemManager *system = call.client->System();
     if(system == NULL) {
         codelog(CLIENT__ERROR, "%s: Client has no system manager!", call.client->GetName());
@@ -195,8 +197,11 @@ PyResult BeyonceBound::Handle_CmdSetSpeedFraction(PyCallArgs &call) {
     DestinyManager *destiny = call.client->Destiny();
     if(destiny == NULL) {
         codelog(CLIENT__ERROR, "%s: Client has no destiny manager!", call.client->GetName());
-        return NULL;
-    }
+		return NULL;
+	} else if(destiny->GetState() == Destiny::DSTBALL_WARP){
+		call.client->SendNotifyMsg( "You can't do this while warping");
+		return NULL;
+	}
 
     destiny->SetSpeedFraction(arg.arg);
 
@@ -209,8 +214,7 @@ PyResult BeyonceBound::Handle_CmdSetSpeedFraction(PyCallArgs &call) {
  * @author Xanarox
 */
 PyResult BeyonceBound::Handle_CmdAlignTo(PyCallArgs &call) {
-    sLog.Log( "BeyonceBound", "Handle_CmdAlignTo" );
-  call.Dump(SERVICE__CALLS);
+
     CallAlignTo arg;
     if(!arg.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "%s: failed to decode args", call.client->GetName());
@@ -220,8 +224,11 @@ PyResult BeyonceBound::Handle_CmdAlignTo(PyCallArgs &call) {
     DestinyManager *destiny = call.client->Destiny();
     if(destiny == NULL) {
         codelog(CLIENT__ERROR, "%s: Client has no destiny manager!", call.client->GetName());
-        return NULL;
-    }
+		return NULL;
+	} else if(destiny->GetState() == Destiny::DSTBALL_WARP){
+		call.client->SendNotifyMsg( "You can't do this while warping");
+		return NULL;
+	}
 
     SystemManager *system = call.client->System();
     if(system == NULL) {
@@ -262,8 +269,11 @@ PyResult BeyonceBound::Handle_CmdGotoDirection(PyCallArgs &call) {
     DestinyManager *destiny = call.client->Destiny();
     if(destiny == NULL) {
         codelog(CLIENT__ERROR, "%s: Client has no destiny manager!", call.client->GetName());
-        return NULL;
-    }
+		return NULL;
+	} else if(destiny->GetState() == Destiny::DSTBALL_WARP){
+		call.client->SendNotifyMsg( "You can't do this while warping");
+		return NULL;
+	}
 
     destiny->GotoDirection( GPoint( arg.x, arg.y, arg.z ) );
 
@@ -283,8 +293,11 @@ PyResult BeyonceBound::Handle_CmdGotoBookmark(PyCallArgs &call) {
     if( destiny == NULL )
     {
         sLog.Error( "%s: Client has no destiny manager!", call.client->GetName() );
-        return NULL;
-    }
+		return NULL;
+	} else if(destiny->GetState() == Destiny::DSTBALL_WARP){
+		call.client->SendNotifyMsg( "You can't do this while warping");
+		return NULL;
+	}
 
     double x,y,z;
     uint32 itemID;
@@ -344,22 +357,25 @@ PyResult BeyonceBound::Handle_CmdOrbit(PyCallArgs &call) {
         return NULL;
     }
 
-    double distance;
-    if( arg.distance->IsInt() )
-        distance = arg.distance->AsInt()->value();
-    else if( arg.distance->IsFloat() )
-        distance = arg.distance->AsFloat()->value();
+    double range;
+	if( arg.range->IsInt() )
+		range = arg.range->AsInt()->value();
+	else if( arg.range->IsFloat() )
+		range = arg.range->AsFloat()->value();
     else
     {
-        codelog(CLIENT__ERROR, "%s: Invalid type %s for distance argument received.", call.client->GetName(), arg.distance->TypeString());
+		codelog(CLIENT__ERROR, "%s: Invalid type %s for range argument received.", call.client->GetName(), arg.range->TypeString());
         return NULL;
     }
 
     DestinyManager *destiny = call.client->Destiny();
     if(destiny == NULL) {
         codelog(CLIENT__ERROR, "%s: Client has no destiny manager!", call.client->GetName());
-        return NULL;
-    }
+		return NULL;
+	} else if(destiny->GetState() == Destiny::DSTBALL_WARP){
+		call.client->SendNotifyMsg( "You can't do this while warping");
+		return NULL;
+	}
 
     SystemManager *system = call.client->System();
     if(system == NULL) {
@@ -372,7 +388,7 @@ PyResult BeyonceBound::Handle_CmdOrbit(PyCallArgs &call) {
         return NULL;
     }
 
-    destiny->Orbit(entity, distance);
+    destiny->Orbit(entity, range);
     return NULL;
 }
 
@@ -400,120 +416,139 @@ bookmark, bmid
         return NULL;
     }
 
+    DestinyManager *destiny = call.client->Destiny();
+	if(destiny == NULL) {
+		codelog(CLIENT__ERROR, "%s: Client has no destiny manager!", call.client->GetName());
+		return NULL;
+	} else if(destiny->GetState() == Destiny::DSTBALL_WARP){
+		call.client->SendNotifyMsg( "You are already warping");
+		return NULL;
+	}
+
     if( arg.type == "item" )
-    {
-        SystemManager *sm = call.client->System();
-        if(sm == NULL) {
-            codelog(CLIENT__ERROR, "%s: no system manager found", call.client->GetName());
-            return NULL;
-        }
+	{
+		// This section handles Warping to any object in the Overview
 
-        SystemEntity *se = sm->get(arg.id);
-        if(se ==  NULL) {
-            codelog(CLIENT__ERROR, "%s: unable to find location %d", call.client->GetName(), arg.id);
-            return NULL;
-        }
+		// Calculate the warp-to distance specified by the client and add this to the final warp-to distance
+		double distance;
+		std::map<std::string, PyRep *>::const_iterator res = call.byname.find("minRange");
+		if(res == call.byname.end()) {
+			//Not needed, this is the correct behavior
+			//codelog(CLIENT__ERROR, "%s: range not found, using 15 km.", call.client->GetName());
+			distance = 0.0;
+		} else if(!res->second->IsInt() && !res->second->IsFloat()) {
+			codelog(CLIENT__ERROR, "%s: range of invalid type %s, expected Integer or Real; using 15 km.", call.client->GetName(), res->second->TypeString());
+			distance = 15000.0;
+		} else {
+			distance =
+			res->second->IsInt()
+			? res->second->AsInt()->value()
+			: res->second->AsFloat()->value();
+		}
 
-        // This section handles Warping to any object in the Overview
-        //  minRange is NOT sent with type "item"
-        double distance = 1500;  //  set a default distance here.  modify it later.
-        GPoint origin(0.0,0.0,0.0);
-        double distanceFromBodyOrigin = 0.0;
-        double distanceFromSystemOrigin = 0.0;
-        GPoint warpToPoint(se->GetPosition());      // Make a warp-in point variable
-        if( IsStaticMapItem(se->GetID()) )
-        {
-            switch( ((SimpleSystemEntity *)(se))->data.groupID )
-            {
-                case EVEDB::invGroups::Sun:
-                case EVEDB::invGroups::Planet:
-                case EVEDB::invGroups::Moon:
-                {
-                    // Calculate final distance out from origin of celestial body along common warp-to vector:
-                    distanceFromBodyOrigin = se->GetRadius();            // Add celestial body's radius
-                    distanceFromBodyOrigin += 20000000;                    // Add 20,000km along common vector from celestial body origin to ensure
-                                                                        // client camera rotation about ship does not take camera inside the celestial body's wireframe
+		//we need to delay the destiny updates until after we return
 
-                    // Calculate final warp-to point along common vector from celestial body's origin and add randomized position adjustment for multiple ships coming out of warp to not bump
-                    GPoint celestialOrigin(se->GetPosition());                            // Make a celestial body origin point variable
-                    GVector vectorFromOrigin(celestialOrigin, origin);                    // Make a celestial body TO system origin vector variable
-                    if( vectorFromOrigin.length() == 0 )
-                    {
-                        // This is the special case where we are warping to the Star, so we have to construct
-                        // a vector from the star's center (0,0,0) to the warp-in point using the distanceFromBodyOrigin
-                        // calculated earlier:
-                        vectorFromOrigin = GVector( celestialOrigin, call.client->GetPosition() );
-                        vectorFromOrigin.normalize();
-                        vectorFromOrigin *= distanceFromBodyOrigin;
-                    }
-                    GVector vectorToWarpPoint(vectorFromOrigin);                        // Make a vector to the Warp-In point
-                    distanceFromSystemOrigin = vectorFromOrigin.length();                // Calculate distance from system origin to celestial body origin
+		SystemManager *sm = call.client->System();
+		if(sm == NULL) {
+			codelog(CLIENT__ERROR, "%s: no system manager found", call.client->GetName());
+			return NULL;
+		}
+		SystemEntity *se = sm->get(arg.ID);
+		if(se ==  NULL) {
+			codelog(CLIENT__ERROR, "%s: unable to find location %d", call.client->GetName(), arg.ID);
+			return NULL;
+		}
 
-                    // Calculate warp-in point to provide different juxtapositioning of celestial body to the solar system origin, i.e, the sun
-                    // This also provides a common warp-in point for the sun itself, which is the first case in this if-else if-else clause:
-                    if( distanceFromSystemOrigin < (5.0 * ONE_AU_IN_METERS) )
-                    {
-                        // For all celestial bodies with orbit radius of under 5AU, including the sun,
-                        GVector rotationVector( 1.0, 1.0, 0.25 );
-                        vectorToWarpPoint.rotationTo( rotationVector );
-                        vectorToWarpPoint.normalize();
-                        warpToPoint += vectorToWarpPoint * distanceFromBodyOrigin;
-                    }
-                    else if( distanceFromSystemOrigin < (15.0 * ONE_AU_IN_METERS) )
-                    {
-                        // For all celestial bodies with orbit radius of under 15AU but more than 5AU,
-                        GVector rotationVector( -1.0, -1.0, 0.25 );
-                        vectorToWarpPoint.rotationTo( rotationVector );
-                        vectorToWarpPoint.normalize();
-                        warpToPoint += vectorToWarpPoint * distanceFromBodyOrigin;
-                    }
-                    else if( distanceFromSystemOrigin < (25.0 * ONE_AU_IN_METERS) )
-                    {
-                        // For all celestial bodies with orbit radius of under 25AU but more than 15AU,
-                        GVector rotationVector( 1.0, -1.0, -0.25 );
-                        vectorToWarpPoint.rotationTo( rotationVector );
-                        vectorToWarpPoint.normalize();
-                        warpToPoint += vectorToWarpPoint * distanceFromBodyOrigin;
-                    }
-                    else if( distanceFromSystemOrigin < (35.0 * ONE_AU_IN_METERS) )
-                    {
-                        // For all celestial bodies with orbit radius of under 35AU but more than 25AU,
-                        GVector rotationVector( -1.0, -1.0, -0.25 );
-                        vectorToWarpPoint.rotationTo( rotationVector );
-                        vectorToWarpPoint.normalize();
-                        warpToPoint += vectorToWarpPoint * distanceFromBodyOrigin;
-                    }
-                    else
-                    {
-                        // For all celestial bodies with orbit radius of more than 35AU,
-                        GVector rotationVector( -1.0, 1.0, -0.25 );
-                        vectorToWarpPoint.rotationTo( rotationVector );
-                        vectorToWarpPoint.normalize();
-                        warpToPoint += vectorToWarpPoint * distanceFromBodyOrigin;
-                    }
+		GPoint origin(0.0,0.0,0.0);
+		double distanceFromBodyOrigin = 0.0;
+		double distanceFromSystemOrigin = 0.0;
+		GPoint warpToPoint(se->GetPosition());                                // Make a warp-in point variable
+		if( IsStaticMapItem(se->GetID()) )
+		{
+			switch( ((SimpleSystemEntity *)(se))->data.groupID )
+			{
+				case EVEDB::invGroups::Sun:
+				case EVEDB::invGroups::Planet:
+				case EVEDB::invGroups::Moon:
+				{
+					// Calculate final distance out from origin of celestial body along common warp-to vector:
+					distanceFromBodyOrigin = se->GetRadius();            // Add celestial body's radius
+					distanceFromBodyOrigin += 20000000;                    // Add 20,000km along common vector from celestial body origin to ensure
+					// client camera rotation about ship does not take camera inside the celestial body's wireframe
 
-                    // Randomize warp-in point:
-                    warpToPoint.MakeRandomPointOnSphereLayer(1000.0,(1000.0+call.client->GetRadius()));
-                    break;
-                }
-                default:
+					// Calculate final warp-to point along common vector from celestial body's origin and add randomized position adjustment for multiple ships coming out of warp to not bump
+					GPoint celestialOrigin(se->GetPosition());                            // Make a celestial body origin point variable
+					GVector vectorFromOrigin(celestialOrigin, origin);                    // Make a celestial body TO system origin origin vector variable
+					if( vectorFromOrigin.length() == 0 )
+					{
+						// This is the special case where we are warping to the Star, so we have to construct
+						// a vector from the star's center (0,0,0) to the warp-in point using the distanceFromBodyOrigin
+						// calculated earlier:
+						vectorFromOrigin = GVector( celestialOrigin, call.client->GetPosition() );
+						vectorFromOrigin.normalize();
+						vectorFromOrigin *= distanceFromBodyOrigin;
+					}
+					GVector vectorToWarpPoint(vectorFromOrigin);                        // Make a vector to the Warp-In point
+					distanceFromSystemOrigin = vectorFromOrigin.length();                // Calculate distance from system origin to celestial body origin
+
+					// Calculate warp-in point to provide different juxtapositioning of celestial body to the solar system origin, i.e, the sun
+					// This also provides a common warp-in point for the sun itself, which is the first case in this if-else if-else clause:
+					if( distanceFromSystemOrigin < (5.0 * ONE_AU_IN_METERS) )
+					{
+						// For all celestial bodies with orbit radius of under 5AU, including the sun,
+						GVector rotationVector( 1.0, 1.0, 0.25 );
+						vectorToWarpPoint.rotationTo( rotationVector );
+						vectorToWarpPoint.normalize();
+						warpToPoint += vectorToWarpPoint * distanceFromBodyOrigin;
+					}
+					else if( distanceFromSystemOrigin < (15.0 * ONE_AU_IN_METERS) )
+					{
+						// For all celestial bodies with orbit radius of under 15AU but more than 5AU,
+						GVector rotationVector( -1.0, -1.0, 0.25 );
+						vectorToWarpPoint.rotationTo( rotationVector );
+						vectorToWarpPoint.normalize();
+						warpToPoint += vectorToWarpPoint * distanceFromBodyOrigin;
+					}
+					else if( distanceFromSystemOrigin < (25.0 * ONE_AU_IN_METERS) )
+					{
+						// For all celestial bodies with orbit radius of under 25AU but more than 15AU,
+						GVector rotationVector( 1.0, -1.0, -0.25 );
+						vectorToWarpPoint.rotationTo( rotationVector );
+						vectorToWarpPoint.normalize();
+						warpToPoint += vectorToWarpPoint * distanceFromBodyOrigin;
+					}
+					else if( distanceFromSystemOrigin < (35.0 * ONE_AU_IN_METERS) )
+					{
+						// For all celestial bodies with orbit radius of under 35AU but more than 25AU,
+						GVector rotationVector( -1.0, -1.0, -0.25 );
+						vectorToWarpPoint.rotationTo( rotationVector );
+						vectorToWarpPoint.normalize();
+						warpToPoint += vectorToWarpPoint * distanceFromBodyOrigin;
+					}
+					else
+					{
+						// For all celestial bodies with orbit radius of more than 35AU,
+						GVector rotationVector( -1.0, 1.0, -0.25 );
+						vectorToWarpPoint.rotationTo( rotationVector );
+						vectorToWarpPoint.normalize();
+						warpToPoint += vectorToWarpPoint * distanceFromBodyOrigin;
+					}
+
+					// Randomize warp-in point:
+					warpToPoint.MakeRandomPointOnSphereLayer(1000.0,(1000.0+call.client->GetRadius()));
+					break;
+				}
+				default:
+					// For all other objects, simply just add radius of ship and object:
 					distance += call.client->GetRadius() + se->GetRadius();
-                    break;
-            }
-        }
-        else
-            distance += call.client->GetRadius() + se->GetRadius();
+					break;
+			}
+		}
+		else
+			distance += call.client->GetRadius() + se->GetRadius();
 
-		// we dont have a method to subtract a single number to a GVector
-		warpToPoint.x -= distance;
-		warpToPoint.y -= distance;
-
-		GVector warp_distance(call.client->GetPosition(), warpToPoint);
-		//warp_distance.normalize();
-		double new_distance = warp_distance.length();
-
-		call.client->WarpTo( warpToPoint, new_distance );
-    }
+		call.client->WarpTo( warpToPoint, distance );
+	}
     else if( arg.type == "bookmark" )
 	{ 	//  bookmark, bmid, minrange, fleet(bool)
         // This section handles Warping to any Bookmark
@@ -532,7 +567,7 @@ bookmark, bmid
         }
         else
         {
-            bkSrvc->LookupBookmark( call.client->GetCharacterID(),arg.id,itemID,typeID,x,y,z );
+            bkSrvc->LookupBookmark( call.client->GetCharacterID(),arg.ID,itemID,typeID,x,y,z );
 
             // Calculate the warp-to distance specified by the client and add this to the final warp-to distance
             std::map<std::string, PyRep *>::const_iterator res = call.byname.find("minRange");
@@ -653,7 +688,17 @@ PyResult BeyonceBound::Handle_CmdWarpToStuffAutopilot(PyCallArgs &call) {
     if(!arg.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "%s: failed to decode args", call.client->GetName());
         return NULL;
-    }
+	}
+
+	DestinyManager *destiny = call.client->Destiny();
+	if(destiny == NULL) {
+		codelog(CLIENT__ERROR, "%s: Client has no destiny manager!", call.client->GetName());
+		return NULL;
+	} else if(destiny->GetState() == Destiny::DSTBALL_WARP){
+		call.client->SendNotifyMsg( "You can't do this while warping");
+		return NULL;
+	}
+
     //Change this to change the default autopilot distance (Faster Autopilot FTW)
     double distance = 5000.0; //15000
 
@@ -686,8 +731,8 @@ PyResult BeyonceBound::Handle_UpdateStateRequest(PyCallArgs &call) {
     DestinyManager *destiny = call.client->Destiny();
     if(destiny == NULL) {
         codelog(CLIENT__ERROR, "%s: Client has no destiny manager!", call.client->GetName());
-        return NULL;
-    }
+		return NULL;
+	}
 
     destiny->SendSetState(call.client->Bubble());
 
@@ -695,12 +740,12 @@ PyResult BeyonceBound::Handle_UpdateStateRequest(PyCallArgs &call) {
 }
 
 PyResult BeyonceBound::Handle_CmdStop(PyCallArgs &call) {
-        sLog.Warning( "BeyonceBound", "Handle_CmdStop" );
-    DestinyManager *destiny = call.client->Destiny();
-    if(destiny == NULL) {
-        codelog(CLIENT__ERROR, "%s: Client has no destiny manager!", call.client->GetName());
-        return NULL;
-    }
+	sLog.Warning( "BeyonceBound", "Handle_CmdStop" );
+	DestinyManager *destiny = call.client->Destiny();
+	if(destiny == NULL) {
+		codelog(CLIENT__ERROR, "%s: Client has no destiny manager!", call.client->GetName());
+		return NULL;
+	}
 
     // Only disallow Stopping ship when in warp state AND ship speed is greater than 0.75 times ship's maxVelocity
     if( (destiny->GetState() == Destiny::DSTBALL_WARP)
@@ -735,7 +780,10 @@ PyResult BeyonceBound::Handle_CmdDock(PyCallArgs &call) {
     if(destiny == NULL) {
         codelog(CLIENT__ERROR, "%s: Client has no destiny manager!", call.client->GetName());
         return NULL;
-    }
+	} else if(destiny->GetState() == Destiny::DSTBALL_WARP){
+		call.client->SendNotifyMsg( "You can't do this while warping");
+		return NULL;
+	}
     SystemManager *sm = call.client->System();
     if(sm == NULL) {
         codelog(CLIENT__ERROR, "%s: Client has no system manager.", call.client->GetName());
@@ -758,12 +806,32 @@ PyResult BeyonceBound::Handle_CmdStargateJump(PyCallArgs &call) {
         return NULL;
     }
 
+    DestinyManager *destiny = call.client->Destiny();
+	if(destiny == NULL) {
+		codelog(CLIENT__ERROR, "%s: Client has no destiny manager!", call.client->GetName());
+		return NULL;
+	} else if(destiny->GetState() == Destiny::DSTBALL_WARP){
+		call.client->SendNotifyMsg( "You can't do this while warping");
+		return NULL;
+	}
+
     call.client->StargateJump(arg.fromStargateID, arg.toStargateID);
     return NULL;
 }
 
 PyResult BeyonceBound::Handle_CmdAbandonLoot(PyCallArgs &call) {
+	/*  remotePark.CmdAbandonLoot(wrecks)  <- this is pylist from 'abandonAllWrecks'
+	 *  remotePark.CmdAbandonLoot([wreckID]) <- single itemID
+	 */
   sLog.Log( "BeyonceBound::Handle_CmdAbandonLoot()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
+
+	Call_SingleIntList arg;
+	if(!arg.Decode(&call.tuple)) {
+		codelog(CLIENT__ERROR, "%s: failed to decode args", call.client->GetName());
+		return NULL;
+	}
+	//arg.ints is list sent by client
+	
     return NULL;
 }

@@ -23,8 +23,8 @@
     Author:        Reve
 */
 
-#ifndef __PLANETMGR_SERVICE_H_INCL__
-#define __PLANETMGR_SERVICE_H_INCL__
+#ifndef EVEMU_PLANET_PLANETMGR_H_
+#define EVEMU_PLANET_PLANETMGR_H_
 
 #include "PyService.h"
 
@@ -46,4 +46,4 @@ protected:
     PyCallable_DECL_CALL(GetMyLaunchesDetails)
 };
 
-#endif
+#endif  // EVEMU_PLANET_PLANETMGR_H_

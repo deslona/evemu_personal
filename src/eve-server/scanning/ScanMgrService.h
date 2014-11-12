@@ -24,8 +24,8 @@
 */
 
 
-#ifndef __SCANMGR_SERVICE_H_INCL__
-#define __SCANMGR_SERVICE_H_INCL__
+#ifndef EVEMU_SCANING_SCANMGR_H_
+#define EVEMU_SCANING_SCANMGR_H_
 
 #include "scanning/Scanning.h"
 #include "scanning/ScanningDB.h"
@@ -46,4 +46,4 @@ protected:
 
 };
 
-#endif
+#endif  // EVEMU_SCANING_SCANMGR_H_

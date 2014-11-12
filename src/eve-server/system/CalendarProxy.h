@@ -23,8 +23,8 @@
     Author:        Allan
 */
 
-#ifndef __CALENDAR_PROXY_H__INCL__
-#define __CALENDAR_PROXY_H__INCL__
+#ifndef EVEMU_SYSTEM_CALENDARPROXY_H__
+#define EVEMU_SYSTEM_CALENDARPROXY_H__
 
 
 #include "system/Calendar.h"
@@ -45,4 +45,4 @@ class CalendarProxy
 
 };
 
-#endif /* !__CALENDAR_PROXY_H__INCL__ */
+#endif // EVEMU_SYSTEM_CALENDARPROXY_H__

@@ -505,7 +505,7 @@
   <elementDef name="CallWarpToStuff">
     <tupleInline>
       <string name="type" />
-      <int name="id" />
+      <int name="ID" />
     </tupleInline>
   </elementDef>
 
@@ -535,7 +535,7 @@
     <tupleInline>
       <int name="entityID" />
       <!-- may be integer or real -->
-      <raw name="distance" />
+      <raw name="range" />
     </tupleInline>
   </elementDef>
 

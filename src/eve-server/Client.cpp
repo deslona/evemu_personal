@@ -81,11 +81,11 @@ Client::~Client() {
 
 		//TODO  - for warping to random point when client logs out in space...
 		//		1)  check client IsInSpace(?)
-		//		2)  set timer to delay removing bubble/sysmgr/destiny
+		//		2)  set timer to delay removing bubble/sysmgr/destiny...or check based on destiny->isstopped() or timer on destiny->ismoving()
 		//		3)  set current position (DB::character_.logoutPosition?)  initial code in place for warp-in on login
 		//		4)  generate random point to warp to ** use m_SGP.GetRandPointInSystem(systemID, distance)
-		//		5)  _warp to random point
-		//		6)  remove client from bubbe/sysmgr/destiny
+		//		5)  _warp to random point, but DONT make/update new bubble with entering ship
+		//		6)  remove client from sysmgr/destiny/server
 
         // remove ourselves from system
         if(m_system != NULL)
@@ -96,6 +96,14 @@ Client::~Client() {
         m_services.serviceDB().SetCharacterOnlineStatus(GetCharacterID(), false);
         m_services.serviceDB().SetAccountOnlineStatus(GetAccountID(), false);
 
+		std::vector<InventoryItemRef> skills;
+		GetChar()->GetSkillsList( skills );
+		std::vector<InventoryItemRef>::iterator cur, end;
+		cur = skills.begin();
+		end = skills.end();
+		for(; cur != end; cur++)
+			(*cur)->SaveAttributes();
+			//cur->SaveItem();
     }
 
     m_services.ClearBoundObjects(this);
@@ -411,8 +419,6 @@ bool Client::UpdateLocation(bool login) {
         delete m_destiny;
         m_destiny = NULL;
 
-        //remove ourselves from any bubble
-        //m_system->bubbles.Remove(this, false);
 		m_system->RemoveClient(this);
 		m_system = NULL;
 
@@ -421,15 +427,13 @@ bool Client::UpdateLocation(bool login) {
         sLog.Success( "Client::UpdateLocation()", "Character %s (%u) InSpace.", this->GetName(), this->GetCharacterID() );
         //we are in a system, so we need a destiny manager
         m_destiny = new DestinyManager(this, m_system);
-		//ship should never be NULL.
-		m_destiny->SetShipCapabilities( GetShip() );
-
-		m_destiny->SetPosition(GetShip()->position(), true);
+		m_destiny->SetShipCapabilities(GetShip());
+		m_destiny->SetPosition(GetShip()->position());
 
         /*if( login )
         {
             // We are just logging in, so we need to warp to our last position from a
-            // random vector 15.0AU away:
+            // random vector 1000000000m away:
             GPoint warpToPoint( GetShip()->position() );
             GPoint warpFromPoint( GetShip()->position() );
             warpFromPoint.MakeRandomPointOnSphere( 15.0*ONE_AU_IN_METERS );
@@ -445,7 +449,7 @@ bool Client::UpdateLocation(bool login) {
 
 			/**
             //set position.
-			if( (x() == 0) && (y() == 0) && (z() == 0) ) {
+			if( GetPosition().iszero() ) {
 			  //TODO  select random point in system and set client position to it
 			  //  will need to pick 2 random system celestials, make random point between them, and then set client to that point.
 			  //    made class for random system points....SystemGPoint::SystemGPoint  used as m_SGP.xxx
@@ -458,45 +462,39 @@ bool Client::UpdateLocation(bool login) {
 				sLog.Warning( "Client::UpdateLocation()", "client %s GetPosition = %.2f, %.2f, %.2f", GetName(), x(), y(), z()  );
 			}
 			*/
-    }
+	}
+	_UpdateSession(GetChar());
     return true;
 }
 
-void Client::UndockFromStation( uint32 stationID, uint32 systemID, uint32 constellationID, uint32 regionID, GPoint dockPosition, GPoint dest )
+void Client::UndockFromStation( uint32 stationID, uint32 systemID, uint32 constellationID, uint32 regionID, GPoint dockPosition, GPoint direction )
 {   // made specific for undocking instead of 'generic' move function below
 
 	// tell ship its' undocking, which only sets shields and cap to full for now  (which was moved from aknor's original commit)
 	GetShip()->Undock();
 	//remove ship from station inv, add to system inv, and inform client.
-    GetShip()->Move( systemID, flagAutoFit, true );
+    GetShip()->Move(systemID, flagAutoFit);
 	//set ship.m_position and save
-    GetShip()->Relocate( dockPosition );
+    GetShip()->Relocate(dockPosition);
     //set character location to current system, and save.
     GetChar()->SetLocation( 0, systemID, constellationID, regionID );
-    //update char session with new values
 	//need mlocation set to current system before adding destiny manager and updating client with new position.
-    _UpdateSession( GetChar() );
+    _UpdateSession(GetChar());
 	//register with system manager...should also update bubble manager to add client to station's bubble.
-    EnterSystem( false );
+    EnterSystem();
+	//update client and set session change
+	OnCharNoLongerInStation();
     //we are in a system, so we need a destiny manager
     m_destiny = new DestinyManager(this, m_system);
-	//ship should never be NULL.
-    m_destiny->SetShipCapabilities( GetShip() );
-	//set position at undock point of station
-	m_destiny->SetPosition(dockPosition, true);
-	//update client and set session change
+	//set undock information in protected variables in destiny
+	m_destiny->Undock(dockPosition, direction);
+    //update char session with the new values
     _SendSessionChange();
-	OnCharNoLongerInStation();
-	//set destination and ship movement
-	m_destiny->GotoDirection(dest, true);
-	//tell client it's moving from station's dock ramp
-	m_destiny->SendBallInfoOnUndock(true);
-	//tell server ship is stopping  ...not working right....
-	m_destiny->Stop();
-	//TODO: implement and set session change timer .....client knows already.  session change timer = 10s
-	//TODO:  implement and set undock invul until movement(but not on stop)
 
-    sLog.Warning( "Client::UndockFromStation()", "Character %s (%u) stationID() = %u  Position = %.2f, %.2f, %.2f  DockPosition = %.2f, %.2f, %.2f.", GetName(), GetCharacterID(), GetChar()->stationID(), x(), y(), z(), dockPosition.x, dockPosition.y, dockPosition.z );
+	//TODO: implement and set session change timer .....client knows already.  session change timer = 10s
+	//TODO: implement and set undock invul until movement(but not on stop)
+
+    sLog.Debug("Client::UndockFromStation()", "Character %s (%u) stationID() = %u  Position = %.2f, %.2f, %.2f  DockPosition = %.2f, %.2f, %.2f.", GetName(), GetCharacterID(), GetChar()->stationID(), x(), y(), z(), dockPosition.x, dockPosition.y, dockPosition.z );
 }
 
 void Client::MoveToLocation( uint32 location, const GPoint& pt )
@@ -551,8 +549,8 @@ void Client::MoveToLocation( uint32 location, const GPoint& pt )
     //update session with new values
     _UpdateSession( GetChar() );
 
-    EnterSystem( false );
-    UpdateLocation( false );
+    EnterSystem();
+    UpdateLocation();
 
     _SendSessionChange();
 }
@@ -982,7 +980,7 @@ void Client::_SendQueuedUpdates() {
 
         //right now, we never wait. I am sure they do this for a reason, but
         //I haven't found it yet
-        dum.waitForBubble = false;
+        dum.waitForBubble = false;		// set to 'true' causes blackscreen on login/undock.
 
         //now send it
         PyTuple* t = dum.Encode();

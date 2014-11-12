@@ -24,8 +24,8 @@
 */
 
 
-#ifndef __DEVIDXMGR_SERVICE_H_INCL__
-#define __DEVIDXMGR_SERVICE_H_INCL__
+#ifndef EVEMU_SYSTEM_IDXMGR_H__
+#define EVEMU_SYSTEM_IDXMGR_H__
 
 #include "PyService.h"
 
@@ -41,4 +41,4 @@ protected:
     PyCallable_DECL_CALL(GetAllDevelopmentIndices);
 };
 
-#endif
+#endif  // EVEMU_SYSTEM_IDXMGR_H__

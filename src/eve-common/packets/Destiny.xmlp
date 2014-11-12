@@ -380,7 +380,7 @@ DST_WARPEXIT = 11
             <!-- 0 -->
             <int name="entityID" />
             <int name="ballID" />
-            <int name="unknown" /> <!-- seen 50 -->
+            <int name="range" />
         </tupleInline>
       </tupleInline>
   </elementDef>
@@ -525,8 +525,8 @@ DST_WARPEXIT = 11
             <real name="dest_y" />
             <!-- 3 -->
             <real name="dest_z" />
-            <!-- 4 -->
-            <real name="distance" />
+            <!-- 4: distance from target to stop -->
+            <int name="distance" />
             <!-- 5: warp speed in AU/s times 10 -->
             <int name="warpSpeed" />
         </tupleInline>
@@ -597,21 +597,22 @@ DST_WARPEXIT = 11
       </tupleInline>
   </elementDef>
 
-  <elementDef name="OnDockingAccepted">
+  <elementDef name="DoDestiny_OnDockingAccepted">
+        <!-- OnDockingAccepted(self, dockingStartPos, dockingEndPos, stationID): -->
       <tupleInline>
-        <!-- 0 -->
+        <!-- 0: ship position -->
       <listInline>
-        <real name="start_x" />
-        <real name="start_y" />
-        <real name="start_z" />
+        <real name="ship_x" />
+        <real name="ship_y" />
+        <real name="ship_z" />
       </listInline>
-        <!-- 1: dup of previous list? -->
+        <!-- 1: station dockpoint-->
       <listInline>
-        <real name="end_x" />
-        <real name="end_y" />
-        <real name="end_z" />
+        <real name="station_x" />
+        <real name="station_y" />
+        <real name="station_z" />
       </listInline>
-      <!-- 2 -->
+        <!-- 2: stationID -->
       <int name="stationID" />
       </tupleInline>
   </elementDef>
@@ -623,9 +624,9 @@ DST_WARPEXIT = 11
       <!-- 1: arguments -->
       <tupleInline>
           <int name="entityID" />
-        <!-- there is an unknown optional int arg which may follow -->
+        <!-- there is a bool for terminal,  and/or an int for delay.  both are optional.  more info in client to get later-->
       </tupleInline>
-      </tupleInline>
+    </tupleInline>
   </elementDef>
 
   <elementDef name="DoDestiny_RemoveBalls">

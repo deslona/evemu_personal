@@ -24,8 +24,8 @@
 */
 
 
-#ifndef __PLANETORBIT_SERVICE_H_INCL__
-#define __PLANETORBIT_SERVICE_H_INCL__
+#ifndef EVEMU_PLANET_PLANETORB_H_
+#define EVEMU_PLANET_PLANETORB_H_
 
 #include "PyService.h"
 
@@ -41,4 +41,4 @@ protected:
     //PyCallable_DECL_CALL()
 };
 
-#endif
+#endif  // EVEMU_PLANET_PLANETORB_H_

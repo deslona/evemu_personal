@@ -24,8 +24,8 @@
 */
 
 
-#ifndef __CALENDARMGR_SERVICE_H_INCL__
-#define __CALENDARMGR_SERVICE_H_INCL__
+#ifndef EVEMU_SYSTEM_CALENDARMGR_H__
+#define EVEMU_SYSTEM_CALENDARMGR_H__
 
 #include "system/Calendar.h"
 #include "PyService.h"
@@ -44,4 +44,4 @@ class CalendarMgrService
     PyCallable_DECL_CALL(GetResponsesForCharacter);
 };
 
-#endif /* !__CALENDARMGR_SERVICE_H_INCL__ */
+#endif // EVEMU_SYSTEM_CALENDARMGR_H__

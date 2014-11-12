@@ -664,7 +664,7 @@ PyResult Command_spawn( Client* who, CommandDB* db, PyServiceMgr* services, cons
         // TEST FOR FUN:  If this is a drone, make its destiny manager orbit the ship that spawned it like a little lost puppy...
         if( item->categoryID() == EVEDB::invCategories::Drone )
         {
-            ((DroneEntity *)(who->System()->get( entity.itemID )))->Destiny()->SetSpeedFraction( 1.0, true );
+            ((DroneEntity *)(who->System()->get( entity.itemID )))->Destiny()->SetSpeedFraction(1.0);
             ((DroneEntity *)(who->System()->get( entity.itemID )))->Destiny()->Orbit( who, 1000.0, true );
         }
 
@@ -692,10 +692,18 @@ PyResult Command_location( Client* who, CommandDB* db, PyServiceMgr* services, c
         throw PyException( MakeCustomError( "You have no Destiny manager." ) );
 
     DestinyManager *dm = who->Destiny();
-    SystemBubble *b = who->Bubble();
+
+	int8 bubble = 0;
+	if( NULL == who->Bubble() )
+		throw PyException( MakeCustomError( "You have no Bubble." ) );
+	else {
+		SystemBubble *b = who->Bubble();
+		bubble = b->GetBubbleID();
+	}
 
     const GPoint &loc = dm->GetPosition();
     const GVector &vel = dm->GetVelocity();
+
 
     char reply[128];
     snprintf( reply, 128,
@@ -706,7 +714,7 @@ PyResult Command_location( Client* who, CommandDB* db, PyServiceMgr* services, c
         "speed: %lf<br>"
         "bubble: %li",
         loc.x, loc.y, loc.z,
-        vel.length(), b->GetBubbleID()
+        vel.length(), bubble
     );
 
     who->SendInfoModalMsg( reply );
@@ -721,6 +729,9 @@ PyResult Command_syncloc( Client* who, CommandDB* db, PyServiceMgr* services, co
 
     if( NULL == who->Destiny() )
         throw PyException( MakeCustomError( "You have no Destiny manager." ) );
+
+	if( NULL == who->Bubble() )
+		throw PyException( MakeCustomError( "You have no Bubble." ) );
 
     DestinyManager* dm = who->Destiny();
     dm->SetPosition( dm->GetPosition(), true );
@@ -990,6 +1001,8 @@ PyResult Command_giveallskills( Client* who, CommandDB* db, PyServiceMgr* servic
         }
         // END LOOP
         //  put here command to make client reload skills
+        character->SaveFullCharacter();
+		character->GetSkillQueue();
         return new PyString ( "Gifting skills complete" );
     }
 
@@ -1085,13 +1098,15 @@ PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, 
         character->SaveSkillHistory(39, EvilTimeNow().get_float(), ownerID, skillID.get_int(), level,
                                     skill->GetAttribute(AttrSkillPoints).get_float(), character->GetTotalSP().get_float());
 
-	//  put here command to make client reload skills
+		//character->SaveFullCharacter();
+		//need skill as InventoryItem then x->SaveAttributes();
+		character->GetSkillQueue();
 
         return new PyString ( "Skill Gifting Complete" );
     } else
         throw PyException( MakeCustomError( "ERROR: Unable to validate character object, it was found to be NULL!" ) );
 
-    return new PyString ("Skill Gifting Failure - Character Ref = NULL");
+	return new PyNone;
 }
 
 

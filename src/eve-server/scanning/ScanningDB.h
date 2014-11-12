@@ -23,8 +23,8 @@
     Author:        Allan
 */
 
-#ifndef __SCANNINGDB_H_INCL__
-#define __SCANNINGDB_H_INCL__
+#ifndef EVEMU_SCANING_SCANINGDB_H_
+#define EVEMU_SCANING_SCANINGDB_H_
 
 #include "ServiceDB.h"
 
@@ -40,5 +40,5 @@ class ScanningDB : public ServiceDB
 
 };
 
-#endif
+#endif  // EVEMU_SCANING_SCANINGDB_H_
 
