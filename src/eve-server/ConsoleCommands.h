@@ -24,8 +24,8 @@
     Thanks to:		avianrr  for the idea
 */
 
-#ifndef EVEMU_EVE-SERVER_CONSOLECOMMANDS_H_
-#define EVEMU_EVE-SERVER_CONSOLECOMMANDS_H_
+#ifndef EVEMU_EVESERVER_CONSOLECOMMANDS_H_
+#define EVEMU_EVESERVER_CONSOLECOMMANDS_H_
 
 #define BUFLEN 256
 #define EVEMU_REVISION "0.7.50-allan"
@@ -73,5 +73,5 @@ class ConsoleCommand
 #define sCommand \
     ( ConsoleCommand::get() )
 
-#endif  // EVEMU_EVE-SERVER_CONSOLECOMMANDS_H_
+#endif  // EVEMU_EVESERVER_CONSOLECOMMANDS_H_
 

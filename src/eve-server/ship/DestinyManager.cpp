@@ -72,6 +72,7 @@ DestinyManager::DestinyManager(SystemEntity *self, SystemManager *system)
   m_maxShipVelocity(1.0),
   m_shipAgility(1.0),
   m_shipInertiaModifier(1.0),
+  m_warpStrength(1),
   m_warpCapacitorNeed(1.0),
   m_warpAccelTime(1.0f),
   m_warpDecelTime(1.0f),
@@ -313,14 +314,15 @@ void DestinyManager::_UpdateVelocity() {
 	bv.x = m_velocity.x;
 	bv.y = m_velocity.y;
 	bv.z = m_velocity.z;
-	PyTuple tmp = bv.Encode();
-	SendDestinyUpdate(&tmp);
+	PyTuple *up = bv.Encode();
+	SendDestinyUpdate(&up);
 
 	DoDestiny_SetMaxSpeed ms;
 	ms.entityID = m_self->GetID();
 	ms.speedValue = m_maxVelocity;
-	tmp = ms.Encode();
-	SendDestinyUpdate(&tmp);
+	up = ms.Encode();
+	SendDestinyUpdate(&up);
+	PySafeDecRef(up);
 }
 
 //Global Actions:
@@ -527,17 +529,17 @@ void DestinyManager::_Move() {
 	bv.x = m_velocity.x;
 	bv.y = m_velocity.y;
 	bv.z = m_velocity.z;
-	PyTuple tmp = bv.Encode();
-	SendDestinyUpdate(&tmp);
+	PyTuple *up = bv.Encode();
+	SendDestinyUpdate(&up);
 
 	DoDestiny_SetBallPosition bp;
 	bp.entityID = m_self->GetID();
 	bp.x = m_position.x;
 	bp.y = m_position.y;
 	bp.z = m_position.z;
-	tmp = bp.Encode();
-	SendDestinyUpdate(&tmp);
-	PySafeDecRef(tmp);
+	up = bp.Encode();
+	SendDestinyUpdate(&up);
+	PySafeDecRef(up);
 
 	//update bubble with velocity and position data
 	m_system->bubbles.UpdateBubble(m_self);
@@ -624,6 +626,8 @@ bool DestinyManager::_InitWarp() {
 
 	/*  PUT CHECK HERE FOR WARP BUBBLES
 	 *     and other things that affect warp-in point.....when we get to there.
+	 * AttrWarpBubbleImmune = 1538,
+	 * AttrWarpBubbleImmuneModifier = 1539,
 	 *   NOTE:  warp bubble in path (or within 100km of m_targetPoint) will change m_targetDistance and m_targetPoint
 	 */
 
@@ -760,6 +764,7 @@ bool DestinyManager::_InitWarp() {
 	bm.is_massive = false;
 	up = bm.Encode();
 	SendDestinyUpdate(&up);
+	PySafeDecRef(up);
 
 	return true;
 }
@@ -867,8 +872,9 @@ void DestinyManager::_Warp() {
 		DoDestiny_SetBallMassive bm;
 		bm.entityID = m_self->GetID();
 		bm.is_massive = true;
-		PyTuple *tmp = bm.Encode();
-		SendDestinyUpdate(&tmp);
+		PyTuple *up = bm.Encode();
+		SendDestinyUpdate(&up);
+		PySafeDecRef(up);
 
 		/*	this makes an abrupt halt when set to 0 ....dont use here except for caught in bubble.
 		 * if(bubbled)
@@ -1071,8 +1077,9 @@ void DestinyManager::Follow(SystemEntity *who, double distance, bool update) {
         du.ballID = who->GetID();
         du.range = int32(distance);
 
-        PyTuple *tmp = du.Encode();
-        SendDestinyUpdate(&tmp);    //consumed
+        PyTuple *up = du.Encode();
+		SendDestinyUpdate(&up);    //consumed
+		PySafeDecRef(up);
     }
 }
 
@@ -1094,8 +1101,9 @@ void DestinyManager::Orbit(SystemEntity *who, double distance, bool update) {
         du.orbitEntityID = who->GetID();
         du.distance = uint32(distance);
 
-        PyTuple *tmp = du.Encode();
-        SendDestinyUpdate(&tmp);    //consumed
+        PyTuple *up = du.Encode();
+		SendDestinyUpdate(&up);    //consumed
+		PySafeDecRef(up);
     }
 }
 
@@ -1128,8 +1136,9 @@ void DestinyManager::OrbitingCruise(SystemEntity *who, double distance, bool upd
         du.orbitEntityID = who->GetID();
         du.distance = uint32(distance);
 
-        PyTuple *tmp = du.Encode();
-        SendDestinyUpdate(&tmp);    //consumed
+        PyTuple *up = du.Encode();
+		SendDestinyUpdate(&up);    //consumed
+		PySafeDecRef(up);
     }
 }
 
@@ -1248,6 +1257,9 @@ void DestinyManager::SetShipVariables(InventoryItemRef ship)
 	m_mass = shipMass;
 	m_massMKg = m_mass / 1000000; //changes mass from Kg to MillionKg (10^-6)
 
+	//  check for warp strength modifiers
+	m_warpStrength = 1;
+
 	/*  capacitor shit
 	 *    AttrCapacitorCharge = 18,
 	 *     AttrRechargeRate = 55,		// time to charge from 0 to full, in milliSeconds
@@ -1350,9 +1362,9 @@ void DestinyManager::SetShipCapabilities(InventoryItemRef ship)
 	m_shipAgility = m_massMKg * m_shipInertiaModifier;
 
 	/*   look into these, too...
-	 * AttrWarpSBonus(624) [rigs]
-	 * AttrWarpFactor(21)
-	 * AttrWarpInhibitor(29)
+	 * AttrWarpSBonus(624) [rigs and implants]
+	 * AttrWarpFactor(21) [all are 0]
+	 * AttrWarpInhibitor(29) [default is null]
 	 */
 
 	//TODO  add module and rig modifiers to warp speed here
@@ -1379,8 +1391,9 @@ void DestinyManager::SetPosition(const GPoint &pt, bool update, bool isWarping, 
         du.y = pt.y;
         du.z = pt.z;
 
-        PyTuple *tmp = du.Encode();
-        SendDestinyUpdate(&tmp);    //consumed
+        PyTuple *up = du.Encode();
+		SendDestinyUpdate(&up);    //consumed
+		PySafeDecRef(up);
     }
     m_system->bubbles.UpdateBubble(m_self, update, isWarping, isPostWarp);
 }
@@ -1400,8 +1413,9 @@ void DestinyManager::AlignTo(SystemEntity *ent, bool update) {
     DoDestiny_CmdAlignTo au;
     au.entityID = ent->GetID();
 
-	PyTuple *tmp = au.Encode();
-    SendDestinyUpdate(&tmp);    //consumed
+	PyTuple *up = au.Encode();
+	SendDestinyUpdate(&up);    //consumed
+	PySafeDecRef(up);
 
     _log(PHYSICS__TRACEPOS, "DestinyManager::AlignTo() - '%s' aligning to SystemEntity '%s'(%u) @ (%f,%f,%f)",
                 m_self->GetName(), ent->GetName(), ent->GetID(), position.x, position.y, position.z );
@@ -1423,8 +1437,9 @@ void DestinyManager::GotoDirection(const GPoint &direction, bool update) {
     du.y = direction.y;
     du.z = direction.z;
 
-    PyTuple *tmp = du.Encode();
-    SendDestinyUpdate(&tmp);    //consumed
+    PyTuple *up = du.Encode();
+	SendDestinyUpdate(&up);    //consumed
+	PySafeDecRef(up);
 
     _log(PHYSICS__TRACEPOS, "DestinyManager::GotoDirection() - SystemEntity '%s' vectoring to (%f,%f,%f) at velocity %f",
                 m_self->GetName(), direction.x, direction.y, direction.z, m_maxVelocity );
@@ -1554,10 +1569,13 @@ void DestinyManager::WarpTo(const GPoint &where, double distance) {
 		m_warpState = NULL;
 	}
 
-	if( m_self->IsClient() ) {
+	if(m_self->IsClient()) {
 		//Clear any pending docking operation since the user initiated warp:
 		m_self->CastToClient()->SetPendingDockOperation( false );
 	}
+
+	// check for scramble
+	//if(m_warpStrength)
 
 	State = DSTBALL_WARP;
 	m_targetEntity.first = 0;
@@ -1686,23 +1704,20 @@ void DestinyManager::SendJumpInEffect(std::string JumpEffect) const {
 }
 
 void DestinyManager::SendTerminalExplosion() const {
-    std::vector<PyTuple *> updates;
-
     //Clear any pending docking operation since the user's ship exploded:
 	if( m_self->IsClient() )
         m_self->CastToClient()->SetPendingDockOperation( false );
 
-    {
-		SystemBubble *b = m_self->Bubble();
-        //send an explosion special effects update...
-        DoDestiny_TerminalExplosion du;
-        du.shipID =  m_self->CastToClient()->GetShipID();	//m_self->GetID();
-        du.bubbleID = b->GetBubbleID();  					//  add check for bubbleID here.
-        du.ballIsGlobal = false; 							//  is this ball Global?  boolean
-        updates.push_back(du.Encode());
-    }
+	SystemBubble *b = m_self->Bubble();
+    //send an explosion special effects update...
+    DoDestiny_TerminalExplosion du;
+    du.shipID =  m_self->CastToClient()->GetShipID();	//m_self->GetID();
+    du.bubbleID = b->GetBubbleID();  					//  add check for bubbleID here.
+    du.ballIsGlobal = false; 							//  is this ball Global?  boolean
+    PyTuple *up = du.Encode();
 
-    SendDestinyUpdate(updates, true);
+	SendDestinyUpdate(&up);
+	PySafeDecRef(up);
 }
 
 //this should only be available on gates.
@@ -1715,8 +1730,9 @@ void DestinyManager::SendGateActivity(uint32 stargateID) const {
     du.start = 1;
     du.active = 0;
 
-    PyTuple *tmp = du.Encode();
-    SendDestinyUpdate(&tmp);    //consumed
+    PyTuple *up = du.Encode();
+	SendDestinyUpdate(&up);    //consumed
+	PySafeDecRef(up);
 }
 
 void DestinyManager::SendSetState(const SystemBubble *b) const {
@@ -1726,11 +1742,12 @@ void DestinyManager::SendSetState(const SystemBubble *b) const {
     ss.ego = m_self->GetID();
     m_system->MakeSetState(b, ss);
 
-    PyTuple *tmp = ss.Encode();
-    SendDestinyUpdate(&tmp, true);    //consumed
+    PyTuple *up = ss.Encode();
+	SendDestinyUpdate(&up);    //consumed
+	PySafeDecRef(up);
 }
 
-void DestinyManager::SendBallInfoOnUndock(GPoint direction, bool update) const {
+void DestinyManager::SendBallInfoOnUndock(GPoint direction) const {
 	std::vector<PyTuple *> updates;
 
 	DoDestiny_SetBallMassive sbmassive;
@@ -1762,21 +1779,19 @@ void DestinyManager::SendBallInfoOnUndock(GPoint direction, bool update) const {
 	sbvelocity.z = m_velocity.z;
 	updates.push_back(sbvelocity.Encode());
 
-	SendDestinyUpdate(updates, update);    //consumed
+	SendDestinyUpdate(updates, false);
+	PySafeDecRef(updates);
 
 	m_system->bubbles.UpdateBubble(m_self);
 }
 
 void DestinyManager::SendBoardShip(const ShipRef boardShipRef) const {
-
-    std::vector<PyTuple *> updates;
-
-    DoDestiny_SetBallInteractive du_setBallInteractiveCapsule;
-    du_setBallInteractiveCapsule.entityID = boardShipRef->itemID();
-    du_setBallInteractiveCapsule.interactive = 1;
-    updates.push_back(du_setBallInteractiveCapsule.Encode());
-
-    SendDestinyUpdate(updates, false);
+	DoDestiny_SetBallInteractive sbic;
+	sbic.entityID = boardShipRef->itemID();
+	sbic.interactive = 1;
+	PyTuple * up = sbic.Encode();
+    SendDestinyUpdate(&up);
+	PySafeDecRef(up);
 }
 
 void DestinyManager::SendEjectShip(const ShipRef capsuleRef, const ShipRef oldShipRef) const {

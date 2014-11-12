@@ -132,7 +132,7 @@ public:
 
     //Destiny Update stuff:
     void SendSetState(const SystemBubble *b) const;
-	void SendBallInfoOnUndock(GPoint direction, bool update=true) const;
+	void SendBallInfoOnUndock(GPoint direction) const;
     void SendJumpIn() const;
     void SendJumpOut(uint32 stargateID) const;
 	void SendJumpInEffect(std::string JumpEffect) const;
@@ -183,6 +183,7 @@ protected:
 	float m_warpDecelTime;				//in s
 	double m_warpCapacitorNeed;			//in GJ
 	double m_shipInertiaModifier;
+	uint8 m_warpStrength;				//interger
 
     //derrived from other params:
     void _UpdateVelocity();
