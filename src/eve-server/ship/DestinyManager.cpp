@@ -1780,7 +1780,6 @@ void DestinyManager::SendBallInfoOnUndock(GPoint direction) const {
 	updates.push_back(sbvelocity.Encode());
 
 	SendDestinyUpdate(updates, false);
-	PySafeDecRef(updates);
 
 	m_system->bubbles.UpdateBubble(m_self);
 }
