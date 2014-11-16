@@ -905,6 +905,9 @@ void Character::UpdateSkillQueue() {
     } else ClearSkillQueue();
 
     GetSkillQueue();                         //update skill queue on client
+
+    //TODO  check for OnModuleAttributeChange for itemid/skillpoints after training.
+    //                eventName, ownerID, itemID, attributeID, time, newValue, oldValue = change
 }
 
 //  this still needs work...in progress...see commented code for using <map> flatSkillQueue

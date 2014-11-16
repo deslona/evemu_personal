@@ -179,7 +179,8 @@ bool SystemBubble::ProcessWander(std::vector<SystemEntity *> &wanderers) {
     curw = found_wandering.begin();
     endw = found_wandering.end();
     for(; curw != endw; ++curw) {
-        _log( DESTINY__BUBBLE_TRACE, "SystemBubble::ProcessWander() - entity %s (%u) found wandering, but listed in bubble %u ... removing", (*curw)->GetName(), (*curw)->GetID(), this->GetBubbleID() );
+        _log( DESTINY__BUBBLE_TRACE, "SystemBubble::ProcessWander() - entity %s (%u) found wandering, but listed in bubble %u ... removing",
+              (*curw)->GetName(), (*curw)->GetID(), this->GetBubbleID() );
 
         Remove(*curw);
     }
@@ -192,16 +193,17 @@ void SystemBubble::Add(SystemEntity *ent, bool notify) {
 
 	//if they are already in this bubble, do not continue.
     if(m_entities.find(ent->GetID()) != m_entities.end()) {
-        _log(DESTINY__BUBBLE_TRACE, "SystemBubble::Add() - Tried to add entity %u to bubble %u, but it is already in here.", ent->GetID(), this->GetBubbleID());
+        _log(DESTINY__BUBBLE_TRACE, "SystemBubble::Add() - Tried to add entity %u to bubble %u, but it is already in here.",
+             ent->GetID(), this->GetBubbleID());
         return;
     }
 
     //if this entity is a Client and it is NOT cloaked,
     //notify everybody else in the bubble of the add.
-    if(ent->IsClient()) {
+    if (ent->IsClient()) {
 	    Client *c = ent->CastToClient();
-        if(c->Destiny() != NULL) {
-		    if(!(c->Destiny()->IsCloaked()) )
+        if (c->Destiny() != NULL) {
+		    if (!(c->Destiny()->IsCloaked()) )
                 _BubblecastAddBall(ent);
 		}
     } else
@@ -213,7 +215,11 @@ void SystemBubble::Add(SystemEntity *ent, bool notify) {
     double rangeToStar = direction.length();
 	rangeToStar /= ONE_AU_IN_METERS;
 
-    _log(DESTINY__BUBBLE_DEBUG, "SystemBubble::Add() - Adding entity %u at %.2f,%.2f,%.2f to bubble %u at %.2f,%.2f,%.2f with radius %.2f.  Distance to Star %.2f AU", ent->GetID(), startPoint.x, startPoint.y, startPoint.z, this->GetBubbleID(), m_center.x, m_center.y, m_center.z, m_radius, rangeToStar);
+    _log(DESTINY__BUBBLE_DEBUG, "SystemBubble::Add() - Adding entity %u at %.2f,%.2f,%.2f to bubble %u at %.2f,%.2f,%.2f with radius %.2f.  \
+                                 Distance to Star %.2f AU", \
+                                 ent->GetID(), startPoint.x, startPoint.y, startPoint.z, \
+                                 this->GetBubbleID(), m_center.x, m_center.y, m_center.z, \
+                                 m_radius, rangeToStar);
 
     m_entities[ent->GetID()] = ent;
     ent->m_bubble = this;

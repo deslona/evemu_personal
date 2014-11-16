@@ -430,15 +430,13 @@ bookmark, bmid
 		// This section handles Warping to any object in the Overview
 
 		// Calculate the warp-to distance specified by the client and add this to the final warp-to distance
-		double distance;
+		int32 distance;
 		std::map<std::string, PyRep *>::const_iterator res = call.byname.find("minRange");
 		if(res == call.byname.end()) {
-			//Not needed, this is the correct behavior
-			//codelog(CLIENT__ERROR, "%s: range not found, using 15 km.", call.client->GetName());
-			distance = 0.0;
+			distance = 100;
 		} else if(!res->second->IsInt() && !res->second->IsFloat()) {
 			codelog(CLIENT__ERROR, "%s: range of invalid type %s, expected Integer or Real; using 15 km.", call.client->GetName(), res->second->TypeString());
-			distance = 15000.0;
+			distance = 15000;
 		} else {
 			distance =
 			res->second->IsInt()
@@ -547,7 +545,8 @@ bookmark, bmid
 		else
 			distance += call.client->GetRadius() + se->GetRadius();
 
-		call.client->WarpTo( warpToPoint, distance );
+		warpToPoint.MakeRandomPointOnSphereLayer(200.0,(200.0+call.client->GetRadius()));
+		destiny->WarpTo( warpToPoint, distance );
 	}
     else if( arg.type == "bookmark" )
 	{ 	//  bookmark, bmid, minrange, fleet(bool)
@@ -832,6 +831,6 @@ PyResult BeyonceBound::Handle_CmdAbandonLoot(PyCallArgs &call) {
 		return NULL;
 	}
 	//arg.ints is list sent by client
-	
+
     return NULL;
 }

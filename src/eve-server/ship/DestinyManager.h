@@ -92,14 +92,14 @@ public:
     void EntityRemoved(SystemEntity *who);
 
     //Configuration:
-    void SetShipCapabilities(InventoryItemRef ship);
+    void SetShipCapabilities(InventoryItemRef ship, bool undock =  false);
 	void SetShipVariables(InventoryItemRef ship);
     void SetMaxVelocity(double maxVelocity) { m_maxShipVelocity = maxVelocity; }
     void SetPosition(const GPoint &pt, bool update=true, bool isWarping=false, bool isPostWarp=false);
 
     //Global Actions:
-	void Stop(bool update=true);
-	void Halt(bool update=true);    //like stop with no decceleration.
+	void Stop();
+	void Halt();    // puts entity at 0 velocity
     void TractorBeamHalt(bool update = true);
 
     //Local Movement:
@@ -108,7 +108,8 @@ public:
     void OrbitingCruise(SystemEntity *who, double distance, bool update=false, double cruiseSpeed=-1.0);
 	void SetSpeedFraction(float fraction);
 	void AlignTo(SystemEntity *ent, bool update=true);
-	void GotoDirection(const GPoint &direction, bool update=true);
+    void GotoDirection(const GPoint &direction);
+    void DoWarpAlignment(const GPoint &direction);
 	void TractorBeamFollow(SystemEntity *who, double mass, double maxVelocity, double distance, bool update=true);
     PyResult AttemptDockOperation();
 
@@ -118,7 +119,7 @@ public:
 	void Undock(GPoint dockPosition, GPoint direction);
 
     //bigger movement:
-    void WarpTo(const GPoint &where, double distance);
+    void WarpTo(const GPoint &where, int32 distance);
 
 	//Ship State Query functions:
 	bool IsMoving() { return (((State == Destiny::DSTBALL_GOTO) || (State == Destiny::DSTBALL_FOLLOW) || (State == Destiny::DSTBALL_ORBIT)) ? true : false); }
@@ -184,6 +185,7 @@ protected:
 	double m_warpCapacitorNeed;			//in GJ
 	double m_shipInertiaModifier;
 	uint8 m_warpStrength;				//interger
+	double m_capNeeded;
 
     //derrived from other params:
     void _UpdateVelocity();
@@ -203,11 +205,9 @@ protected:
     std::pair<uint32, SystemEntity *> m_targetEntity;   //we do not own the SystemEntity *
     //SystemEntity *m_targetEntity;		//we do not own this.
 
-    bool _Turn();						//compare m_targetDirection and m_direction, and turn as needed.
     void _Move();						//apply our velocity and direction to our position for 1 unit of time (a second)
     void _Follow();
     void _Warp();						//carry on our current warp.
-    void _MoveAccel(const GVector &calc_acceleration);
     void _Orbit();
 
 private:
@@ -216,7 +216,7 @@ private:
     class WarpState {
     public:
         WarpState(
-		  double start_stamp_,
+		  double start_time_,
 		  double total_distance_,
 		  double warp_speed_,
 		  float accel_time_,
@@ -227,7 +227,7 @@ private:
 		  double decel_dist_,
 		  float warp_time_,
 		  const GVector &warp_vector_)
-            : start_stamp(start_stamp_),
+            : start_time(start_time_),
             total_distance(total_distance_),
             warpSpeed(warp_speed_),
             accelTime(accel_time_),
@@ -238,7 +238,7 @@ private:
             decelDist(decel_dist_),
             warpTime(warp_time_),
             warp_vector(warp_vector_) { }
-        double start_stamp;			//timestamp of when the warp started.  1/100000 resolution
+        double start_time;			//timestamp of when the warp started.  1/100000 resolution
         double total_distance;		//in m
         double warpSpeed;			//in m/s
         float accelTime;			//in s
@@ -251,7 +251,7 @@ private:
         GVector warp_vector;
     };
     const WarpState *m_warpState;		//we own this. Allocated so we can have consts.
-    bool _InitWarp();		// various checks added.  now returns bool for continuing warp.
+    void _InitWarp();		// various checks added.
 };
 
 #endif

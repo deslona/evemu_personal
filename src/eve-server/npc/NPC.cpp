@@ -125,7 +125,7 @@ NPC::NPC(
 	// Set internal and Destiny values FROM these Attributes, now that they are all setup:
     m_destiny->SetPosition(position, false);
 	m_destiny->SetShipCapabilities(self);
-	m_destiny->SetSpeedFraction(1.0);
+	m_destiny->SetSpeedFraction(1.0f);
 	m_destiny->Halt();
 
 	/* Gets the value from the NPC and put on our own vars */

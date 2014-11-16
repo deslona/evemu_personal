@@ -79,7 +79,7 @@ uint32 timeNow()
 }
 */
 
-uint64 GetTimeMSeconds() {
+double GetTimeMSeconds() {
 	/*  higher resolution times....the 'GetTimeSeconds' defined above with interger resolution suxs for
 	 *  speed/time data manipulation
 	 *
@@ -98,8 +98,8 @@ uint64 GetTimeMSeconds() {
 	//  NOTE  std::chrono and system_clock::now() require C++11
 	auto now = std::chrono::system_clock::now();
 	auto duration = now.time_since_epoch();		// return in nanoseconds
-	uint64 millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-	//double mst = (millis/1000);
+	double millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+	millis /= 1000;
 	return (millis);
 }
 

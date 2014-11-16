@@ -163,7 +163,7 @@ void ItemAttributeMgr::SetIntEx(Attr attr, const int_t &v, bool persist) {
             oldValue = l;
         }
         // send change
-        _SendAttributeChange(attr, oldValue, new PyFloat(v));
+        _SendAttributeChange(attr, oldValue, new PyInt(v));
     }
 }
 

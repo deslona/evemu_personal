@@ -106,6 +106,8 @@ Client::~Client() {
 			//cur->SaveItem();
     }
 
+    sLog.Error( "Client Logout", "%s(%u) Save Complete.", GetCharacterName().c_str(), GetCharacterID());
+
     m_services.ClearBoundObjects(this);
 
     targets.DoDestruction();
@@ -463,7 +465,7 @@ bool Client::UpdateLocation(bool login) {
 			}
 			*/
 	}
-	_UpdateSession(GetChar());
+
     return true;
 }
 
@@ -559,7 +561,7 @@ void Client::MoveToLocation( uint32 location, const GPoint& pt )
 void Client::MoveToPosition(const GPoint &pt) {
     if(m_destiny == NULL)
         return;
-    m_destiny->Halt(true);
+    m_destiny->Halt();
     m_destiny->SetPosition(pt, true);
     GetShip()->Relocate(pt);
 }
@@ -1271,40 +1273,6 @@ void Client::UpdateSkillTraining() {
         m_timeEndTrain = 0;
 }
 
-double Client::GetPropulsionStrength() const {
-
-    /**
-     * if we don't have a ship return bogus propulsion strength
-     */
-    if( !GetShip() )
-        sLog.Log("Client","%s: Calling Client::GetPropulsionStrength() with no shipID", GetName());
-        return 3.0f;
-
-    /**
-     * Old comments:
-     * just making shit up, I think skills modify this, as newbies
-     * tend to end up with 3.038 instead of the base 3.0 on their ship..
-     */
-    EvilNumber res;
-    res =  GetShip()->GetAttribute( AttrPropulsionFusionStrength );
-    res += GetShip()->GetAttribute( AttrPropulsionIonStrength );
-    res += GetShip()->GetAttribute( AttrPropulsionMagpulseStrength );
-    res += GetShip()->GetAttribute( AttrPropulsionPlasmaStrength );
-    res += GetShip()->GetAttribute( AttrPropulsionFusionStrengthBonus );
-    res += GetShip()->GetAttribute( AttrPropulsionIonStrengthBonus );
-    res += GetShip()->GetAttribute( AttrPropulsionMagpulseStrengthBonus );
-    res += GetShip()->GetAttribute( AttrPropulsionPlasmaStrengthBonus );
-
-    res += 0.038f;
-
-    /**
-     * we should watch out here, because we know for a fact that this function returns a floating point.
-     * the only reason we know for sure is because we do the "res += 0.038f;" at the end of the bogus calculation.
-     * @note this function isn't even used... lolz
-     */
-    return res.get_float();
-}
-
 void Client::TargetAdded( SystemEntity* who )
 {
     PyTuple* up = NULL;
@@ -1315,7 +1283,6 @@ void Client::TargetAdded( SystemEntity* who )
 
     up = odsc.Encode();
     QueueDestinyUpdate( &up );
-    PySafeDecRef( up );
 
     Notify_OnTarget te;
     te.mode = "add";

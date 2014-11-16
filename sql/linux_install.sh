@@ -90,7 +90,7 @@ until [ "${option}" = "x" ]; do
 
 	    else
 	        echo
-	        echo "[-] The number you selected was not found"
+	        echo "[-] The item you selected was not found"
 	        echo
 	    fi
 
