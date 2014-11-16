@@ -1,30 +1,4 @@
 
-/* Table structure for table `mapDynamicData` */
-
-CREATE TABLE IF NOT EXISTS `mapDynamicData` (
-  `solarSystemID` int(10) NOT NULL,
-  `moduleCnt` int(10) NOT NULL DEFAULT '0',
-  `structureCnt` int(10) NOT NULL DEFAULT '0',
-  `jumpsHour` int(10) NOT NULL DEFAULT '0',
-  `killsHour` int(10) NOT NULL DEFAULT '0',
-  `kills24Hour` int(10) NOT NULL DEFAULT '0',
-  `pilotsDocked` int(10) NOT NULL DEFAULT '0',
-  `pilotsInSpace` int(10) NOT NULL DEFAULT '0',
-  `podKillsHour` int(10) NOT NULL DEFAULT '0',
-  `podKills24Hour` int(10) NOT NULL DEFAULT '0',
-  `factionKills` int(11) NOT NULL DEFAULT '0',
-  `factionKills24Hour` int(11) NOT NULL DEFAULT '0',
-  `jumpsDateTime` bigint(20) DEFAULT NULL,
-  `killsDateTime` bigint(20) DEFAULT NULL,
-  `kills24DateTime` bigint(20) DEFAULT NULL,
-  `podDateTime` bigint(20) DEFAULT NULL,
-  `pod24DateTime` bigint(20) DEFAULT NULL,
-  `factionDateTime` bigint(20) DEFAULT NULL,
-  `faction24DateTime` bigint(20) DEFAULT NULL,
-  `pilotsDateTime` bigint(20) DEFAULT NULL,
-  UNIQUE KEY `solarSystemID` (`solarSystemID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
 /* Table structure for table `chrPausedSkillQueue` */
 
 CREATE TABLE IF NOT EXISTS `chrPausedSkillQueue` (
@@ -225,12 +199,9 @@ UPDATE `entity_default_attributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `att
 /* dont remember */
 UPDATE `dgmTypeAttributes` SET `valueInt`=1,`valueFloat`=NULL WHERE `typeid`=10124;
 
-/* set base warp speed for ALL ships to 3.0 AU/s */
-UPDATE `dgmTypeAttributes` SET `valueInt`=3,`valueFloat`=NULL WHERE `attributeID`=1281;
-UPDATE `entity_attributes` SET `valueInt`=3,`valueFloat`=NULL WHERE `attributeID`=1281;
-
 /* reset rifter cap recharge rate */
 UPDATE `dgmTypeAttributes` SET `valueFloat` = '125000' WHERE `typeID` = 587 AND `attributeID` = 55;
+UPDATE `entity_attributes` SET `valueFloat` = '125000' WHERE `typeID` = 587 AND `attributeID` = 55;
 
 ALTER TABLE entity AUTO_INCREMENT=140000000;
 
