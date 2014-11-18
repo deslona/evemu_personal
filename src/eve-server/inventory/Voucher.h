@@ -24,8 +24,8 @@
 */
 
 
-#ifndef __VOUCHER_SERVICE_H_INCL__
-#define __VOUCHER_SERVICE_H_INCL__
+#ifndef EVEMU_INVENTORY_VOUCHER_H_
+#define EVEMU_INVENTORY_VOUCHER_H_
 
 #include "PyService.h"
 
@@ -44,4 +44,4 @@ protected:
 
 };
 
-#endif
+#endif  // EVEMU_INVENTORY_VOUCHER_H_

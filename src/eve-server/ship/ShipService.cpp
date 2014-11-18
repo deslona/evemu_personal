@@ -240,7 +240,7 @@ PyResult ShipBound::Handle_Board(PyCallArgs &call) {
             call.client->GetShip()->Move( call.client->GetLocationID(), (EVEItemFlags)flagHangar, true );
             ////call.client->services().item_factory.GetShip( call.client->GetShipID() )->Relocate( GPoint(0.0,0.0,0.0) );
             ////call.client->Destiny()->SetPosition( GPoint(0.0,0.0,0.0), true );
-            call.client->System()->bubbles.UpdateBubble( call.client, true );
+            call.client->System()->bubbles.CheckBubble( call.client, true );
 
             return NULL;
         }

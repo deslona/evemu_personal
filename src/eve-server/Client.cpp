@@ -1091,15 +1091,6 @@ PyDict *Client::MakeSlimItem() const {
     return(slim);
 }
 
-void Client::WarpTo(const GPoint &to, double distance) {
-    if(m_moveState != msIdle || m_moveTimer.Enabled()) {
-        sLog.Log("Client","%s: Warp called when a move is already pending. Ignoring.", GetName());
-        return;
-    }
-
-    m_destiny->WarpTo(to, distance);
-}
-
 void Client::SetAutoPilot(bool autoPilot) {
     if((autoPilot) && (!m_autoPilot)) {
 	    mSession.SetInt( "solarsystemid", GetSystemID() );   //this is currrent system.

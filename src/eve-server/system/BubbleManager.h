@@ -25,10 +25,11 @@
 #ifndef __BUBBLEMANAGER_H_INCL__
 #define __BUBBLEMANAGER_H_INCL__
 
-static const uint32 BUBBLE_RADIUS_METERS = 500000;       // EVE retail uses 250km and allows grid manipulation, for simplicity we dont and have our grid much larger
-static const uint16 BUBBLE_HYSTERESIS_METERS = 5000;     // How far out of the existing bubble a ship needs to fly before being placed into a new or different bubble
+#include "system/SystemEntity.h"
 
-class SystemEntity;
+static const float BUBBLE_RADIUS_METERS = 250000.0f;       // EVE retail uses 250km and allows grid manipulation, for simplicity we dont and have our grid much larger
+static const float BUBBLE_HYSTERESIS_METERS = 5000.0f;     // How far out of the existing bubble a ship needs to fly before being placed into a new or different bubble
+
 class SystemBubble;
 class GPoint;
 
@@ -48,7 +49,7 @@ public:
     void Process();
 
     //call whenever an entity may have left its bubble.
-    void UpdateBubble(SystemEntity *ent, bool notify=true, bool isWarping=false, bool isPostWarp=false);
+    void CheckBubble(SystemEntity *ent, bool notify=true, bool isWarping=false, bool isPostWarp=false);
     //call when an entity is added to the system.
     void Add(SystemEntity *ent, bool notify, bool isPostWarp=false);
     //call to find the bubble containing the SystemEntity specified, if no bubble does, return NULL

@@ -121,19 +121,19 @@ PyResult KeeperService::Handle_ActivateAccelerationGate(PyCallArgs &call) {
         return NULL;
     }
 
-        Client * who = call.client;
+    Client *pClient = call.client;
 
-        who->Destiny()->SendSpecialEffect10(args.arg, who->GetShip(), 0, "effects.WarpGateEffect", 0, 1, 0);
-		double distance = MakeRandomFloat(5, 25) * ONE_AU_IN_METERS;
-		GPoint currentPosition(who->GetPosition());
-        GPoint deltaPosition;
-        deltaPosition.x = MakeRandomFloat(-1.0, 1.0) * distance;
-        deltaPosition.y = MakeRandomFloat(-1.0, 1.0) * distance;
-        deltaPosition.z = MakeRandomFloat(-2.0, 2.0) * ONE_AU_IN_METERS;
-        GPoint warpToPoint(currentPosition+deltaPosition);              // Make a warp-in point variable
-        GVector vectorToDestination(currentPosition, warpToPoint);
-        double distanceToDestination = vectorToDestination.length();
-    who->WarpTo( warpToPoint, distanceToDestination );
+    pClient->Destiny()->SendSpecialEffect10(args.arg, pClient->GetShip(), 0, "effects.WarpGateEffect", 0, 1, 0);
+	double distance = MakeRandomFloat(5, 25) * ONE_AU_IN_METERS;
+	GPoint currentPosition(pClient->GetPosition());
+    GPoint deltaPosition;
+    deltaPosition.x = MakeRandomFloat(-1.0, 1.0) * distance;
+    deltaPosition.y = MakeRandomFloat(-1.0, 1.0) * distance;
+    deltaPosition.z = MakeRandomFloat(-2.0, 2.0) * ONE_AU_IN_METERS;
+    GPoint warpToPoint(currentPosition+deltaPosition);              // Make a warp-in point variable
+    GVector vectorToDestination(currentPosition, warpToPoint);
+    double distanceToDestination = vectorToDestination.length();
+    pClient->Destiny()->WarpTo(warpToPoint, distanceToDestination);
 
     return result;
 }

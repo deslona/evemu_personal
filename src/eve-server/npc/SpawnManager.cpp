@@ -278,7 +278,7 @@ void SpawnEntry::_DoSpawn(SystemManager &mgr, PyServiceMgr &svc) {
         mgr.AddNPC(*curn);
 
 		if( warpThisSpawnIn )
-			(*curn)->Destiny()->WarpTo(warp_in_point,0.0);
+			(*curn)->Destiny()->WarpTo(warp_in_point, 0);
     }
 
     //timer is disabled while the spawn is up.

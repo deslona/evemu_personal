@@ -199,7 +199,7 @@ public:
 
     // Content:
     bool copy;
-    uint32 materialLevel;
+    uint32 materialLevel;       //set these to mutable to alter the const
     uint32 productivityLevel;
     int32 licensedProductionRunsRemaining;
 };

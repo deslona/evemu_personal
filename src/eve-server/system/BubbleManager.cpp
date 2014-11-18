@@ -28,6 +28,7 @@
 #include "system/BubbleManager.h"
 #include "system/SystemBubble.h"
 #include "system/SystemEntity.h"
+#include "SystemManager.h"
 
 //upon this interval, check for entities which may have wandered out of their bubble without a major event happening.
 static const uint32 BubbleWanderTimer_S = 30;
@@ -84,7 +85,7 @@ void BubbleManager::Process() {
     }
 }
 
-void BubbleManager::UpdateBubble(SystemEntity *ent, bool notify, bool isWarping, bool isPostWarp) {
+void BubbleManager::CheckBubble(SystemEntity *ent, bool notify, bool isWarping, bool isPostWarp) {
     SystemBubble *b = ent->Bubble();
     if(b != NULL) {
         if(b->InBubble(ent->GetPosition())) {
@@ -96,9 +97,10 @@ void BubbleManager::UpdateBubble(SystemEntity *ent, bool notify, bool isWarping,
         _log(DESTINY__BUBBLE_TRACE, "BubbleManager::UpdateBubble() - Entity %u at (%.2f,%.2f,%.2f) is no longer located in bubble %u at (%.2f,%.2f,%.2f) with radius %.2f.  Removing...", ent->GetID(), ent->GetPosition().x, ent->GetPosition().y, ent->GetPosition().z, b->GetBubbleID(), b->m_center.x, b->m_center.y, b->m_center.z, b->m_radius);
         b->Remove(ent, notify);
     }
-    if(isWarping) //entity is in warp, therefore no bubble needed while warping....
+    if(isWarping) {
+        //entity is in warp, therefore, no bubble needed.
 	    return;
-    else {
+    } else {
 	    _log(DESTINY__BUBBLE_TRACE, "BubbleManager::UpdateBubble() - SystemEntity '%s' not currently in any Bubble...adding", ent->GetName() );
         Add(ent, notify, isPostWarp);
 	}
@@ -136,6 +138,19 @@ void BubbleManager::Add(SystemEntity *ent, bool notify, bool isPostWarp) {
 
     // TODO check edges of bubbles....should NOT overlap.
     in_bubble = new SystemBubble(newBubbleCenter, BUBBLE_RADIUS_METERS);  //, ent->GetLocationID());
+    // TODO add beacon here to mark bubble center.  set beacon name with bubbleID.
+    // ItemData( uint32 _typeID, uint32 _ownerID, uint32 _locationID, EVEItemFlags _flag, uint32 _quantity, \
+              const char *_customInfo = "", bool _contraband = false);
+              /*
+    ItemData iBubbleBeacon(11678, 1, ent->GetLocationID(), flagAutoFit, 1);
+    SystemManager *sm = ent->System();
+    ItemFactory itm = sm->itemFactory();
+    InventoryItemRef i = itm.SpawnItem(iBubbleBeacon);
+    InventoryItem *item = i;
+    item->Relocate(in_bubble->m_center);
+    //i->Rename(ent->Bubble()->GetBubbleID());
+    i->SaveItem();
+    /* *****end of beacon add data***** */
 	_log(DESTINY__BUBBLE_TRACE, "BubbleManager::Add() - SystemEntity '%s' being added to NEW Bubble %u", ent->GetName(), in_bubble->GetBubbleID() );
 
 	//TODO: think about bubble collision. should we merge them?
@@ -143,12 +158,11 @@ void BubbleManager::Add(SystemEntity *ent, bool notify, bool isPostWarp) {
     in_bubble->Add(ent, notify);
 }
 
-void BubbleManager::NewBubbleCenter(GVector shipVelocity, GPoint & newBubbleCenter)
-{
+void BubbleManager::NewBubbleCenter(GVector shipVelocity, GPoint & newBubbleCenter) {
 	shipVelocity.normalize();
-    newBubbleCenter.x += shipVelocity.x * BUBBLE_RADIUS_METERS;
-    newBubbleCenter.y += shipVelocity.y * BUBBLE_RADIUS_METERS;
-    newBubbleCenter.z += shipVelocity.z * BUBBLE_RADIUS_METERS;
+    newBubbleCenter.x += (shipVelocity.x * (BUBBLE_RADIUS_METERS /2));
+    newBubbleCenter.y += (shipVelocity.y * (BUBBLE_RADIUS_METERS /2));
+    newBubbleCenter.z += (shipVelocity.z * (BUBBLE_RADIUS_METERS /2));
 }
 
 void BubbleManager::Remove(SystemEntity *ent, bool notify) {

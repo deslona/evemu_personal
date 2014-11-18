@@ -44,6 +44,8 @@ extern const double SPACE_FRICTION;
 extern const double SPACE_FRICTION_SQUARED;
 extern const float TIC_DURATION_IN_SECONDS;
 
+static const GPoint NULL_ORIGIN = (0,0,0);
+
 //this object manages an entity's position in the system.
 class DestinyManager {
 public:
@@ -75,11 +77,11 @@ public:
 
 	void SendSelfDestinyUpdate(PyTuple **up) const;
 	void SendSelfDestinyEvent(PyTuple **up) const;
-	void SendDestinyUpdate(PyTuple **up, bool self_only=false) const;
-	void SendDestinyEvent(PyTuple **up, bool self_only=false) const;
-	void SendDestinyUpdate(std::vector<PyTuple *> &updates, bool self_only) const;
-	void SendDestinyEvent(std::vector<PyTuple *> &events, bool self_only) const;
-	void SendDestinyUpdate(std::vector<PyTuple *> &updates, std::vector<PyTuple *> &events, bool self_only) const;
+	void SendDestinyEvent(PyTuple **up, bool self_only = false) const;
+    void SendDestinyEvent(std::vector<PyTuple *> &events, bool self_only = false) const;
+    void SendDestinyUpdate(PyTuple **up, bool self_only = false) const;
+    void SendDestinyUpdate(std::vector<PyTuple *> &updates, bool self_only = false) const;
+    void SendDestinyUpdate(std::vector<PyTuple *> &updates, std::vector<PyTuple *> &events, bool self_only = false) const;
 
 	// Information query functions:
     const GPoint &GetPosition() 	const { return(m_position); }
@@ -96,6 +98,7 @@ public:
 	void SetShipVariables(InventoryItemRef ship);
     void SetMaxVelocity(double maxVelocity) { m_maxShipVelocity = maxVelocity; }
     void SetPosition(const GPoint &pt, bool update=true, bool isWarping=false, bool isPostWarp=false);
+    void SetBubble(bool set = false) { m_inBubble = set; }
 
     //Global Actions:
 	void Stop();
@@ -109,7 +112,6 @@ public:
 	void SetSpeedFraction(float fraction);
 	void AlignTo(SystemEntity *ent, bool update=true);
     void GotoDirection(const GPoint &direction);
-    void DoWarpAlignment(const GPoint &direction);
 	void TractorBeamFollow(SystemEntity *who, double mass, double maxVelocity, double distance, bool update=true);
     PyResult AttemptDockOperation();
 
@@ -119,7 +121,7 @@ public:
 	void Undock(GPoint dockPosition, GPoint direction);
 
     //bigger movement:
-    void WarpTo(const GPoint &where, int32 distance);
+    void WarpTo(const GPoint where, int32 distance);
 
 	//Ship State Query functions:
 	bool IsMoving() { return (((State == Destiny::DSTBALL_GOTO) || (State == Destiny::DSTBALL_FOLLOW) || (State == Destiny::DSTBALL_ORBIT)) ? true : false); }
@@ -201,6 +203,7 @@ protected:
 	int32 m_stopDistance;				//from destination, in m
     uint32 m_stateStamp;				//used for ?something?
     double m_moveTimer;
+    bool m_inBubble;                    //used to tell if client is in bubble or not.
 	bool m_cloaked;
     std::pair<uint32, SystemEntity *> m_targetEntity;   //we do not own the SystemEntity *
     //SystemEntity *m_targetEntity;		//we do not own this.

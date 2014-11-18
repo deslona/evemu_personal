@@ -289,31 +289,30 @@ PyResult BeyonceBound::Handle_CmdGotoBookmark(PyCallArgs &call) {
     }
     uint32 bookmarkID = call.tuple->GetItem( 0 )->AsInt()->value();
 
-    DestinyManager *destiny = call.client->Destiny();
-    if( destiny == NULL )
+    DestinyManager *pDestiny = call.client->Destiny();
+    if( pDestiny == NULL )
     {
         sLog.Error( "%s: Client has no destiny manager!", call.client->GetName() );
 		return NULL;
-	} else if(destiny->GetState() == Destiny::DSTBALL_WARP){
+	} else if(pDestiny->GetState() == Destiny::DSTBALL_WARP){
 		call.client->SendNotifyMsg( "You can't do this while warping");
 		return NULL;
 	}
 
-    double x,y,z;
-    uint32 itemID;
-    uint32 typeID;
-    GPoint bookmarkPosition;
+	double x = 0.0, y = 0.0, z = 0.0;
+    uint32 itemID = 0, typeID = 0;
+    GPoint bookmarkPosition  = (NULL_ORIGIN);
 
-    BookmarkService *bkSrvc = (BookmarkService *)(call.client->services().LookupService( "bookmark" ));
+    BookmarkService *pBMSvc = (BookmarkService *)(call.client->services().LookupService( "bookmark" ));
 
-    if( bkSrvc == NULL )
+    if( pBMSvc == NULL )
     {
         sLog.Error( "BeyonceService::Handle_GotoBookmark()", "Attempt to access BookmarkService via (BookmarkService *)(call.client->services().LookupService(\"bookmark\")) returned NULL pointer." );
         return NULL;
     }
     else
     {
-        bkSrvc->LookupBookmark( call.client->GetCharacterID(),bookmarkID,itemID,typeID,x,y,z );
+        pBMSvc->LookupBookmark(call.client->GetCharacterID(), bookmarkID, itemID, typeID, x, y, z);
 
         if( typeID == 5 )
         {
@@ -322,7 +321,7 @@ PyResult BeyonceBound::Handle_CmdGotoBookmark(PyCallArgs &call) {
             bookmarkPosition.y = y;     // From bookmark y
             bookmarkPosition.z = z;     // From bookmark z
 
-            destiny->GotoDirection( bookmarkPosition );
+            pDestiny->GotoDirection( bookmarkPosition );
         }
         else
         {
@@ -338,7 +337,7 @@ PyResult BeyonceBound::Handle_CmdGotoBookmark(PyCallArgs &call) {
                 return NULL;
             }
 
-            destiny->GotoDirection( se->GetPosition() );
+            pDestiny->GotoDirection( se->GetPosition() );
         }
     }
 
@@ -545,17 +544,17 @@ bookmark, bmid
 		else
 			distance += call.client->GetRadius() + se->GetRadius();
 
-		warpToPoint.MakeRandomPointOnSphereLayer(200.0,(200.0+call.client->GetRadius()));
-		destiny->WarpTo( warpToPoint, distance );
+		//warpToPoint.MakeRandomPointOnSphereLayer(100.0,(200.0+call.client->GetRadius()));
+        //destiny->WarpTo(arg.ID, warpToPoint, distance);
+        destiny->WarpTo(warpToPoint, distance);
 	}
     else if( arg.type == "bookmark" )
 	{ 	//  bookmark, bmid, minrange, fleet(bool)
         // This section handles Warping to any Bookmark
-        double distance = 0.0;
-        double x,y,z;
-        uint32 itemID;
-        uint32 typeID;
-        GPoint bookmarkPosition;
+        int32 distance = 0;
+        double x = 0.0, y = 0.0, z = 0.0;
+        uint32 itemID = 0, typeID = 0;
+        GPoint bookmarkPosition  = (NULL_ORIGIN);
 
         BookmarkService *bkSrvc = (BookmarkService *)(call.client->services().LookupService( "bookmark" ));
 
@@ -566,7 +565,7 @@ bookmark, bmid
         }
         else
         {
-            bkSrvc->LookupBookmark( call.client->GetCharacterID(),arg.ID,itemID,typeID,x,y,z );
+            bkSrvc->LookupBookmark(call.client->GetCharacterID(), arg.ID, itemID, typeID, x, y, z);
 
             // Calculate the warp-to distance specified by the client and add this to the final warp-to distance
             std::map<std::string, PyRep *>::const_iterator res = call.byname.find("minRange");
@@ -582,7 +581,7 @@ bookmark, bmid
                 bookmarkPosition.y = y;     // From bookmark y
                 bookmarkPosition.z = z;     // From bookmark z
 
-                call.client->WarpTo( bookmarkPosition, distance );
+                destiny->WarpTo(bookmarkPosition, distance);
             }
             else
             {
@@ -646,7 +645,7 @@ bookmark, bmid
 				 * call.client->FleetWarp( se->GetPosition(), distance );
 				 */
 
-                call.client->WarpTo( se->GetPosition(), distance );
+                destiny->WarpTo(bookmarkPosition, distance);
             }
 		}
 	}
@@ -699,7 +698,7 @@ PyResult BeyonceBound::Handle_CmdWarpToStuffAutopilot(PyCallArgs &call) {
 	}
 
     //Change this to change the default autopilot distance (Faster Autopilot FTW)
-    double distance = 5000.0; //15000
+    int32 distance = 5000; //15000
 
     //Don't update destiny until done with warp
     SystemManager *sm = call.client->System();
@@ -717,7 +716,7 @@ PyResult BeyonceBound::Handle_CmdWarpToStuffAutopilot(PyCallArgs &call) {
 
 	//Adding in object radius
     distance += call.client->GetRadius() + se->GetRadius();
-    call.client->WarpTo(se->GetPosition(), distance);
+    destiny->WarpTo(se->GetPosition(), distance);
 
     return NULL;
 }
