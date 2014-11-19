@@ -282,10 +282,10 @@ void DestinyManager::SetSpeedFraction(float fraction) {
 	ms.speedValue = m_maxVelocity;
 	updates.push_back(ms.Encode());
 
-	SendDestinyUpdate(updates, false);
-
 	//ensure that our bubble is correct.
 	m_system->bubbles.CheckBubble(m_self);
+
+	SendDestinyUpdate(updates, false);
 }
 
 void DestinyManager::_UpdateVelocity() {
@@ -1156,9 +1156,12 @@ void DestinyManager::TractorBeamFollow(SystemEntity *who, double mass, double ma
 	sLog.Debug("DestinyManager::TractorBeamFollow()", "SystemEntity '%s' following SystemEntity '%s' at velocity %f",
 			   m_self->GetName(), who->GetName(), m_maxVelocity);
 
-	std::vector<PyTuple *> updates;
+	//ensure that our bubble is correct.
+	m_system->bubbles.CheckBubble(m_self);
 
 	if (update) {
+		std::vector<PyTuple *> updates;
+
 		DoDestiny_SetMaxSpeed maxspeed1;
 		maxspeed1.entityID = m_self->GetID();
 		maxspeed1.speedValue = maxVelocity;
@@ -1207,9 +1210,9 @@ void DestinyManager::TractorBeamHalt(bool update)
 	//ensure that our bubble is correct.
 	m_system->bubbles.CheckBubble(m_self);
 
-	std::vector<PyTuple *> updates;
-
 	if (update) {
+		std::vector<PyTuple *> updates;
+
 		DoDestiny_SetMaxSpeed maxspeed1;
 		maxspeed1.entityID = m_self->GetID();
 		maxspeed1.speedValue = 0;
@@ -1625,6 +1628,9 @@ void DestinyManager::WarpTo(const GPoint where, int32 distance) {
 	State = DSTBALL_WARP;
 	int32 warpSpeed = (m_shipWarpSpeed * 10);
 
+	//ensure that our bubble is correct.
+	m_system->bubbles.CheckBubble(m_self);
+
 	// send client updates
 	std::vector<PyTuple *> updates;
 
@@ -1673,7 +1679,10 @@ void DestinyManager::SendJumpOut(uint32 stargateID) const {
     effect.isOffensive = 0;
     effect.start = 1;
     effect.active = 0;
-    updates.push_back(effect.Encode());
+	updates.push_back(effect.Encode());
+
+	//ensure that our bubble is correct.
+	m_system->bubbles.CheckBubble(m_self);
 
     SendDestinyUpdate(updates, false);
 }
@@ -1690,7 +1699,10 @@ void DestinyManager::SendJumpIn() const {
     effect.isOffensive = 0;
     effect.start = 1;
     effect.active = 0;
-    updates.push_back(effect.Encode());
+	updates.push_back(effect.Encode());
+
+	//ensure that our bubble is correct.
+	m_system->bubbles.CheckBubble(m_self);
 
     SendDestinyUpdate(updates, false);
 }
@@ -1706,7 +1718,10 @@ void DestinyManager::SendJumpOutEffect(std::string JumpEffect, uint32 locationID
     effect.isOffensive = 0;
     effect.start = 1;
     effect.active = 0;
-    updates.push_back(effect.Encode());
+	updates.push_back(effect.Encode());
+
+	//ensure that our bubble is correct.
+	m_system->bubbles.CheckBubble(m_self);
 
     SendDestinyUpdate(updates, false);
 }
@@ -1718,6 +1733,9 @@ void DestinyManager::SendJumpInEffect(std::string JumpEffect) const {
     //Clear any pending docking operation since the user set a new course:
 	if( m_self->IsClient() )
 		m_self->CastToClient()->SetPendingDockOperation( false );
+
+	//ensure that our bubble is correct.
+	m_system->bubbles.CheckBubble(m_self);
 
     std::vector<PyTuple *> updates;
 
@@ -1747,7 +1765,10 @@ void DestinyManager::SendJumpInEffect(std::string JumpEffect) const {
 void DestinyManager::SendTerminalExplosion() const {
     //Clear any pending docking operation since the user's ship exploded:
 	if( m_self->IsClient() )
-        m_self->CastToClient()->SetPendingDockOperation( false );
+		m_self->CastToClient()->SetPendingDockOperation( false );
+
+	//ensure that our bubble is correct.
+	m_system->bubbles.CheckBubble(m_self);
 
 	SystemBubble *b = m_self->Bubble();
     //send an explosion special effects update...
@@ -1764,6 +1785,10 @@ void DestinyManager::SendTerminalExplosion() const {
 //this should only be available on gates.
 //   not working correctly for gateActivate   -allan 6Aug14
 void DestinyManager::SendGateActivity(uint32 stargateID) const {
+
+	//ensure that our bubble is correct.
+	m_system->bubbles.CheckBubble(m_self);
+
     DoDestiny_OnSpecialFX10 du;
     du.entityID = stargateID;
     du.effect_type = "effects.GateActivity";
@@ -1777,6 +1802,10 @@ void DestinyManager::SendGateActivity(uint32 stargateID) const {
 }
 
 void DestinyManager::SendSetState(const SystemBubble *b) const {
+
+	//ensure that our bubble is correct.
+	m_system->bubbles.CheckBubble(m_self);
+
     DoDestiny_SetState ss;
 
     ss.stamp = GetStamp();
