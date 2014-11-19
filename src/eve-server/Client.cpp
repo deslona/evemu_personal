@@ -1146,7 +1146,7 @@ void Client::StargateJump(uint32 fromGate, uint32 toGate) {
     //m_destiny->SendJumpOut(toGate);
 
     //delay the move so they can see the JumpOut animation
-    _postMove(msJump, 5000);
+    _postMove(msJump, 3000);
 }
 
 void Client::SetDockingPoint(GPoint dockPoint)

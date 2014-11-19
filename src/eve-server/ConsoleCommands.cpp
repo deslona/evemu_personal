@@ -91,7 +91,8 @@ bool ConsoleCommand::Process() {
 				int64 threads = 0;
 				float vm = 0.0f, rss = 0.0f, user = 0.0f, kernel = 0.0f;
 				Status(&state, &threads, &vm, &rss, &user, &kernel);
-				sLog.Log("    Server Status", "  S: %s | T: %d | RSS: %.3fMb | VM: %.3fMb | U: %.2f | K: %.2f", state.c_str(), threads, rss, vm, user, kernel );
+				sLog.Log("    Server Status", "  S: %s | T: %d | RSS: %.3fMb | VM: %.3fMb | U: %.2f | K: %.2f", \
+                         state.c_str(), threads, rss, vm, user, kernel );
 			} else if (strncmp(buf, "v", 1) == 0) {
 			    sLog.Warning("  Alasiya's EvEMu", "Server Version:");
 				sLog.Log("  Server Revision", " " EVEMU_REVISION );
@@ -103,11 +104,15 @@ bool ConsoleCommand::Process() {
 				sLog.Log("         Based on", " " EVEMU_VERSION );
 				sLog.Log("       Build Date", " " EVEMU_BUILD_DATE );
 				sLog.Log("      This Source", " " EVEMU_REPOSITORY );
-				//  memory
-				float vm = 0.0f, rss = 0.0f;
-				MemStatus(&vm, &rss);
+                //  memory
+                std::string state = "";
+                int64 threads = 0;
+                float vm = 0.0f, rss = 0.0f, user = 0.0f, kernel = 0.0f;
+                Status(&state, &threads, &vm, &rss, &user, &kernel);
 				sLog.Log("     Memory Usage", " RSS: %.3fMb  VM: %.3fMb", rss, vm );
-				uint8 w = 0, d = 0, h = 0, m = 0, s = 0;
+                sLog.Log("    Server Status", "  S: %s | T: %d | U: %.2f | K: %.2f", \
+                         state.c_str(), threads, rss, vm, user, kernel );
+                uint8 w = 0, d = 0, h = 0, m = 0, s = 0;
 				GetUpTime(&w, &d, &h, &m, &s);
 				if(w)
 				    sLog.Log("    Server UpTime", " %u W, %u D, %u H, %u M, %u S.", w, d, h, m, s );
@@ -127,7 +132,7 @@ bool ConsoleCommand::Process() {
 				//sLog.Log("   Active Systems", " %u", p_systems->Count());		// TODO: this is wrong...
 				//  loaded bubbles
 				sLog.Log("   Active Bubbles", " %u", p_bubbles->Count());
-				//m_db.SaveServerStats(threads, rss, vm, user, kernel, p_factory->Count() , 3 /*systems*/, p_bubbles->Count());
+				m_db.SaveServerStats(threads, rss, vm, user, kernel, p_factory->Count() , 3 /*systems*/, p_bubbles->Count());
 			} else if (strncmp(buf, "a", 1) == 0) {
 			    sLog.Warning("  Alasiya's EvEMu", "Server SaveAll:");
 				//p_factory->SaveItems();
