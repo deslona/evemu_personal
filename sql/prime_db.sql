@@ -43,23 +43,6 @@ TRUNCATE TABLE market_transactions;
 TRUNCATE TABLE ramAssemblyLineStationCostLogs;
 TRUNCATE TABLE ramJobs;
 TRUNCATE TABLE rentalInfo;
-TRUNCATE TABLE srvStatus;
-
-/*
- * Insert static characters (agents)
- * TODO: Develop a query which will populate character_ using agtAgents and
- * random value generation)
-
-INSERT INTO character_
- SELECT
-  characterID, accountID, title, description, bounty, 0 AS balance, 0 AS aurBalance, securityRating, 0 AS  petitionMessage, 0 AS logonMinutes, 0 AS skillPoints, 0 AS skillQueueEndTime,
-  corporationID, corpRole, 0 AS rolesAtAll, 0 AS rolesAtBase, 0 AS rolesAtHQ, 0 AS rolesAtOther,
-  corporationDateTime, startDateTime, createDateTime,
-  ancestryID, careerID, schoolID, careerSpecialityID, gender,
-  stationID, solarSystemID, constellationID, regionID,
-  0 AS online, 0 AS freeRespecs, 0 AS lastRespecDateTime, 0 AS nextRespecDateTime, 0 AS deletePrepareDateTime, shipID, 0 AS age
- FROM characterStatic;
-*/
 
 /*
  * Copy over the static entities:

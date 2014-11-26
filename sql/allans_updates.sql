@@ -211,7 +211,6 @@ UPDATE `dgmTypeAttributes` SET `valueInt`=1,`valueFloat`=NULL WHERE `typeid`=101
 
 /* reset rifter cap recharge rate */
 UPDATE `dgmTypeAttributes` SET `valueFloat` = '125000' WHERE `typeID` = 587 AND `attributeID` = 55;
-UPDATE `entity_attributes` SET `valueFloat` = '125000' WHERE `typeID` = 587 AND `attributeID` = 55;
 
 ALTER TABLE entity AUTO_INCREMENT=140000000;
 
