@@ -249,7 +249,7 @@ void DestinyManager::ProcessState() {
 }
 
 //Movement setting methods
-void DestinyManager::SetSpeedFraction(float fraction) {
+void DestinyManager::SetSpeedFraction(float fraction, bool update) {
 	/* movement is set according to speed fraction.
 	 * m_userSpeedFraction is user-set speed control (fractional from speedo or full from goto, warp, align, follow, and stop).
 	 * 	sets m_maxShipVelocity
@@ -257,7 +257,9 @@ void DestinyManager::SetSpeedFraction(float fraction) {
 	 * 	sets m_velocity
 	 */
 	m_userSpeedFraction = fraction;
-	_UpdateVelocity();
+	_UpdateVelocity(update);
+
+    if (!update) return;
 
 	std::vector<PyTuple *> updates;
 
@@ -288,7 +290,7 @@ void DestinyManager::SetSpeedFraction(float fraction) {
 	SendDestinyUpdate(updates, false);
 }
 
-void DestinyManager::_UpdateVelocity() {
+void DestinyManager::_UpdateVelocity(bool update) {
 	//if (IsMoving())  check for timers, decel, etc.
 	m_moveTimer = GetTimeMSeconds();
 
@@ -315,12 +317,13 @@ void DestinyManager::_UpdateVelocity() {
 		moveVector.normalize();		//change vector to direction
 		m_velocity = (moveVector * m_speedToLeaveWarp);
 		m_maxVelocity = m_speedToLeaveWarp;
-
+    /*
 		DoDestiny_CmdSetSpeedFraction du;
 		du.entityID = m_self->GetID();
 		du.fraction = fraction;
 		PyTuple *up = du.Encode();
 		SendDestinyUpdate(&up);
+	*/
 	} else if (m_userSpeedFraction) {
 		sLog.Warning("Destiny::_UpdateVelocity", "user speed fraction != 0.  --Accel or change direction");
 		//  see notes in _Move() for information relating to accel equations
@@ -1401,15 +1404,32 @@ void DestinyManager::AlignTo(SystemEntity *ent, bool update) {
 	if (m_self->IsClient())
 		m_self->CastToClient()->SetPendingDockOperation(false);
 
-	State = DSTBALL_GOTO;
+    State = DSTBALL_GOTO;
 
-    DoDestiny_CmdAlignTo au;
-    au.entityID = ent->GetID();
+    GPoint position = ent->GetPosition();
 
-	PyTuple *up = au.Encode();
-	SendDestinyUpdate(&up);    //consumed
+    std::vector<PyTuple *> updates;
 
-	SetSpeedFraction(1.0f);
+    DoDestiny_SetBallMassive sbmassive;
+    sbmassive.entityID = m_self->GetID();
+    sbmassive.is_massive = true;
+    updates.push_back(sbmassive.Encode());
+
+    DoDestiny_SetBallMass sbmass;
+    sbmass.entityID = m_self->GetID();
+    sbmass.mass = m_mass;
+    updates.push_back(sbmass.Encode());
+
+    DoDestiny_GotoPoint gtpoint;
+    gtpoint.entityID = ent->GetID();
+    gtpoint.x = position.x;
+    gtpoint.y = position.y;
+    gtpoint.z = position.z;
+    updates.push_back(gtpoint.Encode());
+
+	SendDestinyUpdate(updates, false);    //consumed
+
+	SetSpeedFraction(1.0f, false);
 
     _log(PHYSICS__TRACEPOS, "DestinyManager::AlignTo() - %s(%u) aligning to SystemEntity %s(%u)",
                 m_self->GetName(), m_self->GetID(), ent->GetName(), ent->GetID());
@@ -1504,6 +1524,9 @@ PyResult DestinyManager::AttemptDockOperation() {
     who->targets.ClearAllTargets();
 
     who->SetPendingDockOperation(false);
+
+    //SetBallMassive = 0;
+    //stop
 
 	 // When docking, Set X,Y,Z to origin so that when changing ships in stations, they don't appear outside:
 	who->MoveToLocation(stationID, NULL_ORIGIN);
@@ -1655,14 +1678,14 @@ void DestinyManager::WarpTo(const GPoint where, int32 distance) {
 	updates.push_back(sfx.Encode());
 	SendDestinyUpdate(updates, false);
 	updates.clear();
-
+/*
 	//clear massive for warp,  (massive means object is solid)
 	DoDestiny_SetBallMassive bm;
 	bm.entityID = m_self->GetID();
 	bm.is_massive = false;
 	updates.push_back( bm.Encode());
 	SendDestinyUpdate(updates, true);
-
+*/
 	//m_targetPoint -= distance;
 	sLog.Warning("DestinyManager::WarpTo()", "m_targetPoint: %.4f,%.4f,%.4f  m_stopDistance: %i  m_targetDistance: %.4f",
 				 m_targetPoint.x, m_targetPoint.y, m_targetPoint.z, m_stopDistance, m_targetDistance);
@@ -1773,9 +1796,9 @@ void DestinyManager::SendTerminalExplosion() const {
 	SystemBubble *b = m_self->Bubble();
     //send an explosion special effects update...
     DoDestiny_TerminalExplosion du;
-    du.shipID =  m_self->CastToClient()->GetShipID();	//m_self->GetID();
-    du.bubbleID = b->GetBubbleID();  					//  add check for bubbleID here.
-    du.ballIsGlobal = false; 							//  is this ball Global?  boolean
+    du.shipID = m_self->GetID();                //m_self->CastToClient()->GetShipID();
+    du.bubbleID = b->GetBubbleID();  			//  add check for bubbleID here.
+    du.ballIsGlobal = false; 					//  is this ball Global?  boolean
     PyTuple *up = du.Encode();
 
 	SendDestinyUpdate(&up);
@@ -1820,16 +1843,6 @@ void DestinyManager::SendSetState(const SystemBubble *b) const {
 void DestinyManager::SendBallInfoOnUndock(GPoint direction) const {
 	std::vector<PyTuple *> updates;
 /*
-	DoDestiny_SetBallMassive sbmassive;
-	sbmassive.entityID = m_self->GetID();
-	sbmassive.is_massive = true;
-	updates.push_back(sbmassive.Encode());
-
-	DoDestiny_SetBallMass sbmass;
-	sbmass.entityID = m_self->GetID();
-	sbmass.mass = m_mass;
-	updates.push_back(sbmass.Encode());
-
 	DoDestiny_SetBallRadius sbradius;
 	sbradius.entityID = m_self->GetID();
 	sbradius.radius = m_self->GetRadius();
@@ -2011,6 +2024,25 @@ void DestinyManager::SendUncloakShip() const {
 
     SendDestinyUpdate(updates, false);
 }
+/*
+[PyTuple 2 items]
+[PyString "OnSpecialFX"]
+[PyTuple 14 items]
+[PyIntegerVar 1005909162494]
+[PyIntegerVar 1005909162494]
+[PyInt 21638]
+[PyIntegerVar 9000000000001190097]
+[PyNone]
+[PyList 0 items]
+[PyString "effects.Laser"]
+[PyBool True]
+[PyInt 1]
+[PyInt 1]
+[PyFloat 4000]
+[PyInt 50000]
+[PyIntegerVar 129756562243726848]
+[PyNone]
+*/
 
 void DestinyManager::SendSpecialEffect(const ShipRef shipRef, uint32 moduleID, uint32 moduleTypeID,
     uint32 targetID, uint32 chargeTypeID, std::string effectString, bool isOffensive, bool start, bool isActive, double duration, uint32 repeat) const

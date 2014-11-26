@@ -28,6 +28,7 @@
 #define __NPC_H_INCL__
 
 #include "system/SystemEntity.h"
+#include "system/WrecksAndLoot.h"
 
 class PyServiceMgr;
 class SpawnEntry;
@@ -114,7 +115,9 @@ entityAttackDelayMax
 
 protected:
     void _AwardBounty(SystemEntity *who);
-    void _DropLoot(SystemEntity *owner);
+
+    DGM_Loot_Groups_Table DGM_LGT;
+    void _DropLoot(uint32 groupID, uint32 owner, uint32 locationID);
 
     SystemManager *const m_system;    //we do not own this
     PyServiceMgr &m_services;    //we do not own this

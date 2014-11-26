@@ -1093,12 +1093,9 @@ void NPC::Killed(Damage &fatal_blow)
 		return;
 	}
 
-    //TODO: drop loot.
-    //_DropLoot(fatal_blow.source);
-    _DropLoot(killer);
+    _DropLoot(this->Item()->groupID(), wreckItemRef->itemID(), fatal_blow.source->Item()->ownerID());
 
     //award kill bounty.
-    //_AwardBounty(fatal_blow.source);
     _AwardBounty(killer);
 
     //  log faction kill in dynamic data   -allan
@@ -1118,25 +1115,19 @@ void NPC::Killed(Damage &fatal_blow)
     m_system->RemoveNPC(this);
 }
 
-void NPC::_DropLoot(SystemEntity *owner) {
+void NPC::_DropLoot(uint32 groupID, uint32 owner, uint32 locationID) {
+    /*   allan 21Nov14    */
+    std::vector<DBLootGroupType> lootList;
+    DGM_LGT.GetLoot(groupID, lootList);
 
-  /*  loot system data manager is singleton.
-   *   sDGM_Wrecks_to_Loot_Table
-   *  will have more info as i get it implemented
-   * 		allan 24Oct14
-   */
-
-    //entityLootValueMin
-    //entityLootValueMax
-    //entityLootCountMin
-    //entityLootCountMax
-    //minLootCount
-    //maxLootCount
-    //minLootValue
-    //maxLootValue
-	sLog.Warning("NPC::_DropLoot", "TODO: This function has NO code in it to create a loot drop for an NPC kill!");
-
-    // Send an OnSpecialFX (9) for effects.Jettison (with can's ID, not npc)
+    if (!lootList.empty()) {
+        uint16 quantity = 0;
+        for (std::vector<DBLootGroupType>::iterator it = begin(lootList); it != end(lootList); ++it) {
+            quantity = rand() % (((it->maxQuantity - it->minQuantity) + 1) + it->minQuantity);
+            ItemData iLoot(it->typeID, owner, locationID, flagAutoFit, quantity);
+            m_system->itemFactory().SpawnItem(iLoot);
+        }
+    }
 }
 
 void NPC::_AwardBounty(SystemEntity *who) {

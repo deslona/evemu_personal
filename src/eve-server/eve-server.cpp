@@ -157,6 +157,8 @@ static const uint32 MAIN_LOOP_DELAY = 10; // delay 10 ms.
 static volatile bool RunLoops = true;
 dgmtypeattributemgr * _sDgmTypeAttrMgr;
 
+DGM_Loot_Groups_Table DGM_LGT;
+
 int main( int argc, char* argv[] )
 {
     // Load server configuration
@@ -361,22 +363,26 @@ int main( int argc, char* argv[] )
     sLog.Log("       ServerInit", "Ship_Modifiers");
     //sDGM_Ship_Bonus_Modifiers_Table.Initialize();
     sLog.Log("       ServerInit", "Implant_Modifiers");
-    //sLog.Log("Implant_Modifiers","Not Avalible");
+    sLog.Log("Implant_Modifiers","Not Avalible");
     //sDGM_Implant_Modifiers_Table.Initialize();
     sLog.Log("       ServerInit", "Wrecks_Table");
-    //sDGM_Types_to_Wrecks_Table.Initialize();
+    sDGM_Types_to_Wrecks_Table.Initialize();
     sLog.Log("       ServerInit", "Loot_Table");
-    //sDGM_Wrecks_to_Loot_Table.Initialize();
+    DGM_LGT.Initialize();
     sLog.Log("       ServerInit", "Salvage_Table");
     sLog.Log("    Salvage_Table","Not Avalible");
     //sDGM_Wrecks_to_Salvage_Table.Initialize();
 
     //sLog.Warning("server init", "Adding NPC Market Orders.");
     //NPCMarket::CreateNPCMarketFromFile("/etc/npcMarket.xml");
+
+    srand(Win32TimeNow());
+
     sLog.Log("       ServerInit", "Done.");
 
     services.serviceDB().SetServerOnlineStatus(true);
     sLog.Success("       ServerInit", "Alasiya EvEmu Server is Online.");
+
 
     /////////////////////////////////////////////////////////////////////////////////////
     //     !!!  DO NOT PUT ANY INITIALIZATION CODE OR CALLS BELOW THIS LINE   !!!
@@ -390,6 +396,7 @@ int main( int argc, char* argv[] )
      */
 
     uint32 start = 0, etime = 0;
+
 
     EVETCPConnection* tcpc;
     while( RunLoops == true )

@@ -20,13 +20,12 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Aknor Jaden
+    Author:        Aknor Jaden, Allan
 */
 
 #include "eve-server.h"
 
 #include "system/WrecksAndLoot.h"
-#include "system/SystemDB.h"
 
 
 // ////////////////////// DGM_Types_to_Wrecks_Table Class ////////////////////////////
@@ -90,61 +89,104 @@ uint32 DGM_Types_to_Wrecks_Table::GetWreckID(uint32 typeID)
 
 
 
-// ////////////////////// DGM_Wrecks_to_Loot_Table Class ////////////////////////////
-DGM_Wrecks_to_Loot_Table::DGM_Wrecks_to_Loot_Table()
+// ////////////////////// DGM_Loot_Groups_Table Class ////////////////////////////
+DGM_Loot_Groups_Table::DGM_Loot_Groups_Table()
 {
-  m_WrecksToLootMap.clear();
+    m_LootGroupMap.clear();
+    m_LootGroupTypeMap.clear();
 }
 
-DGM_Wrecks_to_Loot_Table::~DGM_Wrecks_to_Loot_Table()
+DGM_Loot_Groups_Table::~DGM_Loot_Groups_Table()
 {
 }
 
-int DGM_Wrecks_to_Loot_Table::Initialize()
+int DGM_Loot_Groups_Table::Initialize()
 {
-  _Populate();
-
-  return 1;
+    _Populate();
+    return 1;
 }
 
-void DGM_Wrecks_to_Loot_Table::_Populate()
+void DGM_Loot_Groups_Table::_Populate()
 {
-  uint32 wreckID, lootID;
+    //counter
+    uint32 total_loot_count = 0;
 
-  //first get list of all effects from dgmEffects table
-  DBQueryResult *res = new DBQueryResult();
-  SystemDB::GetWrecksToLoot(*res);
+    DBQueryResult *res = new DBQueryResult();
 
-  //counter
-  uint32 total_loot_count = 0;
-  uint32 error_count = 0;
+    //first get list of all loot groups from LootGroup table
+    SystemDB::GetLootGroups(*res);
+    DBResultRow row;
+    DBLootGroup LootGroup;
+    while( res->GetRow(row) ) {
+        LootGroup.groupID = row.GetInt(0);
+        LootGroup.lootGroupID = row.GetInt(1);
+        LootGroup.dropChance = row.GetFloat(2);
+        m_LootGroupMap.push_back(LootGroup);
+        total_loot_count++;
+    }
 
-  //go through and populate each effect
-  DBResultRow row;
-  while( res->GetRow(row) )
-  {
-	wreckID = row.GetInt(0);
-	lootID = row.GetInt(1);
-	m_WrecksToLootMap.insert(std::pair<uint32, uint32>(wreckID,lootID));
+    res->Reset();
 
-	total_loot_count++;
-  }
+    //second get list of all types from LootGroupTypes table
+    SystemDB::GetLootGroupTypes(*res);
+    DBLootGroupType GroupType;
+    while( res->GetRow(row) ) {
+        GroupType.lootGroupID = row.GetInt(0);
+        GroupType.typeID =  row.GetInt(1);
+        GroupType.chance = row.GetFloat(3);
+        GroupType.minQuantity = row.GetInt(4);
+        GroupType.maxQuantity = row.GetInt(5);
+        m_LootGroupTypeMap.push_back(GroupType);
+        total_loot_count++;
+    }
 
-  sLog.Log("     Loot_Table", "%u total loot objects loaded", total_loot_count);
-
-  //cleanup
-  delete res;
-  res = NULL;
+    sLog.Log("       Loot_Table", "%u total loot definitions loaded", total_loot_count);
 }
 
-uint32 DGM_Wrecks_to_Loot_Table::GetLootID(uint32 wreckID)
-{
-  std::map<uint32, uint32>::iterator mLootMapIterator;
+void DGM_Loot_Groups_Table::GetLoot(uint32 groupID, std::vector<DBLootGroupType> &lootList) {
+    double start = GetTimeMSeconds();
+    uint16 count1 = 0, count2 = 0;
+    DBLootGroupType loot_list1;
+    std::vector<DBLootGroupType> loot_list2;
+    std::vector<DBLootGroup>::iterator cur = begin(m_LootGroupMap);
+    std::vector<DBLootGroup>::iterator last = end(m_LootGroupMap);
+    std::vector<DBLootGroupType>::iterator cur2 = begin(m_LootGroupTypeMap);
+    std::vector<DBLootGroupType>::iterator last2 = end(m_LootGroupTypeMap);
+    for (; cur != end; ++cur) {
+        if (cur->groupID == groupID) {
+            if (rand() < cur->dropChance) {
+                for (; cur2 != last2; ++cur2) {
+                    if (cur2->lootGroupID = cur->lootGroupID) {
+                        loot_list1.lootGroupID = cur2->lootGroupID;
+                        loot_list1.typeID = cur2->typeID;
+                        loot_list1.chance = cur2->chance;
+                        loot_list1.minQuantity = cur2->minQuantity;
+                        loot_list1.maxQuantity = cur2->maxQuantity;
+                        loot_list2.push_back(loot_list1);
+                    }
+                }
+            }
+        }
+        count1++;
+    }
 
-  if( (mLootMapIterator = m_WrecksToLootMap.find(wreckID)) == m_WrecksToLootMap.end() )
-	return 0;
-  else
-  {
-	return mLootMapIterator->second;
-  }
+    if (!loot_list2.empty()) {
+        uint16 random = rand() % 100;
+        float lootChance = 0;
+        for (std::vector<DBLootGroupType>::iterator it2 = begin(loot_list2); it2 != end(loot_list2); ++it2) {
+            lootChance += it2->chance;
+            if (random < lootChance) {
+                loot_list1.lootGroupID = it2->lootGroupID;
+                loot_list1.typeID = it2->typeID;
+                loot_list1.chance = it2->chance;
+                loot_list1.minQuantity = it2->minQuantity;
+                loot_list1.maxQuantity = it2->maxQuantity;
+                lootList.push_back(loot_list1);
+                count2++;
+            }
+        }
+    }
+
+    double timer = (GetTimeMSeconds() - start);
+    sLog.Log("        GetLoot()", "After iterating thru %u loops, Loot time is %f s for a total of %u loot items returned", count1, timer, count2);
 }

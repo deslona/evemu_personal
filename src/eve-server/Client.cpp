@@ -106,7 +106,8 @@ Client::~Client() {
 			//cur->SaveItem();
     }
 
-    sLog.Error( "Client Logout", "%s(%u) Save Complete.", GetCharacterName().c_str(), GetCharacterID());
+    if (GetCharacterID())
+        sLog.Error( "Client Logout", "%s(%u) Save Complete.", GetCharacterName().c_str(), GetCharacterID());
 
     m_services.ClearBoundObjects(this);
 

@@ -82,6 +82,24 @@ class DBGPointEntity {
 	double z;
 };
 
+//  class objects for holding loot data.
+
+class DBLootGroup {
+public:
+    uint32 groupID;
+    uint32 lootGroupID;
+    float dropChance;
+};
+
+class DBLootGroupType {
+public:
+    uint32 lootGroupID;
+    uint32 typeID;
+    float chance;
+    uint32 minQuantity;
+    uint32 maxQuantity;
+};
+
 class SystemDB
 : public ServiceDB
 {
@@ -89,7 +107,8 @@ public:
     bool LoadSystemEntities(uint32 systemID, std::vector<DBSystemEntity> &into);
     bool LoadSystemDynamicEntities(uint32 systemID, std::vector<DBSystemDynamicEntity> &into);
     static bool GetWrecksToTypes(DBQueryResult &res);
-	static bool GetWrecksToLoot(DBQueryResult &res);
+    static void GetLootGroups(DBQueryResult &res);
+    static void GetLootGroupTypes(DBQueryResult &res);
 	static uint32 GetObjectLocationID( uint32 itemID );
 
     PyObject *ListFactions();

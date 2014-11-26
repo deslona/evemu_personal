@@ -109,7 +109,7 @@ public:
     void Follow(SystemEntity *who, double distance, bool update=true);
 	void Orbit(SystemEntity *who, double distance, bool update=true);
     void OrbitingCruise(SystemEntity *who, double distance, bool update=false, double cruiseSpeed=-1.0);
-	void SetSpeedFraction(float fraction);
+	void SetSpeedFraction(float fraction, bool update=true);
 	void AlignTo(SystemEntity *ent, bool update=true);
     void GotoDirection(const GPoint &direction);
 	void TractorBeamFollow(SystemEntity *who, double mass, double maxVelocity, double distance, bool update=true);
@@ -190,7 +190,7 @@ protected:
 	double m_capNeeded;
 
     //derrived from other params:
-    void _UpdateVelocity();
+    void _UpdateVelocity(bool update=false);
     double m_maxVelocity;				//in m/s
     double m_shipMaxAccelTime;				//in s  this is used to determine accel rate, and total accel time
 

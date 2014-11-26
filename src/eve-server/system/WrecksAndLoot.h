@@ -20,11 +20,13 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Aknor Jaden
+    Author:        Aknor Jaden, Allan
 */
 
 #ifndef WRECKS_AND_LOOT_H
 #define WRECKS_AND_LOOT_H
+
+#include "system/SystemDB.h"
 
 
 // //////////////// Permanent Memory Object Classes //////////////////////
@@ -56,32 +58,32 @@ protected:
 // -----------------------------------------------------------------------
 
 
-// This class is a singleton object, containing all Effects loaded from dgmEffects table
-//     as memory objects of type MEffect:
-class DGM_Wrecks_to_Loot_Table
-: public Singleton< DGM_Wrecks_to_Loot_Table >
+class DGM_Loot_Groups_Table /*
+: public Singleton< DGM_Loot_Groups_Table > */
 {
 public:
-  DGM_Wrecks_to_Loot_Table();
-  ~DGM_Wrecks_to_Loot_Table();
+    DGM_Loot_Groups_Table();
+    ~DGM_Loot_Groups_Table();
 
   // Initializes the Table:
   int Initialize();
 
-  // Returns typeID of wreck that is appropriate for the given typeID,
-  //  returns 0 if no match
-  uint32 GetLootID(uint32 typeID);
+  // Returns vector lootGroupIDs
+  //  0 if no match
+  void GetLoot(uint32 groupID, std::vector<DBLootGroupType> &lootList);
+
 
 protected:
   void _Populate();
 
-  std::map<uint32, uint32> m_WrecksToLootMap;
+  std::vector<DBLootGroup> m_LootGroupMap;
+  std::vector<DBLootGroupType> m_LootGroupTypeMap;
+
 };
 
-#define sDGM_Wrecks_to_Loot_Table \
-( DGM_Wrecks_to_Loot_Table::get() )
-// -----------------------------------------------------------------------
 
+//#define sDGM_Loot_Groups_Table \
+( DGM_Loot_Groups_Table::get() )
 
 //////////////////////////////////////////////////////////////////////////
 

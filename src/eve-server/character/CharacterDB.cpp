@@ -1376,7 +1376,7 @@ void CharacterDB::AddPilotToDynamicData(uint32 solarSystemID, bool isDocked, boo
 void CharacterDB::AddKillToDynamicData(uint32 solarSystemID) {  /**killsHour, kills24Hours */
     DBerror err;
     sDatabase.RunQuery(err,
-        "UPDATE mapDynamicData SET killsHour = killsHour + 1, kills24Hours = kills24Hours + 1, kills24DateTime = %" PRIu64 " WHERE solarSystemID = %u",
+        "UPDATE mapDynamicData SET killsHour = killsHour + 1, kills24Hour = kills24Hour + 1, kills24DateTime = %" PRIu64 " WHERE solarSystemID = %u",
         Win32TimeNow(), solarSystemID );
 }
 

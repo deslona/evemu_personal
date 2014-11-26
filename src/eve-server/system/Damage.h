@@ -25,8 +25,7 @@
 #ifndef __DAMAGE_H_INCL__
 #define __DAMAGE_H_INCL__
 
-class InventoryItem;
-//class SystemEntity;
+#include "inventory/InventoryItem.h"
 #include "system/SystemEntity.h"
 
 class Damage {
@@ -95,10 +94,4 @@ public:
     const EVEEffectID    effect;
 };
 
-
-
 #endif
-
-
-
-
