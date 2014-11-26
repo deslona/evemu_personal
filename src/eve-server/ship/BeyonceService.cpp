@@ -408,7 +408,7 @@ bookmark, bmid
 [launchpickup] launch, launchid
 
 */
-        sLog.Warning( "BeyonceBound", "Handle_CmdWarpToStuff" );
+        //sLog.Warning( "BeyonceBound", "Handle_CmdWarpToStuff" );
     CallWarpToStuff arg;
     if(!arg.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "%s: failed to decode args", call.client->GetName());
@@ -680,7 +680,7 @@ bookmark, bmid
 
 PyResult BeyonceBound::Handle_CmdWarpToStuffAutopilot(PyCallArgs &call) {
   //  sends targeted celestial itemID as arg.destID
-        sLog.Warning( "BeyonceBound", "Handle_CmdWarpToStuffAutopilot" );
+        //sLog.Warning( "BeyonceBound", "Handle_CmdWarpToStuffAutopilot" );
     CallWarpToStuffAutopilot arg;
 
     if(!arg.Decode(&call.tuple)) {
@@ -738,7 +738,7 @@ PyResult BeyonceBound::Handle_UpdateStateRequest(PyCallArgs &call) {
 }
 
 PyResult BeyonceBound::Handle_CmdStop(PyCallArgs &call) {
-	sLog.Warning( "BeyonceBound", "Handle_CmdStop" );
+	//sLog.Warning( "BeyonceBound", "Handle_CmdStop" );
 	DestinyManager *destiny = call.client->Destiny();
 	if(destiny == NULL) {
 		codelog(CLIENT__ERROR, "%s: Client has no destiny manager!", call.client->GetName());

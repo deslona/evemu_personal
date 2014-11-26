@@ -79,13 +79,13 @@ Client::~Client() {
 
         SaveAllToDatabase();
 
-		//TODO  - for warping to random point when client logs out in space...
-		//		1)  check client IsInSpace(?)
-		//		2)  set timer to delay removing bubble/sysmgr/destiny...or check based on destiny->isstopped() or timer on destiny->ismoving()
-		//		3)  set current position (DB::character_.logoutPosition?)  initial code in place for warp-in on login
-		//		4)  generate random point to warp to ** use m_SGP.GetRandPointInSystem(systemID, distance)
-		//		5)  _warp to random point, but DONT make/update new bubble with entering ship
-		//		6)  remove client from sysmgr/destiny/server
+	//TODO  - for warping to random point when client logs out in space...
+	//		1)  check client IsInSpace(?)
+	//		2)  set timer to delay removing bubble/sysmgr/destiny...or check based on destiny->isstopped() or timer on destiny->ismoving()
+	//		3)  set current position (DB::character_.logoutPosition?)  initial code in place for warp-in on login
+	//		4)  generate random point to warp to ** use m_SGP.GetRandPointInSystem(systemID, distance)
+	//		5)  _warp to random point, but DONT make/update new bubble with entering ship
+	//		6)  remove client from sysmgr/destiny/server
 
         // remove ourselves from system
         if(m_system != NULL)
@@ -96,17 +96,8 @@ Client::~Client() {
         m_services.serviceDB().SetCharacterOnlineStatus(GetCharacterID(), false);
         m_services.serviceDB().SetAccountOnlineStatus(GetAccountID(), false);
 
-		std::vector<InventoryItemRef> skills;
-		GetChar()->GetSkillsList( skills );
-		std::vector<InventoryItemRef>::iterator cur, end;
-		cur = skills.begin();
-		end = skills.end();
-		for(; cur != end; cur++)
-			(*cur)->SaveAttributes();
-			//cur->SaveItem();
+	sLog.Error( "Client Logout", "%s(%u) Save Complete.", GetCharacterName().c_str(), GetCharacterID());
     }
-
-    sLog.Error( "Client Logout", "%s(%u) Save Complete.", GetCharacterName().c_str(), GetCharacterID());
 
     m_services.ClearBoundObjects(this);
 
