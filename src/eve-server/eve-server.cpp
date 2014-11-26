@@ -355,20 +355,19 @@ int main( int argc, char* argv[] )
 
     // Create In-Memory Database Objects for Critical and HighUse Systems, such as ModuleManager and Wrecks:
     sLog.Log("       ServerInit", "Effects_Table");
-    //sDGM_Effects_Table.Initialize();
+    sDGM_Effects_Table.Initialize();
     sLog.Log("       ServerInit", "Type_Effects");
-    //sDGM_Type_Effects_Table.Initialize();
+    sDGM_Type_Effects_Table.Initialize();
     sLog.Log("       ServerInit", "Skill_Modifiers");
-    //sDGM_Skill_Bonus_Modifiers_Table.Initialize();
+    sDGM_Skill_Bonus_Modifiers_Table.Initialize();
     sLog.Log("       ServerInit", "Ship_Modifiers");
-    //sDGM_Ship_Bonus_Modifiers_Table.Initialize();
+    sDGM_Ship_Bonus_Modifiers_Table.Initialize();
     sLog.Log("       ServerInit", "Implant_Modifiers");
     sLog.Log("Implant_Modifiers","Not Avalible");
     //sDGM_Implant_Modifiers_Table.Initialize();
     sLog.Log("       ServerInit", "Wrecks_Table");
     sDGM_Types_to_Wrecks_Table.Initialize();
     sLog.Log("       ServerInit", "Loot_Table");
-    DGM_LGT.Initialize();
     sLog.Log("       ServerInit", "Salvage_Table");
     sLog.Log("    Salvage_Table","Not Avalible");
     //sDGM_Wrecks_to_Salvage_Table.Initialize();

@@ -439,7 +439,7 @@ void Client::_ReduceDamage(Damage &d) {
     // shieldExplosiveDamageResonance
     // shieldKineticDamageResonance
     // shieldThermalDamageResonance
-	sLog.Warning("Client::_ReduceDamage", "TODO: This function has NO code in it to reduce damage dealt by another entity!");
+	//sLog.Warning("Client::_ReduceDamage", "TODO: This function has NO code in it to reduce damage dealt by another entity!");
 }
 
 void Client::ApplyDamageModifiers(Damage &d, SystemEntity *target)

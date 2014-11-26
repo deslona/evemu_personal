@@ -306,7 +306,7 @@ void DestinyManager::_UpdateVelocity(bool update) {
 	}
 
 	if (State == DSTBALL_WARP) {
-		sLog.Warning("Destiny::_UpdateVelocity", "state = warp.  --Leaving _Warp");
+		//sLog.Warning("Destiny::_UpdateVelocity", "state = warp.  --Leaving _Warp");
 		/*  comming out of warp, so decel from m_speedToLeaveWarp
 		 *  reset m_shipMaxAccelTime as a fraction of m_speedToLeaveWarp/m_maxShipVelocity
 		 *  to set decel from warp correctly, as m_speedToLeaveWarp is <= 100 m/s.
@@ -325,14 +325,14 @@ void DestinyManager::_UpdateVelocity(bool update) {
 		SendDestinyUpdate(&up);
 	*/
 	} else if (m_userSpeedFraction) {
-		sLog.Warning("Destiny::_UpdateVelocity", "user speed fraction != 0.  --Accel or change direction");
+		//sLog.Warning("Destiny::_UpdateVelocity", "user speed fraction != 0.  --Accel or change direction");
 		//  see notes in _Move() for information relating to accel equations
 		GVector moveVector(m_position, m_targetPoint);	//which way do we want to go?
 		moveVector.normalize();		//change vector to direction
 		m_activeSpeedFraction = (1 - exp(-1000000 / (m_shipInertiaModifier * m_mass)));
 		m_velocity = (moveVector * (m_maxVelocity * m_activeSpeedFraction));
 	} else if ((m_userSpeedFraction == 0) && (m_activeSpeedFraction == 0)) {
-		sLog.Warning("Destiny::_UpdateVelocity", "both speed fractions = 0.  --Halt");
+		//sLog.Warning("Destiny::_UpdateVelocity", "both speed fractions = 0.  --Halt");
 		// ship Halt()ed (for whatever reason) so delete all velocity variables
 		m_velocity = GVector(NULL_ORIGIN);
 		m_moveTimer = 0.0;
@@ -341,16 +341,16 @@ void DestinyManager::_UpdateVelocity(bool update) {
 		m_shipMaxAccelTime = 0;
 		m_targetPoint = GPoint(NULL_ORIGIN);
 	} else if (m_userSpeedFraction == 0) {
-		sLog.Warning("Destiny::_UpdateVelocity", "user speed fraction = 0.  --Stop");
+		//sLog.Warning("Destiny::_UpdateVelocity", "user speed fraction = 0.  --Stop");
 		if (IsMoving()) {
-			sLog.Warning("Destiny::_UpdateVelocity", "ship is moving when stop called.");
+			//sLog.Warning("Destiny::_UpdateVelocity", "ship is moving when stop called.");
 			//  see notes in _Move() for information relating to decel equations
 			GVector moveVector(m_position, m_targetPoint);	//which way do we want to go?
 			moveVector.normalize();		//change vector to direction
 			m_velocity = (moveVector * m_maxShipVelocity * m_activeSpeedFraction);
 		} else {
 			// NOTE not real sure what to do here yet.
-			sLog.Warning("Destiny::_UpdateVelocity", "ship is not moving when stop called.");
+			//sLog.Warning("Destiny::_UpdateVelocity", "ship is not moving when stop called.");
 		}
 	} else if (m_activeSpeedFraction != 0) {
 		//WARNING  conditional should very rarely arrive here.
@@ -1052,7 +1052,7 @@ void DestinyManager::Follow(SystemEntity *who, double distance, bool update) {
 	if ( m_self->IsClient() )
 		m_self->CastToClient()->SetPendingDockOperation( false );
 
-    sLog.Debug( "DestinyManager::Follow()", "SystemEntity '%s' following SystemEntity '%s' at velocity %f",
+    //sLog.Debug( "DestinyManager::Follow()", "SystemEntity '%s' following SystemEntity '%s' at velocity %f", \
                 m_self->GetName(), who->GetName(), m_maxVelocity );
 
     if (update) {
@@ -1156,7 +1156,7 @@ void DestinyManager::TractorBeamFollow(SystemEntity *who, double mass, double ma
 	if (m_self->IsClient())
 		m_self->CastToClient()->SetPendingDockOperation(false);
 
-	sLog.Debug("DestinyManager::TractorBeamFollow()", "SystemEntity '%s' following SystemEntity '%s' at velocity %f",
+	//sLog.Debug("DestinyManager::TractorBeamFollow()", "SystemEntity '%s' following SystemEntity '%s' at velocity %f", \
 			   m_self->GetName(), who->GetName(), m_maxVelocity);
 
 	//ensure that our bubble is correct.
@@ -1482,7 +1482,7 @@ PyResult DestinyManager::AttemptDockOperation() {
 
     // Verify range to station is within docking perimeter of 1500 meters:
     //if( (rangeToStation - station->GetRadius()) > 1500 )
-	sLog.Warning("DestinyManager::AttemptDockOperation()", "rangeToStationPerimiter is %.2f", rangeToStationPerimiter);
+	//sLog.Warning("DestinyManager::AttemptDockOperation()", "rangeToStationPerimiter is %.2f", rangeToStationPerimiter);
 	if (rangeToStationPerimiter > 1500.0) {
 		who->SendErrorMsg("Outside Docking Perimiter.  Please Move Closer.");
     // This packet has to be returned to the client when outside the docking perimeter
@@ -1560,7 +1560,7 @@ void DestinyManager::Undock(GPoint dockPosition, GPoint direction) {
 
 void DestinyManager::Cloak()
 {
-	sLog.Warning("DestinyManager::Cloak()", "TODO - check for warp-safe-ness, and turn on any cloaking device module fitted");
+	//sLog.Warning("DestinyManager::Cloak()", "TODO - check for warp-safe-ness, and turn on any cloaking device module fitted");
 	m_cloaked = true;
 	SendCloakShip(true);
 	m_self->Bubble()->RemoveExclusive(m_self,true);
@@ -1568,7 +1568,7 @@ void DestinyManager::Cloak()
 
 void DestinyManager::UnCloak()
 {
-	sLog.Warning("DestinyManager::UnCloak()", "TODO - check for warp-safe-ness, and turn off any cloaking device module fitted");
+	//sLog.Warning("DestinyManager::UnCloak()", "TODO - check for warp-safe-ness, and turn off any cloaking device module fitted");
 	m_cloaked = false;
 	SendUncloakShip();
 	m_self->Bubble()->AddExclusive(m_self,true);
@@ -1687,7 +1687,7 @@ void DestinyManager::WarpTo(const GPoint where, int32 distance) {
 	SendDestinyUpdate(updates, true);
 */
 	//m_targetPoint -= distance;
-	sLog.Warning("DestinyManager::WarpTo()", "m_targetPoint: %.4f,%.4f,%.4f  m_stopDistance: %i  m_targetDistance: %.4f",
+	//sLog.Warning("DestinyManager::WarpTo()", "m_targetPoint: %.4f,%.4f,%.4f  m_stopDistance: %i  m_targetDistance: %.4f", \
 				 m_targetPoint.x, m_targetPoint.y, m_targetPoint.z, m_stopDistance, m_targetDistance);
 }
 

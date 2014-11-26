@@ -1132,7 +1132,16 @@ void Character::SaveFullCharacter() {
 
 	// Loop through all contracts or other non-item things owned by this Character and save each one:
 	// TODO
-
+    
+    std::vector<InventoryItemRef> skills;
+    GetSkillsList( skills );
+    std::vector<InventoryItemRef>::iterator cur, end;
+    cur = skills.begin();
+    end = skills.end();
+    for(; cur != end; cur++){
+      (*cur)->SaveAttributes();
+      //cur->SaveItem();
+    }
 }
 
 void Character::SaveSkillQueue() {

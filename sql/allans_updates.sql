@@ -1,4 +1,14 @@
 
+/* Table structure for table `shipInsurance` */
+
+CREATE TABLE IF NOT EXISTS `shipInsurance` (
+  `shipID` int(11) NOT NULL,
+  `isCorpItem` tinyint(1) NOT NULL,
+  `startDate` bigint(20) NOT NULL,
+  `endDate` bigint(20) NOT NULL,
+  `fraction` decimal(8,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 /* Table structure for table `chrPausedSkillQueue` */
 
 CREATE TABLE IF NOT EXISTS `chrPausedSkillQueue` (
