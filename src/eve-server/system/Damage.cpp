@@ -1122,10 +1122,14 @@ void NPC::_DropLoot(uint32 groupID, uint32 owner, uint32 locationID) {
 
     if (!lootList.empty()) {
         uint16 quantity = 0;
-        for (std::vector<DBLootGroupType>::iterator it = begin(lootList); it != end(lootList); ++it) {
-            quantity = rand() % (((it->maxQuantity - it->minQuantity) + 1) + it->minQuantity);
-            ItemData iLoot(it->typeID, owner, locationID, flagAutoFit, quantity);
+        std::vector<DBLootGroupType>::iterator cur = begin(lootList);
+        std::vector<DBLootGroupType>::iterator last = end(lootList);
+        while (cur != last) {
+            quantity = rand() % (((cur->maxQuantity - cur->minQuantity) + 1) + cur->minQuantity);
+            ItemData iLoot(cur->typeID, owner, locationID, flagAutoFit, quantity);
             m_system->itemFactory().SpawnItem(iLoot);
+            cur++;
+            // this isn't completly right, as cur == last will NOT add last item in lootList.
         }
     }
 }

@@ -152,10 +152,10 @@ void DGM_Loot_Groups_Table::GetLoot(uint32 groupID, std::vector<DBLootGroupType>
     std::vector<DBLootGroup>::iterator last = end(m_LootGroupMap);
     std::vector<DBLootGroupType>::iterator cur2 = begin(m_LootGroupTypeMap);
     std::vector<DBLootGroupType>::iterator last2 = end(m_LootGroupTypeMap);
-    for (; cur != end; ++cur) {
+    while (cur != last) {
         if (cur->groupID == groupID) {
             if (rand() < cur->dropChance) {
-                for (; cur2 != last2; ++cur2) {
+                while (cur2 != last2) {
                     if (cur2->lootGroupID = cur->lootGroupID) {
                         loot_list1.lootGroupID = cur2->lootGroupID;
                         loot_list1.typeID = cur2->typeID;
@@ -164,27 +164,32 @@ void DGM_Loot_Groups_Table::GetLoot(uint32 groupID, std::vector<DBLootGroupType>
                         loot_list1.maxQuantity = cur2->maxQuantity;
                         loot_list2.push_back(loot_list1);
                     }
+                    cur2++;
                 }
             }
         }
+        cur++;
         count1++;
     }
 
     if (!loot_list2.empty()) {
         uint16 random = rand() % 100;
         float lootChance = 0;
-        for (std::vector<DBLootGroupType>::iterator it2 = begin(loot_list2); it2 != end(loot_list2); ++it2) {
-            lootChance += it2->chance;
+        std::vector<DBLootGroupType>::iterator cur3 = begin(loot_list2);
+        std::vector<DBLootGroupType>::iterator last3 = end(loot_list2);
+        while (cur3 != last3) {
+            lootChance += cur3->chance;
             if (random < lootChance) {
-                loot_list1.lootGroupID = it2->lootGroupID;
-                loot_list1.typeID = it2->typeID;
-                loot_list1.chance = it2->chance;
-                loot_list1.minQuantity = it2->minQuantity;
-                loot_list1.maxQuantity = it2->maxQuantity;
+                loot_list1.lootGroupID = cur3->lootGroupID;
+                loot_list1.typeID = cur3->typeID;
+                loot_list1.chance = cur3->chance;
+                loot_list1.minQuantity = cur3->minQuantity;
+                loot_list1.maxQuantity = cur3->maxQuantity;
                 lootList.push_back(loot_list1);
                 count2++;
             }
         }
+        cur3++;
     }
 
     double timer = (GetTimeMSeconds() - start);
