@@ -236,6 +236,7 @@ public:
     virtual void ApplyDamageModifiers(Damage &d, SystemEntity *target);
     virtual bool ApplyDamage(Damage &d);
     virtual void Killed(Damage &fatal_blow);
+    virtual void _DropLoot(uint32 groupID, uint32 owner, uint32 locationID);
     virtual SystemManager *System() const { return(m_system); }
 
     /********************************************************************/

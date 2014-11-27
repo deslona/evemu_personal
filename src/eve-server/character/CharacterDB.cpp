@@ -589,7 +589,7 @@ bool CharacterDB::GetLocationCorporationByCareer(CharacterData &cdata) {
     }
 
     DBResultRow row;
-    if(!res.GetRow(row)) {
+    if (!res.GetRow(row)) {
         codelog(SERVICE__ERROR, "Failed to find career %u", cdata.careerID);
         return false;
     }
@@ -597,7 +597,6 @@ bool CharacterDB::GetLocationCorporationByCareer(CharacterData &cdata) {
     cdata.corporationID = row.GetUInt(0);
     cdata.schoolID = row.GetUInt(1);
     cdata.allianceID = row.GetUInt(2);
-
     cdata.stationID = row.GetUInt(3);
     cdata.solarSystemID = row.GetUInt(4);
     cdata.constellationID = row.GetUInt(5);

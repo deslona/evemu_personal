@@ -57,47 +57,13 @@ public:
     double z;
 };
 
-class DBGPointEntity {
-  public:
-	/*
-	DBGPointEntity(
-	  uint8 idx_,
-	  uint32 itemID_,
-	  GPoint position_,
-	  double x_,
-	  double y_,
-	  double z_ )
-	  : idx(idx_),
-		itemID(itemID_),
-		position(position_),
-		x(x_),
-		y(y_),
-		z(z_) { }
-		*/
+struct DBGPointEntity {
 	uint8 idx;
 	uint32 itemID;
 	GPoint position;
 	double x;
 	double y;
 	double z;
-};
-
-//  class objects for holding loot data.
-
-class DBLootGroup {
-public:
-    uint32 groupID;
-    uint32 lootGroupID;
-    float dropChance;
-};
-
-class DBLootGroupType {
-public:
-    uint32 lootGroupID;
-    uint32 typeID;
-    float chance;
-    uint32 minQuantity;
-    uint32 maxQuantity;
 };
 
 class SystemDB

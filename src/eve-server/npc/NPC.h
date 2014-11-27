@@ -116,7 +116,7 @@ entityAttackDelayMax
 protected:
     void _AwardBounty(SystemEntity *who);
 
-    DGM_Loot_Groups_Table DGM_LGT;
+    //DGM_Loot_Groups_Table DGM_LGT;
     void _DropLoot(uint32 groupID, uint32 owner, uint32 locationID);
 
     SystemManager *const m_system;    //we do not own this

@@ -81,7 +81,7 @@ INSERT INTO corporation
 /*
  * Set the auto-increment lower bound
  */
-ALTER TABLE corporation AUTO_INCREMENT=2000001;
+ALTER TABLE corporation AUTO_INCREMENT=2000000;
 
 /*
  * Copy over the static owner info.

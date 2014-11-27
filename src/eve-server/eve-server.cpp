@@ -157,7 +157,7 @@ static const uint32 MAIN_LOOP_DELAY = 10; // delay 10 ms.
 static volatile bool RunLoops = true;
 dgmtypeattributemgr * _sDgmTypeAttrMgr;
 
-DGM_Loot_Groups_Table DGM_LGT;
+//DGM_Loot_Groups_Table DGM_LGT;
 
 int main( int argc, char* argv[] )
 {
@@ -368,7 +368,7 @@ int main( int argc, char* argv[] )
     sLog.Log("       ServerInit", "Wrecks_Table");
     sDGM_Types_to_Wrecks_Table.Initialize();
     sLog.Log("       ServerInit", "Loot_Table");
-    DGM_LGT.Initialize();
+    sDGM_Loot_Groups_Table.Initialize();
     sLog.Log("       ServerInit", "Salvage_Table");
     sLog.Log("    Salvage_Table","Not Avalible");
     //sDGM_Wrecks_to_Salvage_Table.Initialize();

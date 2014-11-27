@@ -28,7 +28,7 @@
 #include "EVEServerConfig.h"
 #include "ServiceDB.h"
 
-bool ServiceDB::GetAccountInformation( const char* username, const char* password, AccountInfo & account_info )
+bool ServiceDB::GetAccountInformation( const char *username, const char *password, AccountInfo &account_info )
 {			//added auto account    -allan 18Jan14
     std::string _username = username;
     std::string _escaped_username;

@@ -759,7 +759,7 @@ void SystemManager::RemoveEntity(SystemEntity *who) {
     } else
         _log(SERVICE__ERROR, "Entity %u not found in system %u to be deleted.", who->GetID(), GetID());
 
-    bubbles.Remove(who, false);
+    bubbles.Remove(who, true);
 
     // Remove Entity's Item Ref from Solar System Dynamic Inventory:
     RemoveItemFromInventory( this->itemFactory().GetItem( who->GetID() ) );

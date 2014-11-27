@@ -53,10 +53,6 @@ void DGM_Types_to_Wrecks_Table::_Populate()
     DBQueryResult *res = new DBQueryResult();
     SystemDB::GetWrecksToTypes(*res);
 
-    //counter
-	uint32 total_wreck_count = 0;
-	uint32 error_count = 0;
-
 	//go through and populate each effect
     DBResultRow row;
     while( res->GetRow(row) )
@@ -64,11 +60,9 @@ void DGM_Types_to_Wrecks_Table::_Populate()
         typeID = row.GetInt(0);
         wreckID = row.GetInt(1);
 		m_WrecksToTypesMap.insert(std::pair<uint32, uint32>(typeID,wreckID));
-
-		total_wreck_count++;
     }
 
-	sLog.Log("     Wrecks_Table", "%u total wreck objects loaded", total_wreck_count);
+    sLog.Log("     Wrecks_Table", "%u total wreck objects loaded", m_WrecksToTypesMap.size());
 
     //cleanup
     delete res;
@@ -98,6 +92,8 @@ DGM_Loot_Groups_Table::DGM_Loot_Groups_Table()
 
 DGM_Loot_Groups_Table::~DGM_Loot_Groups_Table()
 {
+    m_LootGroupMap.clear();
+    m_LootGroupTypeMap.clear();
 }
 
 int DGM_Loot_Groups_Table::Initialize()
@@ -108,90 +104,105 @@ int DGM_Loot_Groups_Table::Initialize()
 
 void DGM_Loot_Groups_Table::_Populate()
 {
-    //counter
-    uint32 total_loot_count = 0;
-
     DBQueryResult *res = new DBQueryResult();
 
-    //first get list of all loot groups from LootGroup table
+    //first get all loot groups from LootGroup table
     SystemDB::GetLootGroups(*res);
     DBResultRow row;
     DBLootGroup LootGroup;
     while( res->GetRow(row) ) {
         LootGroup.groupID = row.GetInt(0);
         LootGroup.lootGroupID = row.GetInt(1);
-        LootGroup.dropChance = row.GetFloat(2);
+        LootGroup.dropChance = row.GetDouble(2);
         m_LootGroupMap.push_back(LootGroup);
-        total_loot_count++;
     }
 
     res->Reset();
 
-    //second get list of all types from LootGroupTypes table
+    //second get all types from LootGroupTypes table
     SystemDB::GetLootGroupTypes(*res);
     DBLootGroupType GroupType;
     while( res->GetRow(row) ) {
         GroupType.lootGroupID = row.GetInt(0);
         GroupType.typeID =  row.GetInt(1);
-        GroupType.chance = row.GetFloat(3);
-        GroupType.minQuantity = row.GetInt(4);
-        GroupType.maxQuantity = row.GetInt(5);
+        GroupType.chance = row.GetDouble(2);
+        GroupType.minQuantity = row.GetInt(3);
+        GroupType.maxQuantity = row.GetInt(4);
         m_LootGroupTypeMap.push_back(GroupType);
-        total_loot_count++;
     }
 
-    sLog.Log("       Loot_Table", "%u total loot definitions loaded", total_loot_count);
+    sLog.Log("       Loot_Table", "%u loot group and %u loot type definitions loaded", m_LootGroupMap.size(), m_LootGroupTypeMap.size());
 }
 
-void DGM_Loot_Groups_Table::GetLoot(uint32 groupID, std::vector<DBLootGroupType> &lootList) {
+void DGM_Loot_Groups_Table::GetLoot(uint32 groupID, LootGroupTypeDef &lootList) {
     double start = GetTimeMSeconds();
-    uint16 count1 = 0, count2 = 0;
+    double randChance = 0.0;
+
     DBLootGroupType loot_list1;
-    std::vector<DBLootGroupType> loot_list2;
-    std::vector<DBLootGroup>::iterator cur = begin(m_LootGroupMap);
-    std::vector<DBLootGroup>::iterator last = end(m_LootGroupMap);
-    std::vector<DBLootGroupType>::iterator cur2 = begin(m_LootGroupTypeMap);
-    std::vector<DBLootGroupType>::iterator last2 = end(m_LootGroupTypeMap);
-    while (cur != last) {
-        if (cur->groupID == groupID) {
-            if (rand() < cur->dropChance) {
-                while (cur2 != last2) {
-                    if (cur2->lootGroupID = cur->lootGroupID) {
-                        loot_list1.lootGroupID = cur2->lootGroupID;
-                        loot_list1.typeID = cur2->typeID;
-                        loot_list1.chance = cur2->chance;
-                        loot_list1.minQuantity = cur2->minQuantity;
-                        loot_list1.maxQuantity = cur2->maxQuantity;
+    LootGroupTypeDef loot_list2;
+
+    LootGroupItr curGroupItr = m_LootGroupMap.begin();
+    LootGroupTypeItr curTypeItr = m_LootGroupTypeMap.begin();
+
+    while (curGroupItr != m_LootGroupMap.end()) {
+        if (curGroupItr->groupID == groupID) {
+            randChance = gen_random_float(0.00, 0.10);      // FIXME adjust this later   -used to determine initial loot groups
+            if (randChance < curGroupItr->dropChance) {
+                while (curTypeItr != m_LootGroupTypeMap.end()) {
+                    if (curTypeItr->lootGroupID == curGroupItr->lootGroupID) {
+                        loot_list1.lootGroupID = curTypeItr->lootGroupID;
+                        loot_list1.typeID = curTypeItr->typeID;
+                        loot_list1.chance = curTypeItr->chance;
+                        loot_list1.minQuantity = curTypeItr->minQuantity;
+                        loot_list1.maxQuantity = curTypeItr->maxQuantity;
                         loot_list2.push_back(loot_list1);
                     }
-                    cur2++;
+                    ++curTypeItr;
                 }
+                curTypeItr = m_LootGroupTypeMap.begin();
             }
         }
-        cur++;
-        count1++;
+        ++curGroupItr;
     }
 
     if (!loot_list2.empty()) {
-        uint16 random = rand() % 100;
-        float lootChance = 0;
-        std::vector<DBLootGroupType>::iterator cur3 = begin(loot_list2);
-        std::vector<DBLootGroupType>::iterator last3 = end(loot_list2);
-        while (cur3 != last3) {
-            lootChance += cur3->chance;
-            if (random < lootChance) {
-                loot_list1.lootGroupID = cur3->lootGroupID;
-                loot_list1.typeID = cur3->typeID;
-                loot_list1.chance = cur3->chance;
-                loot_list1.minQuantity = cur3->minQuantity;
-                loot_list1.maxQuantity = cur3->maxQuantity;
-                lootList.push_back(loot_list1);
-                count2++;
+        uint16 group = 0;
+        float random = gen_random_float(0, 1);
+        float lootChance = 0.0f;
+        DBLootGroupType loot_list;
+        LootGroupTypeItr curLootListItr = loot_list2.begin();
+
+        /*  chance here is additive.  if the first item doesnt meet the chance, the next item in the list is loaded
+         * then THAT chance is added to the first, then checked against the randChance roll, and looped again.
+         * with multiple items in the group, there must be ONE and ONLY ONE item from the group chosen.
+         * to do this, once the item is chosen, the groupID is saved in the 'group' variable, and the loop continues.
+         * if the current item belongs to the same group as an item already chosen for that group, it is bypassed,
+         * and the loop continues.
+         * the random chance is rolled ONCE for each group, and reset (along with lootChance variable) after an item
+         * is chosen from the current group.  this vector is then sent to the caller (in Damage.cpp) for addition into
+         * the wreck container
+         */
+
+        while (curLootListItr != loot_list2.end()) {
+            if (curLootListItr->lootGroupID != group) {
+                lootChance += curLootListItr->chance;
+                if (random < lootChance) {
+                    loot_list.lootGroupID = curLootListItr->lootGroupID;
+                    loot_list.typeID = curLootListItr->typeID;
+                    loot_list.chance = curLootListItr->chance;
+                    loot_list.minQuantity = curLootListItr->minQuantity;
+                    loot_list.maxQuantity = curLootListItr->maxQuantity;
+                    lootList.push_back(loot_list);
+                    // reset for next loot group
+                    lootChance = 0;
+                    group = curLootListItr->lootGroupID;
+                    random = gen_random_float(0, 1);
+                }
             }
+            ++curLootListItr;
         }
-        cur3++;
     }
 
     double timer = (GetTimeMSeconds() - start);
-    sLog.Log("        GetLoot()", "After iterating thru %u loops, Loot time is %f s for a total of %u loot items returned", count1, timer, count2);
+    sLog.Log("        GetLoot()", "Took %f s to iterate thru %u loops, with %u loot items passed and %u returned", timer, m_LootGroupMap.size(), loot_list2.size(), lootList.size());
 }
