@@ -39,6 +39,18 @@ FleetObjectHandler::FleetObjectHandler(PyServiceMgr *mgr)
     _SetCallDispatcher(m_dispatch);
 
     PyCallable_REG_CALL(FleetObjectHandler, CreateFleet);
+    PyCallable_REG_CALL(FleetObjectHandler, CreateWing);
+    PyCallable_REG_CALL(FleetObjectHandler, CreateSquad);
+    PyCallable_REG_CALL(FleetObjectHandler, SetMotdEx);
+    PyCallable_REG_CALL(FleetObjectHandler, GetMotd);
+    PyCallable_REG_CALL(FleetObjectHandler, CheckIsInFleet);
+    PyCallable_REG_CALL(FleetObjectHandler, MakeLeader);
+    PyCallable_REG_CALL(FleetObjectHandler, SetBooster);
+    PyCallable_REG_CALL(FleetObjectHandler, MoveMember);
+    PyCallable_REG_CALL(FleetObjectHandler, KickMember);
+    PyCallable_REG_CALL(FleetObjectHandler, DeleteWing);
+    PyCallable_REG_CALL(FleetObjectHandler, DeleteSquad);
+    PyCallable_REG_CALL(FleetObjectHandler, LeaveFleet);
 }
 
 FleetObjectHandler::~FleetObjectHandler()
@@ -50,9 +62,130 @@ PyResult FleetObjectHandler::Handle_CreateFleet(PyCallArgs &call) {
     sLog.Log("FleetObjectHandler", "Handle_CreateFleet() size=%u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
 
-	/**  returns fleetID */
+    /**  returns fleetID */
     return NULL;
 }
+
+PyResult FleetObjectHandler::Handle_CreateWing(PyCallArgs &call) {
+    /*  wingID = self.fleet.CreateWing()  */
+
+    sLog.Log("FleetObjectHandler", "Handle_CreateWing() size=%u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    return NULL;
+}
+
+PyResult FleetObjectHandler::Handle_CreateSquad(PyCallArgs &call) {
+    /* self.fleet.CreateSquad(wingID)  */
+
+    sLog.Log("FleetObjectHandler", "Handle_CreateSquad() size=%u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    return NULL;
+}
+
+PyResult FleetObjectHandler::Handle_SetMotdEx(PyCallArgs &call) {
+    /*  self.fleet.SetMotdEx(motd)  */
+
+    sLog.Log("FleetObjectHandler", "Handle_SetMotdEx() size=%u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    return NULL;
+}
+
+PyResult FleetObjectHandler::Handle_GetMotd(PyCallArgs &call) {
+    /*  self.fleet.GetMotd()  */
+
+    sLog.Log("FleetObjectHandler", "Handle_GetMotd() size=%u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    return NULL;
+}
+
+PyResult FleetObjectHandler::Handle_CheckIsInFleet(PyCallArgs &call) {
+    /* self.CheckIsInFleet()  */
+
+    sLog.Log("FleetObjectHandler", "Handle_CheckIsInFleet() size=%u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    return NULL;
+}
+
+PyResult FleetObjectHandler::Handle_MakeLeader(PyCallArgs &call) {
+    /* self.fleet.MakeLeader(charID)  */
+
+    sLog.Log("FleetObjectHandler", "Handle_MakeLeader() size=%u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    return NULL;
+}
+
+PyResult FleetObjectHandler::Handle_SetBooster(PyCallArgs &call) {
+    /*self.fleet.SetBooster(charID, roleBooster):
+     *sm.ScatterEvent('OnFleetMemberChanging', charID)  */
+
+    sLog.Log("FleetObjectHandler", "Handle_SetBooster() size=%u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    return NULL;
+}
+
+PyResult FleetObjectHandler::Handle_MoveMember(PyCallArgs &call) {
+    /*  MoveMember(charID, wingID, squadID, role, roleBooster):  */
+
+    sLog.Log("FleetObjectHandler", "Handle_MoveMember() size=%u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    return NULL;
+}
+
+PyResult FleetObjectHandler::Handle_KickMember(PyCallArgs &call) {
+    /*
+     *        if charID == eve.session.charid:
+     *            self.LeaveFleet()
+     *        else:
+     *            self.fleet.KickMember(charID)
+     */
+
+    sLog.Log("FleetObjectHandler", "Handle_KickMember() size=%u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    return NULL;
+}
+
+PyResult FleetObjectHandler::Handle_DeleteWing(PyCallArgs &call) {
+    /*    self.fleet.DeleteWing(wingID)  */
+
+    sLog.Log("FleetObjectHandler", "Handle_DeleteWing() size=%u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    return NULL;
+}
+
+PyResult FleetObjectHandler::Handle_DeleteSquad(PyCallArgs &call) {
+    /* self.fleet.DeleteSquad(wingID)  */
+
+    sLog.Log("FleetObjectHandler", "Handle_DeleteSquad() size=%u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    return NULL;
+}
+
+PyResult FleetObjectHandler::Handle_LeaveFleet(PyCallArgs &call) {
+    /*
+        if charID == eve.session.charid:
+            self.LeaveFleet()
+        else:
+            self.fleet.KickMember(charID)
+    */
+
+    sLog.Log("FleetObjectHandler", "Handle_LeaveFleet() size=%u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    return NULL;
+}
+
+
 /**
 typedef enum {
 fleetJobNone = 0,
@@ -77,43 +210,4 @@ fleetBoosterSquad = 3
 fleetGroupingRange = 300
 rejectFleetInviteTimeout = 1
 rejectFleetInviteAlreadyInFleet = 2
-*/
-/*
-MoveMember(charID, wingID, squadID, role, roleBooster):
-
-
-    def SetBooster(self, charID, roleBooster):
-        self.CheckIsInFleet()
-        if self.fleet.SetBooster(charID, roleBooster):
-            sm.ScatterEvent('OnFleetMemberChanging', charID)
-
-    def CreateWing(self):
-        self.CheckIsInFleet()
-        wingID = self.fleet.CreateWing()
-        if wingID:
-            self.CreateSquad(wingID)
-
-    def DeleteWing(self, wingID):
-        self.CheckIsInFleet()
-        self.fleet.DeleteWing(wingID)
-
-    def CreateSquad(self, wingID):
-        self.CheckIsInFleet()
-        self.fleet.CreateSquad(wingID)
-
-    def DeleteSquad(self, wingID):
-        self.CheckIsInFleet()
-        self.fleet.DeleteSquad(wingID)
-
-    def MakeLeader(self, charID):
-        self.fleet.MakeLeader(charID)
-
-    def KickMember(self, charID):
-        if charID == eve.session.charid:
-            self.LeaveFleet()
-        else:
-            self.fleet.KickMember(charID)
-
-self.fleet.SetMotdEx(motd)
-self.fleet.GetMotd()
 */

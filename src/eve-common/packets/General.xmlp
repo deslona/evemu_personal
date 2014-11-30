@@ -571,12 +571,11 @@
       </dictInline>
   </elementDef>
 
-  <elementDef name="Rsp_GetInsureShip">
+  <elementDef name="Call_InsureShip">
       <tupleInline>
           <int name="shipID" />
           <real name="amount" />
-          <bool name="isCorp" />
-          <bool name="voidOld" />
+          <int name="isCorp" />
       </tupleInline>
   </elementDef>
 
@@ -589,11 +588,9 @@
 
   <elementDef name="Call_SearchQuery">
       <tupleInline>
-          <wstring name="string" />
-          <listInline>
-              <int name="int1" />
-          </listInline>
+          <wstring name="str" />
+          <listInt name="ids" />
       </tupleInline>
   </elementDef>
 
- </elements>
+</elements>

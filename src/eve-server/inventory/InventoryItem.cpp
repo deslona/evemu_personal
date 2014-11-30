@@ -379,7 +379,7 @@ InventoryItemRef InventoryItem::Spawn(ItemFactory &factory, ItemData &data)
                 //return InventoryItem::Load( factory, itemID );
             }
             /*  put a check in here for beacons,
-			 * groupid 310::typeid 
+			 * groupid 310::typeid
 			 *   Large_Collidable_Structure::
 			 * groupid 226::typeid 10124
 			 *   Large_Collidable_Object::
@@ -949,14 +949,30 @@ InventoryItemRef InventoryItem::Split(int32 qty_to_take, bool notify) {
 }
 
 bool InventoryItem::Merge(InventoryItemRef to_merge, int32 qty, bool notify) {
+    /*[00m14:51:55 [Error] Metal Scraps (140000072) in location 60014809, flag 4: Asked to merge with item 140000087 in location 60014809, flag 4.
+     * 14:51:55 [Error] EMP S (140000108) in location 60014809, flag 4: Asked to merge with item 140000109 in location 60014809, flag 4.
+     * 14:51:55 [Error] EMP S (140000108) in location 60014809, flag 4: Asked to merge with item 140000129 in location 60014809, flag 4.
+     * 14:51:55 [Error] Tritanium (140000067) in location 60014809, flag 4: Asked to merge with item 140000131 in location 60014809, flag 4.
+     */
     if(typeID() != to_merge->typeID()) {
         _log(ITEM__ERROR, "%s (%u): Asked to merge with %s (%u).", itemName().c_str(), itemID(), to_merge->itemName().c_str(), to_merge->itemID());
         return false;
     }
-    if(locationID() != to_merge->locationID() || flag() != to_merge->flag()) {
-        _log(ITEM__ERROR, "%s (%u) in location %u, flag %u: Asked to merge with item %u in location %u, flag %u.", itemName().c_str(), itemID(), locationID(), flag(), to_merge->itemID(), to_merge->locationID(), to_merge->flag());
-        return false;
+    /*
+    if (locationID() != to_merge->locationID()) {
+        if (! (flag() == flagHangar) && ( (to_merge->flag() >= flagHiSlot0) || (to_merge->flag() <= flagHiSlot7) )) {
+            _log(ITEM__ERROR, "%s (%u) in location %u asked to merge with item %u in location %u.", itemName().c_str(), itemID(), locationID(), to_merge->itemID(), to_merge->locationID());
+            return false;
+        }
     }
+    if (locationID() == to_merge->locationID()) {
+        if ((!( (flag() == flagCargoHold) && ( (to_merge->flag() >= flagHiSlot0) || (to_merge->flag() <= flagHiSlot7) ))) || \
+            (!( (flag() == flagHangar) && (to_merge->flag() == flagHangar) ))) {
+            _log(ITEM__ERROR, "%s (%u) in location %u, flag %u: Asked to merge with item %u in location %u, flag %u.", itemName().c_str(), itemID(), locationID(), flag(), to_merge->itemID(), to_merge->locationID(), to_merge->flag());
+            return false;
+        }
+    }
+    */
     if(qty == 0)
         qty = to_merge->quantity();
     if(qty <= 0) {
@@ -1239,11 +1255,11 @@ EvilNumber InventoryItem::GetAttribute( const uint32 attributeID ) const {
 EvilNumber InventoryItem::GetDefaultAttribute( const uint32 attributeID ) const {
      return mDefaultAttributeMap.GetAttribute(attributeID);
 }
-
+/*
 EvilNumber InventoryItem::GetAttribute( const uint32 attributeID, const uint32 defaultValue ) const {
      return mAttributeMap.GetAttribute(attributeID, defaultValue);
 }
-
+*/
 bool InventoryItem::HasAttribute(const uint32 attributeID) const {
     return mAttributeMap.HasAttribute(attributeID);
 }

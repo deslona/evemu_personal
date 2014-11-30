@@ -32,14 +32,17 @@ do with the source code downloaded from this project.
 - Agents and Converstation working (hard-coded...no mission data yet)
 - SolarSystem, Constellation, and Region information working
 - Most dynamic data working from StarMap(F10) [visited systems, Bookmarked systems, Personal Assets, jumps/hour, ALL killtypes ]
-- Refining/Reprocessing works, using Standings (kinda), and Skills
+- Refining/Reprocessing works, using Standings and Skills
 - Market History Data working
 - Manufacturing working
 - ML/PL research working (but hacked)
 - POS's Deployable and Anchorable (but cant put online)
 - Text-Based Search Partially working (bad return...nothing displayed)
-- Bounties are working, but difficult to set until Search system is working
-
+- Bounties are working (but not payouts)
+- Insurance is working (but not payouts)
+- Projectile Weapons working (others not tested)
+- Some modules working (dont have list yet)
+- Loot working (currently only guristas ships in db)
 
 
 # Legal

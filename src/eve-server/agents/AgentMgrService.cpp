@@ -61,6 +61,7 @@ public:
         PyCallable_REG_CALL(AgentMgrBound, GetInfoServiceDetails);
         PyCallable_REG_CALL(AgentMgrBound, DoAction);
         PyCallable_REG_CALL(AgentMgrBound, GetMyJournalDetails);
+        PyCallable_REG_CALL(AgentMgrBound, GetMyEpicJournalDetails);
         PyCallable_REG_CALL(AgentMgrBound, GetAgentLocationWrap);
         PyCallable_REG_CALL(AgentMgrBound, GetMissionBriefingInfo);
         PyCallable_REG_CALL(AgentMgrBound, GetMissionObjectiveInfo);
@@ -74,6 +75,7 @@ public:
     PyCallable_DECL_CALL(GetInfoServiceDetails);
     PyCallable_DECL_CALL(DoAction);
     PyCallable_DECL_CALL(GetMyJournalDetails);
+    PyCallable_DECL_CALL(GetMyEpicJournalDetails);
     PyCallable_DECL_CALL(GetAgentLocationWrap);
     PyCallable_DECL_CALL(GetMissionBriefingInfo);
     PyCallable_DECL_CALL(GetMissionObjectiveInfo);
@@ -94,7 +96,6 @@ AgentMgrService::AgentMgrService(PyServiceMgr *mgr)
 
     PyCallable_REG_CALL(AgentMgrService, GetAgents);
     PyCallable_REG_CALL(AgentMgrService, GetMyJournalDetails);
-    PyCallable_REG_CALL(AgentMgrService, GetMyEpicJournalDetails);
     PyCallable_REG_CALL(AgentMgrService, GetSolarSystemOfAgent);
     PyCallable_REG_CALL(AgentMgrService, GetCareerAgents);
 }
@@ -347,10 +348,9 @@ PyResult AgentMgrBound::Handle_GetMyJournalDetails(PyCallArgs &call) {
 
 }
 
-PyResult AgentMgrService::Handle_GetMyEpicJournalDetails( PyCallArgs& call )
+PyResult AgentMgrBound::Handle_GetMyEpicJournalDetails( PyCallArgs& call )
 {
     //no args
-
   sLog.Log( "AgentMgrBound::Handle_GetMyEpicJournalDetails()", "size= %u", call.tuple->size() );
 
     return new PyList;

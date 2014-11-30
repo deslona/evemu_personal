@@ -78,7 +78,7 @@ class PyAddress;
 class PyList;
 class PyDict;
 class PyPacket;
-class Client;
+//class Client;
 class PyRep;
 
 //DO NOT INHERIT THIS OBJECT!
@@ -237,7 +237,7 @@ public:
     virtual bool ApplyDamage(Damage &d);
     virtual void Killed(Damage &fatal_blow);
     virtual void _DropLoot(uint32 groupID, uint32 owner, uint32 locationID);
-    virtual SystemManager *System() const { return(m_system); }
+    virtual SystemManager *System() const { return(m_system); }    //may yeild NULL
 
     /********************************************************************/
     /* Server Administration Interface                                  */

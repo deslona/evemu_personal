@@ -247,6 +247,18 @@ protected:
     bool m_notify;
 };
 
+// small map that does the magic of item attributes..
+//class EvilNumber;
+
+/**
+ * @brief rewrite of the item attribute system.
+ *
+ * @author Captnoord.
+ * @date Juni 2010
+ * @note keeping track of the base value of the attribute is not implemented.
+ * Besides the fact in increases memory concumption its unclear how to design it
+ * at this moment.
+ */
 class AttributeMap
 {
 public:
@@ -266,7 +278,7 @@ public:
      * @param[in] item reference to the InventoryItem for which attributes will be managed
      * @param[in] bDefaultMap boolean indicating whether this attribute map uses 'entity_default_attributes' table or 'entity_attributes' table
      */
-    AttributeMap(InventoryItem & item, bool);
+    AttributeMap(InventoryItem & item, bool bDefaultMap);
 
 	/**
      * @brief set the attribute with @num
@@ -279,55 +291,21 @@ public:
      * @retval true  The attribute has successfully been set and queued.
      * @retval false The attribute change has not been queued but has not been changed.
      */
-    bool SetAttribute(uint32 , EvilNumber &num, bool nofity = true);
+    bool SetAttribute(uint32 attributeId, EvilNumber &num, bool nofity = true);
 
-    /**
-* GetAttribute
-* Retrieves the attribute of the entity.
-* @param attributeID the attribute to check for.
-* @returns the attribute value
-* @note a value of zero is returned and an error message generated if the value is not found.
-*
-* @note this function should be used very infrequently and only for specific reasons
-*/
-    EvilNumber GetAttribute(const uint32 ) const;
-    /**
-* GetAttribute
-* Retrieves the attribute of the entity.
-* @note Should only be used when the attribute might not be defined.
-* @param attributeID the attribute to check for.
-* @param defaultValue a default value to return if no attribute is found.
-* @returns the attribute value or the default value.
-* @note does not generate an error message if the value is not found.
-*
-* @note this function should be used very infrequently and only for specific reasons
-*/
-    EvilNumber GetAttribute(const uint32 , const uint32 defaultValue) const;
+    EvilNumber GetAttribute(const uint32 attributeId) const;
 
-    /**
-* HasAttribute
-* Checks to see if the entity has the specified attribute.
-* @param attributeID the attribute to check for.
-* @returns true if this item has the attribute 'attributeID', false if it does not have this attribute
-*
-* @note this function should be used very infrequently and only for specific reasons
-*/
-    bool HasAttribute(const uint32 ) const;
-
-    /**
-* HasAttribute
-* Checks to see if the entity has the specified attribute.
-* value not altered if attribute not found. This could be useful for preserving a default value.
-* @param attributeID the attribute to check for.
-* @param value the location to return the attribute if it exist.
-* @returns true if this item has the attribute 'attributeID', false if it does not have this attribute
-*
-* @note this function should be used very infrequently and only for specific reasons
-*/
-    bool HasAttribute(const uint32, EvilNumber &value) const;
-
-
-    /** ATM we don't load or save as we assume that all attribute modifiers are calculated on the fly
+    /*
+     * HasAttribute
+     *
+     * returns true if this item has the attribute 'attributeID', false if it does not have this attribute
+     *
+     * @note this function should be used very infrequently and only for specific reasons
+     */
+    bool HasAttribute(const uint32 attributeID) const;
+    bool HasAttribute(const uint32 attributeID, EvilNumber &value) const;
+    
+    /* ATM we don't load or save as we assume that all attribute modifiers are calculated on the fly
      * except charge attributes but we won't handle them for now
      */
     bool Save();
@@ -338,6 +316,7 @@ public:
     bool Delete();
 
     // load the default attributes that come with the itemID
+
 
     typedef std::map<uint32, EvilNumber>    AttrMap;
     typedef AttrMap::iterator               AttrMapItr;
@@ -355,7 +334,7 @@ public:
     bool SaveIntAttribute(uint32 attributeID, int64 value);
     bool SaveFloatAttribute(uint32 attributeID, double value);
 
-    /**
+    /*
      * ResetAttribute
      *
      *@note this function will force reload the default value for the specified attribute
@@ -367,6 +346,8 @@ public:
     /**
      * @brief return the begin iterator of the AttributeMap
      *
+     *
+     *
      * @return the begin iterator of the AttributeMap
      * @note this way to solve the attribute system problems are quite hacky... but atm its needed
      */
@@ -374,6 +355,8 @@ public:
 
     /**
      * @brief return the end iterator of the AttributeMap
+     *
+     *
      *
      * @return the end iterator of the AttributeMap
      * @note this way to solve the attribute system problems are quite hacky... but atm its needed

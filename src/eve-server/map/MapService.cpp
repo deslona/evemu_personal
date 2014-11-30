@@ -254,6 +254,7 @@ PyResult MapService::Handle_GetDeadspaceComplexMap(PyCallArgs &call)
     return result;
 }
 
+//05:52:07 L MapService::Handle_GetIncursionGlobalReport(): size= 0
 PyResult MapService::Handle_GetIncursionGlobalReport(PyCallArgs &call) {
   /**
             report = sm.RemoteSvc('map').GetIncursionGlobalReport()

@@ -105,7 +105,7 @@ public:
     //I am not sure if I want this here...
     virtual InventoryItemRef Item() const = 0;
 
-    virtual SystemManager *System() const = 0;    //may yeild NULL
+    virtual SystemManager *System() const = 0;    //will yeild NULL when docked.
 
     //expand the vector as needed, and encode the destiny update into it.
     virtual void EncodeDestiny( Buffer& into ) const = 0;
@@ -134,6 +134,7 @@ public:
 
 protected:
     SystemBubble *m_bubble;    //we do not own this, may be NULL. Only changed by SystemBubble
+    void _DropLoot(uint32 groupID, uint32 owner, uint32 locationID);
 };
 
 class ItemSystemEntity : public SystemEntity {
@@ -192,6 +193,7 @@ public:
     virtual void Killed(Damage &fatal_blow);
 
 protected:
+    void _DropLoot(SystemManager &pSysMgr, uint32 groupID, uint32 owner, uint32 locationID);
     DestinyManager *m_destiny;    //we own this! NULL if we are not in a system
 };
 

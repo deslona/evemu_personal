@@ -99,6 +99,7 @@ PyResult PlanetMgrBound::Handle_GetPlanetResourceInfo(PyCallArgs &call) {
     return NULL;
 }
 
+//05:44:57 PlanetMgrBound: Handle_GetPlanetsForChar() size=0
 PyResult PlanetMgrService::Handle_GetPlanetsForChar(PyCallArgs &call) {
   /**
             self.colonizationData = sm.RemoteSvc('planetMgr').GetPlanetsForChar()
@@ -110,6 +111,7 @@ PyResult PlanetMgrService::Handle_GetPlanetsForChar(PyCallArgs &call) {
     return NULL;
 }
 
+//05:51:11 PlanetMgrBound: Handle_GetMyLaunchesDetails() size=0
 PyResult PlanetMgrService::Handle_GetMyLaunchesDetails(PyCallArgs &call) {
     sLog.Log("PlanetMgrBound", "Handle_GetMyLaunchesDetails() size=%u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);

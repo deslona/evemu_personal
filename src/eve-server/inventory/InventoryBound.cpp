@@ -409,17 +409,18 @@ PyResult InventoryBound::Handle_CreateBookmarkVouchers(PyCallArgs &call) {
 
   sLog.Log( "InventoryBound::Handle_CreateBookmarkVouchers()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
-*/
+
       PyList *list = call.tuple->GetItem( 0 )->AsList();
-      uint8 i;
       uint32 bookmarkID;
       char ci[3];
 
       DBQueryResult res;
       DBResultRow row;
 
+//FIXME this needs work......vouchers in hangar will not show contents of hangar, but item count works.
+
       if( list->size() > 0 ) {
-          for(i=0; i<(list->size()); i++) {
+          for(uint8 i = 0; i < (list->size()); i++) {
               bookmarkID = call.tuple->GetItem( 0 )->AsList()->GetItem(i)->AsInt()->value();
                               //ItemData ( typeID, ownerID, locationID, flag, quantity, customInfo, contraband)
               ItemData itemBookmarkVoucher( 51, call.client->GetCharacterID(), call.client->GetLocationID(), flagHangar, 1 );
@@ -445,7 +446,7 @@ PyResult InventoryBound::Handle_CreateBookmarkVouchers(PyCallArgs &call) {
       //  NOTE: need to put check in here for isMove bool.  true=remove from PnP->bookmarks tab....false = leave
 
       //  NOTE: need to reload hangar to show newly created BM item.
-
+*/
     return new PyInt( 0 );
 }
 
@@ -569,7 +570,7 @@ PyRep *InventoryBound::_ExecAdd(Client *c, const std::vector<int32> &items, uint
             if ((flag == flagAutoFit) || ((flag >= flagLowSlot0 && flag <= flagHiSlot7) || (flag >= flagRigSlot0 && flag <= flagRigSlot7)))
             if (sourceItem->quantity() > 1)
                 InventoryItemRef newItem = sourceItem->Split(sourceItem->quantity()-1);
-            
+
             // Unlike the other validate item requests, fitting an item requires a skill check
             // (This handles modules being moved from one slot to another slot within the same bank on the same ship)
             // (This also allows for flagAutoFit when someone drags a module or a stack of modules onto the middle of the fitting

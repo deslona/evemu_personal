@@ -216,7 +216,7 @@ void MEffect::_Populate(uint32 effectID)
 
 		if( count == 0 )
 		{
-			;//sLog.Error("MEffect","Could not populate effect information for effectID: %u from the 'dgmEffectsInfo' table as the SQL query returned ZERO rows", effectID);
+			sLog.Error("MEffect","Could not populate effect information for effectID: %u from the 'dgmEffectsInfo' table as the SQL query returned ZERO rows", effectID);
 			m_EffectsInfoLoaded = false;
 		}
 		else
@@ -341,7 +341,7 @@ void SkillBonusModifier::_Populate(uint32 skillID)
 
 		if( count == 0 )
 		{
-			;//sLog.Error("SkillBonusModifier","Could not populate bonus modifier information for skillID: %u from the 'dgmSkillBonusModifiers' table as the SQL query returned ZERO rows", skillID);
+			sLog.Error("SkillBonusModifier","Could not populate bonus modifier information for skillID: %u from the 'dgmSkillBonusModifiers' table as the SQL query returned ZERO rows", skillID);
 			m_ModifierLoaded = false;
 		}
 		else
@@ -463,7 +463,7 @@ void ShipBonusModifier::_Populate(uint32 shipID)
 
 		if( count == 0 )
 		{
-			;//sLog.Error("ShipBonusModifier","Could not populate bonus modifier information for shipID: %u from the 'dgmShipBonusModifiers' table as the SQL query returned ZERO rows", shipID);
+			sLog.Error("ShipBonusModifier","Could not populate bonus modifier information for shipID: %u from the 'dgmShipBonusModifiers' table as the SQL query returned ZERO rows", shipID);
 			m_ModifierLoaded = false;
 		}
 		else
@@ -646,7 +646,7 @@ void DGM_Type_Effects_Table::_Populate()
 	if( error_count > 0 )
 		sLog.Error("DGM_Type_Effects_Table::_Populate()","ERROR Populating the DGM_Type_Effects_Table memory object: %u of %u types failed to load!", error_count, total_type_count);
 
-	sLog.Log("     Type_Effects", "%u total type effect objects loaded", total_type_count);
+	sLog.Log("          Type_Effects", "%u total type effect objects loaded", total_type_count);
 
     //cleanup
     delete res;
@@ -717,7 +717,7 @@ void DGM_Skill_Bonus_Modifiers_Table::_Populate()
 	if( error_count > 0 )
 		sLog.Error("DGM_Skill_Bonus_Modifiers_Table::_Populate()","ERROR Populating the DGM_Skill_Bonus_Modifiers_Table memory object: %u of %u skill bonus modifiers failed to load!", error_count, total_modifier_count);
 
-	sLog.Log("  Skill_Modifiers", "%u total skill modifier objects loaded", total_modifier_count);
+	sLog.Log("  Skill_Modifiers", "%u total modifier objects loaded", total_modifier_count);
 
     //cleanup
     delete res;
@@ -788,7 +788,7 @@ void DGM_Ship_Bonus_Modifiers_Table::_Populate()
 	if( error_count > 0 )
 		sLog.Error("DGM_Ship_Bonus_Modifiers_Table::_Populate()","ERROR Populating the DGM_Ship_Bonus_Modifiers_Table memory object: %u of %u ship bonus modifiers failed to load!", error_count, total_modifier_count);
 
-	sLog.Log("   Ship_Modifiers", "%u total ship modifier objects loaded", total_modifier_count);
+	sLog.Log("   Ship_Modifiers", "%u total modifier objects loaded", total_modifier_count);
 
     //cleanup
     delete res;
@@ -899,9 +899,6 @@ bool ModuleEffects::HasEffect(uint32 effectID)
 {
     std::map<uint32, MEffect *>::const_iterator cur, end;
 
-    if( m_PersistentEffects.find(effectID) != m_PersistentEffects.end() )
-		return true;
-
     if( m_OnlineEffects.find(effectID) != m_OnlineEffects.end() )
         return true;
 
@@ -919,9 +916,6 @@ MEffect * ModuleEffects::GetEffect(uint32 effectID)
     // WARNING: This function MUST be defined!
 	MEffect * effectPtr = NULL;
     std::map<uint32, MEffect *>::const_iterator cur, end;
-
-    if( (cur = m_PersistentEffects.find(effectID)) != m_PersistentEffects.end() )
-		return cur->second;
 
     if( (cur = m_OnlineEffects.find(effectID)) != m_OnlineEffects.end() )
 		return cur->second;
@@ -988,28 +982,40 @@ void ModuleEffects::_populate(uint32 typeID)
 				}
 
 				// Just in case our 'mEffectPtr' gets deleted above for certain cases, let's not proceed further lest we crash!
-                if( mEffectPtr != NULL ) {
-                    if( isDefault > 0 ) m_defaultEffect = mEffectPtr;
+				if( mEffectPtr != NULL )
+				{
+					if( isDefault > 0 )
+						m_defaultEffect = mEffectPtr;
 
-                    // This switch is assuming that all entries in 'dgmEffectsInfo' for this effectID are applied during the same module state,
-                    // which should really be the case anyway, for every effectID, so we just check the list of attributes
-                    // that are modified by this effect for which module state during which the effect is active:
-                    switch( mEffectPtr->GetModuleStateWhenEffectApplied() ) {
-                        case EFFECT_ONLINE:
-                            m_OnlineEffects.insert(std::pair<uint32, MEffect *>(effectID,mEffectPtr));
-                            break;
-                        case EFFECT_ACTIVE:
-                            m_ActiveEffects.insert(std::pair<uint32, MEffect *>(effectID,mEffectPtr));\
-                            break;
-                        case EFFECT_OVERLOAD:
-                            m_OverloadEffects.insert(std::pair<uint32, MEffect *>(effectID,mEffectPtr));
-                            break;
-                        default:
-                            sLog.Error("ModuleEffects::_populate()", "Illegal value '%u' obtained from the 'effectAppliedInState' field of the 'dgmEffectsInfo' table", mEffectPtr->GetModuleStateWhenEffectApplied());\
-                            break;
-                    }
-			    }
-            }
+					// This switch is assuming that all entries in 'dgmEffectsInfo' for this effectID are applied during the same module state,
+					// which should really be the case anyway, for every effectID, so we just check the list of attributes
+					// that are modified by this effect for which module state during which the effect is active:
+					uint32 moduleStateWhenEffectApplied = mEffectPtr->GetModuleStateWhenEffectApplied();
+					if( moduleStateWhenEffectApplied == MOD_UNFITTED )
+						sLog.Error("ModuleEffects::_populate()", "Illegal value '%u' obtained from the 'effectAppliedInState' field of the 'dgmEffectsInfo' table", mEffectPtr->GetModuleStateWhenEffectApplied());
+
+					if( moduleStateWhenEffectApplied & MOD_OFFLINE )
+						;	// nothing
+
+					if( moduleStateWhenEffectApplied & MOD_ONLINE )
+						m_OnlineEffects.insert(std::pair<uint32, MEffect *>(effectID,mEffectPtr));
+
+					if( moduleStateWhenEffectApplied & MOD_ACTIVATED )
+						m_ActiveEffects.insert(std::pair<uint32, MEffect *>(effectID,mEffectPtr));
+
+					if( moduleStateWhenEffectApplied & MOD_OVERLOADED )
+						m_OverloadEffects.insert(std::pair<uint32, MEffect *>(effectID,mEffectPtr));
+
+					if( moduleStateWhenEffectApplied & MOD_GANG )
+						m_GangEffects.insert(std::pair<uint32, MEffect *>(effectID,mEffectPtr));
+
+					if( moduleStateWhenEffectApplied & MOD_FLEET )
+						m_FleetEffects.insert(std::pair<uint32, MEffect *>(effectID,mEffectPtr));
+
+					if( moduleStateWhenEffectApplied & MOD_DEACTIVATING )
+						;	// nothing
+				}
+			}
         }
     }
 

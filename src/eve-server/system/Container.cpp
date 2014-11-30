@@ -26,7 +26,6 @@
 #include "eve-server.h"
 
 #include "Client.h"
-#include "inventory/AttributeEnum.h"
 #include "ship/DestinyManager.h"
 #include "system/Container.h"
 
@@ -167,8 +166,11 @@ void CargoContainer::AddItem(InventoryItemRef item)
 
 void CargoContainer::RemoveItem(InventoryItemRef item)
 {
-    sLog.Warning( "CargoContainer::RemoveItem()", "Empty status of cargo containers is not checked to ensure proper despawn of jet-cans." );
     InventoryEx::RemoveItem( item );
+    if ((groupID() == EVEDB::invGroups::Cargo_Container) && (this->IsEmpty())) {
+        sLog.Warning( "CargoContainer::RemoveItem()", "Cargo Container %u is empty and being deleted.", this->itemID() );
+        this->Delete();
+    }
 }
 
 

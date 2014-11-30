@@ -52,7 +52,8 @@ public:
     PyObject *GetOwnerNoteLabels(uint32 charID);
     PyObject *GetOwnerNote(uint32 charID, uint32 noteID);
 
-	double GetCharRawStandingFromNPC(uint32 characterID, uint32 itemID);
+    double GetCharRawStandingFromNPC(uint32 characterID, uint32 itemID);
+    void SetCharNPCStandings(uint32 characterID) ;
 
 	bool GetCharClones(uint32 characterID, std::vector<uint32> &into);
     bool GetActiveClone(uint32 characterID, uint32 &itemID);

@@ -103,6 +103,7 @@ PyResult LPService::Handle_GetLPForCharacterCorp( PyCallArgs& call )
     return new PyInt( 0 );
 }
 
+// //06:01:19 LPService::Handle_GetLPsForCharacter(): size= 0
 PyResult LPService::Handle_GetLPsForCharacter( PyCallArgs& call )
 {
     //no args

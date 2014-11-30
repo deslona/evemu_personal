@@ -31,7 +31,7 @@ CREATE TABLE `account` (
   `lastLogin` timestamp NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`accountID`),
   UNIQUE KEY `accountName` (`accountName`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 /*Data for the table `account` */
 
@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS `bookmarkFolders` (
   `creatorID` int(10) DEFAULT NULL,
   PRIMARY KEY (`folderID`),
   KEY `ownerID` (`ownerID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Table structure for table `cacheLocations` */
 
@@ -206,31 +206,30 @@ CREATE TABLE IF NOT EXISTS `character_` (
   `logonMinutes` int(10) unsigned NOT NULL DEFAULT '0',
   `skillPoints` double NOT NULL DEFAULT '0',
   `skillQueueEndTime` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `corporationID` int(10) unsigned NOT NULL DEFAULT '0',
-  `corpRole` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `rolesAtAll` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `rolesAtBase` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `rolesAtHQ` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `rolesAtOther` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `corporationDateTime` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `startDateTime` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `createDateTime` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `ancestryID` int(10) unsigned NOT NULL DEFAULT '0',
-  `careerID` int(10) unsigned NOT NULL DEFAULT '0',
-  `schoolID` int(10) unsigned NOT NULL DEFAULT '0',
-  `careerSpecialityID` int(10) unsigned NOT NULL DEFAULT '0',
-  `gender` tinyint(4) NOT NULL DEFAULT '0',
-  `stationID` int(10) unsigned NOT NULL DEFAULT '0',
-  `solarSystemID` int(10) unsigned NOT NULL DEFAULT '0',
-  `constellationID` int(10) unsigned NOT NULL DEFAULT '0',
-  `regionID` int(10) unsigned NOT NULL DEFAULT '0',
-  `online` tinyint(1) NOT NULL DEFAULT '0',
-  `freeRespecs` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `lastRespecDateTime` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `nextRespecDateTime` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `deletePrepareDateTime` bigint(20) unsigned DEFAULT '0',
-  `shipID` int(10) unsigned NOT NULL DEFAULT '0',
-  `age` int(20) NOT NULL,
+  `corporationID` int(10) unsigned NOT NULL default '0',
+  `corpRole` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+  `rolesAtAll` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+  `rolesAtBase` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+  `rolesAtHQ` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+  `rolesAtOther` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0',
+  `corporationDateTime` bigint(20) unsigned NOT NULL default '0',
+  `startDateTime` bigint(20) unsigned NOT NULL default '0',
+  `createDateTime` bigint(20) unsigned NOT NULL default '0',
+  `ancestryID` int(10) unsigned NOT NULL default '0',
+  `careerID` int(10) unsigned NOT NULL default '0',
+  `schoolID` int(10) unsigned NOT NULL default '0',
+  `careerSpecialityID` int(10) unsigned NOT NULL default '0',
+  `gender` tinyint(4) NOT NULL default '0',
+  `stationID` int(10) unsigned NOT NULL default '0',
+  `solarSystemID` int(10) unsigned NOT NULL default '0',
+  `constellationID` int(10) unsigned NOT NULL default '0',
+  `regionID` int(10) unsigned NOT NULL default '0',
+  `online` tinyint(1) NOT NULL default '0',
+  `freeRespecs` tinyint(1) unsigned NOT NULL default '0',
+  `lastRespecDateTime` bigint(20) unsigned NOT NULL default '0',
+  `nextRespecDateTime` bigint(20) unsigned NOT NULL default '0',
+  `deletePrepareDateTime` BIGINT(20) UNSIGNED NULL DEFAULT '0',
+  `shipID` int(10) unsigned NOT NULL default '0',
   PRIMARY KEY (`characterID`),
   KEY `FK_CHARACTER__ACCOUNTS` (`accountID`),
   KEY `FK_CHARACTER__CHRANCESTRIES` (`ancestryID`),
@@ -510,7 +509,7 @@ CREATE TABLE `droneState` (
 DROP TABLE IF EXISTS `entity`;
 
 CREATE TABLE `entity` (
-  `itemID` int(10) unsigned NOT NULL auto_increment,
+  `itemID` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `itemName` varchar(85) NOT NULL default '',
   `typeID` int(10) unsigned NOT NULL default '0',
   `ownerID` int(10) unsigned NOT NULL default '0',
@@ -525,7 +524,7 @@ CREATE TABLE `entity` (
   `customInfo` text,
   PRIMARY KEY  (`itemID`),
   KEY `typeID` (`typeID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=14000000 DEFAULT CHARSET=utf8;
 
 /*Data for the table `entity` */
 
@@ -768,7 +767,7 @@ CREATE TABLE `rentalInfo` (
 DROP TABLE IF EXISTS `accountApi`;
 
 CREATE TABLE `accountApi` (
-  `userID` int(10) unsigned NOT NULL auto_increment,
+  `userID` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `accountID` int(10) unsigned NOT NULL default '0',
   `fullKey` varchar(64) NOT NULL default '',
   `limitedKey` varchar(64) NOT NULL default '',
@@ -796,7 +795,7 @@ CREATE TABLE `chrSkillQueue` (
 	`level` INT(10) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
 
-
+-- Mail subsystem
 DROP TABLE IF EXISTS `mailLabel`;
 CREATE TABLE `mailLabel` (
 	`id` INT(10) NOT NULL AUTO_INCREMENT,

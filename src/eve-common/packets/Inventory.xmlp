@@ -352,23 +352,22 @@
     </elementDef>
 
     <elementDef name="Call_Reprocess">
-      <tupleInline>
-          <listInt name="items" />
-	  <int name="fromLocation" />
-          <int name="ownerID" none_marker="0" />
-          <int name="flag" none_marker="0" />
-          <bool name="unknown" />
-          <listStr name="skipChecks" />
-      </tupleInline>
-  </elementDef>
+        <tupleInline>
+            <listInt name="items" />
+	        <int name="fromLocation" />
+            <int name="ownerID" none_marker="0" />
+            <int name="flag" none_marker="0" />
+            <bool name="unknown" />
+            <listStr name="skipChecks" />
+        </tupleInline>
+    </elementDef>
 
-  <elementDef name="Call_GetQuotes">
-      <tupleInline>
-          <listInt name="itemIDs" />
-          <int name="locationID" />
-	   <int name="activeShipID" />
-      </tupleInline>
-  </elementDef>
+    <elementDef name="Call_GetQuotes">
+        <tupleInline>
+            <listInt name="itemIDs" />
+	        <int name="activeShipID" />
+        </tupleInline>
+    </elementDef>
 
   <elementDef name="Rsp_GetBlueprintAttributes">
       <dictInline>

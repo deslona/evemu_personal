@@ -5,8 +5,6 @@
       <tupleInline>
           <int name="ownerID" />
           <bool name="completed" />
-          <!--long name="fromDate" none_marker="0" />
-          <long name="toDate" none_marker="-1" /-->
       </tupleInline>
   </elementDef>
 

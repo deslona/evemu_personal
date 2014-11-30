@@ -48,9 +48,10 @@ DungeonExplorationMgrService::~DungeonExplorationMgrService()
 
 PyResult DungeonExplorationMgrService::Handle_GetMyEscalatingPathDetails(PyCallArgs &call) {
 
-    sLog.Debug("Server", "Called GetMyEscalatingPathDetails Stub.");
+    sLog.Log("DungeonExplorationMgrService::Handle_GetMyEscalatingPathDetails()",  "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
 
-    return new PyList;
+    return new PyNone;
 }
 
 

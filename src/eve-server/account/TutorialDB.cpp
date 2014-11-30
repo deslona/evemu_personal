@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Zhur, Allan
 */
 
 #include "eve-server.h"
@@ -40,7 +40,8 @@ PyRep *TutorialDB::GetPageCriterias(uint32 tutorialID) {
         return NULL;
     }
 
-    return DBResultToRowset(res);
+    //return DBResultToRowset(res);
+    return DBResultToCRowset(res);
 }
 
 PyRep *TutorialDB::GetPages(uint32 tutorialID) {
@@ -56,7 +57,8 @@ PyRep *TutorialDB::GetPages(uint32 tutorialID) {
         return NULL;
     }
 
-    return DBResultToRowset(res);
+    //return DBResultToRowset(res);
+    return DBResultToCRowset(res);
 }
 
 PyRep *TutorialDB::GetTutorial(uint32 tutorialID) {
@@ -71,7 +73,8 @@ PyRep *TutorialDB::GetTutorial(uint32 tutorialID) {
         return NULL;
     }
 
-    return DBResultToRowset(res);
+    //return DBResultToRowset(res);
+    return DBResultToCRowset(res);
 }
 
 PyRep *TutorialDB::GetTutorialCriterias(uint32 tutorialID) {
@@ -86,7 +89,8 @@ PyRep *TutorialDB::GetTutorialCriterias(uint32 tutorialID) {
         return NULL;
     }
 
-    return DBResultToRowset(res);
+    //return DBResultToRowset(res);
+    return DBResultToCRowset(res);
 }
 
 PyRep *TutorialDB::GetAllTutorials() {
@@ -100,7 +104,8 @@ PyRep *TutorialDB::GetAllTutorials() {
         return NULL;
     }
 
-    return(DBResultToRowset(res));
+    //return DBResultToRowset(res);
+    return DBResultToCRowset(res);
 }
 
 PyRep *TutorialDB::GetAllCriterias() {
@@ -114,7 +119,8 @@ PyRep *TutorialDB::GetAllCriterias() {
         return NULL;
     }
 
-    return DBResultToRowset(res);
+    //return DBResultToRowset(res);
+    return DBResultToCRowset(res);
 }
 
 PyRep *TutorialDB::GetCategories() {
@@ -129,6 +135,14 @@ PyRep *TutorialDB::GetCategories() {
         return NULL;
     }
 
-    return DBResultToRowset(res);
+    //return DBResultToRowset(res);
+    return DBResultToCRowset(res);
+}
+
+PyTuple *TutorialDB::GetTutorialsAndConnections(uint8 raceID) {
+    DBQueryResult res;
+    sDatabase.RunQuery(res, "SELECT tutorialID, %u AS raceID, nextTutorialID FROM tutorials", raceID);
+
+    return DBResultToRowList(res);
 }
 

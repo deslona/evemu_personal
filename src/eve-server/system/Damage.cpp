@@ -43,8 +43,8 @@
 #include "system/Container.h"
 #include "system/Damage.h"
 #include "system/Deployable.h"
-#include "system/SystemManager.h"
 #include "system/SystemBubble.h"
+#include "system/SystemManager.h"
 #include "system/WrecksAndLoot.h"
 
 Damage::Damage(
@@ -1008,7 +1008,7 @@ void Client::Killed(Damage &fatal_blow) {
 		//TODO: award status changes. (entitySecurityStatusKillBonus)
 		if( client != NULL )
 			client->GetChar()->addSecurityRating( m_self->GetAttribute(AttrEntitySecurityStatusKillBonus).get_float() );
-/*  FIXME correct this to add loot to ship based on carried items/modules.
+        /*  FIXME correct this to add loot to ship based on carried items/modules.  */
 		// TODO: Place random selection of modules/charges/cargo/drones into container of wreck
 		// For now, though, just transfer 100% of cargo, modules, charges, drones, anything in the Ship's inventory to the wreck all w/ flagAutoFit
 		std::map<uint32, InventoryItemRef> deadShipInventory;
@@ -1020,7 +1020,7 @@ void Client::Killed(Damage &fatal_blow) {
 		end = deadShipInventory.end();
 	    for(; cur != end; cur++)
 			cur->second->Move(wreckLocationID,flagAutoFit);
-  */
+
         _DropLoot(this->Item()->groupID(), fatal_blow.source->Item()->ownerID(), wreckItemRef->itemID());
 
 		// We're all done, so let's destroy the dead ship object:
@@ -1028,24 +1028,6 @@ void Client::Killed(Damage &fatal_blow) {
         deadShipRef->Delete();    //remove from the DB.
     }
 }
-
-void Client::_DropLoot(uint32 groupID, uint32 owner, uint32 locationID) {
-    /*   allan 27Nov14    */
-    std::vector<DBLootGroupType> lootList;
-    sDGM_Loot_Groups_Table.GetLoot(groupID, lootList);
-
-    if (!lootList.empty()) {
-        uint16 quantity = 0;
-        std::vector<DBLootGroupType>::iterator cur = lootList.begin();
-        while (cur != lootList.end()) {
-            quantity = rand() % (((cur->maxQuantity - cur->minQuantity) + 1) + cur->minQuantity);
-            ItemData iLoot(cur->typeID, owner, locationID, flagAutoFit, quantity);
-            m_system->itemFactory().SpawnItem(iLoot);
-            ++cur;
-        }
-    }
-}
-
 
 void NPC::Killed(Damage &fatal_blow)
 {
@@ -1112,7 +1094,7 @@ void NPC::Killed(Damage &fatal_blow)
 		return;
 	}
 
-    _DropLoot(this->Item()->groupID(), fatal_blow.source->Item()->ownerID(), wreckItemRef->itemID());
+	_DropLoot(this->Item()->groupID(), fatal_blow.source->Item()->ownerID(), wreckItemRef->itemID());
 
     //award kill bounty.
     _AwardBounty(killer);
@@ -1132,29 +1114,6 @@ void NPC::Killed(Damage &fatal_blow)
     }
 
     m_system->RemoveNPC(this);
-}
-
-void NPC::_DropLoot(uint32 groupID, uint32 owner, uint32 locationID) {
-    /*   allan 27Nov14    */
-    std::vector<DBLootGroupType> lootList;
-    sDGM_Loot_Groups_Table.GetLoot(groupID, lootList);
-
-    if (!lootList.empty()) {
-        uint16 quantity = 0;
-        std::vector<DBLootGroupType>::iterator cur = lootList.begin();
-        while (cur != lootList.end()) {
-            if (cur->maxQuantity == cur->minQuantity)   //  items like charges where minQuantity = maxQuantity
-                quantity = cur->maxQuantity;
-            else
-                quantity = gen_random_float(cur->minQuantity, cur->maxQuantity);
-
-            if (quantity < 1) quantity = 1;     // if we've got this far, there is a minQuantity of 1
-
-            ItemData iLoot(cur->typeID, owner, locationID, flagAutoFit, quantity);
-            m_system->itemFactory().SpawnItem(iLoot);
-            ++cur;
-        }
-    }
 }
 
 void NPC::_AwardBounty(SystemEntity *who) {
@@ -1299,24 +1258,6 @@ void ShipEntity::Killed(Damage &fatal_blow)
     m_system->RemoveEntity(this);
 }
 
-void ShipEntity::_DropLoot(uint32 groupID, uint32 owner, uint32 locationID) {
-    /*   allan 27Nov14    */
-    std::vector<DBLootGroupType> lootList;
-    sDGM_Loot_Groups_Table.GetLoot(groupID, lootList);
-
-    if (!lootList.empty()) {
-        uint16 quantity = 0;
-        std::vector<DBLootGroupType>::iterator cur = lootList.begin();
-        while (cur != lootList.end()) {
-            quantity = rand() % (((cur->maxQuantity - cur->minQuantity) + 1) + cur->minQuantity);
-            ItemData iLoot(cur->typeID, owner, locationID, flagAutoFit, quantity);
-            m_system->itemFactory().SpawnItem(iLoot);
-            ++cur;
-        }
-    }
-}
-
-
 void DroneEntity::_ReduceDamage(Damage &d) {
     // armorEmDamageResonance
     // armorExplosiveDamageResonance
@@ -1363,6 +1304,8 @@ void DroneEntity::Killed(Damage &fatal_blow)
 
     //TODO: award status changes. (entitySecurityStatusKillBonus)
     client->GetChar()->addSecurityRating( m_self->GetAttribute(AttrEntitySecurityStatusKillBonus).get_float() );
+
+    //_DropLoot(this->Item()->groupID(), fatal_blow.source->Item()->ownerID(), wreckItemRef->itemID());
 
     m_system->RemoveEntity(this);
 }
@@ -1415,6 +1358,8 @@ void StructureEntity::Killed(Damage &fatal_blow)
     //TODO: award status changes. (entitySecurityStatusKillBonus)
     client->GetChar()->addSecurityRating( m_self->GetAttribute(AttrEntitySecurityStatusKillBonus).get_float() );
 
+    //_DropLoot(this->Item()->groupID(), fatal_blow.source->Item()->ownerID(), wreckItemRef->itemID());
+
     m_system->RemoveEntity(this);
 }
 
@@ -1466,6 +1411,8 @@ void ContainerEntity::Killed(Damage &fatal_blow)
     //TODO: award status changes. (entitySecurityStatusKillBonus)
     client->GetChar()->addSecurityRating( m_self->GetAttribute(AttrEntitySecurityStatusKillBonus).get_float() );
 
+    //_DropLoot(this->Item()->groupID(), fatal_blow.source->Item()->ownerID(), wreckItemRef->itemID());
+
     m_system->RemoveEntity(this);
 }
 
@@ -1516,6 +1463,8 @@ void DeployableEntity::Killed(Damage &fatal_blow)
 
     //TODO: award status changes. (entitySecurityStatusKillBonus)
     client->GetChar()->addSecurityRating( m_self->GetAttribute(AttrEntitySecurityStatusKillBonus).get_float() );
+
+    //_DropLoot(this->Item()->groupID(), fatal_blow.source->Item()->ownerID(), wreckItemRef->itemID());
 
     m_system->RemoveEntity(this);
 }
@@ -1599,6 +1548,8 @@ void CelestialEntity::Killed(Damage &fatal_blow)
     //TODO: award status changes. (entitySecurityStatusKillBonus)
     client->GetChar()->addSecurityRating( m_self->GetAttribute(AttrEntitySecurityStatusKillBonus).get_float() );
 
+    //_DropLoot(this->Item()->groupID(), fatal_blow.source->Item()->ownerID(), wreckItemRef->itemID());
+
     m_system->RemoveEntity(this);
 }
 
@@ -1650,5 +1601,71 @@ void StationEntity::Killed(Damage &fatal_blow)
     //TODO: award status changes. (entitySecurityStatusKillBonus)
     client->GetChar()->addSecurityRating( m_self->GetAttribute(AttrEntitySecurityStatusKillBonus).get_float() );
 
+    //_DropLoot(this->Item()->groupID(), fatal_blow.source->Item()->ownerID(), wreckItemRef->itemID());
+
     m_system->RemoveEntity(this);
 }
+
+void Client::_DropLoot(uint32 groupID, uint32 owner, uint32 locationID) {
+    /*   allan 27Nov14    */
+    std::vector<DBLootGroupType> lootList;
+    sDGM_Loot_Groups_Table.GetLoot(groupID, lootList);
+
+    if (!lootList.empty()) {
+        uint16 quantity = 0;
+        std::vector<DBLootGroupType>::iterator cur = lootList.begin();
+        while (cur != lootList.end()) {
+            if (cur->minQuantity == cur->maxQuantity)
+                quantity = cur->minQuantity;
+            else
+                quantity = gen_random_float(cur->minQuantity, cur->maxQuantity);
+            if (quantity < 1) quantity = 1;
+            ItemData iLoot(cur->typeID, owner, locationID, flagAutoFit, quantity);
+            m_system->itemFactory().SpawnItem(iLoot);
+            ++cur;
+        }
+    }
+}
+
+void NPC::_DropLoot(uint32 groupID, uint32 owner, uint32 locationID) {
+    /*   allan 27Nov14    */
+    std::vector<DBLootGroupType> lootList;
+    sDGM_Loot_Groups_Table.GetLoot(groupID, lootList);
+
+    if (!lootList.empty()) {
+        uint16 quantity = 0;
+        std::vector<DBLootGroupType>::iterator cur = lootList.begin();
+        while (cur != lootList.end()) {
+            if (cur->minQuantity == cur->maxQuantity)
+                quantity = cur->minQuantity;
+            else
+                quantity = gen_random_float(cur->minQuantity, cur->maxQuantity);
+            if (quantity < 1) quantity = 1;
+            ItemData iLoot(cur->typeID, owner, locationID, flagAutoFit, quantity);
+            m_system->itemFactory().SpawnItem(iLoot);
+            ++cur;
+        }
+    }
+}
+
+void ShipEntity::_DropLoot(uint32 groupID, uint32 owner, uint32 locationID) {
+    /*   allan 27Nov14    */
+    std::vector<DBLootGroupType> lootList;
+    sDGM_Loot_Groups_Table.GetLoot(groupID, lootList);
+
+    if (!lootList.empty()) {
+        uint16 quantity = 0;
+        std::vector<DBLootGroupType>::iterator cur = lootList.begin();
+        while (cur != lootList.end()) {
+            if (cur->minQuantity == cur->maxQuantity)
+                quantity = cur->minQuantity;
+            else
+                quantity = gen_random_float(cur->minQuantity, cur->maxQuantity);
+            if (quantity < 1) quantity = 1;
+            ItemData iLoot(cur->typeID, owner, locationID, flagAutoFit, quantity);
+            m_system->itemFactory().SpawnItem(iLoot);
+            ++cur;
+        }
+    }
+}
+

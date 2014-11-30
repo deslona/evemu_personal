@@ -39,6 +39,19 @@ protected:
     Dispatcher *const m_dispatch;
 
     PyCallable_DECL_CALL(CreateFleet);
+    PyCallable_DECL_CALL(CreateWing);
+    PyCallable_DECL_CALL(CreateSquad);
+    PyCallable_DECL_CALL(SetMotdEx);
+    PyCallable_DECL_CALL(GetMotd);
+    PyCallable_DECL_CALL(CheckIsInFleet);
+    PyCallable_DECL_CALL(MakeLeader);
+    PyCallable_DECL_CALL(SetBooster);
+    PyCallable_DECL_CALL(MoveMember);
+    PyCallable_DECL_CALL(KickMember);
+    PyCallable_DECL_CALL(DeleteWing);
+    PyCallable_DECL_CALL(DeleteSquad);
+    PyCallable_DECL_CALL(LeaveFleet);
+
 };
 
 #endif  // EVEMU_SHIP_FLEETOBJ_H_

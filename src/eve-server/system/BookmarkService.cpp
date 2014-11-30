@@ -177,17 +177,10 @@ PyResult BookmarkService::Handle_BookmarkLocation(PyCallArgs &call) {
          const.categoryPlanetaryInteraction		categoryPlanetaryInteraction = 41
          )
   */
-    std::string note;
-    std::string memo;
+    std::string note = "", memo = "";
     uint32 bookmarkID = GetNextAvailableBookmarkID();
-    uint32 ownerID = 0;
-    uint32 itemID = 0;
-    uint32 typeID = 0;
-    uint32 flag = 0;
-    uint64 created = 0;
-    uint32 locationID = 0;
-    uint32 typeCheck = 0;
-    uint32 folderID = 0;
+    uint32 ownerID = 0, itemID = 0, typeID = 0, flag = 0, locationID = 0, typeCheck = 0, folderID = 0;
+    uint64 created = Win32TimeNow();
     GPoint point;
 
     uint32 creatorID = call.client->GetCharacterID();
@@ -214,10 +207,22 @@ PyResult BookmarkService::Handle_BookmarkLocation(PyCallArgs &call) {
     //       |--> [0] PyInt:      sends id of entity the calling char is in...ship/station/system/pos/etc
     //       |--> [1] PyInt:       ownerID = charID of char making the bm
     //       |--> [2] PyWString:  label (called memo in db) for the bookmark
-    //       \--> [3] PyString:  text for the note (comment) field in the bookmark
+    //       |--> [3] PyString:  text for the note (comment) field in the bookmark
 	//		 |--> [4] PyInt:		folderID bookmark is being placed into.  default=0
-    //
-    ////////////////////////////////////////
+	//
+	// call.byname size=2
+	//       |
+	//       |--> [0] kvp: <"folderID",PyInt>
+	//       |--> [1] kvp: <"machoVersion",1>
+	//
+	////////////////////////////////////////
+
+	// Check for presence of non-PyNone folderID in the packet
+	if (call.byname.find("folderID") != call.byname.cend()) {
+        if ( !(call.byname.find("folderID")->second->IsNone()) ) {
+            folderID = call.byname.find("folderID")->second->AsInt()->value();
+        }
+    }
 
     typeCheck = call.tuple->GetItem( 0 )->AsInt()->value();  //current shipID/stationID/POS_ID/systemID
     typeID = m_db.FindBookmarkTypeID(typeCheck);    // get bm typeID
@@ -259,8 +264,7 @@ PyResult BookmarkService::Handle_BookmarkLocation(PyCallArgs &call) {
     ////////////////////////////////////////
     // Save bookmark info to database:
     ////////////////////////////////////////
-    flag = 0;                                           // Don't know what to do with this value
-    created = Win32TimeNow();
+    flag = 0;   // Don't know what to do with this value
     m_db.SaveNewBookmarkToDatabase
     (
         bookmarkID,
@@ -398,7 +402,7 @@ PyResult BookmarkService::Handle_CreateFolder(PyCallArgs &call) {
         ownerID,
         creatorID
     );
-
+/*
     PyTuple* res = NULL;
 
     PyTuple* tuple0 = new PyTuple( 3 );
@@ -410,6 +414,10 @@ PyResult BookmarkService::Handle_CreateFolder(PyCallArgs &call) {
     res = tuple0;
 
     return res;
+    */
+
+    //This function does NOT return anything to the client
+    return(new PyNone());
 }
 
 PyResult BookmarkService::Handle_UpdateFolder(PyCallArgs &call) {

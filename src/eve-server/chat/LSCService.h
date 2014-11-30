@@ -27,6 +27,8 @@
 #ifndef __LSC_SERVICE_H_INCL__
 #define __LSC_SERVICE_H_INCL__
 
+#include <vector>
+
 #include "chat/LSCDB.h"
 #include "chat/LSCChannel.h"
 #include "PyService.h"

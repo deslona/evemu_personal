@@ -771,7 +771,7 @@ ModuleManager::ModuleManager(Ship *const ship)
                                     (uint32)ship->GetAttribute(AttrMedSlots).get_int(),
                                     (uint32)ship->GetAttribute(AttrHiSlots).get_int(),
                                     (uint32)ship->GetAttribute(AttrRigSlots).get_int(),
-                                    (uint32)ship->GetAttribute(AttrSubSystemSlot, 0).get_int(),
+                                    (uint32)ship->GetAttribute(AttrSubSystemSlot).get_int(),
                                     (uint32)ship->GetAttribute(AttrTurretSlotsLeft).get_int(),
                                     (uint32)ship->GetAttribute(AttrLauncherSlotsLeft).get_int(),
                                     this);
@@ -783,14 +783,15 @@ ModuleManager::ModuleManager(Ship *const ship)
 	std::string logsubdirectory = "ModuleManagers";
 	//std::string logfilename = "On_Ship_" + m_Ship->itemName();		// This method using ship's name string may NOT be path friendly as players naming ships may use path-unfriendly characters - need function to convert to path-friendly ship name string
 
-	std::string logfilename = "On_Ship_" + m_Ship->itemName() + "_(" + std::string(itoa(m_Ship->itemID())) + ")";
+	std::string logfilename = "On_Ship_" /*+ m_Ship->itemName() + "_("*/ + std::string(itoa(m_Ship->itemID())) + ")";
 
 	m_pLog = new Basic_Log( sConfig.files.logDir, logsubdirectory, logfilename );
 
-	//m_pLog->InitializeLogging( sConfig.files.logDir, logsubdirectory, logfilename );
+	m_pLog->InitializeLogging( sConfig.files.logDir, logsubdirectory, logfilename );
 
     // Load modules, rigs and subsystems from Ship's inventory into ModuleContainer:
-	//m_pLog->Log("ModuleManager", "Loading modules...");
+	m_pLog->Log("ModuleManager", "Loading modules...");
+
     uint32 flagIndex;
     for(flagIndex=flagLowSlot0; flagIndex<=flagLowSlot7; flagIndex++)
     {
@@ -810,7 +811,7 @@ ModuleManager::ModuleManager(Ship *const ship)
 					moduleRef = (*cur);
 				cur++;
 			}
-			if( moduleRef )
+			if(moduleRef)
 			{
 				if( _fitModule( moduleRef, (EVEItemFlags)flagIndex ) )
 				{
@@ -1137,7 +1138,7 @@ bool ModuleManager::_fitModule(InventoryItemRef item, EVEItemFlags flag)
 		mod = ModuleFactory(item, ShipRef(m_Ship));
 
 		// Set module's pointer to its owner ModuleManager's log object:
-		mod->SetLog(m_pLog);
+		//mod->SetLog(m_pLog);
 
 		// Check for max turret modules allowed:
 		if( mod->isTurretFitted() && (m_Modules->GetFittedTurretCount() == m_Ship->GetMaxTurrentHardpoints().get_int()) )
@@ -1192,7 +1193,7 @@ void ModuleManager::Online(uint32 itemID)
     if( mod != NULL )
 	{
         mod->Online();
-		m_pLog->Log("ModuleManager::Online()", "Module '%s' going Online", mod->getItem()->itemName().c_str());
+		//m_pLog->Log("ModuleManager::Online()", "Module '%s' going Online", mod->getItem()->itemName().c_str());
 	}
 }
 
@@ -1207,7 +1208,7 @@ void ModuleManager::Offline(uint32 itemID)
     if( mod != NULL )
 	{
         mod->Offline();
-		m_pLog->Log("ModuleManager::Offline()", "Module '%s' going Offline", mod->getItem()->itemName().c_str());
+		//m_pLog->Log("ModuleManager::Offline()", "Module '%s' going Offline", mod->getItem()->itemName().c_str());
 	}
 }
 
@@ -1238,7 +1239,7 @@ int32 ModuleManager::Activate(uint32 itemID, std::string effectName, uint32 targ
 		{
 			SystemEntity * targetEntity = this->m_Ship->GetOperator()->GetDestiny()->GetCurrentBubble()->GetEntity(targetID);
 			mod->Activate(targetEntity);
-			m_pLog->Log("ModuleManager::Activate()", "Module '%s' Activating...", mod->getItem()->itemName().c_str());
+			//m_pLog->Log("ModuleManager::Activate()", "Module '%s' Activating...", mod->getItem()->itemName().c_str());
 		}
     }
 
@@ -1263,7 +1264,7 @@ void ModuleManager::Deactivate(uint32 itemID, std::string effectName)
 		else
 		{
 			mod->Deactivate();
-			m_pLog->Log("ModuleManager::Deactivate()", "Module '%s' Deactivating...", mod->getItem()->itemName().c_str());
+			//m_pLog->Log("ModuleManager::Deactivate()", "Module '%s' Deactivating...", mod->getItem()->itemName().c_str());
 		}
     }
 }

@@ -92,6 +92,7 @@ public:
     InventoryItemRef weapon;    //we own a ref to this.
     InventoryItemRef charge;    //we own a ref to this. May be null.
     const EVEEffectID    effect;
+
 };
 
 #endif

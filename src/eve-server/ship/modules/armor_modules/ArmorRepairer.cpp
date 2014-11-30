@@ -87,11 +87,11 @@ void ArmorRepairer::Activate(SystemEntity * targetEntity)
 	// Activate active processing component timer:
 	m_ActiveModuleProc->ActivateCycle();
 	m_ModuleState = MOD_ACTIVATED;
-    //_ShowCycle();
-    m_ActiveModuleProc->ProcessActiveCycle();
+	//_ShowCycle();
+	m_ActiveModuleProc->ProcessActiveCycle();
 }
 
-void ArmorRepairer::Deactivate()
+void ArmorRepairer::Deactivate() 
 {
 	m_ModuleState = MOD_DEACTIVATING;
 	m_ActiveModuleProc->DeactivateCycle();
@@ -112,8 +112,8 @@ void ArmorRepairer::StopCycle(bool abort)
 	env->AddItem(new PyInt(m_Ship->itemID()));
 	env->AddItem(new PyNone);
 	env->AddItem(new PyNone);
-    env->AddItem(new PyNone);
-    env->AddItem(new PyInt(shipEff.effectID));
+	env->AddItem(new PyNone);
+	env->AddItem(new PyInt(shipEff.effectID));
 
 	shipEff.environment = env;
 	shipEff.startTime = shipEff.when;
@@ -132,7 +132,7 @@ void ArmorRepairer::StopCycle(bool abort)
 
 	m_Ship->GetOperator()->SendDogmaNotification("OnMultiEvent", "clientID", &tmp);
 
-    m_ActiveModuleProc->DeactivateCycle();
+	m_ActiveModuleProc->DeactivateCycle();
 
 	// Create Special Effect:
 	m_Ship->GetOperator()->GetDestiny()->SendSpecialEffect
@@ -149,8 +149,6 @@ void ArmorRepairer::StopCycle(bool abort)
 		1.0,
 		0
 	);
-
-	m_ActiveModuleProc->DeactivateCycle();
 }
 
 void ArmorRepairer::DoCycle()
@@ -186,8 +184,8 @@ void ArmorRepairer::_ShowCycle()
 	env->AddItem(new PyInt(m_Ship->itemID()));
 	env->AddItem(new PyNone);
 	env->AddItem(new PyNone);
-    env->AddItem(new PyNone);
-    env->AddItem(new PyInt(shipEff.effectID));
+	env->AddItem(new PyNone);
+	env->AddItem(new PyInt(shipEff.effectID));
 
 	shipEff.environment = env;
 	shipEff.startTime = shipEff.when;

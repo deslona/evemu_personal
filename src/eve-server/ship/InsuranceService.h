@@ -42,10 +42,7 @@ protected:
 
     ShipDB m_db;
 
-    PyCallable_DECL_CALL(InsureShip)
-    PyCallable_DECL_CALL(UnInsureShip)
     PyCallable_DECL_CALL(GetContractForShip)
-    PyCallable_DECL_CALL(GetInsurancePrice)
 
     virtual PyBoundObject *_CreateBoundObject(Client *c, const PyRep *bind_args);
 };

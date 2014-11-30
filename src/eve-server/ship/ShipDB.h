@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Zhur, Allan
 */
 
 
@@ -29,16 +29,19 @@
 
 #include "ServiceDB.h"
 
+class PyResult;
+class PyTuple;
+
 class ShipDB
 : public ServiceDB
 {
 public:
     PyTuple *GetFormations();
 
-	PyResult GetInsuranceByShipID(uint32);
-	PyResult GetInsuranceByOwnerID(uint32);
-	bool InsertInsuranceByShipID(uint32, float, bool = false);
-	void DeleteInsuranceByShipID(uint32);
+    PyTuple *GetInsuranceByShipID(uint32 shipID);
+    PyTuple *GetInsuranceByOwnerID(uint32 ownerID);
+	bool InsertInsuranceByShipID(uint32 shipID, float fraction, bool isCorpItem = false);
+	void DeleteInsuranceByShipID(uint32 shipID);
 
 };
 

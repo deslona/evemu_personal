@@ -115,10 +115,7 @@ bool ReprocessingDB::GetRecoverables(const uint32 typeID, std::vector<Recoverabl
 
     Recoverable rec;
 
-    bool gotFromRamTable=false;
-
     while(res.GetRow(row)) {
-        gotFromRamTable = true;
         rec.typeID = row.GetInt(0);
         rec.amountPerBatch = row.GetInt(1);
         into.push_back(rec);
@@ -130,7 +127,7 @@ bool ReprocessingDB::GetRecoverables(const uint32 typeID, std::vector<Recoverabl
     if(!sDatabase.RunQuery(res,
                 "SELECT materialTypeID, quantity"
                 " FROM invTypeMaterials"
-                " WHERE typeID=%d",
+                " WHERE typeID=%u",
                 typeID))
     {
         _log(DATABASE__ERROR, "Unable to get recoverables for ore ID %u: '%s'", typeID, res.error.c_str());

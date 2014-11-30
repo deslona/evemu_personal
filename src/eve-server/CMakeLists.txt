@@ -237,7 +237,6 @@ SET( imageserver_SOURCE
 SET( inventory_INCLUDE
      "${TARGET_INCLUDE_DIR}/inventory/AttributeEnum.h"
      "${TARGET_INCLUDE_DIR}/inventory/AttributeMgr.h"
-     "${TARGET_INCLUDE_DIR}/inventory/AttributeModifier.h"
      "${TARGET_INCLUDE_DIR}/inventory/EffectsEnum.h"
      "${TARGET_INCLUDE_DIR}/inventory/EVEAttributeMgr.h"
      "${TARGET_INCLUDE_DIR}/inventory/EVEAttributes.h"
@@ -250,11 +249,9 @@ SET( inventory_INCLUDE
      "${TARGET_INCLUDE_DIR}/inventory/ItemFactory.h"
      "${TARGET_INCLUDE_DIR}/inventory/ItemRef.h"
      "${TARGET_INCLUDE_DIR}/inventory/ItemType.h"
-     #"${TARGET_INCLUDE_DIR}/inventory/TypeEffect.h"
      "${TARGET_INCLUDE_DIR}/inventory/Owner.h"
      "${TARGET_INCLUDE_DIR}/inventory/Voucher.h" )
 SET( inventory_SOURCE
-     "${TARGET_SOURCE_DIR}/inventory/AttributeModifier.cpp"
      "${TARGET_SOURCE_DIR}/inventory/EVEAttributeMgr.cpp"
      "${TARGET_SOURCE_DIR}/inventory/InvBrokerService.cpp"
      "${TARGET_SOURCE_DIR}/inventory/Inventory.cpp"
@@ -264,7 +261,6 @@ SET( inventory_SOURCE
      "${TARGET_SOURCE_DIR}/inventory/ItemDB.cpp"
      "${TARGET_SOURCE_DIR}/inventory/ItemFactory.cpp"
      "${TARGET_SOURCE_DIR}/inventory/ItemType.cpp"
-     #"${TARGET_SOURCE_DIR}/inventory/TypeEffect.cpp"
      "${TARGET_SOURCE_DIR}/inventory/Owner.cpp"
      "${TARGET_SOURCE_DIR}/inventory/Voucher.cpp" )
 
@@ -423,12 +419,11 @@ SET( ship_modules_INCLUDE
      "${TARGET_INCLUDE_DIR}/ship/modules/electronics_modules/TractorBeam.h"
      "${TARGET_INCLUDE_DIR}/ship/modules/mining_modules/MiningLaser.h"
      "${TARGET_INCLUDE_DIR}/ship/modules/propulsion_modules/Afterburner.h"
-	 "${TARGET_INCLUDE_DIR}/ship/modules/weapon_modules/EnergyTurret.h"
+     "${TARGET_INCLUDE_DIR}/ship/modules/weapon_modules/EnergyTurret.h"
      "${TARGET_INCLUDE_DIR}/ship/modules/weapon_modules/HybridTurret.h"
      "${TARGET_INCLUDE_DIR}/ship/modules/weapon_modules/MissileLauncher.h"
      "${TARGET_INCLUDE_DIR}/ship/modules/weapon_modules/ProjectileTurret.h"
      "${TARGET_INCLUDE_DIR}/ship/modules/weapon_modules/SuperWeapon.h" )
-
 SET( ship_modules_SOURCE
      "${TARGET_SOURCE_DIR}/ship/modules/ActiveModules.cpp"
      "${TARGET_SOURCE_DIR}/ship/modules/ModuleDB.cpp"
@@ -445,8 +440,6 @@ SET( ship_modules_SOURCE
      "${TARGET_SOURCE_DIR}/ship/modules/weapon_modules/MissileLauncher.cpp"
      "${TARGET_SOURCE_DIR}/ship/modules/weapon_modules/ProjectileTurret.cpp"
      "${TARGET_SOURCE_DIR}/ship/modules/weapon_modules/SuperWeapon.cpp" )
-    #"${TARGET_SOURCE_DIR}/ship/modules/.cpp"
-    #"${TARGET_SOURCE_DIR}/ship/modules/.cpp" )
 
 SET( ship_modules_components_INCLUDE
      "${TARGET_INCLUDE_DIR}/ship/modules/components/ActiveModuleProcessingComponent.h"

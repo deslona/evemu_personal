@@ -55,15 +55,14 @@ void AsteroidBeltManager::Process() {
 }
 
 void AsteroidBeltManager::_TriggerGrowth() {
+    _log(SERVICE__ERROR, "Asteroid Growth not hooked in yet.");
     std::vector<AsteroidEntity*>::const_iterator cur, end;
     cur = m_asteroids.begin();
     end = m_asteroids.end();
     for(; cur != end; cur++) {
-        _log(SERVICE__ERROR, "Asteroid Growth not hooked in yet.");
-        //(*cur)->Grow();
+        (*cur)->Grow();
     }
 }
-
 
 bool AsteroidBeltManager::LoadState() {
     //load list of asteroids.

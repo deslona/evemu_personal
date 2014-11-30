@@ -865,10 +865,10 @@ enum:uint64 {
     ROLE_TRANSAM            = (ROLE_TRANSLATION | ROLE_TRANSLATIONADMIN | ROLE_TRANSLATIONEDITOR)
 };
 
-enum {
-    corpRoleLocationTypeHQ = 1,
-    corpRoleLocationTypeBase = 2,
-    corpRoleLocationTypeOther = 3
+enum:uint64 {
+    corpRoleLocationTypeHQ = 1LL,
+    corpRoleLocationTypeBase = 2LL,
+    corpRoleLocationTypeOther = 3LL
 };
 
 typedef enum:uint64 {

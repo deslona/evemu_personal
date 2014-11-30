@@ -477,9 +477,17 @@ PyResult CharMgrService::Handle_EditContact( PyCallArgs& call )
 
 PyResult CharMgrService::Handle_GetRecentShipKillsAndLosses( PyCallArgs& call )
 {
-  /**
-        shipKills = sm.RemoteSvc('charMgr').GetRecentShipKillsAndLosses(num, startIndex)
-        */
+  // shipKills = sm.RemoteSvc('charMgr').GetRecentShipKillsAndLosses(num, startIndex)
+    /* 05:47:40 [SvcCall] Service charMgr: calling GetRecentShipKillsAndLosses
+     * 05:47:40 CharMgrService::Handle_GetRecentShipKillsAndLosses(): size=2
+     * 05:47:40 [SvcCall]   Call Arguments:
+     * 05:47:40 [SvcCall]       Tuple: 2 elements
+     * 05:47:40 [SvcCall]         [ 0] Integer field: 25
+     * 05:47:40 [SvcCall]         [ 1] (None)
+     * 05:47:40 [SvcCall]   Call Named Arguments:
+     * 05:47:40 [SvcCall]     Argument 'machoVersion':
+     * 05:47:40 [SvcCall]         Integer field: 1
+     */
   sLog.Log( "CharMgrService::Handle_GetRecentShipKillsAndLosses()", "size=%u ", call.tuple->size());
   call.Dump(SERVICE__CALLS);
 

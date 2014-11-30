@@ -216,7 +216,7 @@ public:
      *
      * @note this function should be used very infrequently and only for specific reasons
      */
-    EvilNumber GetAttribute(const uint32 attributeID, const uint32 defaultValue) const;
+    //EvilNumber GetAttribute(const uint32 attributeID, const uint32 defaultValue) const;
 
     /**
      * HasAttribute

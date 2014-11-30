@@ -133,7 +133,7 @@ bool ActiveModuleProcessingComponent::ShouldProcessActiveCycle()
 		return false;
 
 	//check that we have enough capacitor avaiable
-	if(m_Ship->GetAttribute(AttrCapacitorCharge) > m_Mod->GetAttribute(AttrCapacitorNeed))
+    if(m_Ship->GetAttribute(AttrCapacitorCharge) > m_Mod->GetAttribute(AttrCapacitorNeed))
 	{
 		//having enough capacitor to activate the module
 		return true;
@@ -157,7 +157,7 @@ void ActiveModuleProcessingComponent::ProcessActiveCycle()
 	EvilNumber capNeed = m_Mod->GetAttribute(AttrCapacitorNeed);
 	capCapacity -= capNeed;
 
-	m_Ship->SetAttribute(AttrCapacitorCharge, capCapacity);
+    m_Ship->SetAttribute(AttrCapacitorCharge, capCapacity);
 
     //then check if we are targeting another ship or not and apply attribute changes
 	//maybe we can have a check for modules that repeat the same attributes so we

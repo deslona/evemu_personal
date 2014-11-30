@@ -123,8 +123,8 @@ PyResult TutorialService::Handle_GetCharacterTutorialState( PyCallArgs& call ) {
 
 //00:25:58 L TutorialService::Handle_GetTutorialsAndConnections(): size= 0
 PyResult TutorialService::Handle_GetTutorialsAndConnections( PyCallArgs& call ) {
-  /*  Empty Call  */
-/**
+  /*  This is used to link tutorials using connections to other tutorials  */
+            /*
             t, tc = sm.RemoteSvc('tutorialSvc').GetTutorialsAndConnections()
             self.tutorials = t.Index('tutorialID')
             tc = tc.Filter('tutorialID')
@@ -132,11 +132,10 @@ PyResult TutorialService::Handle_GetTutorialsAndConnections( PyCallArgs& call ) 
             for tutID, rows in tc.iteritems():
                 for each in rows:
                     self.tutorialConnections[tutID][each.raceID] = each.nextTutorialID
+    */
 
-AttributeError: 'NoneType' object has no attribute 'iteritems'
- */
-
-    return new PyInt( 0 );
+    uint8 raceID = call.client->GetChar()->race();
+    return(m_db.GetTutorialsAndConnections(raceID));
 }
 
 PyResult TutorialService::Handle_GetCareerAgents( PyCallArgs& call ) {

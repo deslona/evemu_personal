@@ -84,7 +84,7 @@ void EnergyTurret::DestroyRig()
 
 void EnergyTurret::Activate(SystemEntity * targetEntity)
 {
-	if( this->m_chargeRef )
+	if ( this->m_chargeRef )
 	{
 		m_targetEntity = targetEntity;
 		m_targetID = targetEntity->Item()->itemID();
@@ -92,7 +92,8 @@ void EnergyTurret::Activate(SystemEntity * targetEntity)
 		// Activate active processing component timer:
 		m_ActiveModuleProc->ActivateCycle();
 		m_ModuleState = MOD_ACTIVATED;
-		_ShowCycle();
+		//_ShowCycle();
+		m_ActiveModuleProc->ProcessActiveCycle();
 	}
 	else
 	{
@@ -120,10 +121,10 @@ void EnergyTurret::StopCycle()
 	env->AddItem(new PyInt(shipEff.itemID));
 	env->AddItem(new PyInt(m_Ship->ownerID()));
 	env->AddItem(new PyInt(m_Ship->itemID()));
-	env->AddItem(new PyInt(m_targetEntity->GetID()));
+	env->AddItem(new PyInt(m_targetID));
 	env->AddItem(new PyNone);
 	env->AddItem(new PyNone);
-	env->AddItem(new PyInt(10));
+	env->AddItem(new PyInt(shipEff.effectID));
 
 	shipEff.environment = env;
 	shipEff.startTime = shipEff.when;
@@ -142,6 +143,8 @@ void EnergyTurret::StopCycle()
 
 	m_Ship->GetOperator()->SendDogmaNotification("OnMultiEvent", "clientID", &tmp);
 
+	m_ActiveModuleProc->DeactivateCycle();
+
 	// Create Special Effect:
 	m_Ship->GetOperator()->GetDestiny()->SendSpecialEffect
 	(
@@ -157,8 +160,6 @@ void EnergyTurret::StopCycle()
 		1.0,
 		0
 	);
-
-	m_ActiveModuleProc->DeactivateCycle();
 }
 
 void EnergyTurret::DoCycle()
@@ -196,15 +197,17 @@ void EnergyTurret::DoCycle()
 		double thermal_damage = 0.0;
 		double em_damage = 0.0;
 		double explosive_damage = 0.0;
-        double damageMultiplier = m_Item->GetAttribute(AttrDamageMultiplier).get_float();
-        EvilNumber damage;
 
 		// This still somehow needs skill, ship, module, and implant bonuses to be applied:
 		// This still somehow needs to have optimal range and falloff attributes applied as a damage modification factor:
-        if( m_chargeRef->HasAttribute(AttrKineticDamage, damage) ) kinetic_damage = damageMultiplier * damage.get_float();
-        if( m_chargeRef->HasAttribute(AttrThermalDamage, damage) ) thermal_damage = damageMultiplier * damage.get_float();
-        if( m_chargeRef->HasAttribute(AttrEmDamage, damage) ) em_damage = damageMultiplier * damage.get_float();
-        if( m_chargeRef->HasAttribute(AttrExplosiveDamage, damage) ) explosive_damage = damageMultiplier * damage.get_float();
+		if( m_chargeRef->HasAttribute(AttrKineticDamage) )
+			kinetic_damage = (m_Item->GetAttribute(AttrDamageMultiplier) * m_chargeRef->GetAttribute(AttrKineticDamage)).get_float();
+		if( m_chargeRef->HasAttribute(AttrThermalDamage) )
+			thermal_damage = (m_Item->GetAttribute(AttrDamageMultiplier) * m_chargeRef->GetAttribute(AttrThermalDamage)).get_float();
+		if( m_chargeRef->HasAttribute(AttrEmDamage) )
+			em_damage = (m_Item->GetAttribute(AttrDamageMultiplier) * m_chargeRef->GetAttribute(AttrEmDamage)).get_float();
+		if( m_chargeRef->HasAttribute(AttrExplosiveDamage) )
+			explosive_damage = (m_Item->GetAttribute(AttrDamageMultiplier) * m_chargeRef->GetAttribute(AttrExplosiveDamage)).get_float();
 
 		Damage damageDealt
 		(
@@ -235,10 +238,10 @@ void EnergyTurret::_ShowCycle()
 	env->AddItem(new PyInt(shipEff.itemID));
 	env->AddItem(new PyInt(m_Ship->ownerID()));
 	env->AddItem(new PyInt(m_Ship->itemID()));
-	env->AddItem(new PyInt(m_targetEntity->GetID()));
+	env->AddItem(new PyInt(m_targetID));
 	env->AddItem(new PyNone);
 	env->AddItem(new PyNone);
-	env->AddItem(new PyInt(10));
+	env->AddItem(new PyInt(shipEff.effectID));
 
 	shipEff.environment = env;
 	shipEff.startTime = shipEff.when;
@@ -258,7 +261,7 @@ void EnergyTurret::_ShowCycle()
 	std::vector<PyTuple*> updates;
 	//updates.push_back(dmgChange.Encode());
 
-	m_Ship->GetOperator()->GetDestiny()->SendDestinyUpdate(updates, events, true);
+	m_Ship->GetOperator()->GetDestiny()->SendDestinyUpdate(updates, events, false);
 
 	// Create Special Effect:
 	m_Ship->GetOperator()->GetDestiny()->SendSpecialEffect

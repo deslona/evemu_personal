@@ -27,7 +27,7 @@
 
 #include "manufacturing/RamProxyDB.h"
 
-PyRep *RamProxyDB::GetJobs2(const uint32 ownerID, const bool completed) //, const uint64 fromDate, const uint64 toDate)
+PyRep *RamProxyDB::GetJobs2(const uint32 ownerID, const bool completed)
 {
     DBQueryResult res;
 
@@ -65,10 +65,8 @@ PyRep *RamProxyDB::GetJobs2(const uint32 ownerID, const bool completed) //, cons
         " LEFT JOIN ramAssemblyLineStations AS station ON assemblyLine.containerID = station.stationID"
         " WHERE job.ownerID = %u"
         " AND job.completedStatusID %s 0"
-        //" AND job.installTime >= %" PRIu64
-        //" AND job.endProductionTime <= %" PRIu64
         " GROUP BY job.jobID",
-        ownerID, (completed ? "!=" : "=") )) //, fromDate, toDate))
+        ownerID, (completed ? "!=" : "=") ))
     {
         _log(DATABASE__ERROR, "Failed to query jobs for owner %u: %s", ownerID, res.error.c_str());
         return NULL;
@@ -102,6 +100,7 @@ PyRep *RamProxyDB::AssemblyLinesSelectPublic(const uint32 regionID) {
 
     return DBResultToCRowset(res);
 }
+
 PyRep *RamProxyDB::AssemblyLinesSelectPersonal(const uint32 charID) {
     DBQueryResult res;
 
@@ -123,8 +122,9 @@ PyRep *RamProxyDB::AssemblyLinesSelectPersonal(const uint32 charID) {
         return NULL;
     }
 
-    return DBResultToRowset(res);
+    return DBResultToCRowset(res);
 }
+
 PyRep *RamProxyDB::AssemblyLinesSelectPrivate(const uint32 charID) {
     DBQueryResult res;
 
@@ -146,8 +146,9 @@ PyRep *RamProxyDB::AssemblyLinesSelectPrivate(const uint32 charID) {
         return NULL;
     }
 
-    return DBResultToRowset(res);
+    return DBResultToCRowset(res);
 }
+
 PyRep *RamProxyDB::AssemblyLinesSelectCorporation(const uint32 corporationID) {
     DBQueryResult res;
 
@@ -169,8 +170,9 @@ PyRep *RamProxyDB::AssemblyLinesSelectCorporation(const uint32 corporationID) {
         return NULL;
     }
 
-    return DBResultToRowset(res);
+    return DBResultToCRowset(res);
 }
+
 PyRep *RamProxyDB::AssemblyLinesSelectAlliance(const uint32 allianceID) {
     DBQueryResult res;
 
@@ -193,8 +195,9 @@ PyRep *RamProxyDB::AssemblyLinesSelectAlliance(const uint32 allianceID) {
         return NULL;
     }
 
-    return DBResultToRowset(res);
+    return DBResultToCRowset(res);
 }
+
 PyRep *RamProxyDB::AssemblyLinesGet(const uint32 containerID) {
     DBQueryResult res;
 
@@ -222,7 +225,11 @@ PyRep *RamProxyDB::AssemblyLinesGet(const uint32 containerID) {
         return NULL;
     }
 
-    return DBResultToRowset(res);
+    if (res.GetRowCount() < 1) {
+        _log(DATABASE__ERROR, "Failed to query assembly lines for StationID %u: %s.", containerID, res.error.c_str());
+        return NULL;
+    } else
+        return DBResultToRowset(res);
 }
 
 bool RamProxyDB::GetAssemblyLineProperties(const uint32 assemblyLineID, double &baseMaterialMultiplier, double &baseTimeMultiplier, double &costInstall, double &costPerHour) {
@@ -625,6 +632,8 @@ bool RamProxyDB::_GetMultipliers(const uint32 assemblyLineID, uint32 groupID, do
         timeMultiplier = row.GetDouble(1);
         return true;
     }
+
+    res.Reset();
 
     // then ramAssemblyLineTypeDetailPerCategory
     if(!sDatabase.RunQuery(res,

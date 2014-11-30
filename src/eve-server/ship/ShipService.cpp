@@ -96,7 +96,7 @@ ShipService::ShipService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    //PyCallable_REG_CALL(ShipService, )
+    //PyCallable_REG_CALL(ShipService, );
 }
 
 ShipService::~ShipService() {
@@ -391,7 +391,7 @@ PyResult ShipBound::Handle_AssembleShip(PyCallArgs &call) {
         for(uint32 index=0; index<subSystemList.size(); index++)
         {
             subSystemItem = m_manager->item_factory.GetItem( subSystemList.at( index ) );
-            subSystemItem->MoveInto( *ship, (EVEItemFlags)(subSystemItem->GetAttribute(AttrSubSystemSlot, 0).get_int()), true );
+            subSystemItem->MoveInto( *ship, (EVEItemFlags)(subSystemItem->GetAttribute(AttrSubSystemSlot).get_int()), true );
         }
     }
 
@@ -1154,6 +1154,7 @@ PyResult ShipBound::Handle_GetShipConfiguration(PyCallArgs &call) {
     PyRep *result = NULL;
     return result;
 }
+
 PyResult ShipBound::Handle_SelfDestruct(PyCallArgs &call) {
   /*
 */

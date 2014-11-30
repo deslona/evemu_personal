@@ -61,65 +61,59 @@ PyResult RamProxyService::Handle_AssemblyLinesGet(PyCallArgs &call) {
         return NULL;
     }
 
-    return(m_db.AssemblyLinesGet(arg.arg));
+    return (m_db.AssemblyLinesGet(arg.arg));
 }
 
 PyResult RamProxyService::Handle_AssemblyLinesSelect(PyCallArgs &call) {
-  sLog.Log( "RamProxyService::Handle_AssemblyLinesSelect()", "size= %u", call.tuple->size() );
-  call.Dump(SERVICE__CALLS);
     Call_AssemblyLinesSelect args;
-
     if(!args.Decode(&call.tuple)) {
         _log(SERVICE__ERROR, "Unable to decode args.");
         return NULL;
     }
 
-    // unfinished
-    if(args.filter == "region")
-        return(m_db.AssemblyLinesSelectPublic(call.client->GetRegionID()));
-    else if(args.filter == "char")
-        return(m_db.AssemblyLinesSelectPersonal(call.client->GetCharacterID()));
-    else if(args.filter == "corp")
-        return(m_db.AssemblyLinesSelectCorporation(call.client->GetCorporationID()));
-    else if(args.filter == "alliance") {
-//      return(m_db.AssemblyLinesSelectAlliance(...));
-        call.client->SendInfoModalMsg("Alliances are not implemented yet.");
-        return NULL;
-    } else {
+    if (args.filter == "region")
+        return (m_db.AssemblyLinesSelectPublic(call.client->GetRegionID()));
+    else if (args.filter == "char")
+        return (m_db.AssemblyLinesSelectPersonal(call.client->GetCharacterID()));
+    else if (args.filter == "corp")
+        return (m_db.AssemblyLinesSelectCorporation(call.client->GetCorporationID()));
+    else if (args.filter == "alliance")
+        return (m_db.AssemblyLinesSelectAlliance(call.client->GetAllianceID()));
+    else {
         _log(SERVICE__ERROR, "Unknown filter '%s'.", args.filter.c_str());
         return NULL;
     }
 }
 
 PyResult RamProxyService::Handle_AssemblyLinesSelectPublic(PyCallArgs &call) {
-    return(m_db.AssemblyLinesSelectPublic(call.client->GetRegionID()));
+    return (m_db.AssemblyLinesSelectPublic(call.client->GetRegionID()));
 }
 
 PyResult RamProxyService::Handle_AssemblyLinesSelectPrivate(PyCallArgs &call) {
-    return(m_db.AssemblyLinesSelectPrivate(call.client->GetCharacterID()));
+    return (m_db.AssemblyLinesSelectPrivate(call.client->GetCharacterID()));
 }
 
 PyResult RamProxyService::Handle_GetJobs2(PyCallArgs &call) {
     Call_GetJobs2 args;
-    if(!args.Decode(&call.tuple)) {
+    if (!args.Decode(&call.tuple)) {
         _log(SERVICE__ERROR, "Failed to decode call args.");
         return NULL;
     }
 
-    if((uint32)args.ownerID == call.client->GetCorporationID()) {
-        if((call.client->GetCorpRole() & corpRoleFactoryManager) != corpRoleFactoryManager) {
+    if ((uint32)args.ownerID == call.client->GetCorporationID()) {
+        if ((call.client->GetCorpRole() & corpRoleFactoryManager) != corpRoleFactoryManager) {
             // I'm afraid we don't have proper error in our DB ...
             call.client->SendInfoModalMsg("You cannot view your corporation's jobs because you do not possess the role \"Factory Manager\".");
             return NULL;
         }
     }
 
-    return(m_db.GetJobs2(args.ownerID, args.completed));
+    return (m_db.GetJobs2(args.ownerID, args.completed));
 }
 
 PyResult RamProxyService::Handle_InstallJob(PyCallArgs &call) {
     Call_InstallJob args;
-    if(!args.Decode(&call.tuple)) {
+    if (!args.Decode(&call.tuple)) {
         _log(SERVICE__ERROR, "Failed to decode args.");
         return NULL;
     }
@@ -129,18 +123,18 @@ PyResult RamProxyService::Handle_InstallJob(PyCallArgs &call) {
 
 	// load installed item
     InventoryItemRef installedItem = m_manager->item_factory.GetItem( args.installedItemID );
-    if( !installedItem ){
+    if ( !installedItem ){
 		_log(SERVICE__ERROR, "Could not get installedItem");
         return NULL;
 	}
 
     // if output flag not set, put it where it was
-    if(args.flagOutput == flagAutoFit)
+    if (args.flagOutput == flagAutoFit)
         args.flagOutput = installedItem->flag();
 
     // decode path to BOM location
     PathElement pathBomLocation;
-    if( !pathBomLocation.Decode( args.bomPath->GetItem(0) ) ) {
+    if ( !pathBomLocation.Decode( args.bomPath->GetItem(0) ) ) {
         _log(SERVICE__ERROR, "Failed to decode BOM location.");
         return NULL;
     }
@@ -158,7 +152,7 @@ PyResult RamProxyService::Handle_InstallJob(PyCallArgs &call) {
 
     // this calculates some useful multipliers ... Rsp_InstallJob is used as container ...
     Rsp_InstallJob rsp;
-    if(!_Calculate(args, (InventoryItemRef)installedItem, call.client, rsp)){
+    if (!_Calculate(args, (InventoryItemRef)installedItem, call.client, rsp)){
         _log(SERVICE__ERROR, "Could not _Calculate");
         return NULL;
 	}
@@ -168,18 +162,18 @@ PyResult RamProxyService::Handle_InstallJob(PyCallArgs &call) {
     PyRep *callMaxJob = call.byname["maxJobStartTime"];
     uint64 callMaxJobVal = callMaxJob->IsLong() ?
         callMaxJob->AsLong()->value() : callMaxJob->AsInt()->value();
-    if(rsp.maxJobStartTime > callMaxJobVal)
+    if (rsp.maxJobStartTime > callMaxJobVal)
         throw(PyException(MakeUserError("RamCannotGuaranteeStartTime")));
 
     // query required items for activity
     std::vector<RequiredItem> reqItems;
-    if(!m_db.GetRequiredItems(installedItem->typeID(), (EVERamActivity)args.activityID, reqItems)){
+    if (!m_db.GetRequiredItems(installedItem->typeID(), (EVERamActivity)args.activityID, reqItems)){
 	    _log(SERVICE__ERROR, "Could not DB::GetRequiredItems");
         return NULL;
 	}
 
     // if 'quoteOnly' is 1 -> send quote, if 0 -> install job
-    if(call.byname["quoteOnly"]->AsInt()->value())
+    if (call.byname["quoteOnly"]->AsInt()->value())
     {
         _EncodeBillOfMaterials(reqItems, rsp.materialMultiplier, rsp.charMaterialMultiplier, args.runs, rsp.bom);
         _EncodeMissingMaterials(reqItems, pathBomLocation, call.client, rsp.materialMultiplier, rsp.charMaterialMultiplier, args.runs, rsp.missingMaterials);
@@ -195,11 +189,11 @@ PyResult RamProxyService::Handle_InstallJob(PyCallArgs &call) {
 
         // calculate proper start time
         uint64 beginProductionTime = Win32TimeNow();
-        if(beginProductionTime < rsp.maxJobStartTime)
+        if (beginProductionTime < rsp.maxJobStartTime)
             beginProductionTime = rsp.maxJobStartTime;
 
         // register our job
-        if( !m_db.InstallJob(
+        if ( !m_db.InstallJob(
             args.isCorpJob ? call.client->GetCorporationID() : call.client->GetCharacterID(),
             call.client->GetCharacterID(),
             args.installationAssemblyLineID,
@@ -237,8 +231,8 @@ PyResult RamProxyService::Handle_InstallJob(PyCallArgs &call) {
         std::vector<RequiredItem>::iterator cur, end;
         cur = reqItems.begin();
         end = reqItems.end();
-        for(; cur != end; cur++) {
-            if(cur->isSkill)
+        for (; cur != end; cur++) {
+            if (cur->isSkill)
                 continue;       // not interested
 
             // calculate needed quantity
@@ -250,9 +244,9 @@ PyResult RamProxyService::Handle_InstallJob(PyCallArgs &call) {
             curi = items.begin();
             endi = items.end();
             // consume required materials
-            for(; curi != endi; curi++) {
-                if((*curi)->typeID() == cur->typeID && (*curi)->ownerID() == call.client->GetCharacterID()) {
-                    if(qtyNeeded >= (*curi)->quantity()) {
+            for (; curi != endi; curi++) {
+                if ((*curi)->typeID() == cur->typeID && (*curi)->ownerID() == call.client->GetCharacterID()) {
+                    if (qtyNeeded >= (*curi)->quantity()) {
                         qtyNeeded -= (*curi)->quantity();
                         (*curi)->Delete();
                     } else {
@@ -270,7 +264,7 @@ PyResult RamProxyService::Handle_InstallJob(PyCallArgs &call) {
 PyResult RamProxyService::Handle_CompleteJob(PyCallArgs &call) {
     Call_CompleteJob args;
 
-    if(!args.Decode(&call.tuple)) {
+    if (!args.Decode(&call.tuple)) {
         _log(CLIENT__ERROR, "Failed to decode args.");
         return NULL;
     }
@@ -281,27 +275,27 @@ PyResult RamProxyService::Handle_CompleteJob(PyCallArgs &call) {
     uint32 installedItemID, ownerID, runs, licensedProductionRuns;
     EVEItemFlags outputFlag;
     EVERamActivity activity;
-    if(!m_db.GetJobProperties(args.jobID, installedItemID, ownerID, outputFlag, runs, licensedProductionRuns, activity))
+    if (!m_db.GetJobProperties(args.jobID, installedItemID, ownerID, outputFlag, runs, licensedProductionRuns, activity))
         return NULL;
 
     // return item
     InventoryItemRef installedItem = m_manager->item_factory.GetItem( installedItemID );
-    if( !installedItem )
+    if ( !installedItem )
         return NULL;
     installedItem->Move( installedItem->locationID(), outputFlag );
 
     std::vector<RequiredItem> reqItems;
-    if( !m_db.GetRequiredItems( installedItem->typeID(), activity, reqItems ) )
+    if ( !m_db.GetRequiredItems( installedItem->typeID(), activity, reqItems ) )
         return NULL;
 
     // return materials which weren't completely consumed
     std::vector<RequiredItem>::iterator cur, end;
     cur = reqItems.begin();
     end = reqItems.end();
-    for(; cur != end; cur++) {
-        if(!cur->isSkill && cur->damagePerJob != 1.0) {
+    for (; cur != end; cur++) {
+        if (!cur->isSkill && cur->damagePerJob != 1.0) {
             uint32 quantity = static_cast<uint32>(cur->quantity * runs * (1.0 - cur->damagePerJob));
-            if(quantity == 0)
+            if (quantity == 0)
                 continue;
 
             ItemData idata(
@@ -313,7 +307,7 @@ PyResult RamProxyService::Handle_CompleteJob(PyCallArgs &call) {
             );
 
             InventoryItemRef item = m_manager->item_factory.SpawnItem( idata );
-            if( !item )
+            if ( !item )
                 return NULL;
 
             item->Move(args.containerID, outputFlag);
@@ -321,7 +315,7 @@ PyResult RamProxyService::Handle_CompleteJob(PyCallArgs &call) {
     }
 
     // if not cancelled, realize result of activity
-    if(!args.cancel) {
+    if (!args.cancel) {
         switch(activity) {
             /*
              * Manufacturing

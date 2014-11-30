@@ -463,11 +463,12 @@ PyList *TargetManager::GetTargeters() const {
 uint32 TargetManager::TimeToLock(ShipRef ship, SystemEntity *target) const {
 
     EvilNumber scanRes = ship->GetAttribute(AttrScanResolution);
-    EvilNumber sigRad(500);
+    EvilNumber sigRad(25);
 
-	if( target->Item().get() != NULL )
+	if( target->Item().get() != NULL ) {
 		if( target->Item()->HasAttribute(AttrSignatureRadius) )
 			sigRad = target->Item()->GetAttribute(AttrSignatureRadius);
+    }
 
     EvilNumber time = ( EvilNumber(40000) / ( scanRes ) ) /( EvilNumber::pow( e_log( sigRad + e_sqrt( sigRad * sigRad + 1) ), 2) );
 

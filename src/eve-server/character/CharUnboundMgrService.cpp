@@ -402,5 +402,8 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
     //  add charID to staticOwners
     //m_db.addOwnerCache(char_item->itemID(), char_item->itemName(), char_type->id() );
 
+    // add NPC Standings based on Corporation Faction
+    m_db.SetCharNPCStandings(char_item->itemID());
+
     return new PyInt( char_item->itemID() );
 }

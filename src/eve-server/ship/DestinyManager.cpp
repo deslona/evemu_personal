@@ -166,12 +166,8 @@ void DestinyManager::SendDestinyEvent( std::vector<PyTuple*>& events, bool self_
 }
 
 void DestinyManager::SendDestinyUpdate( std::vector<PyTuple*>& updates, std::vector<PyTuple*>& events, bool self_only ) const {
-    if( self_only ) {
-	    SendDestinyUpdate(updates, self_only);
-		SendDestinyEvent(events, self_only);
-    } else {
-        _log( DESTINY__ERROR, "DestinyManager::SendDestinyUpdate - [%u] Cannot broadcast destiny update (u:%lu, e:%lu); entity (%u) is not in any bubble.", GetStamp(), updates.size(), events.size(), m_self->GetID() );
-    }
+    SendDestinyUpdate(updates, self_only);
+	SendDestinyEvent(events, self_only);
 }
 
 void DestinyManager::ProcessState() {
@@ -827,6 +823,11 @@ void DestinyManager::_Warp() {
 	if ((remainingDistance < BUBBLE_RADIUS_METERS) && (!m_inBubble)) {
 		m_system->bubbles.CheckBubble(m_self, true, false, true);
 		SetBubble(true);
+
+        /*  based on new info (from packet sniff) warp-in sends AddBalls2
+         * then sends a BubblecastDestinyUpdateExclusive::WarpTo packet
+         * to all entites in bubble EXCEPT the ship doing the warp.
+         *
 		//update clients in bubble with new data for warp-in
 		std::vector<PyTuple *> updates;
 
@@ -843,8 +844,8 @@ void DestinyManager::_Warp() {
 		bp.y = m_position.y;
 		bp.z = m_position.z;
 		updates.push_back(bp.Encode());
+        SendDestinyUpdate(updates, false);
 */
-		SendDestinyUpdate(updates, false);
 	}
 
 	if (stop) {
@@ -2066,10 +2067,6 @@ void DestinyManager::SendSpecialEffect(const ShipRef shipRef, uint32 moduleID, u
 	effect.startTime = Win32TimeNow();
     updates.push_back(effect.Encode());
     SendDestinyUpdate(updates, false);
-
-	//PyTuple* up = effect.Encode();
-    //SendDestinyUpdate( &up );    //consumed
-    //PySafeDecRef( up );
 }
 
 void DestinyManager::SendSpecialEffect10(uint32 entityID, const ShipRef shipRef, uint32 targetID, std::string effectString, bool isOffensive, bool start, bool isActive) const

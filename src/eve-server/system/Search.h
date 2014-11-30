@@ -24,10 +24,11 @@
 */
 
 
-#ifndef __SEARCH_SERVICE_H_INCL__
-#define __SEARCH_SERVICE_H_INCL__
+#ifndef EVEMU_SYSTEM_SEARCH_H_
+#define EVEMU_SYSTEM_SEARCH_H_
 
 #include "PyService.h"
+#include "PyServiceCD.h"
 #include "system/SearchDB.h"
 
 class Search
@@ -35,8 +36,6 @@ class Search
   public:
     Search(PyServiceMgr *mgr);
     virtual ~Search();
-
-	//void ReplaceWith(std::string &s, char find, char replace);
 
   protected:
     class Dispatcher;
@@ -52,22 +51,5 @@ class Search
 
 };
 
-#endif
+#endif      // EVEMU_SYSTEM_SEARCH_H_
 
-
-/**  from client...
-searchResultAgent = 1
-searchResultCharacter = 2
-searchResultCorporation = 3
-searchResultAlliance = 4
-searchResultFaction = 5
-searchResultConstellation = 6
-searchResultSolarSystem = 7
-searchResultRegion = 8
-searchResultStation = 9
-searchResultInventoryType = 10
-searchResultAllOwners = [1, 2, 3, 4, 5]
-searchResultAllLocations = [6, 7, 8, 9]
-searchMaxResults = 500
-searchMinWildcardLength = 3
-*/

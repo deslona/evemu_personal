@@ -46,6 +46,9 @@ public:
 
         m_strBoundObjectName = "DogmaIMBound";
 
+        PyCallable_REG_CALL(DogmaIMBound, LinkWeapons);
+        PyCallable_REG_CALL(DogmaIMBound, LinkAllWeapons);
+        PyCallable_REG_CALL(DogmaIMBound, OverloadRack);
         PyCallable_REG_CALL(DogmaIMBound, ShipGetInfo);
         PyCallable_REG_CALL(DogmaIMBound, CharGetInfo);
         PyCallable_REG_CALL(DogmaIMBound, ItemGetInfo);
@@ -73,6 +76,9 @@ public:
         delete this;
     }
 
+    PyCallable_DECL_CALL(LinkWeapons);
+    PyCallable_DECL_CALL(LinkAllWeapons);
+    PyCallable_DECL_CALL(OverloadRack);
     PyCallable_DECL_CALL(ShipGetInfo);
     PyCallable_DECL_CALL(CharGetInfo);
     PyCallable_DECL_CALL(ItemGetInfo);
@@ -118,6 +124,59 @@ PyBoundObject *DogmaIMService::_CreateBoundObject(Client *c, const PyRep *bind_a
     bind_args->Dump(CLIENT__MESSAGE, "    ");
 
     return(new DogmaIMBound(m_manager));
+}
+
+PyResult DogmaIMBound::Handle_LinkWeapons(PyCallArgs &call) {
+    /* 12:54:01 [SvcCall] Service dogmaIM: handling MachoBindObject request directly
+     * 12:54:01 DogmaIMBound::Handle_LinkWeapons(): [00msize=3
+     * 12:54:01 [SvcCall]   Call Arguments:
+     * 12:54:01 [SvcCall]       Tuple: 3 elements
+     * 12:54:01 [SvcCall]         [ 0] Integer field: 140000069     <- shipID
+     * 12:54:01 [SvcCall]         [ 1] Integer field: 140000078     <- weapon 2  *dropped ON*
+     * 12:54:01 [SvcCall]         [ 2] Integer field: 140000079     <- weapon 1  *dragged*
+     */
+
+    sLog.Log( "DogmaIMBound::Handle_LinkWeapons()", "size=%u", call.tuple->size());
+    call.Dump(SERVICE__CALLS);
+
+    Call_Dogma_LinkWeapons args;
+    if(!args.Decode(&call.tuple)) {
+        codelog(SERVICE__ERROR, "Failed to decode arguments");
+        return NULL;
+    }
+    /* args.shipID
+     * args.droppedID
+     * args.draggedID
+     */
+
+    PyRep *result = NULL;
+    return result;
+}
+
+PyResult DogmaIMBound::Handle_LinkAllWeapons(PyCallArgs &call) {
+    /* 18:23:28 [SvcCall] Service dogmaIM: handling MachoBindObject request directly
+     * 18:23:28 DogmaIMBound::Handle_LinkAllWeapons(): size=1
+     * 18:23:28 [SvcCall]   Call Arguments:
+     * 18:23:28 [SvcCall]       Tuple: 1 elements
+     * 18:23:28 [SvcCall]         [ 0] Integer field: 140000069
+     */
+    Call_SingleIntegerArg args;
+    if(!args.Decode(&call.tuple)) {
+        codelog(SERVICE__ERROR, "Failed to decode arguments");
+        return NULL;
+    }
+    uint32 shipID = args.arg;
+
+    PyRep *result = NULL;
+    return result;
+}
+
+PyResult DogmaIMBound::Handle_OverloadRack(PyCallArgs &call) {
+    sLog.Log( "DogmaIMBound::Handle_OverloadRack()", "size=%u", call.tuple->size());
+    call.Dump(SERVICE__CALLS);
+
+    PyRep *result = NULL;
+    return result;
 }
 
 PyResult DogmaIMService::Handle_GetAttributeTypes(PyCallArgs &call) {
@@ -240,15 +299,17 @@ PyResult DogmaIMBound::Handle_TakeModuleOffline( PyCallArgs& call ) {
 
 	return NULL;
 }
+
+//  Call_Dogma_LoadAmmoToModules args;
 //LoadAmmoToModules
 //        self.remoteDogmaLM.LoadAmmoToModules(shipID, moduleIDs, chargeTypeID, itemID, ammoLocationID, qty=qty)
 
 PyResult DogmaIMBound::Handle_LoadAmmoToBank( PyCallArgs& call ) {
   /*
-        self.remoteDogmaLM.LoadAmmoToBank(shipID, masterID, chargeTypeID, itemIDs, chargeLocationID, qty)
-                                           ship,   module,  charge type, charge item, charge location, stack qty
-        ********    UPDATED VAR NAMES TO MATCH CLIENT CODE  -allan 26Jul14  *************
-        */
+   * self.remoteDogmaLM.LoadAmmoToBank(shipID, masterID, chargeTypeID,  itemIDs,  chargeLocationID,   qty)
+   *                                    ship,   module,  charge type, charge item, charge location, stack qty (usually none - havent found otherwise)
+   *   *******    UPDATED VAR NAMES TO MATCH CLIENT CODE  -allan 26Jul14  *************
+   */
 	Call_Dogma_LoadAmmoToBank args;
 
 	if( !args.Decode( &call.tuple ) )

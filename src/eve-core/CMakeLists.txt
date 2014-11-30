@@ -18,8 +18,8 @@ SET( INCLUDE
      "${TARGET_INCLUDE_DIR}/eve-core.h"
      "${TARGET_INCLUDE_DIR}/eve-compat.h")
 SET( SOURCE
-     "${TARGET_SOURCE_DIR}/eve-compat.cpp" )
-#"${TARGET_SOURCE_DIR}/mmgr.cpp" )
+     "${TARGET_SOURCE_DIR}/eve-compat.cpp")
+     #"${TARGET_SOURCE_DIR}/mmgr.cpp" )
 
 SET( database_INCLUDE
      "${TARGET_INCLUDE_DIR}/database/dbcore.h"

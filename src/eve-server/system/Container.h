@@ -26,6 +26,7 @@
 #ifndef __CONTAINER__H__INCL__
 #define __CONTAINER__H__INCL__
 
+#include "inventory/AttributeEnum.h"
 #include "inventory/Inventory.h"
 #include "inventory/InventoryItem.h"
 #include "system/SystemEntity.h"
@@ -79,6 +80,8 @@ public:
      * Primary public packet builders:
      */
     PyObject *CargoContainerGetInfo();
+
+    bool IsEmpty() {return (GetAttribute(AttrCapacity) == GetDefaultAttribute(AttrCapacity)); }
 
 
 protected:

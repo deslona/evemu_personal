@@ -19,6 +19,14 @@
     </tupleInline>
   </elementDef>
 
+  <elementDef name="Call_Dogma_LinkWeapons">
+    <tupleInline>
+      <int name="shipID" />
+      <int name="droppedID" />
+      <int name="draggedID" />
+    </tupleInline>
+  </elementDef>
+
   <elementDef name="Call_Dogma_LoadAmmoToBank">
     <tupleInline>
       <int name="shipID" />
@@ -26,8 +34,19 @@
       <int name="chargeTypeID" />
       <listInt name="itemIDs" />
       <int name="chargeLocationID" />
+      <!-- optional: this is usually type None but can be qty on multiple stacks - maybe <int name="qty" /> -->
+      <none /> <!-- <int name="qty" /> -->
+    </tupleInline>
+  </elementDef>
+
+  <elementDef name="Call_Dogma_LoadAmmoToModules">
+    <tupleInline>
+      <int name="shipID" />
+      <listInt name="moduleIDs" />
+      <int name="chargeTypeID" />
+      <int name="itemID" />
+      <int name="ammoLocationID" />
       <int name="qty" />
-      <none />
     </tupleInline>
   </elementDef>
 

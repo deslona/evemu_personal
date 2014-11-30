@@ -140,6 +140,15 @@ PyResult FactionWarMgrService::Handle_GetMyCharacterRankInfo( PyCallArgs& call )
 }
 
 PyResult FactionWarMgrService::Handle_GetFactionMilitiaCorporation(PyCallArgs &call) {
+    /* 05:39:07 [SvcCall] Service facWarMgr: calling GetFactionMilitiaCorporation
+     * 05:39:07 FactionWarMgrService::Handle_GetFactionMilitiaCorporation(): size= 1
+     * 05:39:07 [SvcCall]   Call Arguments:
+     * 05:39:07 [SvcCall]       Tuple: 1 elements
+     * 05:39:07 [SvcCall]         [ 0] Integer field: 500002
+     * 05:39:07 [SvcCall]   Call Named Arguments:
+     * 05:39:07 [SvcCall]     Argument 'machoVersion':
+     * 05:39:07 [SvcCall]         Integer field: 1
+     */
   sLog.Log( "FactionWarMgrService::Handle_GetFactionMilitiaCorporation()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
     Call_SingleIntegerArg arg;
@@ -167,6 +176,13 @@ PyResult FactionWarMgrService::Handle_GetFactionalWarStatus(PyCallArgs &call) {
 
 //22:48:28 L FactionWarMgrService::Handle_IsEnemyFaction(): size= 2
 PyResult FactionWarMgrService::Handle_IsEnemyFaction(PyCallArgs &call) {
+    /*[00m05:39:09 [SvcCall] Service facWarMgr: calling IsEnemyFaction
+     * 05:39:09[00m L [37;01mFactionWarMgrService::Handle_IsEnemyFaction(): [00msize=2
+     * [00m05:39:09 [SvcCall]   Call Arguments:
+     * 05:39:09 [SvcCall]       Tuple: 2 elements
+     * 05:39:09 [SvcCall]         [ 0] Integer field: 500002
+     * 05:39:09 [SvcCall]         [ 1] Integer field: 500001   <- this one changes
+     */
   sLog.Log( "FactionWarMgrService::Handle_IsEnemyFaction()", "size=%u ", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
 

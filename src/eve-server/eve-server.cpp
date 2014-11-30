@@ -157,8 +157,6 @@ static const uint32 MAIN_LOOP_DELAY = 10; // delay 10 ms.
 static volatile bool RunLoops = true;
 dgmtypeattributemgr * _sDgmTypeAttrMgr;
 
-//DGM_Loot_Groups_Table DGM_LGT;
-
 int main( int argc, char* argv[] )
 {
     // Load server configuration

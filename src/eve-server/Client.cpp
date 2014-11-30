@@ -412,8 +412,8 @@ bool Client::UpdateLocation(bool login) {
         delete m_destiny;
         m_destiny = NULL;
 
-		m_system->RemoveClient(this);
-		m_system = NULL;
+		//m_system->RemoveClient(this);
+		//m_system = NULL;
 
         OnCharNowInStation();
     } else if(IsSolarSystem(GetLocationID())) {
@@ -1842,7 +1842,6 @@ bool Client::Handle_CallReq( PyPacket* packet, PyCallStream& req )
     if( req.method == "BeanCount" )
         sLog.Warning("Client::BeanCount","BeanCount error reporting and handling is not implemented yet.");
     else
-        //  changed log back to debug   -allan 01/11/14
         sLog.Log("Server", "%s call made to %s",req.method.c_str(),packet->dest.service.c_str());
 
     //build arguments

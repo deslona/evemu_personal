@@ -58,6 +58,7 @@ protected:
     ( DGM_Types_to_Wrecks_Table::get() )
 // -----------------------------------------------------------------------
 
+//  CLASS DEFINITION FOR LOOT SYSTEM
 //  struct objects for holding loot data.
 
 struct DBLootGroup {
@@ -74,6 +75,7 @@ struct DBLootGroupType {
     uint32 maxQuantity;
 };
 
+// This class is a singleton object, containing all loot items/defs loaded from npcLoot* table
 class DGM_Loot_Groups_Table
 : public Singleton< DGM_Loot_Groups_Table >
 {

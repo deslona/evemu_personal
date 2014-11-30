@@ -44,7 +44,7 @@ protected:
 
     ShipDB m_db;
 
-    //PyCallable_DECL_CALL()
+    //PyCallable_DECL_CALL();
 
     //overloaded in order to support bound objects:
     virtual PyBoundObject *_CreateBoundObject(Client *c, const PyRep *bind_args);

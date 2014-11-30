@@ -1029,6 +1029,17 @@ double CharacterDB::GetCharRawStandingFromNPC(uint32 characterID, uint32 itemID)
     return row.GetDouble(0);
 }
 
+//  this needs work
+void CharacterDB::SetCharNPCStandings(uint32 characterID) {
+    /*
+    DBerror err;
+
+    sDatabase.RunQuery(err,
+                       "INSERT INTO `chrStandings`(`characterID`, `toID`, `standing`) "
+                       "VALUES (%u,[value-2],[value-3])", characterID );
+    */
+}
+
 bool CharacterDB::LoadSkillQueue(uint32 characterID, SkillQueue &into) {
     DBQueryResult res;
 
@@ -1282,9 +1293,10 @@ void CharacterDB::AddBounty(uint32 charID, uint32 ownerID, uint32 amount) {
 	" VALUES (%u, %u, %u, UNIX_TIMESTAMP(CURRENT_TIMESTAMP) )",
         charID, ownerID, amount );
 
+    //FIXME  check for multiple bounties on char, and set this to total amount
     DBerror err2;
     sDatabase.RunQuery(err2,
-        "UPDATE Character_ SET bounty = %u WHERE characterID = %u", amount, charID);
+        "UPDATE character_ SET bounty = %u WHERE characterID = %u", amount, charID);
 }
 
 void CharacterDB::VisitSystem(uint32 solarSystemID, uint32 charID) {

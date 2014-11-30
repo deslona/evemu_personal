@@ -80,63 +80,72 @@ PyTuple* ShipDB::GetFormations()
     return res;
 }
 
-PyResult ShipDB::GetInsuranceByShipID(uint32 shipID) {
+PyTuple *ShipDB::GetInsuranceByShipID(uint32 shipID) {
     DBQueryResult res;
     sDatabase.RunQuery(res,
         "SELECT shipID, startDate, endDate, fraction"
 		" FROM shipInsurance"
-        " WHERE shipID = %d", shipID );
+        " WHERE shipID = %u", shipID );
 
-    DBResultRow row;
-    if(!res.GetRow(row)) return NULL;
+    //FIXME  this return isnt right when query returns rows.
+    /*
+     * eve-server: /usr/local/src/eve/cruc/src/eve-core/database/dbcore.cpp:501:
+     * DBTYPE DBQueryResult::ColumnType(uint32) const: Assertion `DBTYPE_ERROR != result' failed.
+     *         result == dberror
+     */
 
-    Rsp_GetInsuranceContracts rsp;
-    rsp.shipID = row.GetUInt( 0 );
-    rsp.startDate = row.GetUInt64( 1 );
-    rsp.endDate = row.GetUInt64( 2 );
-    rsp.fraction = row.GetDouble( 3 );
+    return DBResultToTupleSet(res);
+    /*
+      DBResultRow row;
+      if(!res.GetRow(row)) return NULL;
+      //FIXME  this return isnt right when query returns rows.
+      /*
+       * eve-server: /usr/local/src/eve/cruc/src/eve-core/database/dbcore.cpp:501:
+       * DBTYPE DBQueryResult::ColumnType(uint32) const: Assertion `DBTYPE_ERROR != result' failed.
+       *         result == dberror
+       */
+     /*
+        Rsp_GetInsuranceContracts rsp;
+        rsp.shipID = row.GetUInt( 0 );
+        rsp.startDate = row.GetUInt64( 1 );
+        rsp.endDate = row.GetUInt64( 2 );
+        rsp.fraction = row.GetDouble( 3 );
 
-    return(rsp.Encode());
+        return(rsp.Encode());
+     */
 }
 
-PyResult ShipDB::GetInsuranceByOwnerID(uint32 ownerID) {
+PyTuple *ShipDB::GetInsuranceByOwnerID(uint32 ownerID) {
     DBQueryResult res;
     sDatabase.RunQuery(res,
-        "SELECT i.shipID, i.startDate, i.endDate, i.fraction"
-		" FROM shipInsurance AS i"
-        "  LEFT JOIN entity AS e ON e.itemID = i.shipID"
-        " WHERE e.ownerID = %d", ownerID );
+        "SELECT shipID, startDate, endDate, fraction"
+		" FROM shipInsurance"
+        "  LEFT JOIN entity AS e ON e.itemID = shipID"
+        " WHERE e.ownerID = %u", ownerID );
 
-    DBResultRow row;
-    if(!res.GetRow(row)) return NULL;
+    //FIXME  this return isnt right when query returns rows.
+    /*
+     * eve-server: /usr/local/src/eve/cruc/src/eve-core/database/dbcore.cpp:501:
+     * DBTYPE DBQueryResult::ColumnType(uint32) const: Assertion `DBTYPE_ERROR != result' failed.
+     *         result == dberror
+     */
 
-    Rsp_GetInsuranceContracts rsp;
-    rsp.shipID = row.GetUInt( 0 );
-    rsp.startDate = row.GetUInt64( 1 );
-    rsp.endDate = row.GetUInt64( 2 );
-    rsp.fraction = row.GetDouble( 3 );
-
-    return(rsp.Encode());
+    return DBResultToTupleSet(res);
 }
 
 bool ShipDB::InsertInsuranceByShipID(uint32 shipID, float fraction, bool isCorpItem) {
-    uint64 endDate = Win32TimeNow() + (Win32Time_Day * 90);
+    uint64 endDate = (Win32TimeNow() + (Win32Time_Day * 90));
 
     DBerror err;
-    if(!sDatabase.RunQuery(err,
-      "INSERT INTO "
+    sDatabase.RunQuery(err, "INSERT INTO "
 	  "  shipInsurance (shipID, isCorpItem, startDate, endDate, fraction)"
-      " VALUES (%d, %u, %" PRIu64 ", %" PRIu64 ", %.3f)",
-      shipID, isCorpItem, Win32TimeNow(), endDate, fraction ))
-    {
-        codelog(SERVICE__ERROR, "Error in query: %s", err.c_str());
-        return false;
-    }
+      " VALUES (%u, %u, %" PRIu64 ", %" PRIu64 ", %.3f)",
+      shipID, isCorpItem, Win32TimeNow(), endDate, fraction );
 
     return true;
 }
 
 void ShipDB::DeleteInsuranceByShipID(uint32 shipID) {
     DBerror err;
-	sDatabase.RunQuery(err, "DELETE FROM shipInsurance WHERE shipID=%d", shipID);
+	sDatabase.RunQuery(err, "DELETE FROM shipInsurance WHERE shipID=%u", shipID);
 }

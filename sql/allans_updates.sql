@@ -199,7 +199,8 @@ CREATE TABLE IF NOT EXISTS `sklRaceSkills` (
   KEY `skillTypeID` (`skillTypeID`)
   ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='skill and level list by raceID' AUTO_INCREMENT=33 ;
 
-
+  /*  hack for minor client error...we dont have the real data for this yet  */
+ALTER TABLE `staOperations` ADD `descriptionID` INT(10) NOT NULL AFTER `description`;
 
 /* set skill level from float to int */
 UPDATE `dgmTypeAttributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `attributeID`=280 AND `valueFloat`=0;
@@ -212,5 +213,13 @@ UPDATE `dgmTypeAttributes` SET `valueInt`=1,`valueFloat`=NULL WHERE `typeid`=101
 /* reset rifter cap recharge rate */
 UPDATE `dgmTypeAttributes` SET `valueFloat` = '125000' WHERE `typeID` = 587 AND `attributeID` = 55;
 
+
 ALTER TABLE entity AUTO_INCREMENT=140000000;
 
+
+/*  polaris legerion updates */
+UPDATE `dgmTypeAttributes` SET `valueInt` = '8' WHERE `typeID` = 9860 AND `attributeID` = 12;
+UPDATE `dgmTypeAttributes` SET `valueInt` = '8' WHERE `typeID` = 9860 AND `attributeID` = 13;
+UPDATE `dgmTypeAttributes` SET `valueInt` = '8' WHERE `typeID` = 9860 AND `attributeID` = 14;
+UPDATE `dgmTypeAttributes` SET `valueFloat` = '3' WHERE `typeID` = 9860 AND `attributeID` = 600;
+UPDATE `dgmTypeAttributes` SET `valueFloat` = '5' WHERE `typeID` = 9860 AND `attributeID` = 1281;

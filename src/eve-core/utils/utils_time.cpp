@@ -25,6 +25,8 @@
 
 #include "eve-core.h"
 
+#include <chrono>
+
 #include "utils/utils_time.h"
 
 const uint64 Win32Time_Second = 10000000L;

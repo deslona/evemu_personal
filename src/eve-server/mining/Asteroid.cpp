@@ -51,91 +51,14 @@ void AsteroidEntity::ForcedSetPosition(const GPoint &pt) {
     m_destiny->SetPosition(pt, false);
 }
 
+void AsteroidEntity::Grow() {
+
+}
+
 void AsteroidEntity::EncodeDestiny( Buffer& into ) const
 {
     const GPoint& position = GetPosition();
     const std::string itemName( GetName() );
-    /*if(m_orbitingID != 0) {
-        #pragma pack(1)
-        struct AddBall_Orbit {
-            BallHeader head;
-            MassSector mass;
-            ShipSector ship;
-            DSTBALL_ORBIT_Struct main;
-            NameStruct name;
-        };
-        #pragma pack()
-
-        into.resize(start
-            + sizeof(AddBall_Orbit)
-            + slen*sizeof(uint16) );
-        uint8 *ptr = &into[start];
-        AddBall_Orbit *item = (AddBall_Orbit *) ptr;
-        ptr += sizeof(AddBall_Orbit);
-
-        item->head.entityID = GetID();
-        item->head.mode = Destiny::DSTBALL_ORBIT;
-        item->head.radius = m_self->radius();
-        item->head.x = x();
-        item->head.y = y();
-        item->head.z = z();
-        item->head.sub_type = IsMassive | IsFree;
-
-        item->mass.mass = m_self->mass();
-        item->mass.unknown51 = 0;
-        item->mass.unknown52 = 0xFFFFFFFFFFFFFFFFLL;
-        item->mass.corpID = GetCorporationID();
-        item->mass.unknown64 = 0xFFFFFFFF;
-
-        item->ship.max_speed = m_self->maxVelocity();
-        item->ship.velocity_x = m_self->maxVelocity();    //hacky hacky
-        item->ship.velocity_y = 0.0;
-        item->ship.velocity_z = 0.0;
-        item->ship.agility = 1.0;    //hacky
-        item->ship.speed_fraction = 0.133f;    //just strolling around. TODO: put in speed fraction!
-
-        item->main.unknown116 = 0xFF;
-        item->main.followID = m_orbitingID;
-        item->main.followRange = 6000.0f;
-
-        item->name.name_len = slen;    // in number of unicode chars
-        //strcpy_fake_unicode(item->name.name, GetName());
-    } else {
-        BallHeader head;
-        head.entityID = GetID();
-        head.mode = Destiny::DSTBALL_STOP;
-        head.radius = GetRadius();
-        head.x = position.x;
-        head.y = position.y;
-        head.z = position.z;
-        head.sub_type = IsMassive | IsFree;
-        into.Append( head );
-
-        MassSector mass;
-        mass.mass = GetMass();
-        mass.cloak = 0;
-        mass.unknown52 = 0xFFFFFFFFFFFFFFFFLL;
-        mass.corpID = GetCorporationID();
-        mass.allianceID = GetAllianceID();
-        into.Append( mass );
-
-        ShipSector ship;
-        ship.max_speed = GetMaxVelocity();
-        ship.velocity_x = 0.0;
-        ship.velocity_y = 0.0;
-        ship.velocity_z = 0.0;
-        ship.unknown_x = 0.0;
-        ship.unknown_y = 0.0;
-        ship.unknown_z = 0.0;
-        ship.agility = GetAgility();
-        ship.speed_fraction = 0.0;
-        into.Append( ship );
-
-        DSTBALL_STOP_Struct main;
-        main.formationID = 0xFF;
-        into.Append( main );
-    }
-*/
     BallHeader head;
     head.entityID = GetID();
     head.mode = Destiny::DSTBALL_RIGID;
@@ -149,18 +72,6 @@ void AsteroidEntity::EncodeDestiny( Buffer& into ) const
     DSTBALL_RIGID_Struct main;
     main.formationID = 0xFF;
     into.Append( main );
-
-/*
-    const uint16 miniballsCount = 1;
-    into.Append( miniballsCount );
-
-    MiniBall miniball;
-    miniball.x = -7701.181;
-    miniball.y = 8060.06;
-    miniball.z = 27878.900;
-    miniball.radius = 1639.241;
-    into.Append( miniball );
-*/
 }
 
 void AsteroidEntity::MakeDamageState(DoDestinyDamageState &into) const {

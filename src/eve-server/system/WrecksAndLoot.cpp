@@ -146,7 +146,7 @@ void DGM_Loot_Groups_Table::GetLoot(uint32 groupID, LootGroupTypeDef &lootList) 
 
     while (curGroupItr != m_LootGroupMap.end()) {
         if (curGroupItr->groupID == groupID) {
-            randChance = gen_random_float(0.00, 0.10);      // FIXME adjust this later   -used to determine initial loot groups
+            randChance = gen_random_float(0.00, 0.08);      // FIXME adjust this later   -used to determine initial loot groups
             if (randChance < curGroupItr->dropChance) {
                 while (curTypeItr != m_LootGroupTypeMap.end()) {
                     if (curTypeItr->lootGroupID == curGroupItr->lootGroupID) {

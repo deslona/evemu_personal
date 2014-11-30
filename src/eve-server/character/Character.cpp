@@ -947,9 +947,10 @@ double Character::GetEffectiveStandingFromNPC(uint32 itemID) {
 //TODO: also use skillCriminalConnections.
 // check itemID() for faction/corp standing -> char faction/corp
 
-    if(res > 0) res += (10-res) * 0.04 * c->GetChar()->GetSkillLevel(skillConnections);
-    else
-    if(res < 0) res += (10-res) * 0.04 * c->GetChar()->GetSkillLevel(skillDiplomacy);
+    if(res > 0)
+        res += ((10-res) * 0.04 * c->GetChar()->GetSkillLevel(skillConnections));
+    else if(res < 0)
+        res += ((10-res) * 0.04 * c->GetChar()->GetSkillLevel(skillDiplomacy));
 
     return res;
 }
@@ -1132,7 +1133,7 @@ void Character::SaveFullCharacter() {
 
 	// Loop through all contracts or other non-item things owned by this Character and save each one:
 	// TODO
-    
+
     std::vector<InventoryItemRef> skills;
     GetSkillsList( skills );
     std::vector<InventoryItemRef>::iterator cur, end;
