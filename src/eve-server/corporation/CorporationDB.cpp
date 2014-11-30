@@ -167,7 +167,7 @@ PyRep *CorporationDB::GetCorpInfo(uint32 corpID) {
     return (DBResultToRowset(res));
 }
 
-PyTuple *CorporationDB::GetCorporation(uint32 corpID) {
+PyObject *CorporationDB::GetCorporation(uint32 corpID) {
     DBQueryResult res;
 /**
                     parallelCalls.append((sm.RemoteSvc('corpmgr').GetPublicInfo, (itemID,)))
@@ -197,8 +197,8 @@ PyTuple *CorporationDB::GetCorporation(uint32 corpID) {
         return NULL;
     }
 
-    return DBResultToTupleSet(row);
-    //return DBResultToRowset(res);
+    //return DBRowToRow(row);
+    return DBResultToRowset(res);
 }
 
 PyDict *CorporationDB::ListAllCorpInfo() {

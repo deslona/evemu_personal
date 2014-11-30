@@ -30,16 +30,15 @@
 #include "corporation/CorporationCarrier.h"
 #include "ServiceDB.h"
 
-class PyTuple;
-class PyObject;
 class PyRep;
+class PyObject;
 class OfficeInfo;
 
 class CorporationDB
 : public ServiceDB
 {
 public:
-    PyTuple *GetCorporation(uint32 corpID);
+    PyObject *GetCorporation(uint32 corpID);
     PyObject *GetStations(uint32 corpID);
     PyObject *GetEveOwners();
 
