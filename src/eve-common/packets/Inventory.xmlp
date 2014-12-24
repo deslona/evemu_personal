@@ -410,16 +410,6 @@
           <dictInlineEntry key="researchCopyTime">
               <int name="researchCopyTime" />
           </dictInlineEntry>
-<!--
-          <listInline>
-              <tokenInline value="util.Row" />
-                  <listInline>
-                      <stringInline value="materialTypeID" />
-                      <stringInline value="quantity" />
-                  </listInline>
-              </dictInline>
-          </listInline>
--->
       </dictInline>
   </elementDef>
 

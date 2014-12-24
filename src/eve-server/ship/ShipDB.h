@@ -29,8 +29,9 @@
 
 #include "ServiceDB.h"
 
-class PyResult;
+class PyRep;
 class PyTuple;
+class PyResult;
 
 class ShipDB
 : public ServiceDB
@@ -38,9 +39,10 @@ class ShipDB
 public:
     PyTuple *GetFormations();
 
-    PyTuple *GetInsuranceByShipID(uint32 shipID);
-    PyTuple *GetInsuranceByOwnerID(uint32 ownerID);
-	bool InsertInsuranceByShipID(uint32 shipID, float fraction, bool isCorpItem = false);
+    // insurance functions  -allan  21Jul14
+    PyRep *GetInsuranceByShipID(uint32 shipID);
+    PyRep *GetInsuranceByOwnerID(uint32 ownerID);
+    bool InsertInsuranceByShipID(uint32 shipID, std::string name, uint32 ownerID, float level, bool isCorpItem = false, uint8 numWeeks = 12);
 	void DeleteInsuranceByShipID(uint32 shipID);
 
 };

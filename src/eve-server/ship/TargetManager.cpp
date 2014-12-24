@@ -169,7 +169,7 @@ void TargetManager::TargetLost(SystemEntity *who) {
     m_self->TargetLost(who);
 }
 
-bool TargetManager::StartTargeting(SystemEntity *who, ShipRef ship) {   // needs another argument: "ShipRef ship" to access ship attributes
+bool TargetManager::StartTargeting(SystemEntity *who, ShipRef ship) {
     //first make sure they are not already in the list
     std::map<SystemEntity *, TargetEntry *>::iterator res;
     res = m_targets.find(who);
@@ -184,7 +184,7 @@ bool TargetManager::StartTargeting(SystemEntity *who, ShipRef ship) {   // needs
         return false;
 
 	// Calculate Time to Lock target:
-	uint32 lockTime = TimeToLock( ship, who );
+	float lockTime = TimeToLock( ship, who );
 
     // Check against max locked target count
 	uint32 maxLockedTargets = ship->GetAttribute(AttrMaxLockedTargets).get_int();
@@ -460,17 +460,19 @@ PyList *TargetManager::GetTargeters() const {
     return result;
 }
 
-uint32 TargetManager::TimeToLock(ShipRef ship, SystemEntity *target) const {
-
-    EvilNumber scanRes = ship->GetAttribute(AttrScanResolution);
-    EvilNumber sigRad(25);
+float TargetManager::TimeToLock(ShipRef ship, SystemEntity *target) const {
+    //TODO add skills and ship bonuses in here
+    uint32 scanRes = ship->GetAttribute(AttrScanResolution).get_int();
+    uint32 sigRad = 25;
 
 	if( target->Item().get() != NULL ) {
 		if( target->Item()->HasAttribute(AttrSignatureRadius) )
 			sigRad = target->Item()->GetAttribute(AttrSignatureRadius);
     }
 
-    EvilNumber time = ( EvilNumber(40000) / ( scanRes ) ) /( EvilNumber::pow( e_log( sigRad + e_sqrt( sigRad * sigRad + 1) ), 2) );
+    //https://wiki.eveonline.com/en/wiki/Targeting_speed
+    //locktime = 40000/(scanres * asinh(sigrad)^2)
+    float time = ( 40000 /(scanRes * pow((-1.1752 * sigRad, 2))));
 
-	return static_cast<uint32>(time.get_float() * 1000); // Timer uses ms instead of seconds
+	return (time * 100);
 }

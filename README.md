@@ -21,6 +21,7 @@ do with the source code downloaded from this project.
 - Items and Ships display in station
 - Undocking and Docking is working (not complete.  bugs almost fixed)
 - Skill Training is working (including pause/resume AND Training History)
+- Character Certificates working (tutorials MUST be off)
 - Injecting Skills is working
 - BookMarks are mostly working (no support for delete)
 - All Celestial Information from OverView is working

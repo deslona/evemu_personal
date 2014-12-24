@@ -1,39 +1,41 @@
 /*
-------------------------------------------------------------------------------------
-LICENSE:
-------------------------------------------------------------------------------------
-This file is part of EVEmu: EVE Online Server Emulator
-Copyright 2006 - 2011 The EVEmu Team
-For the latest information visit http://evemu.org
-------------------------------------------------------------------------------------
-This program is free software; you can redistribute it and/or modify it under
-the terms of the GNU Lesser General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
-version.
+    ------------------------------------------------------------------------------------
+    LICENSE:
+    ------------------------------------------------------------------------------------
+    This file is part of EVEmu: EVE Online Server Emulator
+    Copyright 2006 - 2011 The EVEmu Team
+    For the latest information visit http://evemu.org
+    ------------------------------------------------------------------------------------
+    This program is free software; you can redistribute it and/or modify it under
+    the terms of the GNU Lesser General Public License as published by the Free Software
+    Foundation; either version 2 of the License, or (at your option) any later
+    version.
 
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+    This program is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU Lesser General Public License along with
-this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place - Suite 330, Boston, MA 02111-1307, USA, or go to
-http://www.gnu.org/copyleft/lesser.txt.
-------------------------------------------------------------------------------------
-Author: Zhur
+    You should have received a copy of the GNU Lesser General Public License along with
+    this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+    Place - Suite 330, Boston, MA 02111-1307, USA, or go to
+    http://www.gnu.org/copyleft/lesser.txt.
+    ------------------------------------------------------------------------------------
+    Author:     Zhur, Allan
 */
 
 #include "eve-server.h"
 
 #include "PyBoundObject.h"
 #include "PyServiceCD.h"
+#include "Client.h"
 #include "ship/InsuranceService.h"
 #include "system/SystemEntity.h"
 #include "system/SystemManager.h"
 
 /* TODO:
-* - handle ship-destroyed event (remove insurance, pay out value, etc...)
-* - use history market value from marketProxy!
+* - handle ship-destroyed event (remove insurance, pay out value, consolation eveMail, etc...)
+* - set ship->basePrice to use history market value from marketProxy!
+* - send eveMail detailing coverage on InsureShip
 */
 
 class InsuranceBound
@@ -93,15 +95,18 @@ PyBoundObject* InsuranceService::_CreateBoundObject( Client* c, const PyRep* bin
 }
 
 PyResult InsuranceBound::Handle_GetInsurancePrice( PyCallArgs& call ) {
-    uint32 typeID = call.tuple->GetItem(0)->AsInt()->value();
-    const ItemType *type = m_manager->item_factory.GetType(typeID);
-    if(!type)
+    const ItemType *type = m_manager->item_factory.GetType(call.tuple->GetItem(0)->AsInt()->value());
+    if (type)
+        return new PyFloat(type->basePrice());
+    else
         return new PyNone;
-    return new PyFloat(type->basePrice());
 }
 
 PyResult InsuranceBound::Handle_GetContracts( PyCallArgs& call ) {
-    if (call.tuple->size() > 0) {
+    sLog.Log( "InsuranceBound::Handle_GetContracts()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    if (call.tuple->size() > 1) {
         Call_IntBoolArg args;
         if(!args.Decode(&call.tuple)) {
             codelog(SERVICE__ERROR, "Failed to decode arguments");
@@ -125,33 +130,27 @@ PyResult InsuranceBound::Handle_InsureShip( PyCallArgs& call ) {
         return NULL;
     }
 
-    /* added check for groupID 237 (rookie ship - items 588, 596, 601, 606) as they cant be insured. */
-    if (call.client->System() == NULL) {
-        call.client->SendInfoModalMsg("Your system manager is null.");
-        sLog.Error("InsuranceService::Handle_InsureShip", "System() == NULL for %s (%u))", call.client->GetName(), call.client->GetCharacterID());
-        return new PyNone;
-    }
-
-    SystemEntity *pShip = call.client->System()->get( args.shipID );
-	if(pShip->Item()->groupID() == EVEDB::invGroups::Rookie_ship) {
+    /* added check for groupID 237 (rookie ship - items 588, 596, 601, 606) as they cannot be insured. */
+    InventoryItemRef shipRef = call.client->services().item_factory.GetItem(args.shipID) ;
+    if(shipRef->groupID() == EVEDB::invGroups::Rookie_ship) {
         call.client->SendInfoModalMsg("You cannot insure Rookie ships.");
         return new PyNone;
-    }/* end rookie ship check  */
+    } // end rookie ship check
 
-    // calculate the fraction value
-    const ItemType *type = m_manager->item_factory.GetType(pShip->Item()->typeID());
-    double paymentFraction = (args.amount / (type->basePrice()));
-    float fraction = 0.0f;
     /* INSURANCE FRACTION TABLE:
-            Label    Fraction  Pay
-            -------- --------- ------
-            Platin   1.0       0.3
-            Gold     0.9       0.25
-            Silver   0.8       0.2
-            Bronze   0.7       0.15
-            Standard 0.6       0.1
-            Basic    0.5       0.05
-    */
+     *    Label    Fraction  Payment
+     *   --------  --------  ------
+     *   Platinum   1.0       0.3
+     *   Gold       0.9       0.25
+     *   Silver     0.8       0.2
+     *   Bronze     0.7       0.15
+     *   Standard   0.6       0.1
+     *   Basic      0.5       0.05
+     */
+    // calculate the fraction value
+    const ItemType type = shipRef->type();
+    double paymentFraction = (args.amount / (type.basePrice()));
+    float fraction = 0.0f;  // with no insurance, SCC pays 40% on live.  on alasiya-eve, i pay 0%.
     if (paymentFraction == 0.05) fraction = 0.5f;
     else if (paymentFraction == 0.1) fraction = 0.6f;
     else if (paymentFraction == 0.15) fraction = 0.7f;
@@ -159,16 +158,19 @@ PyResult InsuranceBound::Handle_InsureShip( PyCallArgs& call ) {
     else if (paymentFraction == 0.25) fraction = 0.9f;
     else if (paymentFraction == 0.3) fraction = 1.0f;
 
-    if (fraction == 0.0)
+    if (fraction == 0){
+        call.client->SendInfoModalMsg("There was a problem with your insurance premium calculation.  Ref: ServerError 5002.");
         return new PyNone;
+    }
 
     // delete old insurance, if any
-    if (call.byname.find("voidOld")->second->AsInt()->value());
+    // TODO  verify they want to cancel old insurance before deleting
+    if (call.byname.find("voidOld")->second->AsInt()->value())
         m_db->DeleteInsuranceByShipID(args.shipID);
-/*  fix insurance return in shipDB.cpp:97  and 115
- * dbresulttorow*  does NOT work
-    // add new insurance
-    if (m_db->InsertInsuranceByShipID(args.shipID, fraction, args.isCorp)) {
+
+    uint8 numWeeks = 12;    // TODO make this a config variable
+
+    if (m_db->InsertInsuranceByShipID(args.shipID, shipRef->itemName().c_str(), call.client->GetCharacterID(), fraction, args.isCorp, numWeeks)) {
         //  it sucessfully added, now, have the player pay for the insurance
         if (!call.client->AddBalance(- args.amount)) {
             _log(CLIENT__ERROR, "%s: Failed to remove %.2f ISK from %u for insurance premium.",
@@ -180,29 +182,28 @@ PyResult InsuranceBound::Handle_InsureShip( PyCallArgs& call ) {
 			//   has been deleted.  should there be a check for keeping the old insurance incase
 			//   the payment fails?
         }
-	} else {  */
+	} else {
         call.client->SendErrorMsg("Failed to install new insurance contract.");
         return new PyNone;
-    //}
+    }
 
     // TODO:  send mail detailing insurance coverage and length of coverage
     const char *subject = "New Ship Insurance";
     const char *body = "Dear valued customer,<BR>" \
                     "Congratulations on the insurance on your ship. A very wise choice indeed.<br>" \
-                    "This letter is to confirm that we have issued an insurance contract for your ship, %s at a level of %f%." \
-                    /*This contract will expire at 2006.11.15 14:14:27, after 12 weeks.*/
+                    "This letter is to confirm that we have issued an insurance contract for your ship, %s at a level of %u%.<BR>" \
+                    "This contract will expire at *insert endDate Here*, after %u weeks.<BR><BR>" \
                     "Best,<BR>" \
                     "The Secure Commerce Commission,<BR>" \
-                    "Reference ID: %u";
-    std::string name = static_cast<std::string>(pShip->GetName());
-    call.client->SelfEveMail(subject, body, name.c_str(), fraction, args.shipID);
+                    "Reference ID: %u <BR><BR>" \
+                    "jav";
+
+    call.client->SelfEveMail(subject, body, shipRef->itemName().c_str(), fraction, numWeeks, args.shipID);
 
     return (m_db->GetInsuranceByShipID(args.shipID));
 }
 
 PyResult InsuranceBound::Handle_UnInsureShip( PyCallArgs& call ) {
-    uint32 shipID = call.tuple->GetItem(0)->AsInt()->value();
-    // delete old insurance
-    m_db->DeleteInsuranceByShipID(shipID);
+    m_db->DeleteInsuranceByShipID(call.tuple->GetItem(0)->AsInt()->value());
     return new PyNone;
 }

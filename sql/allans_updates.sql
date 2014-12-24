@@ -3,10 +3,14 @@
 
 CREATE TABLE IF NOT EXISTS `shipInsurance` (
   `shipID` int(11) NOT NULL,
-  `isCorpItem` tinyint(1) NOT NULL,
+  `shipName` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `ownerID` int(11) NOT NULL,
   `startDate` bigint(20) NOT NULL,
   `endDate` bigint(20) NOT NULL,
-  `fraction` decimal(8,2) NOT NULL
+  `fraction` float(4,3) NOT NULL,
+  `isCorpItem` tinyint(1) NOT NULL,
+  PRIMARY KEY (`shipID`),
+  UNIQUE KEY `shipID` (`shipID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 /* Table structure for table `chrPausedSkillQueue` */
