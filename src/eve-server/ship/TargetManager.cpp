@@ -467,12 +467,12 @@ float TargetManager::TimeToLock(ShipRef ship, SystemEntity *target) const {
 
 	if( target->Item().get() != NULL ) {
 		if( target->Item()->HasAttribute(AttrSignatureRadius) )
-			sigRad = target->Item()->GetAttribute(AttrSignatureRadius);
+			sigRad = target->Item()->GetAttribute(AttrSignatureRadius).get_int();
     }
 
     //https://wiki.eveonline.com/en/wiki/Targeting_speed
     //locktime = 40000/(scanres * asinh(sigrad)^2)
-    float time = ( 40000 /(scanRes * pow((-1.1752 * sigRad, 2))));
+    float time = ( 40000 /(scanRes * pow((-1.1752 * sigRad), 2)));
 
 	return (time * 100);
 }

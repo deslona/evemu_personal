@@ -75,6 +75,7 @@ public:
     static bool GetWrecksToTypes(DBQueryResult &res);
     static void GetLootGroups(DBQueryResult &res);
     static void GetLootGroupTypes(DBQueryResult &res);
+    static void GetSalvageGroups(DBQueryResult &res);
 	static uint32 GetObjectLocationID( uint32 itemID );
 
     PyObject *ListFactions();

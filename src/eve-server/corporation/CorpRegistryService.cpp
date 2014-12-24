@@ -251,7 +251,7 @@ PyResult CorpRegistryBound::Handle_AddCorporation(PyCallArgs &call) {
     reason += args.corpName;
     if(!m_db.GiveCash(
         call.client->GetCharacterID(),
-        RefType_corpRegFee,
+        RefType_CorporationRegistrationFee,
         call.client->GetCharacterID(),  //eve system
         1,
         "1",
@@ -961,7 +961,7 @@ PyResult CorpRegistryBound::Handle_UpdateLogo(PyCallArgs &call) {
     //record the transaction in the journal.
     if(!m_db.GiveCash(
         notif.key,
-        RefType_corpLogoChange,
+        RefType_CorporationLogoChangeCost,
         notif.key,
         1,      // who should this one be? hq's station's owner?
         "1",

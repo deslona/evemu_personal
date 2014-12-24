@@ -1136,11 +1136,11 @@ void NPC::_AwardBounty(SystemEntity *who) {
 
     killer->AddBalance(bounty);
 
-    std::string reason = "Bounty";    //TODO: improve this.
+    std::string reason = "Bounty for killing pirates in space";    //TODO: get system name and put here.
 
     if(!m_services.serviceDB().GiveCash(
             killer->GetID(),
-            RefType_playerDonation,    //TODO: find the proper type
+            RefType_Bounty,
             m_self->itemID(),    //probably actually a special concord item ID or something.
             killer->GetID(),
             "",    //unknown const char *argID1,
@@ -1608,19 +1608,19 @@ void StationEntity::Killed(Damage &fatal_blow)
 
 void Client::_DropLoot(uint32 groupID, uint32 owner, uint32 locationID) {
     /*   allan 27Nov14    */
-    std::vector<DBLootGroupType> lootList;
+    std::vector<LootList> lootList;
     sDGM_Loot_Groups_Table.GetLoot(groupID, lootList);
 
     if (!lootList.empty()) {
         uint16 quantity = 0;
-        std::vector<DBLootGroupType>::iterator cur = lootList.begin();
+        std::vector<LootList>::iterator cur = lootList.begin();
         while (cur != lootList.end()) {
-            if (cur->minQuantity == cur->maxQuantity)
-                quantity = cur->minQuantity;
+            if (cur->minDrop == cur->maxDrop)
+                quantity = cur->minDrop;
             else
-                quantity = gen_random_float(cur->minQuantity, cur->maxQuantity);
+                quantity = gen_random_float(cur->minDrop, cur->maxDrop);
             if (quantity < 1) quantity = 1;
-            ItemData iLoot(cur->typeID, owner, locationID, flagAutoFit, quantity);
+            ItemData iLoot(cur->itemID, owner, locationID, flagAutoFit, quantity);
             m_system->itemFactory().SpawnItem(iLoot);
             ++cur;
         }
@@ -1629,19 +1629,19 @@ void Client::_DropLoot(uint32 groupID, uint32 owner, uint32 locationID) {
 
 void NPC::_DropLoot(uint32 groupID, uint32 owner, uint32 locationID) {
     /*   allan 27Nov14    */
-    std::vector<DBLootGroupType> lootList;
+    std::vector<LootList> lootList;
     sDGM_Loot_Groups_Table.GetLoot(groupID, lootList);
 
     if (!lootList.empty()) {
         uint16 quantity = 0;
-        std::vector<DBLootGroupType>::iterator cur = lootList.begin();
+        std::vector<LootList>::iterator cur = lootList.begin();
         while (cur != lootList.end()) {
-            if (cur->minQuantity == cur->maxQuantity)
-                quantity = cur->minQuantity;
+            if (cur->minDrop == cur->maxDrop)
+                quantity = cur->minDrop;
             else
-                quantity = gen_random_float(cur->minQuantity, cur->maxQuantity);
+                quantity = gen_random_float(cur->minDrop, cur->maxDrop);
             if (quantity < 1) quantity = 1;
-            ItemData iLoot(cur->typeID, owner, locationID, flagAutoFit, quantity);
+            ItemData iLoot(cur->itemID, owner, locationID, flagAutoFit, quantity);
             m_system->itemFactory().SpawnItem(iLoot);
             ++cur;
         }
@@ -1650,19 +1650,19 @@ void NPC::_DropLoot(uint32 groupID, uint32 owner, uint32 locationID) {
 
 void ShipEntity::_DropLoot(uint32 groupID, uint32 owner, uint32 locationID) {
     /*   allan 27Nov14    */
-    std::vector<DBLootGroupType> lootList;
+    std::vector<LootList> lootList;
     sDGM_Loot_Groups_Table.GetLoot(groupID, lootList);
 
     if (!lootList.empty()) {
         uint16 quantity = 0;
-        std::vector<DBLootGroupType>::iterator cur = lootList.begin();
+        std::vector<LootList>::iterator cur = lootList.begin();
         while (cur != lootList.end()) {
-            if (cur->minQuantity == cur->maxQuantity)
-                quantity = cur->minQuantity;
+            if (cur->minDrop == cur->maxDrop)
+                quantity = cur->minDrop;
             else
-                quantity = gen_random_float(cur->minQuantity, cur->maxQuantity);
+                quantity = gen_random_float(cur->minDrop, cur->maxDrop);
             if (quantity < 1) quantity = 1;
-            ItemData iLoot(cur->typeID, owner, locationID, flagAutoFit, quantity);
+            ItemData iLoot(cur->itemID, owner, locationID, flagAutoFit, quantity);
             m_system->itemFactory().SpawnItem(iLoot);
             ++cur;
         }

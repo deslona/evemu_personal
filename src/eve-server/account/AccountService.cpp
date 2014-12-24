@@ -208,10 +208,10 @@ PyResult AccountService::Handle_GiveCash(PyCallArgs &call) {
 
 
     if (targetIsChar) {
-        return GiveCashToChar(call.client, other, args.amount, args.reason.c_str(), RefType_playerDonation);
+        return GiveCashToChar(call.client, other, args.amount, args.reason.c_str(), RefType_PlayerDonation);
     } else {
         // here comes the corp's stuff
-        return GiveCashToCorp(call.client, args.destination, args.amount, args.reason.c_str(), RefType_playerDonation);
+        return GiveCashToCorp(call.client, args.destination, args.amount, args.reason.c_str(), RefType_PlayerDonation);
     }
 }
 
@@ -439,7 +439,7 @@ PyResult AccountService::Handle_GiveCashFromCorpAccount(PyCallArgs &call) {
     }
 
 
-    return WithdrawCashToChar(call.client, other, args.amount, args.reason.c_str(), RefType_corpAccountWithdrawal);
+    return WithdrawCashToChar(call.client, other, args.amount, args.reason.c_str(), RefType_CorporationAccountWithdrawal);
 }
 
 PyTuple * AccountService::WithdrawCashToChar(Client * const client, Client * const other, double amount, const char *reason, JournalRefType refTypeID) {

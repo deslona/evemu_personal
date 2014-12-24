@@ -700,7 +700,7 @@ namespace EVEDB {
             Mission_Faction_Cruiser = 1006,
             Mission_Faction_Frigate = 1007,
             Compact_Citadel_Torpedo = 1010,
-            ,  mInfrastructure_Hubs = 1012,
+            Infrastructure_Hubs = 1012,
             Supercarrier_Blueprints = 1013,
             Strategic_Upgrades = 1016,
             Citadel_Cruise = 1019,

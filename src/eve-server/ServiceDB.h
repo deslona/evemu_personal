@@ -33,6 +33,8 @@
  *
  */
 
+class PyPackedRow;
+class PyObject;
 class ItemFactory;
 
 class EntityList;
@@ -60,9 +62,8 @@ public:
     bool UpdateAccountHash( const char* username, std::string & hash );
     bool UpdateAccountInformation( const char* username, bool isOnline );
 
-
-    //entity/item stuff:
-    PyObject *GetSolRow(uint32 systemID) const;
+    //destiny setstate stuff:
+    PyPackedRow *GetSolItem(uint32 systemID) const;
     PyObject *GetSolDroneState(uint32 systemID) const;
 
     bool GetSystemInfo(uint32 systemID, uint32 *constellationID, uint32 *regionID, std::string *name, std::string *securityClass);    // mapSolarSystems
@@ -78,16 +79,13 @@ public:
     double GetCorpBalance(uint32 corpID);
     bool AddBalanceToCorp(uint32 corpID, double amount);
 
-    //johnsus - serverOnline mod
-    void SetServerOnlineStatus(bool onoff_status);
-    //johnsus - characterOnline mod
-    void SetCharacterOnlineStatus(uint32 char_id, bool onoff_status);
-
-    void SetAccountOnlineStatus(uint32 accountID, bool onoff_status);
-    void SetAccountBanStatus(uint32 accountID, bool onoff_status);
+    void SetServerOnlineStatus(bool online);
+    void SetCharacterOnlineStatus(uint32 char_id, bool online);
+    void SetAccountOnlineStatus(uint32 accountID, bool online);
+    void SetAccountBanStatus(uint32 accountID, bool banned);
 
     uint32 GetServerUpTime();
-    void SaveServerStats(double, float, float, float, float, uint32, uint32, uint32);
+    void SaveServerStats(double threads, float rss, float vm, float user, float kernel, uint32 items, uint32 systems, uint32 bubbles);
 
 protected:
     void ProcessStringChange(const char * key, const std::string & oldValue, const std::string & newValue, PyDict * notif, std::vector<std::string> & dbQ);

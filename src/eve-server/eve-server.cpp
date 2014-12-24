@@ -369,7 +369,7 @@ int main( int argc, char* argv[] )
     sDGM_Loot_Groups_Table.Initialize();
     sLog.Log("       ServerInit", "Salvage_Table");
     sLog.Log("    Salvage_Table","Not Avalible");
-    //sDGM_Wrecks_to_Salvage_Table.Initialize();
+    sDGM_Salvage_Table.Initialize();
 
     //sLog.Warning("server init", "Adding NPC Market Orders.");
     //NPCMarket::CreateNPCMarketFromFile("/etc/npcMarket.xml");

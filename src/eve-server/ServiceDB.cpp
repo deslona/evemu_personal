@@ -132,9 +132,10 @@ uint32 ServiceDB::CreateNewAccount( const char* login, const char* pass, uint64 
     return accountID;
 }
 
-PyObject *ServiceDB::GetSolRow(uint32 systemID) const
-{
+PyPackedRow *ServiceDB::GetSolItem(uint32 systemID) const {
+    //  corrected query and return   -allan 3Dec14
     DBQueryResult res;
+    DBResultRow row;
 
     if(!sDatabase.RunQuery(res,
         "SELECT "
@@ -143,8 +144,6 @@ PyObject *ServiceDB::GetSolRow(uint32 systemID) const
         " e.ownerID,"
         " e.locationID,"
         " e.flag,"
-        " e.contraband,"
-        " e.singleton,"
         " e.quantity,"
         " g.groupID,"
         " g.categoryID,"
@@ -155,35 +154,31 @@ PyObject *ServiceDB::GetSolRow(uint32 systemID) const
         " WHERE e.itemID=%u",
         systemID ))
     {
-        _log(SERVICE__ERROR, "Error in GetSolRow query: %s", res.error.c_str());
+        _log(SERVICE__ERROR, "Error in ServiceDB::GetSolItem query: %s", res.error.c_str());
         return(0);
     }
 
-    DBResultRow row;
-    if(!res.GetRow(row))
-    {
-        _log(SERVICE__ERROR, "Error in GetSolRow query: unable to find sol info for system %d", systemID);
+    if(!res.GetRow(row)) {
+        _log(SERVICE__ERROR, "Error in ServiceDB::GetSolItem query: unable to find sol info for system %d", systemID);
         return(0);
     }
 
-    return(DBRowToRow(row, "util.Row"));
+    return (DBRowToPackedRow(row));
 }
 
 //this function is temporary, I dont plan to keep this crap in the DB.
-PyObject *ServiceDB::GetSolDroneState(uint32 systemID) const
-{
+//   will make mem object for droneState later...   test with this.
+PyObject *ServiceDB::GetSolDroneState(uint32 systemID) const {
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
         //not sure if this is gunna be valid all the time...
         "SELECT "
         "    droneID, solarSystemID, ownerID, controllerID,"
-        "    activityState, typeID, controllerOwnerID"
+        "    activityState, typeID, controllerOwnerID, targetID"
         " FROM droneState "
         " WHERE solarSystemID=%u",
-        systemID
-    ))
-    {
+        systemID)) {
         _log(SERVICE__ERROR, "Error in GetSolDroneState query: %s", res.error.c_str());
         return NULL;
     }
@@ -466,8 +461,7 @@ void ServiceDB::ProcessIntChange(const char * key, uint32 oldValue, uint32 newVa
     }
 }
 
-void ServiceDB::SetCharacterOnlineStatus(uint32 char_id, bool online)
-{
+void ServiceDB::SetCharacterOnlineStatus(uint32 char_id, bool online) {
     DBerror err;
     sDatabase.RunQuery(err, "UPDATE character_ SET online = %d WHERE characterID = %u", online, char_id);
 
@@ -475,8 +469,7 @@ void ServiceDB::SetCharacterOnlineStatus(uint32 char_id, bool online)
         sDatabase.RunQuery(err, "UPDATE srvStatus SET Connections = Connections + 1");
 }
 
-void ServiceDB::SetServerOnlineStatus(bool online)
-{
+void ServiceDB::SetServerOnlineStatus(bool online) {
     DBerror err;
     sDatabase.RunQuery(err,
         "UPDATE srvStatus SET Online = %u, Connections = %u, startTime = %s WHERE AI = %u",

@@ -855,7 +855,7 @@ void SystemManager::MakeSetState(const SystemBubble *bubble, DoDestiny_SetState 
     }
 
     //ss.solItem
-    ss.solItem = m_db.GetSolRow( m_systemID );
+    ss.solItem = m_db.GetSolItem( m_systemID );
     if( NULL == ss.solItem )
     {
         _log( CLIENT__ERROR, "Unable to query solarsystem entity for destiny update in system %u!", m_systemID );

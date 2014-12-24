@@ -152,6 +152,13 @@ void SystemDB::GetLootGroupTypes(DBQueryResult &res) {
     }
 }
 
+void SystemDB::GetSalvageGroups(DBQueryResult &res) {
+    if(!sDatabase.RunQuery(res, "SELECT wreckTypeID, salvageItemID, groupID, dropChance, minDrop, maxDrop FROM invWrecksToSalvage")) {
+        sLog.Error("SystemDB::GetSalvageGroups()", "Error in query: %s", res.error.c_str());
+        return;
+    }
+}
+
 PyObject *SystemDB::ListFactions() {
     DBQueryResult res;
 

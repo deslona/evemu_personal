@@ -1110,6 +1110,10 @@ void Client::StargateJump(uint32 fromGate, uint32 toGate) {
     m_movePoint = position;
     m_movePoint.MakeRandomPointOnSphere( 10000 );   // Make Jump-In point a random spot on a 10km radius sphere about the stargate
 
+    char ci[256];
+    snprintf(ci, sizeof(ci), "Jumping:%u", toGate);
+    GetShip()->SetCustomInfo(ci);
+
     // add jump to mapDynamicData for showing in StarMap (F10)    -allan 06Mar14
     // this is the code for removing pilot from previous system
     uint32 fromSystem;
@@ -1129,13 +1133,10 @@ void Client::StargateJump(uint32 fromGate, uint32 toGate) {
     // used for showing Visited Systems in StarMap(F10)  -allan 30Jan14
     GetChar()->VisitSystem(solarSystemID);
 
-	//  show gate animation in both to and from gate.
-	//SendGateActivity is not right....dont work as intended
-    m_destiny->SendGateActivity(fromGate);
-    m_destiny->SendGateActivity(toGate);
-    //m_destiny->SendJumpOut(fromGate);
-    //m_destiny->SendJumpOut(toGate);
-
+    //  show gate animation in both to and from gate.
+    m_destiny->SendJumpOut(fromGate);
+    m_destiny->SendJumpOut(toGate);
+    
     //delay the move so they can see the JumpOut animation
     _postMove(msJump, 3000);
 }
