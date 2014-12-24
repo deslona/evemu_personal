@@ -74,10 +74,10 @@ PyDict *SimpleSystemEntity::MakeSlimItem() const {
 }
 
 void SimpleSystemEntity::MakeDamageState(DoDestinyDamageState &into) const {
-    into.shield = 0.75;        //just for testing so we know we are doing something.
-    into.tau = 100000;    //no idea
-    into.armor = 0.95;        //just for testing so we know we are doing something.
-    into.structure = 1.00;
+    into.shield = 1;
+    into.recharge = 1000;
+    into.armor = 1;
+    into.structure = 1;
     into.timestamp = Win32TimeNow();
 }
 

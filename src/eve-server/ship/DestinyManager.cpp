@@ -46,7 +46,7 @@ static const uint32 minWarpDistance = 150000;   //straight from client. Do not c
 
 static const double EULERS_NUMBER = 2.71828182845904;  //  set to the 15-digit limit of a double
 
-uint32 DestinyManager::m_stamp(40000);    //completely arbitrary starting point.
+uint32 DestinyManager::m_stamp(1000);    //completely arbitrary starting point.
 Timer DestinyManager::m_stampTimer(static_cast<int32>(TIC_DURATION_IN_SECONDS * 1000), true);    //accurate timing is essential...too bad it's not accurate.
 
 DestinyManager::DestinyManager(SystemEntity *self, SystemManager *system)

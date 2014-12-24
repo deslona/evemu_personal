@@ -76,7 +76,7 @@ void AsteroidEntity::EncodeDestiny( Buffer& into ) const
 
 void AsteroidEntity::MakeDamageState(DoDestinyDamageState &into) const {
     into.shield = 1.0;
-    into.tau = 100000;    //no freakin clue.
+    into.recharge = 10000;
     into.timestamp = Win32TimeNow();
     into.armor = 1.0;
     into.structure = 1.0;

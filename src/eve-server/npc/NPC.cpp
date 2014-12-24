@@ -267,7 +267,7 @@ void NPC::EncodeDestiny( Buffer& into ) const
 void NPC::MakeDamageState(DoDestinyDamageState &into) const {
     //into.shield = m_shieldCharge / m_self->shieldCapacity();
     into.shield = m_shieldCharge / m_self->GetAttribute(AttrShieldCapacity).get_float();
-    into.tau = 100000;    //no freakin clue.
+    into.recharge = m_self->GetAttribute(AttrShieldRechargeRate).get_float();
     into.timestamp = Win32TimeNow();
     //into.armor = 1.0 - (m_armorDamage / m_self->armorHP());
     //into.structure = 1.0 - (m_hullDamage / m_self->hp());

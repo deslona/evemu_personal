@@ -340,7 +340,7 @@ void StructureEntity::EncodeDestiny( Buffer& into ) const
 void StructureEntity::MakeDamageState(DoDestinyDamageState &into) const
 {
     into.shield = (m_self->GetAttribute(AttrShieldCharge).get_float() / m_self->GetAttribute(AttrShieldCapacity).get_float());
-    into.tau = 100000;    //no freaking clue.
+    into.recharge = m_self->GetAttribute(AttrShieldRechargeRate).get_float();
     into.timestamp = Win32TimeNow();
 //    armor damage isn't working...
     into.armor = 1.0 - (m_self->GetAttribute(AttrArmorDamage).get_float() / m_self->GetAttribute(AttrArmorHP).get_float());

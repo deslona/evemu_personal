@@ -143,26 +143,11 @@ DST_WARPEXIT = 11
             <dictInlineEntry key="allianceID">
               <int name="allianceID" default="0" />
             </dictInlineEntry>
-            <dictInlineEntry key="color">
-                <int name="color" />
-            </dictInlineEntry>
             <dictInlineEntry key="corpID">
               <int name="corpID" />
             </dictInlineEntry>
             <dictInlineEntry key="modules">
               <listInt name="modules" />
-          <!--
-          <listInline>
-                <tupleInline>
-                    <int name="integer10" />
-                  <int name="integer11" />
-                </tupleInline>
-                <tupleInline>
-                    <int name="integer12" />
-                    <int name="integer13" />
-                </tupleInline>
-              </listInline>
-          -->
             </dictInlineEntry>
             <dictInlineEntry key="warFactionID">
               <real name="warFactionID" />
@@ -277,7 +262,7 @@ DST_WARPEXIT = 11
     <listInline>
       <tupleInline>
           <real name="shield" />
-          <real name="tau" />
+          <real name="recharge" />
           <long name="timestamp" />
         </tupleInline>
         <real name="armor" />
@@ -290,8 +275,8 @@ DST_WARPEXIT = 11
       <tupleInline>
         <!-- this is a ratio from 0-1 -->
         <real name="shield" />
-        <!-- no idea what this is for, I have seen 100000 and 600000 -->
-        <real name="tau" />
+        <!-- shield recharge rate in ms -->
+        <real name="recharge" />
         <long name="timestamp" />
       </tupleInline>
       <!-- this is a ratio from 0-1 -->
