@@ -127,6 +127,7 @@ PyRep *ConfigDB::GetMultiAllianceShortNamesEx(const std::vector<int32> &entityID
 PyRep *ConfigDB::GetMultiLocationsEx(const std::vector<int32> &entityIDs) {     // now working correctly  -allan  5May
     bool use_map = false;
     use_map = IsStaticMapItem(entityIDs[0]);
+    // put check in here for player outpost ( which will use itemID's starting @ 61m)
 
     std::string ids;
     ListToINString(entityIDs, ids, "-1");
@@ -184,6 +185,7 @@ PyRep *ConfigDB::GetMultiCorpTickerNamesEx(const std::vector<int32> &entityIDs) 
     }
 
     return(DBResultToRowList(res));
+    //return (DBResultToPackedRowList(res));
 }
 
 
@@ -225,7 +227,7 @@ PyObject *ConfigDB::GetUnits() {
 
 PyObjectEx *ConfigDB::GetMapObjects(uint32 entityID, bool wantRegions,
     bool wantConstellations, bool wantSystems, bool wantStations)
-{
+{       //  corrected query  -allan 8Dec14
     const char *key = "solarSystemID";
     if(wantRegions) {
         entityID = 3;   /* a little hackish... */
@@ -242,17 +244,16 @@ PyObjectEx *ConfigDB::GetMapObjects(uint32 entityID, bool wantRegions,
 
     if(!sDatabase.RunQuery(res,
         "SELECT "
-        "   groupID, typeID, itemID, itemName, solarSystemID AS locationID, IFNULL(orbitID, 0) AS orbitID,"
+        "   groupID, typeID, itemID, itemName,"
+        "   solarSystemID AS locationID, IFNULL(orbitID, 0) AS orbitID, " // 0 AS connector
         "   x, y, z"
         " FROM mapDenormalize"
-        " WHERE %s=%u", key, entityID
-    )) {
+        " WHERE %s=%u", key, entityID )) {
         codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
 
     return DBResultToCRowset(res);
-//    return DBResultToRowset(res);
 }
 
 PyObject *ConfigDB::GetMap(uint32 solarSystemID) {
@@ -341,129 +342,89 @@ PyRep *ConfigDB::GetStationSolarSystemsByOwner(uint32 ownerID) {
 }
 
 PyRep *ConfigDB::GetCelestialStatistic(uint32 celestialID) {
+    //  corrected db query  -allan 8Dec14
     DBQueryResult res;
-    DBResultRow row;
-
     if (!sDatabase.RunQuery(res,
         "SELECT"
-        "   groupID"
-        " FROM eveNames"
-        " WHERE itemID = %u", celestialID))
-    {
-        codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
-        return new PyInt(0);
-    }
-
-    if (!res.GetRow(row)) {
-        codelog(DATABASE__ERROR, "Unable to find celestial object %u", celestialID);
-        return new PyInt(0);
-    }
-    uint32 groupID = row.GetUInt(0);
-
-    std::string query = "";
-
-    switch (groupID) {
-    case EVEDB::invGroups::Sun:
-            query = "SELECT"
-                    "   temperature,"
-                    "   spectralClass,"
-                    "   luminosity,"
-                    "   age,"
-                    "   radius"
-                    " FROM mapCelestialStatistics"
-                    " WHERE celestialID = %u";
-            break;
-    case EVEDB::invGroups::Planet:
-            query = "SELECT"
-                    "   temperature,"
-                    "   orbitRadius,"
-                    "   eccentricity,"
-                    "   massDust,"
-                    "   density,"
-                    "   surfaceGravity,"
-                    "   escapeVelocity,"
-                    "   orbitPeriod,"
-                    "   pressure,"
-                    "   radius"
-                    " FROM mapCelestialStatistics"
-                    " WHERE celestialID = %u";
-            break;
-    case EVEDB::invGroups::Moon:
-            query = "SELECT"
-                    "   temperature,"
-                    "   orbitRadius,"
-                    "   massDust,"
-                    "   density,"
-                    "   surfaceGravity,"
-                    "   escapeVelocity,"
-                    "   orbitPeriod,"
-                    "   pressure,"
-                    "   radius"
-                    " FROM mapCelestialStatistics"
-                    " WHERE celestialID = %u";
-            break;
-    case EVEDB::invGroups::Asteroid_Belt:
-            query = "SELECT"
-                    "   orbitRadius,"
-                    "   eccentricity,"
-                    "   massDust,"
-                    "   density,"
-                    "   orbitPeriod"
-                    " FROM mapCelestialStatistics"
-                    " WHERE celestialID = %u";
-            break;
-
-    default:
-            codelog(DATABASE__ERROR, "Invalid object groupID (%u) for %u", groupID, celestialID);
+        "   celestialID,"
+        "   temperature,"
+        "   spectralClass,"
+        "   luminosity,"
+        "   age,"
+        "   life,"
+        "   orbitRadius,"
+        "   eccentricity,"
+        "   massDust,"
+        "   massGas,"
+        "   fragmented,"
+        "   density,"
+        "   surfaceGravity,"
+        "   escapeVelocity,"
+        "   orbitPeriod,"
+        "   rotationRate,"
+        "   locked,"
+        "   pressure,"
+        "   radius,"
+        "   mass"
+        " FROM mapCelestialStatistics"
+        " WHERE celestialID = %u", celestialID))
+        {
+            codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
             return new PyInt(0);
-    }
-
-    if (!sDatabase.RunQuery(res, query.c_str(), celestialID))
-    {
-        codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
-        return new PyInt(0);
-    }
+        }
 
     return DBResultToCRowset(res);
 }
 
 PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID) {
-  /**  this return broke the rclick in space menu.  disable for now  9July14*/
-  // updated to show only POS.  -allan 9Jul14
-  //  need to remove all items except stations
+    //  corrected query and return type per packet info
+    //      this returns ONLY POS'.  -allan 8Dec14
+    /* this packet is from a crowded (73 items) system, yet is only return from this call.
+              [PyObjectEx Type2]
+                [PyTuple 2 items]
+                  [PyTuple 1 items]
+                    [PyToken dbutil.CRowset]
+                  [PyDict 1 kvp]
+                    [PyString "header"]
+                [PyPackedRow 50 bytes]
+                  ["groupID" => <15> [I2]]
+                  ["typeID" => <21645> [I4]]
+                  ["itemID" => <61000562> [I4]]
+                  ["itemName" => <5E-EZC VI - X333 GEORGIOU'S PLACE> [WStr]]
+                  ["locationID" => <30004168> [I4]]
+                  ["orbitID" => <40264214> [I4]]
+                  ["connector" => <0> [I4]]
+                  ["x" => <-435188244480> [R8]]
+                  ["y" => <27742740480> [R8]]
+                  ["z" => <430524948480> [R8]]
+                  ["celestialIndex" => <6> [UI1]]
+                  ["orbitIndex" => <0> [UI1]]
+                  */
 
     DBQueryResult result;
-/**
-  /*<DBRow object [7, 2016, 40176433, u'Halaima II', 30002781, 40176430, False, 68268179028.0, 8474470920.0, 20992190960.0]>,
-        "SELECT "
-        "   groupID, typeID, itemID, itemName, solarSystemID AS locationID, IFNULL(orbitID, 0) AS orbitID,"
-        **THEN SOMETHING ELSE (BOOLEAN)**
-        "   x, y, z"
-        " FROM entity"  // this is to push ONLY player owned stations (from what i can tell in client code)
-        */
+
     if (!sDatabase.RunQuery(result,
         "SELECT"
-        "   g.groupID,"
-        "   t.typeID,"
-        "   e.itemID,"
-        "   e.itemName,"
-        "   e.locationID,"
-        "   0 AS orbitID,"   // field doesnt exist on those tables....not sure if this is needed or not.  hack for now.
-        "   False,"     //i still dont know what this is.....
-        "   e.x, e.y, e.z"
-        //"   CAST(e.z AS UNSIGNED INTEGER) AS z"
-        " FROM entity AS e"
-        "  LEFT JOIN invTypes AS t ON t.typeID = e.typeID"
-        "  LEFT JOIN invGroups AS g ON g.groupID = t.groupID"
-        " WHERE e.locationID = %u"
-        " AND g.categoryID = %d"
-        " AND e.itemID > 140000000",
-        solarSystemID, EVEDB::invCategories::Station )) {
+        "   groupID,"
+        "   typeID,"
+        "   itemID,"
+        "   itemName,"
+        "   solarSystemID AS locationID,"
+        "   IFNULL(orbitID, 0) AS orbitID,"
+        "   0 AS connector,"     //this is connector field....have only seen 0 in server packets.
+        "   x, y, z,"
+        "   celestialIndex,"    //  this index denotes which planet this item orbits (PLANET #....NOT moon #)
+        "   orbitIndex"         //  this index denotes which asteroid belt this item belongs to
+        " FROM mapDenormalize"
+        " WHERE solarSystemID = %u"
+        " AND groupID = %d"
+        " AND itemID > 61000000",   //this is min itemid for outposts  (not sure if pos go here)
+        solarSystemID, EVEDB::invGroups::Station )) {
             codelog(DATABASE__ERROR, "GetDynamicCelestials Error in query: %s", result.error.c_str());
             return new PyInt(0);
     }
 
-    return DBResultToRowset(result);
+    return DBResultToCRowset(result);
 }
 
 PyRep *ConfigDB::GetTextsForGroup(const std::string & langID, uint32 textgroup) {
@@ -483,16 +444,15 @@ PyObject *ConfigDB::GetMapOffices(uint32 solarSystemID) {
     if(!sDatabase.RunQuery(res,
         "SELECT "
         "  corporationID,"
-        "  description,"
-        "  iconID"
-        " FROM crpNPCCorporations"
+        "  stationID"
+        " FROM corporations"
         " WHERE solarSystemID=%u", solarSystemID
     ))
     {
         codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
         return NULL;
     }
-//  AttributeError: stationID     need to find this in db.....????
+
     return DBResultToRowset(res);
 }
 
@@ -526,7 +486,7 @@ PyObject *ConfigDB::GetMapLandmarks() {    // working 29June14
           "   landmarkName,"
           "   0 AS landmarkNameID,"
           "   x, y, z,"
-          "   radius,"
+          "   radius"
           " FROM mapLandmarks" ))
       {
           codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());

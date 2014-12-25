@@ -85,9 +85,15 @@ PyBoundObject *PlanetMgrService::_CreateBoundObject(Client *c, const PyRep *bind
     return new PlanetMgrBound(m_manager);
 }
 
+//02:49:10 PlanetMgrBound: Handle_GetPlanetInfo() size=0
 PyResult PlanetMgrBound::Handle_GetPlanetInfo(PyCallArgs &call) {
-    sLog.Log("PlanetMgrBound", "Handle_GetPlanetInfo() size=%u", call.tuple->size() );
-    call.Dump(SERVICE__CALLS);
+    /*
+    /common/lib/bluepy.py(396) Wrapper
+    /client/script/environment/planet/clientplanet.py(109) PreparePlanet
+    self = <planet.ClientPlanet instance at 0x4AEC3918>
+    planetInfo = None
+    AttributeError: 'NoneType' object has no attribute 'solarSystemID'
+    */
 
     return NULL;
 }
@@ -105,8 +111,6 @@ PyResult PlanetMgrService::Handle_GetPlanetsForChar(PyCallArgs &call) {
             self.colonizationData = sm.RemoteSvc('planetMgr').GetPlanetsForChar()
             returns  PlanetID, numberOfPins
             */
-    sLog.Log("PlanetMgrBound", "Handle_GetPlanetsForChar() size=%u", call.tuple->size() );
-    call.Dump(SERVICE__CALLS);
 
     return NULL;
 }
@@ -118,3 +122,31 @@ PyResult PlanetMgrService::Handle_GetMyLaunchesDetails(PyCallArgs &call) {
 
     return NULL;
 }
+
+
+/*
+ * /common/lib/bluepy.py(86) CallWrapper
+ * /client/script/ui/shared/planet/planetnavigation.py(301) OnMouseMove
+ *        self = uicls.PlanetLayer object at 0xdca8330, name=l_planet, destroyed=False>
+ *        args = ()
+ * AttributeError: 'NoneType' object has no attribute 'ManualRotate'
+ *
+ * /client/script/ui/shared/planet/planetnavigation.py(394) OnMouseUp
+ *        self = uicls.PlanetLayer object at 0xdca8330, name=l_planet, destroyed=False>
+ *        btnNum = 0
+ * AttributeError: 'PlanetLayer' object has no attribute 'eventManager'
+ *
+ * /../carbon/client/script/ui/services/registry.py(277) SetFocus
+ * /client/script/ui/shared/planet/planetnavigation.py(292) OnKillFocus
+ *        self = uicls.PlanetLayer object at 0xdca8330, name=l_planet, destroyed=False>
+ *        args = ()
+ * AttributeError: 'PlanetLayer' object has no attribute 'eventManager'
+ *
+ * /client/script/ui/shared/planet/planetuisvc.py(1162) LogPlanetAccess
+ *        planetAccessed = 1
+ *        myPlanets = None
+ *        self = <svc.PlanetUISvc instance at 0x30838800>
+ *        colonized = 0
+ * TypeError: 'NoneType' object is not iterable
+ *
+ */

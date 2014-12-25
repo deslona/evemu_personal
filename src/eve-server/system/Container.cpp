@@ -64,7 +64,7 @@ CargoContainerRef CargoContainer::Spawn(ItemFactory &factory,
     CargoContainerRef containerRef = CargoContainer::Load( factory, containerID );
 
     // Create default dynamic attributes in the AttributeMap:
-    containerRef->SetAttribute(AttrRadius,          containerRef->type().attributes.radius(), true);			// Radius
+    containerRef->SetAttribute(AttrRadius,          containerRef->type().radius(), true);			// Radius
 
     // Check for existence of some attributes that may or may not have already been loaded and set them
     // to default values:

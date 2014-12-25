@@ -297,10 +297,6 @@ void Blueprint::AlterLicensedProductionRunsRemaining(int32 licensedProductionRun
 }
 
 PyDict *Blueprint::GetBlueprintAttributes() {
-  //  need to find raw materials from *somewhere* and add to this list for that tab to show in bp info ingame.
-  ///   found!!   see Desktop::bp_db_info for where and whatnot
-  ///       now.....how the hell to get it in here and send to client???
-
     Rsp_GetBlueprintAttributes rsp;
 
     // fill in our attribute info
@@ -319,53 +315,6 @@ PyDict *Blueprint::GetBlueprintAttributes() {
     rsp.researchProductivityTime = type().researchProductivityTime();
     rsp.researchCopyTime = type().researchCopyTime();
 
-  /**   sql for bp raw materials
-    DBQueryResult res;
-
-    if(!sDatabase.RunQuery(res,
-                "SELECT materialTypeID, quantity"
-                " FROM invTypeMaterials"
-                " WHERE typeID = %u",
-                productTypeID())) {
-        _log(DATABASE__ERROR, "Could not retrieve bp raw materials for type %u : %s", blueprintTypeID, res.error.c_str());
-        return NULL;
-    }
-    //return DBResultToRowset(res);
-
-    DBResultRow row;
-    while(res.GetRow(row)) {
-        rsp.materialTypeID = row.GetUInt(0);
-        rsp.quantity = row.GetUInt(1);
-
-    }
-    if(!sDatabase.RunQuery(res,
-		"SELECT materialTypeID AS requiredTypeID, quantity"
-		" FROM invTypeMaterials"
-		" WHERE typeID = %u",
-		productTypeID())) {
-		_log(DATABASE__ERROR, "Could not retrieve bp raw materials for type %u : %s", blueprintTypeID, res.error.c_str());
-	return NULL;
-}
-
-/*
- *	PyList *list = new PyList;
- *	Rsp_GetBlueprintMaterialList bpml;
- *
- *    DBResultRow row;
- *    while(res.GetRow(row)) {
- *		bpml.requiredTypeID = row.GetUInt(0); //   rsp.requiredTypeID
- *		bpml.quantity = row.GetUInt(1); //   rsp.quantity
- *
- *		list->AddItem( bpml.Encode() );
-}
-
-rsp.materialList = list.Encode();  //AddItem( DBResultToCRowset( res ) );
-
-
-rsp.materialList->AddItem( DBResultToRowset( res ) );
-return(rsp.Encode());
-
-*/
     return(rsp.Encode());
 }
 

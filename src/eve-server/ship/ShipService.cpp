@@ -291,6 +291,12 @@ PyResult ShipBound::Handle_Undock(PyCallArgs &call) {
         );
 	direction.normalize();
 
+    char ci[256];
+    snprintf(ci, sizeof(ci), "Undocking:%u", call.client->GetLocationID());
+    call.client->GetShip()->SetCustomInfo(ci);
+
+    bool ignoreContraband = args.arg2;
+
     //do session change...
 		call.client->UndockFromStation( stationID, systemID, constellationID, regionID, dockPosition, direction );
 

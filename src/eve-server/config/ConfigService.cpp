@@ -164,120 +164,13 @@ PyResult ConfigService::Handle_GetMapOffices(PyCallArgs &call) {
 }
 
 PyResult ConfigService::Handle_GetMapObjects(PyCallArgs &call) {
-    sLog.Log( "ConfigService", "Handle_GetMapObjects" );
-  call.Dump(SERVICE__CALLS);
-/*
-  args (entityID,
-    wantRegions (given universe),
-    wantConstellations (given region),
-    wantSystems (given constellation),
-    wantStations (given solarsystem),
-    unknown (seen 0) )
-*/
-
-    /* parsing args the long way until I write a dynamic InlineTuple mechanism */
-
-/*  Call_SingleIntegerArg args;
+  Call_GetMapObjects args;
     if(!args.Decode(&call.tuple)) {
         codelog(SERVICE__ERROR, "Failed to decode arguments");
         return NULL;
-    }*/
-
-    PyTuple* t = call.tuple;
-    call.tuple = NULL;
-
-    if( t->size() > 6 || t->size() == 0 )
-    {
-        _log( NET__PACKET_ERROR, "Decode Handle_GetMapObjects failed: tuple0 is the wrong size: expected 1-6, but got %lu", t->size() );
-
-        PyDecRef( t );
-        return NULL;
     }
 
-    uint32 arg = 0;
-    bool wantRegions = false;
-    bool wantConstellations = false;
-    bool wantSystems = false;
-    bool wantStations = false;
-
-    if( t->size() > 5 )
-    {
-        //do nothing with this field, we do not understand it.
-    }
-
-    if( t->size() > 4 )
-    {
-        PyRep* v = t->GetItem( 4 );
-        if( !v->IsInt() )
-        {
-            _log( NET__PACKET_ERROR, "Decode Handle_GetMapObjects failed: arg 4 is not an int: %s", v->TypeString() );
-
-            PyDecRef( t );
-            return NULL;
-        }
-
-        wantStations = ( 0 != v->AsInt()->value() );
-    }
-
-    if( t->size() > 3 )
-    {
-        PyRep* v = t->GetItem( 3 );
-        if( !v->IsInt() )
-        {
-            _log( NET__PACKET_ERROR, "Decode Handle_GetMapObjects failed: arg 3 is not an int: %s", v->TypeString() );
-
-            PyDecRef( t );
-            return NULL;
-        }
-
-        wantSystems = ( 0 != v->AsInt()->value() );
-    }
-
-    if( t->size() > 2 )
-    {
-        PyRep* v = t->GetItem( 2 );
-        if( !v->IsInt() )
-        {
-            _log( NET__PACKET_ERROR, "Decode Handle_GetMapObjects failed: arg 2 is not an int: %s", v->TypeString() );
-
-            PyDecRef( t );
-            return NULL;
-        }
-
-        wantConstellations = ( 0 != v->AsInt()->value() );
-    }
-
-    if( t->size() > 1 )
-    {
-        PyRep* v = t->GetItem( 1 );
-        if( !v->IsInt() )
-        {
-            _log( NET__PACKET_ERROR, "Decode Handle_GetMapObjects failed: arg 1 is not an int: %s", v->TypeString() );
-
-            PyDecRef( t );
-            return NULL;
-        }
-
-        wantRegions = ( 0 != v->AsInt()->value() );
-    }
-
-    if( t->size() > 0 )
-    {
-        PyRep* v = t->GetItem( 0 );
-        if( !v->IsInt() )
-        {
-            _log( NET__PACKET_ERROR, "Decode Handle_GetMapObjects failed: arg 0 is not an int: %s", v->TypeString() );
-
-            PyDecRef( t );
-            return NULL;
-        }
-
-        arg = v->AsInt()->value();
-    }
-
-    PyDecRef( t );
-
-    return m_db.GetMapObjects( arg, wantRegions, wantConstellations, wantSystems, wantStations );
+    return m_db.GetMapObjects( args.systemID, args.reg, args.con, args.sys, args.sta);
 }
 
 PyResult ConfigService::Handle_GetMultiInvTypesEx(PyCallArgs &call) {
@@ -295,39 +188,7 @@ PyResult ConfigService::Handle_GetMultiInvTypesEx(PyCallArgs &call) {
 //02:10:35 L ConfigService::Handle_GetMapConnections(): size= 6
 PyResult ConfigService::Handle_GetMapConnections(PyCallArgs &call) {
 /**
-this is cached on clientside.  only called if not in client cache
-
-00:47:18 [SvcCall]         [ 0] Integer field: 9            * should be solarsystem
-00:47:18 [SvcCall]         [ 1] Boolean field: true
-00:47:18 [SvcCall]         [ 2] Boolean field: false
-00:47:18 [SvcCall]         [ 3] Boolean field: false
-00:47:18 [SvcCall]         [ 4] Integer field: 0
-00:47:18 [SvcCall]         [ 5] Integer field: 1
-
-02:10:35 [SvcCall]         [ 0] Integer field: 10000065     *region
-02:10:35 [SvcCall]         [ 1] Boolean field: false
-02:10:35 [SvcCall]         [ 2] Boolean field: true
-02:10:35 [SvcCall]         [ 3] Boolean field: false
-02:10:35 [SvcCall]         [ 4] Integer field: 0
-02:10:35 [SvcCall]         [ 5] Integer field: 1
-
-18:33:25 [SvcCall]         [ 0] Integer field: 20000367     *constellation
-18:33:25 [SvcCall]         [ 1] Boolean field: false
-18:33:25 [SvcCall]         [ 2] Boolean field: false
-18:33:25 [SvcCall]         [ 3] Boolean field: true
-18:33:25 [SvcCall]         [ 4] Integer field: 0
-18:33:25 [SvcCall]         [ 5] Integer field: 1
-
-GetMapConnections(id, sol, reg, con, cel, _c)  <- from client py code
-      <int name="id" />
-      <bool name="sol" />
-      <bool name="reg" /> args.reg
-      <bool name="con" />
-      <int name="cel" />
-      <int name="_c" />
-
-  sLog.Log( "ConfigService::Handle_GetMapConnections()", "size= %u", call.tuple->size() );
-  call.Dump(SERVICE__CALLS);
+        this is cached on clientside.  only called if not in client cache
 */
     Call_GetMapConnections args;
     if(!args.Decode(&call.tuple)) {
@@ -336,7 +197,7 @@ GetMapConnections(id, sol, reg, con, cel, _c)  <- from client py code
     }
 
     if(args.id == 9 || args.sol) {
-        sLog.Warning( "ConfigService::Handle_GetMapConnections()", "args.id = 9 | args.sol = 1");
+        sLog.Warning( "ConfigService::Handle_GetMapConnections()", "args.id = 9 | args.sol");
         return m_db.GetMapConnections(call.client->GetSystemID(), args.sol, args.reg, args.con, args.cel, args._c);
     } else {
         //sLog.Success( "ConfigService::Handle_GetMapConnections()", "args.id is good number");

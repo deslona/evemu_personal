@@ -1296,7 +1296,7 @@ void CharacterDB::AddBounty(uint32 charID, uint32 ownerID, uint32 amount) {
     //FIXME  check for multiple bounties on char, and set this to total amount
     DBerror err2;
     sDatabase.RunQuery(err2,
-        "UPDATE character_ SET bounty = %u WHERE characterID = %u", amount, charID);
+        "UPDATE character_ SET bounty = bounty + %u WHERE characterID = %u", amount, charID);
 }
 
 void CharacterDB::VisitSystem(uint32 solarSystemID, uint32 charID) {

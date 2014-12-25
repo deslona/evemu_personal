@@ -139,3 +139,76 @@ PyObject *StandingDB::GetStandingTransactions( uint32 characterID ) {
     return res.Encode();
     */
 }
+
+PyRep *StandingDB::GetSystemSovInfo(uint32 systemID) {
+    /**
+     *        sovInfo = sm.RemoteSvc('sovMgr').GetSystemSovereigntyInfo(session.solarsystemid2)
+     *        ssAllianceID = sovInfo.allianceID if sovInfo else None
+     *
+     *        [PyTuple 1 items]
+     *            [PySubStream 116 bytes]
+     *                [PyObjectData Name: util.KeyVal]
+     *                    [PyDict 7 kvp]
+     *                        [PyString "contested"]            <<<< interger bool
+     *                        [PyInt 0]
+     *                        [PyString "corporationID"]
+     *                        [PyInt 98049918]
+     *                        [PyString "claimTime"]
+     *                        [PyIntegerVar 129743663400000000]
+     *                        [PyString "claimStructureID"]     <<<<  Territorial Claim Unit
+     *                        [PyIntegerVar 1005712174146]
+     *                        [PyString "hubID"]                <<<<  unknown
+     *                        [PyIntegerVar 1005900797500]
+     *                        [PyString "allianceID"]
+     *                        [PyInt 99000289]
+     *                        [PyString "solarSystemID"]
+     *                        [PyInt 30000302]
+     */
+
+    DBQueryResult res;
+    DBResultRow row;
+
+    PyDict *args = new PyDict;
+
+    if(!sDatabase.RunQuery(res,
+        "SELECT"
+        "   solarSystemID,"
+        "   corporationID,"
+        "   allianceID,"
+        "   claimStructureID,"
+        "   claimTime,"
+        "   hubID,"
+        "   contested"
+        " FROM mapSystemSovInfo"
+        "  WHERE solarSystemID = %u", systemID )) {
+        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        return NULL;
+    }
+
+    if (!res.GetRow(row)) {
+        sLog.Error("StandingDB::GetSystemSovInfo()", "No Data for systemID %u.  Hacking PyDict.", systemID);
+        res.Reset();
+        sDatabase.RunQuery(res, "SELECT factionID FROM mapSolarSystems WHERE solarSystemID = %u", systemID );
+        uint32 factionID = 0;
+        if (res.GetRow(row))
+            factionID = row.GetUInt(0);
+        args->SetItemString( "contested", new PyInt(0));
+        args->SetItemString( "corporationID", new PyInt(0));
+        args->SetItemString( "claimTime", new PyLong(0));
+        args->SetItemString( "claimStructureID", new PyInt(0));
+        args->SetItemString( "hubID", new PyInt(0));
+        args->SetItemString( "allianceID", new PyInt(factionID));
+        args->SetItemString( "solarSystemID", new PyInt(systemID));
+    } else {
+        args->SetItemString( "contested", new PyInt(row.GetUInt(6)));
+        args->SetItemString( "corporationID", new PyInt(row.GetUInt(1)));
+        args->SetItemString( "claimTime", new PyLong(row.GetUInt64(4)));
+        args->SetItemString( "claimStructureID", new PyInt(row.GetUInt(3)));
+        args->SetItemString( "hubID", new PyInt(row.GetUInt(5)));
+        args->SetItemString( "allianceID", new PyInt(row.GetUInt(2)));
+        args->SetItemString( "solarSystemID", new PyInt(row.GetUInt(0)));
+    }
+
+    return new PyObject("util.KeyVal", args);
+
+}

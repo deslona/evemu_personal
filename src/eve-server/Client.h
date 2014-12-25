@@ -173,8 +173,7 @@ public:
     void StargateJump(uint32 fromGate, uint32 toGate);
     void SetDockStationID(uint32 stationID) { m_dockStationID = stationID; };
     uint32 GetDockStationID() { return m_dockStationID; };
-    void SetDockingPoint(GPoint dockPoint);
-    void GetDockingPoint(GPoint *dockPoint);
+    
     bool GetPendingDockOperation() { return m_needToDock; };
     void SetPendingDockOperation(bool needToDock) { m_needToDock = needToDock; }
 	void SetAutoPilot(bool);

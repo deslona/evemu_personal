@@ -46,6 +46,7 @@ protected:
     PyCallable_DECL_CALL(AddToBounty);
     PyCallable_DECL_CALL(GetTopBounties);
     PyCallable_DECL_CALL(AddOwnerNote);
+    PyCallable_DECL_CALL(GetOwnerNote);
     PyCallable_DECL_CALL(GetOwnerNoteLabels);
     PyCallable_DECL_CALL(GetContactList);
     PyCallable_DECL_CALL(GetCloneTypeID);

@@ -39,6 +39,8 @@ public:
     PyObject *GetCharPrimeStandings(uint32 characterID);
     PyObject *GetCharNPCStandings(uint32 characterID);
     PyObject *GetStandingTransactions(uint32 characterID);
+
+    PyRep *GetSystemSovInfo(uint32 systemID);
 };
 
 

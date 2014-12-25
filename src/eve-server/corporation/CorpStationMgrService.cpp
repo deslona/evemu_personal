@@ -640,6 +640,27 @@ PyResult CorpStationMgrIMBound::Handle_MoveCorpHQHere(PyCallArgs &call)
 
 PyResult CorpStationMgrService::Handle_GetStationServiceStates(PyCallArgs &call)
 {
+    /*   i *THINK* this is only sent for outposts.....stationID is 61m (above static stations)
+     * since it has NOT been called yet, it very well could be outposts only
+        [PyDict 6 kvp]
+          [PyInt 512]
+          [PyObjectData Name: util.Row]
+            [PyDict 2 kvp]
+              [PyString "header"]
+              [PyList 5 items]
+                [PyString "solarSystemID"]
+                [PyString "stationID"]
+                [PyString "serviceID"]
+                [PyString "stationServiceItemID"]
+                [PyString "isEnabled"]
+              [PyString "line"]
+              [PyList 5 items]
+                [PyInt 30001984]
+                [PyInt 61000012]
+                [PyInt 512]
+                [PyIntegerVar 318021030]
+                [PyInt 1]
+                */
   sLog.Log( "CorpStationMgrService::Handle_GetStationServiceStates()", "size= %u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
 

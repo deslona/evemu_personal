@@ -40,8 +40,7 @@ PyRep *TutorialDB::GetPageCriterias(uint32 tutorialID) {
         return NULL;
     }
 
-    //return DBResultToRowset(res);
-    return DBResultToCRowset(res);
+    return DBResultToRowset(res);
 }
 
 PyRep *TutorialDB::GetPages(uint32 tutorialID) {
@@ -57,8 +56,7 @@ PyRep *TutorialDB::GetPages(uint32 tutorialID) {
         return NULL;
     }
 
-    //return DBResultToRowset(res);
-    return DBResultToCRowset(res);
+    return DBResultToRowset(res);
 }
 
 PyRep *TutorialDB::GetTutorial(uint32 tutorialID) {
@@ -73,8 +71,7 @@ PyRep *TutorialDB::GetTutorial(uint32 tutorialID) {
         return NULL;
     }
 
-    //return DBResultToRowset(res);
-    return DBResultToCRowset(res);
+    return DBResultToRowset(res);
 }
 
 PyRep *TutorialDB::GetTutorialCriterias(uint32 tutorialID) {
@@ -89,11 +86,11 @@ PyRep *TutorialDB::GetTutorialCriterias(uint32 tutorialID) {
         return NULL;
     }
 
-    //return DBResultToRowset(res);
-    return DBResultToCRowset(res);
+    return DBResultToRowset(res);
 }
 
 PyRep *TutorialDB::GetAllTutorials() {
+    /*  this is wrong...our db is incomplete */
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
@@ -104,8 +101,7 @@ PyRep *TutorialDB::GetAllTutorials() {
         return NULL;
     }
 
-    //return DBResultToRowset(res);
-    return DBResultToCRowset(res);
+    return DBResultToRowset(res);
 }
 
 PyRep *TutorialDB::GetAllCriterias() {
@@ -119,8 +115,7 @@ PyRep *TutorialDB::GetAllCriterias() {
         return NULL;
     }
 
-    //return DBResultToRowset(res);
-    return DBResultToCRowset(res);
+    return DBResultToRowset(res);
 }
 
 PyRep *TutorialDB::GetCategories() {
@@ -135,14 +130,13 @@ PyRep *TutorialDB::GetCategories() {
         return NULL;
     }
 
-    //return DBResultToRowset(res);
-    return DBResultToCRowset(res);
+    return DBResultToRowset(res);
 }
 
-PyTuple *TutorialDB::GetTutorialsAndConnections(uint8 raceID) {
+PyRep *TutorialDB::GetTutorialsAndConnections(uint8 raceID) {
     DBQueryResult res;
     sDatabase.RunQuery(res, "SELECT tutorialID, %u AS raceID, nextTutorialID FROM tutorials", raceID);
 
-    return DBResultToRowList(res);
+    return DBResultToRowset(res);
 }
 

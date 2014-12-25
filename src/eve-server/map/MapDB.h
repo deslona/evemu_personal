@@ -26,6 +26,8 @@
 #define __MAPDB_H_INCL__
 
 #include "ServiceDB.h"
+class PyObject;
+class PyRep;
 
 class MapDB
 : public ServiceDB
@@ -37,7 +39,7 @@ public:
     PyObject *GetStationServiceInfo();
     PyObject *GetStationCount();
     PyObject *GetSolSystemVisits(uint32);
-    PyObject *GetDynamicData(uint32, uint32);
+    PyRep *GetDynamicData(uint32, uint32);
 
 protected:
 };

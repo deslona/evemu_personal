@@ -36,8 +36,9 @@ TutorialService::TutorialService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(TutorialService, GetTutorialInfo);
     PyCallable_REG_CALL(TutorialService, GetTutorials);
+    PyCallable_REG_CALL(TutorialService, GetTutorialInfo);
+    PyCallable_REG_CALL(TutorialService, GetTutorialAgents);
     PyCallable_REG_CALL(TutorialService, GetCriterias);
     PyCallable_REG_CALL(TutorialService, GetCategories);
     PyCallable_REG_CALL(TutorialService, GetContextHelp);
@@ -48,6 +49,12 @@ TutorialService::TutorialService(PyServiceMgr *mgr)
 
 TutorialService::~TutorialService() {
     delete m_dispatch;
+}
+
+PyResult TutorialService::Handle_GetTutorials(PyCallArgs &call) {
+  sLog.Log( "TutorialService::Handle_GetTutorials()", "size= %u", call.tuple->size() );
+  call.Dump(SERVICE__CALLS);
+    return(m_db.GetAllTutorials());
 }
 
 PyResult TutorialService::Handle_GetTutorialInfo(PyCallArgs &call) {
@@ -88,10 +95,31 @@ PyResult TutorialService::Handle_GetTutorialInfo(PyCallArgs &call) {
     return(rsp.Encode());
 }
 
-PyResult TutorialService::Handle_GetTutorials(PyCallArgs &call) {
-  sLog.Log( "TutorialService::Handle_GetTutorials()", "size= %u", call.tuple->size() );
-  call.Dump(SERVICE__CALLS);
-    return(m_db.GetAllTutorials());
+PyResult TutorialService::Handle_GetTutorialAgents(PyCallArgs &call) {
+    /*  this is cached!!!
+            [PyString "GetTutorialAgents"]
+            [PyTuple 1 items]
+              [PyList 1 items]
+                [PyInt 3018920]
+
+    [PyTuple 1 items]
+      [PySubStream 377 bytes]
+        [PyList 1 items]
+          [PyPackedRow 28 bytes]
+            ["agentID" => <3018920> [I4]]
+            ["agentTypeID" => <8> [I4]]
+            ["divisionID" => <22> [I4]]
+            ["level" => <1> [UI1]]
+            ["stationID" => <60015037> [I4]]
+            ["bloodlineID" => <14> [UI1]]
+            ["quality" => <0> [I4]]
+            ["corporationID" => <0> [I4]]
+            ["gender" => <0> [Bool]]
+                */
+    sLog.Log( "TutorialService::Handle_GetTutorialAgents()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    return new PyInt( 0 );
 }
 
 PyResult TutorialService::Handle_GetCriterias(PyCallArgs &call) {
@@ -121,8 +149,8 @@ PyResult TutorialService::Handle_GetCharacterTutorialState( PyCallArgs& call ) {
     return new PyInt( 0 );
 }
 
-//00:25:58 L TutorialService::Handle_GetTutorialsAndConnections(): size= 0
 PyResult TutorialService::Handle_GetTutorialsAndConnections( PyCallArgs& call ) {
+    /*  no logs */
   /*  This is used to link tutorials using connections to other tutorials  */
             /*
             t, tc = sm.RemoteSvc('tutorialSvc').GetTutorialsAndConnections()
@@ -134,8 +162,11 @@ PyResult TutorialService::Handle_GetTutorialsAndConnections( PyCallArgs& call ) 
                     self.tutorialConnections[tutID][each.raceID] = each.nextTutorialID
     */
 
+            /*  FIXME  this needs work.  not sure what's wrong, but i DO know our db is incomplete
     uint8 raceID = call.client->GetChar()->race();
-    return(m_db.GetTutorialsAndConnections(raceID));
+    return (m_db.GetTutorialsAndConnections(raceID));
+    */
+    return new PyNone;
 }
 
 PyResult TutorialService::Handle_GetCareerAgents( PyCallArgs& call ) {
@@ -155,7 +186,7 @@ PyResult TutorialService::Handle_GetCareerAgents( PyCallArgs& call ) {
                 self.careerAgents[careerType]['station'][agent.agentID] = sm.GetService('map').GetStation(agent.stationID)
 */
 
-    return new PyInt( 0 );
+    return new PyNone;
 }
 
 

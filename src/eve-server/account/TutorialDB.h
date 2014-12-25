@@ -29,8 +29,7 @@
 
 #include "ServiceDB.h"
 
-class PyTuple;
-class PyObject;
+class PyRep;
 
 class TutorialDB : public ServiceDB
 {
@@ -42,7 +41,7 @@ public:
     PyRep *GetAllTutorials();
     PyRep *GetAllCriterias();
     PyRep *GetCategories();
-    PyTuple *GetTutorialsAndConnections(uint8 raceID);
+    PyRep *GetTutorialsAndConnections(uint8 raceID);
 };
 
 #endif

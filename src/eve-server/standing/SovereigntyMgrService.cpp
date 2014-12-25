@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Reve
+    Author:        Reve, Allan
 */
 
 //work in progress
@@ -46,14 +46,13 @@ SovereigntyMgrService::~SovereigntyMgrService() {
 }
 
 PyResult SovereigntyMgrService::Handle_GetSystemSovereigntyInfo(PyCallArgs &call) {
-  /**
-        sovInfo = sm.RemoteSvc('sovMgr').GetSystemSovereigntyInfo(session.solarsystemid2)
-        ssAllianceID = sovInfo.allianceID if sovInfo else None
-        */
-    sLog.Debug("Server", "Called GetSystemSovereigntyInfo Stub");
-
+    Call_SingleIntegerArg args;
+    if(!args.Decode(&call.tuple)) {
+        codelog(SERVICE__ERROR, "Failed to decode arguments");
         return NULL;
+    }
 
+    return (m_db.GetSystemSovInfo(args.arg));
 }
 
 /*sovSvc.CanInstallUpgrade(t.typeID, self.hubID, devIndices=self.devIndices)

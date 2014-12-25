@@ -169,10 +169,7 @@ PyRep *CorporationDB::GetCorpInfo(uint32 corpID) {
 
 PyObject *CorporationDB::GetCorporation(uint32 corpID) {
     DBQueryResult res;
-/**
-                    parallelCalls.append((sm.RemoteSvc('corpmgr').GetPublicInfo, (itemID,)))
-                corpinfo, factionID, warFaction = uthread.parallel(parallelCalls)
-                */
+
     if (!sDatabase.RunQuery(res,
         " SELECT "
         "   corporationID,corporationName,description,tickerName,url,"
@@ -197,8 +194,35 @@ PyObject *CorporationDB::GetCorporation(uint32 corpID) {
         return NULL;
     }
 
-    //return DBRowToRow(row);
-    return DBResultToRowset(res);
+    return DBRowToRow(row);
+    //return DBResultToRowset(res);
+}
+
+PyObject *CorporationDB::GetCorporations(uint32 corpID) {
+    DBQueryResult res;
+    if (!sDatabase.RunQuery(res,
+        "SELECT"
+        "   corporationID, corporationName, description, shares, memberCount, ceoID, stationID,"
+        "   raceID, corporationType, creatorID, hasPlayerPersonnelManager, tickerName, sendCharTerminationMessage,"
+        "   shape1, shape2, shape3, color1, color2, color3,"
+        "   typeface, memberLimit, allowedMemberRaceIDs, url, taxRate, minimumJoinStanding,"
+        "   division1, division2, division3, division4, division5, division6, division7,"
+        "   walletDivision1, walletDivision2, walletDivision3, walletDivision4, walletDivision5, walletDivision6, walletDivision7,"
+        "   allianceID, warFactionID, deleted, isRecruiting"
+        " FROM corporation"
+        " WHERE corporationID = %u", corpID))
+    {
+        codelog(SERVICE__ERROR, "Error in retrieving corporation's data (%u)", corpID);
+        return NULL;
+    }
+
+    DBResultRow row;
+    if(!res.GetRow(row)) {
+        codelog(SERVICE__ERROR, "Unable to find corporation's data (%u)", corpID);
+        return NULL;
+    }
+
+    return (DBRowToRow(row));
 }
 
 PyDict *CorporationDB::ListAllCorpInfo() {

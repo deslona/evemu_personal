@@ -20,13 +20,14 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Reve
+    Author:        Reve, Allan
 */
 
 #ifndef __SOVEREIGNTYMGR_SERVICE_H_INCL__
 #define __SOVEREIGNTYMGR_SERVICE_H_INCL__
 
 #include "PyService.h"
+#include "standing/StandingDB.h"
 
 class SovereigntyMgrService: public PyService
 {
@@ -36,7 +37,9 @@ public:
 
 protected:
     class Dispatcher;
+
     Dispatcher *const m_dispatch;
+    StandingDB m_db;
 
     PyCallable_DECL_CALL(GetSystemSovereigntyInfo);
 

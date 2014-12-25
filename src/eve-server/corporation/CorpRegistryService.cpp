@@ -209,7 +209,7 @@ PyResult CorpRegistryBound::Handle_GetCorporations(PyCallArgs &call) {
         codelog(SERVICE__ERROR, "Bad incoming params.");
         return NULL;
     }
-    return(m_db.GetCorporation(arg.arg));
+    return(m_db.GetCorporations(arg.arg));
 }
 
 PyResult CorpRegistryBound::Handle_AddCorporation(PyCallArgs &call) {
@@ -372,6 +372,39 @@ PyClass
         dict["N=707075:302"]=0x1CC2383E961BFA8
 */
 PyResult CorpRegistryBound::Handle_GetMembers(PyCallArgs &call) {
+    /*
+        [PyObjectData Name: util.SparseRowset]
+          [PyTuple 3 items]
+            [PyList 19 items]
+              [PyString "characterID"]
+              [PyString "corporationID"]
+              [PyString "divisionID"]
+              [PyString "squadronID"]
+              [PyString "title"]
+              [PyString "roles"]
+              [PyString "grantableRoles"]
+              [PyString "startDateTime"]
+              [PyString "baseID"]
+              [PyString "rolesAtHQ"]
+              [PyString "grantableRolesAtHQ"]
+              [PyString "rolesAtBase"]
+              [PyString "grantableRolesAtBase"]
+              [PyString "rolesAtOther"]
+              [PyString "grantableRolesAtOther"]
+              [PyString "titleMask"]
+              [PyString "accountKey"]
+              [PyString "rowDate"]
+              [PyString "blockRoles"]
+            [PySubStruct]
+              [PySubStream 50 bytes]
+                [PyTuple 3 items]
+                  [PyString "N=700715:7095"]
+                  [PyDict 1 kvp]
+                    [PyString "realRowCount"]
+                    [PyInt 3]
+                  [PyIntegerVar 129527403672992685]
+            [PyInt 3]
+            */
 
     sLog.Debug( "CorpRegistryBound", "Called GetMembers stub." );
     return NULL;
@@ -1019,10 +1052,16 @@ PyResult CorpRegistryBound::Handle_SetAccountKey(PyCallArgs &call) {
 22:46:58 [SvcCall]   Call Arguments:
 22:46:58 [SvcCall]       Tuple: 1 elements
 22:46:58 [SvcCall]         [ 0] Integer field: 1000
-*/
+
+15:54:59 L Server: SetAccountKey call made to
+15:54:59 L CorpRegistryBound::Handle_SetAccountKey(): size= 1, 0=Integer
+15:54:59 [SvcCall]   Call Arguments:
+15:54:59 [SvcCall]       Tuple: 1 elements
+15:54:59 [SvcCall]         [ 0] Integer field: 1006
+
   sLog.Log( "CorpRegistryBound::Handle_SetAccountKey()", "size= %u, 0=%s", call.tuple->size(), call.tuple->GetItem( 0 )->TypeString() );
     call.Dump(SERVICE__CALLS);
-
+*/
     return NULL;
 }
 

@@ -613,7 +613,21 @@ PyResult DogmaIMBound::Handle_GetAllInfo( PyCallArgs& call )
 	// TODO
 	// ========================================================================
 
-
+/*
+              [PyString "shipState"]
+              [PyTuple 3 items]
+                [PyDict 14 kvp]
+                  [PyIntegerVar 1006132995446]
+                  [PyPackedRow 46 bytes]
+                    ["instanceID" => <1006132995446> [I8]]
+                    ["online" => <1> [Bool]]
+                    ["damage" => <0> [R8]]
+                    ["charge" => <0> [R8]]
+                    ["skillPoints" => <0> [I4]]
+                    ["armorDamage" => <0> [R8]]
+                    ["shieldCharge" => <0> [R8]]
+                    ["incapacitated" => <0> [Bool]]
+                    */
 	// ========================================================================
 	// Setting "shipState" in the Dictionary:
     //Get some attributes about the ship and its modules for shipState

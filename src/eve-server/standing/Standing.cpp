@@ -196,17 +196,6 @@ PyResult Standing::Handle_GetNPCNPCStandings(PyCallArgs &call) {
 }
 
 PyResult Standing::Handle_GetSecurityRating(PyCallArgs &call) {
-  /*
-16:08:58 L Standing::Handle_GetSecurityRating(): size= 1
-16:08:58 [SvcCall]   Call Arguments:
-16:08:58 [SvcCall]       Tuple: 1 elements
-16:08:58 [SvcCall]         [ 0] Integer field: 140000212
-16:08:58 [SvcCall]   Call Named Arguments:
-16:08:58 [SvcCall]     Argument 'machoVersion':
-16:08:58 [SvcCall]         Integer field: 1
-  sLog.Log( "Standing::Handle_GetSecurityRating()", "size= %u", call.tuple->size() );
-  call.Dump(SERVICE__CALLS);
-*/
     //takes an integer: characterID
     Call_SingleIntegerArg arg;
     if(!arg.Decode(&call.tuple)) {

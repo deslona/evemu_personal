@@ -177,6 +177,28 @@ PyResult BrowserLockdownService::Handle_GetFlaggedSitesList(PyCallArgs &call)
 }
 
 PyResult BrowserLockdownService::Handle_GetDefaultHomePage(PyCallArgs &call) {
+    /*
+    [PyTuple 1 items]
+      [PySubStream 134 bytes]
+        [PyObjectData Name: objectCaching.CachedObject]
+          [PyTuple 7 items]
+            [PyTuple 2 items]
+              [PyIntegerVar 129511422600825710]
+              [PyInt 46587]
+            [PyNone]
+            [PyInt 704421]
+            [PyInt 1]
+            [PySubStream 34 bytes]
+              [PyString "https://gate.eveonline.com/"]
+            [PyInt 0]
+            [PyTuple 3 items]
+              [PyString "Method Call"]
+              [PyString "server"]
+              [PyTuple 2 items]
+                [PyString "browserLockdownSvc"]
+                [PyString "GetDefaultHomePage"]
+    [PyNone]
+            */
   sLog.Log( "BrowserLockdownService::Handle_GetDefaultHomePage()", "size= %u", call.tuple->size() );
     return NULL;
 }

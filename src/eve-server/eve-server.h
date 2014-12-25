@@ -75,6 +75,7 @@
 #include "packets/Market.h"
 #include "packets/Sovereignty.h"
 #include "packets/Standing.h"
+#include "packets/Scan.h"
 #include "packets/Trade.h"
 #include "packets/Tutorial.h"
 #include "packets/Mail.h"
@@ -89,6 +90,8 @@
 #include "python/classes/PyDatabase.h"
 #include "python/classes/PyExceptions.h"
 #include "python/classes/PyUtils.h"
+// Common Enums
+#include "inventory/AttributeEnum.h"
 // tables
 #include "tables/invCategories.h"
 #include "tables/invGroups.h"

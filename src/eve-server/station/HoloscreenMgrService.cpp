@@ -68,7 +68,7 @@ PyResult HoloscreenMgrService::Handle_GetTwoHourCache(PyCallArgs& call)
 }
 
 PyResult HoloscreenMgrService::Handle_GetRecentEpicArcCompletions(PyCallArgs& call)
-{
+{       //  this is cached object!!!
     sLog.Debug("HoloscreenMgrService", "Called GetRecentEpicArcCompletions stub.");
 
     return NULL;

@@ -39,6 +39,7 @@ class CorporationDB
 {
 public:
     PyObject *GetCorporation(uint32 corpID);
+    PyObject *GetCorporations(uint32 corpID);
     PyObject *GetStations(uint32 corpID);
     PyObject *GetEveOwners();
 

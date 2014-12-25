@@ -29,9 +29,11 @@
 
 PyRep *FactoryDB::GetMaterialsForTypeWithActivity(const uint32 blueprintTypeID) const {
     DBQueryResult res;
-
+/*
+"Row(requiredTypeID:35,quantity:8030,damagePerJob:1.0,activity:1)",
+*/
     if(!sDatabase.RunQuery(res,
-                "SELECT requiredTypeID, quantity, damagePerJob, activityID"
+                "SELECT requiredTypeID, quantity, damagePerJob, activityID AS activity"
 				" FROM ramTypeRequirements"
                 " WHERE typeID = %u",
                 blueprintTypeID))
@@ -40,7 +42,9 @@ PyRep *FactoryDB::GetMaterialsForTypeWithActivity(const uint32 blueprintTypeID) 
         return NULL;
     }
 
-    return DBResultToRowset(res);
+    DBResultRow row;
+    res.GetRow(row);
+    return DBRowToRow(row);
 }
 
 PyRep *FactoryDB::GetMaterialCompositionOfItemType(const uint32 typeID) const {

@@ -89,27 +89,13 @@ AttributeError: Rowset instance has no attribute 'corporationID'
 }
 
 PyResult CorpMgrService::Handle_GetCorporations(PyCallArgs &call) {
-/**
-    def Startup(self, declaredByID, againstID, containerid):
-        ceoID = None
-        if declaredByID is not None and againstID is not None:
-            aggressorIDs = [declaredByID, againstID]
-            aggressorIDs.remove(eve.session.corpid)
-            corporation = sm.RemoteSvc('corpmgr').GetCorporations(aggressorIDs[0])
-            ceoID = corporation.ceoID
-        stationsBtn = uiutil.GetChild(self, 'StationsBtn')
-        uicls.Container(stationsBtn).OnClick = self.SelectStation
-        stationsBtn.state = uiconst.UI_NORMAL
-        res = PVPTrade.Startup(self, ceoID, containerid)
-        stationsBtn.parent.width = stationsBtn.width * 3
-        return res
-*/
+  Call_SingleIntegerArg corpID;
+  if (!corpID.Decode(&call.tuple)) {
+      codelog(SERVICE__ERROR, "Bad param");
+      return NULL;
+  }
 
-  uint32 size = call.tuple->size();
-  sLog.Log( "CorpMgrService::Handle_GetCorporations()", "size= %u", size );
-  call.Dump(SERVICE__CALLS);
-
-    return NULL;
+  return m_db.GetCorporations(corpID.arg);
 }
 
 

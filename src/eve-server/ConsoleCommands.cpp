@@ -23,12 +23,7 @@
     Author:			Allan
     Thanks to:		avianrr  for the idea
 */
-/*
-#include <time.h> // for clock
-#include <math.h> // for fmod
-#include <cstdlib> //for system
-#include <stdio.h> //for delay
-*/
+
 #include <ios>
 #include <iostream>
 #include <fstream>

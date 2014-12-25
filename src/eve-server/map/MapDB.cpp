@@ -129,7 +129,7 @@ PyObject *MapDB::GetSolSystemVisits(uint32 charID)
 ///  added killsHour, factionKills, podKillsHour  24Mar14
 ///  NOTE: DB has fields for timing the *Hour and *24Hour parts. need to write checks for that once everything else is working.
 ///    NOTE:   use averages for *Hour based on current data and serverUpTime.   may be able to do 24Hour same way.
-PyObject *MapDB::GetDynamicData(uint32 int1, uint32 int2) {
+PyRep *MapDB::GetDynamicData(uint32 int1, uint32 int2) {
   /*   object#  0 = type   1 = timeframe
 solarSystemID
 moduleCnt
@@ -154,7 +154,12 @@ faction24DateTime
     */
     DBQueryResult res;
     if( (int1 == 1) && (int2 == 1) ) sDatabase.RunQuery(res, "SELECT solarSystemID, jumpsHour AS value1 FROM mapDynamicData" );
-    else if (int1 == 2) sDatabase.RunQuery(res, "SELECT solarSystemID, moduleCnt, structureCnt FROM mapDynamicData" );
+    else if (int1 == 2) {
+        DBResultRow row;
+        sDatabase.RunQuery(res, "SELECT solarSystemID, moduleCnt AS moduleCount, structureCnt AS structureCount FROM mapDynamicData" );
+        //res.GetRow(row);
+        return DBResultToCRowset(res);
+    }
     else if (int1 == 3) {
       if (int2 == 1) sDatabase.RunQuery(res, "SELECT solarSystemID, killsHour AS value1, factionKills AS value2, podKillsHour AS value3 FROM mapDynamicData" );
       else if (int2 == 24) sDatabase.RunQuery(res, "SELECT solarSystemID, kills24Hour AS value1, factionKills24Hour AS value2, podKills24Hour AS value3 FROM mapDynamicData" );

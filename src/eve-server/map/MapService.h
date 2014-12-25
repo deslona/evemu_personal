@@ -54,7 +54,6 @@ protected:
     PyCallable_DECL_CALL(GetSystemsInIncursions);
     PyCallable_DECL_CALL(GetSystemsInIncursionsGM);
     PyCallable_DECL_CALL(GetStationCount);
-    PyCallable_DECL_CALL(GetAllianceSystems);
     PyCallable_DECL_CALL(GetMapLandmarks);
     PyCallable_DECL_CALL(GetMyExtraMapInfo);
     PyCallable_DECL_CALL(GetMyExtraMapInfoAgents);  //ColorStarsByMyAgents

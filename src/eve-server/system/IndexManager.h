@@ -39,6 +39,7 @@ protected:
     Dispatcher *const m_dispatch;
 
     PyCallable_DECL_CALL(GetAllDevelopmentIndices);
+    PyCallable_DECL_CALL(GetDevelopmentIndicesForSystem);
 };
 
 #endif  // EVEMU_SYSTEM_IDXMGR_H__

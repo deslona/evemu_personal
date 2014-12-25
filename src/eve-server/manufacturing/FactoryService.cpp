@@ -61,8 +61,6 @@ PyResult FactoryService::Handle_GetBlueprintAttributes(PyCallArgs &call) {
 }
 
 PyResult FactoryService::Handle_GetMaterialsForTypeWithActivity(PyCallArgs &call) {
-    //Call_TwoIntegerArgs call_args;
-    //EVE crucible client sends only one arg with typeID
     Call_SingleArg call_args;
     if(!call_args.Decode(&call.tuple)) {
         _log(SERVICE__MESSAGE, "Failed to decode args.");

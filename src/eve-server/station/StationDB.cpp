@@ -48,7 +48,7 @@ PyPackedRow *StationDB::GetSolarSystem(uint32 solarSystemID) {
         " factionID,"                // nr
         " sunTypeID,"                // nr
         " regionID,"
-        " 0 AS wormholeClassID"
+        " 0 AS wormholeClassID"     //FIXME  this will need to be added later  -allan 8Dec14
         " FROM mapSolarSystems"
         " WHERE solarSystemID=%u", solarSystemID
     ))

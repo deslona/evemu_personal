@@ -47,6 +47,7 @@ public:
         PyCallable_REG_CALL(JumpCloneBound, GetCloneState);
         PyCallable_REG_CALL(JumpCloneBound, InstallCloneInStation);
         PyCallable_REG_CALL(JumpCloneBound, GetPriceForClone);
+        PyCallable_REG_CALL(JumpCloneBound, GetShipCloneState);
     }
     virtual ~JumpCloneBound() { delete m_dispatch; }
     virtual void Release() {
@@ -57,6 +58,7 @@ public:
     PyCallable_DECL_CALL(GetCloneState);
     PyCallable_DECL_CALL(InstallCloneInStation);
     PyCallable_DECL_CALL(GetPriceForClone);
+    PyCallable_DECL_CALL(GetShipCloneState);
 
 protected:
     StationDB *const m_db;        //we do not own this
@@ -71,7 +73,7 @@ JumpCloneService::JumpCloneService(PyServiceMgr *mgr)
 {
     _SetCallDispatcher(m_dispatch);
 
-    PyCallable_REG_CALL(JumpCloneService, GetShipCloneState);
+    //PyCallable_REG_CALL(JumpCloneService, GetShipCloneState);
 }
 
 JumpCloneService::~JumpCloneService() {
@@ -94,9 +96,12 @@ PyResult JumpCloneBound::Handle_InstallCloneInStation( PyCallArgs &call ) {
     return result;
 }
 
+//11:46:15 JumpCloneBound::Handle_GetCloneState(): size= 0
 PyResult JumpCloneBound::Handle_GetCloneState(PyCallArgs &call) {
+    /*
   sLog.Log( "JumpCloneBound::Handle_GetCloneState()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
+  */
 
     //returns (clones, implants, timeLastJump)
     //where jumpClones is a rowset? with at least columns: jumpCloneID, locationID
@@ -109,15 +114,20 @@ PyResult JumpCloneBound::Handle_GetCloneState(PyCallArgs &call) {
     return new PyObject( "util.KeyVal", d );
 }
 
+//11:51:52 JumpCloneBound::Handle_GetPriceForClone(): size= 0
 PyResult JumpCloneBound::Handle_GetPriceForClone(PyCallArgs &call) {
-  sLog.Log( "JumpCloneBound::Handle_GetPriceForClone()", "size= %u", call.tuple->size() );
-  call.Dump(SERVICE__CALLS);
-    PyRep *result = NULL;
+    /*        kwargs = {'amount': None, 'player': 140000038}
+     * TypeError: Numeric Formatter expects floating point or signed integer types.
+     */
+    PyRep *result = new PyInt(1000000);
 
     return result;
 }
 
-PyResult JumpCloneService::Handle_GetShipCloneState(PyCallArgs &call) {
+PyResult JumpCloneBound::Handle_GetShipCloneState(PyCallArgs &call) {
+    /* 00:24:21 [SvcCall] Service jumpCloneSvc: handling MachoBindObject request directly
+     * 00:24:21 Server: Unknown call to 'GetShipCloneState' by 'Lee'
+     */
   sLog.Log( "JumpCloneService::Handle_GetShipCloneState()", "size=%u", call.tuple->size());
     call.Dump(SERVICE__CALLS);
 

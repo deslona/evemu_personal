@@ -123,6 +123,12 @@ Damage::Damage(
 Damage::~Damage()
 {
 }
+/*  these are based on client settings of damage notification.
+ * msg packets are
+ *   " "  - to others
+ *   "R"  - received
+ *   "RD  - received with details
+ */
 
 static const char *DamageMessageIDs_Self[6] = {
     "AttackHit1R",    //barely scratches

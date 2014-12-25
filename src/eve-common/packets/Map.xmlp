@@ -1,8 +1,5 @@
 
 <elements>
-<!--
-GetMapConnections(id, sol, reg, con, cel, _c)
--->
 
   <elementDef name="Call_GetMapConnections">
     <tupleInline>
@@ -12,6 +9,17 @@ GetMapConnections(id, sol, reg, con, cel, _c)
       <bool name="con" />
       <int name="cel" />
       <int name="_c" />
+    </tupleInline>
+  </elementDef>
+
+  <elementDef name="Call_GetMapObjects">
+    <tupleInline>
+      <int name="systemID" />
+      <int name="reg" />
+      <int name="con" />
+      <int name="sys" />
+      <int name="sta" />
+      <int name="unknown" />
     </tupleInline>
   </elementDef>
 

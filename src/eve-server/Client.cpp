@@ -96,7 +96,11 @@ Client::~Client() {
         m_services.serviceDB().SetCharacterOnlineStatus(GetCharacterID(), false);
         m_services.serviceDB().SetAccountOnlineStatus(GetAccountID(), false);
 
-	sLog.Error( "Client Logout", "%s(%u) Save Complete.", GetCharacterName().c_str(), GetCharacterID());
+        char ci[1];
+        snprintf(ci, sizeof(ci), "");
+        GetShip()->SetCustomInfo(ci);
+
+        sLog.Error( "Client Logout", "%s(%u) Save Complete.", GetCharacterName().c_str(), GetCharacterID());
     }
 
     m_services.ClearBoundObjects(this);
@@ -420,7 +424,7 @@ bool Client::UpdateLocation(bool login) {
         sLog.Success( "Client::UpdateLocation()", "Character %s (%u) InSpace.", GetName(), GetCharacterID() );
         //we are in a system, so we need a destiny manager
         m_destiny = new DestinyManager(this, m_system);
-		m_destiny->SetShipCapabilities(GetShip());
+		m_destiny->SetShipCapabilities(GetShip(), login);
 		m_destiny->SetPosition(GetShip()->position());
 
         /*if( login )
@@ -462,6 +466,8 @@ bool Client::UpdateLocation(bool login) {
 
 void Client::UndockFromStation( uint32 stationID, uint32 systemID, uint32 constellationID, uint32 regionID, GPoint dockPosition, GPoint direction )
 {   // made specific for undocking instead of 'generic' move function below
+    sLog.Debug("Client::UndockFromStation()", "Character %s (%u) stationID() = %u  Position = %.2f, %.2f, %.2f  DockPosition = %.2f, %.2f, %.2f.",
+               GetName(), GetCharacterID(), GetChar()->stationID(), x(), y(), z(), dockPosition.x, dockPosition.y, dockPosition.z );
 
 	// tell ship its' undocking, which only sets shields and cap to full for now  (which was moved from aknor's original commit)
 	GetShip()->Undock();
@@ -487,7 +493,6 @@ void Client::UndockFromStation( uint32 stationID, uint32 systemID, uint32 conste
 	//TODO: implement and set session change timer .....client knows already.  session change timer = 10s
 	//TODO: implement and set undock invul until movement(but not on stop)
 
-    sLog.Debug("Client::UndockFromStation()", "Character %s (%u) stationID() = %u  Position = %.2f, %.2f, %.2f  DockPosition = %.2f, %.2f, %.2f.", GetName(), GetCharacterID(), GetChar()->stationID(), x(), y(), z(), dockPosition.x, dockPosition.y, dockPosition.z );
 }
 
 void Client::MoveToLocation( uint32 location, const GPoint& pt )

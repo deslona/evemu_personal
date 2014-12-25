@@ -72,7 +72,7 @@ PyRep *RamProxyDB::GetJobs2(const uint32 ownerID, const bool completed)
         return NULL;
     }
 
-    return DBResultToRowset(res);
+    return (DBResultToCRowset(res));
 }
 
 PyRep *RamProxyDB::AssemblyLinesSelectPublic(const uint32 regionID) {
@@ -98,7 +98,7 @@ PyRep *RamProxyDB::AssemblyLinesSelectPublic(const uint32 regionID) {
         return NULL;
     }
 
-    return DBResultToCRowset(res);
+    return (DBResultToCRowset(res));
 }
 
 PyRep *RamProxyDB::AssemblyLinesSelectPersonal(const uint32 charID) {
@@ -122,7 +122,7 @@ PyRep *RamProxyDB::AssemblyLinesSelectPersonal(const uint32 charID) {
         return NULL;
     }
 
-    return DBResultToCRowset(res);
+    return (DBResultToRowset(res));
 }
 
 PyRep *RamProxyDB::AssemblyLinesSelectPrivate(const uint32 charID) {
@@ -146,7 +146,7 @@ PyRep *RamProxyDB::AssemblyLinesSelectPrivate(const uint32 charID) {
         return NULL;
     }
 
-    return DBResultToCRowset(res);
+    return (DBResultToRowset(res));
 }
 
 PyRep *RamProxyDB::AssemblyLinesSelectCorporation(const uint32 corporationID) {
@@ -170,7 +170,7 @@ PyRep *RamProxyDB::AssemblyLinesSelectCorporation(const uint32 corporationID) {
         return NULL;
     }
 
-    return DBResultToCRowset(res);
+    return (DBResultToRowset(res));
 }
 
 PyRep *RamProxyDB::AssemblyLinesSelectAlliance(const uint32 allianceID) {
@@ -195,7 +195,7 @@ PyRep *RamProxyDB::AssemblyLinesSelectAlliance(const uint32 allianceID) {
         return NULL;
     }
 
-    return DBResultToCRowset(res);
+    return (DBResultToRowset(res));
 }
 
 PyRep *RamProxyDB::AssemblyLinesGet(const uint32 containerID) {
@@ -219,17 +219,12 @@ PyRep *RamProxyDB::AssemblyLinesGet(const uint32 containerID) {
         " maximumCorpSecurity"
         " FROM ramAssemblyLines"
         " WHERE containerID = %u",
-        containerID))
-    {
+        containerID)) {
         _log(DATABASE__ERROR, "Failed to query assembly lines for container %u: %s.", containerID, res.error.c_str());
         return NULL;
     }
 
-    if (res.GetRowCount() < 1) {
-        _log(DATABASE__ERROR, "Failed to query assembly lines for StationID %u: %s.", containerID, res.error.c_str());
-        return NULL;
-    } else
-        return DBResultToRowset(res);
+    return (DBResultToRowset(res));
 }
 
 bool RamProxyDB::GetAssemblyLineProperties(const uint32 assemblyLineID, double &baseMaterialMultiplier, double &baseTimeMultiplier, double &costInstall, double &costPerHour) {

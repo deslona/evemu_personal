@@ -303,14 +303,6 @@ PyResult MapService::Handle_GetSystemsInIncursionsGM(PyCallArgs &call) {
     return NULL;
 }
 
-PyResult MapService::Handle_GetAllianceSystems(PyCallArgs &call)
-{
-  sLog.Log( "MapService::Handle_GetAllianceSystems()", "size= %u", call.tuple->size() );
-    call.Dump(SERVICE__CALLS);
-
-    return NULL;
-}
-
 //   factional warfare shit
 //https://wiki.eveonline.com/en/wiki/Victory_Points_and_Command_Bunker
 PyResult MapService::Handle_GetVictoryPoints(PyCallArgs &call)

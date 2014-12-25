@@ -126,11 +126,11 @@ bool SystemManager::_LoadSystemCelestials() {
                 stationRef->SetAttribute(AttrDamage,        0.0);                                        // Structure Damage
                 stationRef->SetAttribute(AttrShieldCapacity,20000000.0);                         // Shield Capacity
                 stationRef->SetAttribute(AttrShieldCharge,  stationRef->GetAttribute(AttrShieldCapacity));     // Shield Charge
-                stationRef->SetAttribute(AttrArmorHP,       stationRef->type().attributes.armorHP(), 0);   // Armor HP
+                stationRef->SetAttribute(AttrArmorHP,       stationRef->GetAttribute(AttrArmorHP), 0);   // Armor HP
                 stationRef->SetAttribute(AttrArmorDamage,   0.0);                                   // Armor Damage
-                stationRef->SetAttribute(AttrMass,          stationRef->type().attributes.mass());         // Mass
-                stationRef->SetAttribute(AttrRadius,        stationRef->type().attributes.radius());     // Radius
-                stationRef->SetAttribute(AttrVolume,        stationRef->type().attributes.volume());     // Volume
+                stationRef->SetAttribute(AttrMass,          stationRef->type().mass());         // Mass
+                stationRef->SetAttribute(AttrRadius,        stationRef->type().radius());     // Radius
+                stationRef->SetAttribute(AttrVolume,        stationRef->type().volume());     // Volume
 
                 m_entities[stationEntity->GetStationObject()->itemID()] = stationEntity;
                 bubbles.Add(stationEntity, true);

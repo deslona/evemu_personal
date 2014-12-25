@@ -335,7 +335,9 @@ PyResult Command_tr( Client* who, CommandDB* db, PyServiceMgr* services, const S
     //    solarSystemID - destination solar system ID
     //    destinationPoint - destination coordinates (GPoint)
 
-    p_targetClient->Destiny()->SendJumpOutEffect("effects.JumpOut", solarSystemID);
+    if (p_targetClient->Destiny())
+        p_targetClient->Destiny()->SendJumpOutEffect("effects.JumpOut", solarSystemID);
+
     p_targetClient->MoveToLocation(solarSystemID, destinationPoint);
     //p_targetClient->Destiny()->SendJumpInEffect("effects.JumpIn");
 
@@ -707,12 +709,13 @@ PyResult Command_location( Client* who, CommandDB* db, PyServiceMgr* services, c
 
     char reply[128];
     snprintf( reply, 128,
-        "<br>"
+        "SystemID: %li<br>"
         "x: %lf<br>"
         "y: %lf<br>"
         "z: %lf<br>"
         "speed: %lf<br>"
         "bubble: %li",
+        who->GetSystemID(),
         loc.x, loc.y, loc.z,
         vel.length(), bubble
     );

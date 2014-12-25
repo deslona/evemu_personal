@@ -224,15 +224,15 @@ void SpawnAsteroid( SystemManager* system, uint32 typeID, double radius, const G
     double volume = (1.0/10000.0) * (4.0/3.0) * M_PI * pow(radius,3);
 
 	i->SetAttribute(AttrQuantity, EvilNumber(floor(100*(volume/(i->GetAttribute(AttrVolume).get_float())))));
-    i->SetAttribute(AttrRadius, EvilNumber(radius));
+    //i->SetAttribute(AttrRadius, EvilNumber(radius));
     //i->SetAttribute(AttrVolume, EvilNumber(volume));
     //i->SetAttribute(AttrIsOnline,EvilNumber(1));                            // Is Online
     //i->SetAttribute(AttrDamage,EvilNumber(0.0));                            // Structure Damage
     //i->SetAttribute(AttrShieldCharge,i->GetAttribute(AttrShieldCapacity));  // Shield Charge
     //i->SetAttribute(AttrArmorDamage,EvilNumber(0.0));                       // Armor Damage
-    //i->SetAttribute(AttrMass,EvilNumber(i->type().attributes.mass()));      // Mass
-    //i->SetAttribute(AttrRadius,EvilNumber(i->type().attributes.radius()));  // Radius
-    //i->SetAttribute(AttrVolume,EvilNumber(i->type().attributes.volume()));  // Volume
+    i->SetAttribute(AttrMass,EvilNumber(i->type().mass()));      // Mass
+    i->SetAttribute(AttrRadius,EvilNumber(i->type().radius()));  // Radius
+    i->SetAttribute(AttrVolume,EvilNumber(i->type().volume()));  // Volume
 
     // TODO: Rework this code now that
     AsteroidEntity* new_roid = NULL;

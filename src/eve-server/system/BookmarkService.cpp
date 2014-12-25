@@ -402,22 +402,13 @@ PyResult BookmarkService::Handle_CreateFolder(PyCallArgs &call) {
         ownerID,
         creatorID
     );
-/*
+    
     PyTuple* res = NULL;
-
-    PyTuple* tuple0 = new PyTuple( 3 );
-
-    tuple0->items[ 0 ] = new PyInt( ownerID );
-    tuple0->items[ 1 ] = new PyInt( folderID );
-    tuple0->items[ 2 ] = new PyString( folderName );
-
-    res = tuple0;
+    PyTuple* tuple = new PyTuple( 1 );
+    tuple->items[ 0 ] = new PyInt( folderID );
+    res = tuple;
 
     return res;
-    */
-
-    //This function does NOT return anything to the client
-    return(new PyNone());
 }
 
 PyResult BookmarkService::Handle_UpdateFolder(PyCallArgs &call) {
