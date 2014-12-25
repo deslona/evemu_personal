@@ -202,7 +202,7 @@ bool TargetManager::StartTargeting(SystemEntity *who, ShipRef ship) {
     te->timer.Start(lockTime);
 	m_targets[who] = te;
 
-    _log(TARGET__TRACE, "%u started targeting %u (%u ms lock time)", m_self->GetID(), who->GetID(), lockTime);
+    _log(TARGET__TRACE, "Target 1: %u started targeting %u (%f ms lock time)", m_self->GetID(), who->GetID(), lockTime);
     return true;
 }
 
@@ -235,7 +235,7 @@ bool TargetManager::StartTargeting(SystemEntity *who, double lockTime, uint32 ma
 	te->timer.Start(lockTime);
 	m_targets[who] = te;
 
-    _log(TARGET__TRACE, "%u started targeting %u (%u ms lock time)", m_self->GetID(), who->GetID(), lockTime);
+    _log(TARGET__TRACE, "Target 2: %u started targeting %u (%f ms lock time)", m_self->GetID(), who->GetID(), lockTime);
     return true;
 }
 

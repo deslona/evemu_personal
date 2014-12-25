@@ -181,20 +181,6 @@ public:
 	// set true for using autopilot.
 	bool m_autoPilot = false;
 
-    void SetJustUndocking(bool justUndocking)
-    {
-        if( m_justUndockedCount == 0 )
-            m_justUndockedCount = 1;
-        else
-            m_justUndockedCount--;
-
-        if( m_justUndockedCount == 1 )
-            m_justUndocked = justUndocking;
-    }
-    bool GetJustUndocking() { return m_justUndocked; };
-    void SetUndockAlignToPoint(GPoint &dest);
-    void GetUndockAlignToPoint(GPoint &dest);
-
     //messages and LSC
     void SendErrorMsg(const char *fmt, ...);
     void SendErrorMsg(const char *fmt, va_list args);
@@ -224,6 +210,7 @@ public:
 
     virtual const char *GetName() const { return GetChar() ? GetChar()->itemName().c_str() : "(null)"; }
     virtual PyDict *MakeSlimItem() const;
+    virtual PyRep *GetAggressors() const;
     virtual void QueueDestinyUpdate(PyTuple** du);
     virtual void QueueDestinyEvent(PyTuple** multiEvent);
 
@@ -237,7 +224,7 @@ public:
     virtual bool ApplyDamage(Damage &d);
     virtual void Killed(Damage &fatal_blow);
     virtual void _DropLoot(uint32 groupID, uint32 owner, uint32 locationID);
-    virtual SystemManager *System() const { return(m_system); }    //may yeild NULL
+    virtual SystemManager *System() const { return (m_system); }    //may yeild NULL
 
     /********************************************************************/
     /* Server Administration Interface                                  */

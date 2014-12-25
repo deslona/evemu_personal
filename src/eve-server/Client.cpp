@@ -407,17 +407,17 @@ bool Client::EnterSystem(bool login) {
 
 bool Client::UpdateLocation(bool login) {
     if(IsStation(GetLocationID())) {
-        sLog.Success( "Client::UpdateLocation()", "Character %s (%u) Docked.", this->GetName(), this->GetCharacterID() );
+        sLog.Success( "Client::UpdateLocation()", "Character %s (%u) Docked.", GetName(), GetCharacterID() );
         //we entered station, delete m_destiny
         delete m_destiny;
         m_destiny = NULL;
 
-		//m_system->RemoveClient(this);
-		//m_system = NULL;
+		m_system->RemoveClient(this);
+		m_system = NULL;
 
         OnCharNowInStation();
     } else if(IsSolarSystem(GetLocationID())) {
-        sLog.Success( "Client::UpdateLocation()", "Character %s (%u) InSpace.", this->GetName(), this->GetCharacterID() );
+        sLog.Success( "Client::UpdateLocation()", "Character %s (%u) InSpace.", GetName(), GetCharacterID() );
         //we are in a system, so we need a destiny manager
         m_destiny = new DestinyManager(this, m_system);
 		m_destiny->SetShipCapabilities(GetShip());
@@ -1056,7 +1056,7 @@ PyDict *Client::MakeSlimItem() const {
     slim->SetItemString("allianceID", new PyInt(GetAllianceID()));
     slim->SetItemString("warFactionID", new PyInt(GetWarFactionID()));
 
-    //encode the mModulesMgr list, if we have any visible mModulesMgr
+    //encode the modules list, if we have any visible
     std::vector<InventoryItemRef> items;
     GetShip()->FindByFlagRange( flagLowSlot0, flagHiSlot7, items );
     if( !items.empty() )
@@ -1072,14 +1072,28 @@ PyDict *Client::MakeSlimItem() const {
             l->AddItem(t);
         }
 
-        slim->SetItemString("mModulesMgr", l);
+        slim->SetItemString("modules", l);
     }
 
-    slim->SetItemString("color", new PyFloat(0.0));
     slim->SetItemString("bounty", new PyFloat(GetBounty()));
     slim->SetItemString("securityStatus", new PyFloat(GetSecurityRating()));
 
     return(slim);
+}
+
+PyRep *Client::GetAggressors() const {
+    PyDict *dict = NULL;
+    /*  items are set here as
+     *               [PyInt 90971469]     <- entity
+     *               [PyDict 1 kvp]       <- dictionary
+     *                  [PyInt 1000127]   <- agression TO corpID
+     *                  [PyIntegerVar 129550906897224125] <- timestamp (dont know if this is begin time or end time)
+     */
+    /*
+     *    while (entity has agressions)
+     *        dict->SetItem( PyInt(agressionToEntityID, Win32TimeNow()));
+     */
+    return dict;
 }
 
 void Client::SetAutoPilot(bool autoPilot) {
@@ -1136,37 +1150,9 @@ void Client::StargateJump(uint32 fromGate, uint32 toGate) {
     //  show gate animation in both to and from gate.
     m_destiny->SendJumpOut(fromGate);
     m_destiny->SendJumpOut(toGate);
-    
+
     //delay the move so they can see the JumpOut animation
     _postMove(msJump, 3000);
-}
-
-void Client::SetDockingPoint(GPoint dockPoint)
-{
-    m_movePoint.x = dockPoint.x;
-    m_movePoint.y = dockPoint.y;
-    m_movePoint.z = dockPoint.z;
-}
-
-void Client::GetDockingPoint(GPoint *dockPoint)
-{
-    dockPoint->x = m_movePoint.x;
-    dockPoint->y = m_movePoint.y;
-    dockPoint->z = m_movePoint.z;
-}
-
-void Client::SetUndockAlignToPoint(GPoint &dest)
-{
-    m_undockAlignToPoint.x = dest.x;
-    m_undockAlignToPoint.y = dest.y;
-    m_undockAlignToPoint.z = dest.z;
-}
-
-void Client::GetUndockAlignToPoint(GPoint &dest)
-{
-    dest.x = m_undockAlignToPoint.x;
-    dest.y = m_undockAlignToPoint.y;
-    dest.z = m_undockAlignToPoint.z;
 }
 
 void Client::_postMove(_MoveState type, uint32 wait_ms) {

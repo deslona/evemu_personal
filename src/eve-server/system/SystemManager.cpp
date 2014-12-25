@@ -708,38 +708,23 @@ bool SystemManager::BuildDynamicEntity(Client *who, const DBSystemDynamicEntity 
 
 void SystemManager::AddClient(Client *who) {
   //called from Client::EnterSystem and Client::BoardShip
-    AddEntity( who );
-    m_entities[who->GetID()] = who;
-    m_entityChanged = true;
-
     _log(CLIENT__TRACE, "%s: Added to system manager for %u", who->GetName(), m_systemID);
-
-    // Add character's Ship Item Ref to Solar System dynamic inventory:
-    AddItemToInventory( who->GetShip() );
+    AddEntity( who );
 }
 
 void SystemManager::RemoveClient(Client *who) {
     RemoveEntity(who);
     _log(CLIENT__TRACE, "%s: Removed from system manager for %u", who->GetName(), m_systemID);
-
-    // Remove character's Ship Item Ref from Solar System dynamic inventory:
-    RemoveItemFromInventory( who->GetShip() );
 }
 
 void SystemManager::AddNPC(NPC *who) {
     //nothing special to do yet...
     AddEntity(who);
-
-    // Add NPC's Item Ref to Solar System Dynamic Inventory:
-    //AddItemToInventory( this->itemFactory().GetItem( who->GetID() ) );
 }
 
 void SystemManager::RemoveNPC(NPC *who) {
     //nothing special to do yet...
     RemoveEntity(who);
-
-    // Remove NPC's Item Ref from Solar System Dynamic Inventory:
-    //RemoveItemFromInventory( this->itemFactory().GetItem( who->GetID() ) );
 }
 
 void SystemManager::AddEntity(SystemEntity *who) {
@@ -783,7 +768,7 @@ void SystemManager::MakeSetState(const SystemBubble *bubble, DoDestiny_SetState 
     Buffer* stateBuffer = new Buffer;
 
     AddBall_header head;
-    head.packet_type = 0;
+    head.packet_type = 0;   // 0 = full state   1 = balls
     head.sequence = ss.stamp;
     stateBuffer->Append( head );
 
@@ -799,16 +784,9 @@ void SystemManager::MakeSetState(const SystemBubble *bubble, DoDestiny_SetState 
         std::map<uint32, SystemEntity*>::const_iterator cur, end;
         cur = m_entities.begin();
         end = m_entities.end();
-        for(; cur != end; ++cur)
-        {
-            if( !cur->second->IsVisibleSystemWide() )
-            {
-                _log(COMMON__WARNING, "%u is not visible!", cur->first);
-                continue;
-            }
-
-            //_log(COMMON__WARNING, "%u is system wide visible!", cur->first);
-            visibleEntities.insert( cur->second );
+        for (; cur != end; ++cur) {
+            if ( cur->second->IsVisibleSystemWide() )
+                visibleEntities.insert( cur->second );
         }
     }
 
@@ -818,58 +796,49 @@ void SystemManager::MakeSetState(const SystemBubble *bubble, DoDestiny_SetState 
 
     PySafeDecRef( ss.slims );
     ss.slims = new PyList;
+    ss.effectStates = new PyList;
+    ss.allianceBridges = new PyList;
 
-    //go through all entities and gather the info we need...
+    //go through all entities in bubble and gather the info we need...
     std::set<SystemEntity*>::const_iterator cur, end;
     cur = visibleEntities.begin();
     end = visibleEntities.end();
-    for(; cur != end; ++cur)
-    {
+    for(; cur != end; ++cur) {
         SystemEntity* ent = *cur;
         _log(COMMON__WARNING, "Encoding entity %u", ent->GetID());
 
         //ss.damageState
         ss.damageState[ ent->GetID() ] = ent->MakeDamageState();
 
-        //ss.aggressors
-
         //ss.slims
         ss.slims->AddItem( new PyObject( "foo.SlimItem", ent->MakeSlimItem() ) );
 
         //append the destiny binary data...
         ent->EncodeDestiny( *stateBuffer );
+
+        /*  FIXME  this needs more work.  cant get aggressors mapped right into the PyDict
+        //ss.aggressors     this is for players undocking/jumping with aggression (GetCriminalTimeStamps)
+        if (ent->IsClient())
+            ss.aggressors[ent->GetID()] = ent->GetAggressors();
+            */
+
+        //  if (ent->IsPOS())  // TODO  to be written
+        //ss.effectStates  --pos and other structures    // TODO  started. ...to be added to other SystemEntities
+
+        //  if (ent->IsJumpBridge)   // TODO  to be written
+        //ss.allianceBridges -- jumpbridges and the like??    // TODO  to be written
+        //  for shipID, toSolarsystemID, toBeaconID in bag.allianceBridges:
     }
 
     //ss.destiny_state
     ss.destiny_state = new PyBuffer( &stateBuffer );
     SafeDelete( stateBuffer );
 
-    //ss.gangCorps
-
     //ss.droneState
     ss.droneState = m_db.GetSolDroneState( m_systemID );
-    if( NULL == ss.droneState )
-    {
-        _log( SERVICE__ERROR, "Unable to query dronestate entity for destiny update in system %u!", m_systemID );
-        ss.droneState = new PyNone;
-    }
 
     //ss.solItem
     ss.solItem = m_db.GetSolItem( m_systemID );
-    if( NULL == ss.solItem )
-    {
-        _log( CLIENT__ERROR, "Unable to query solarsystem entity for destiny update in system %u!", m_systemID );
-        ss.solItem = new PyNone;
-    }
-
-    //ss.effectStates
-    ss.effectStates = new PyList;
-
- 	//Destiny::MassSector massSector;
-    //massSector.
-
-    //ss.allianceBridges
-    ss.allianceBridges = new PyList;
 
     _log( DESTINY__TRACE, "Set State:" );
     ss.Dump( DESTINY__TRACE, "    " );

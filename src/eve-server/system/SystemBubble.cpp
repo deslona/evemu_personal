@@ -88,13 +88,14 @@ void SystemBubble::BubblecastDestinyUpdate( PyTuple** payload, const char* desc 
     std::set<SystemEntity*>::const_iterator cur, end, tmp;
     cur = m_dynamicEntities.begin();
     end = m_dynamicEntities.end();
-    for(; cur != end; ++cur)
-    {
-        if( NULL == up_dup )
-            up_dup = new PyTuple( *up );
+    for (; cur != end; ++cur) {
+        if ( (*cur)->IsNPC() || (*cur)->IsClient() ) {
+            if( NULL == up_dup )
+                up_dup = new PyTuple( *up );
 
-        _log( DESTINY__BUBBLE_TRACE, "Bubblecast %s update to %s (%u)", desc, (*cur)->GetName(), (*cur)->GetID() );
-	    (*cur)->QueueDestinyUpdate( &up_dup );
+            _log( DESTINY__BUBBLE_TRACE, "Bubblecast %s update to %s (%u)", desc, (*cur)->GetName(), (*cur)->GetID() );
+            (*cur)->QueueDestinyUpdate( &up_dup );
+        }
     }
 
     PySafeDecRef( up_dup );
@@ -113,19 +114,21 @@ void SystemBubble::BubblecastDestinyUpdateExclusive( PyTuple** payload, const ch
     std::set<SystemEntity*>::const_iterator cur, end, tmp;
     cur = m_dynamicEntities.begin();
     end = m_dynamicEntities.end();
-    for(; cur != end; ++cur)
-    {
-        // Only queue a Destiny update for this bubble if the current SystemEntity is not 'ent':
-        // (this is an update to all SystemEntity objects in the bubble EXCLUDING 'ent')
-        if( (*cur)->GetID() != ent->GetID() )
-        {
-			if( NULL == up_dup )
-                up_dup = new PyTuple( *up );
+    for(; cur != end; ++cur) {
+        // make sure current entity is NOT inanimate (clients/npcs only)
+        if ( (*cur)->IsNPC() || (*cur)->IsClient() ) {
+            // Only queue a Destiny update for this bubble if the current SystemEntity is not 'ent':
+            // (this is an update to all SystemEntity objects in the bubble EXCLUDING 'ent')
+            if( (*cur)->GetID() != ent->GetID() ) {
+                if( NULL == up_dup )
+                    up_dup = up;
 
-            (*cur)->QueueDestinyUpdate( &up_dup );
-            _log( DESTINY__BUBBLE_TRACE, "Exclusive Bubblecast %s update to %s (%u)", desc, (*cur)->GetName(), (*cur)->GetID() );
+                (*cur)->QueueDestinyUpdate( &up_dup );
+                _log( DESTINY__BUBBLE_TRACE, "Exclusive Bubblecast %s update to %s (%u)", desc, (*cur)->GetName(), (*cur)->GetID() );
+            }
         }
     }
+
 
     PySafeDecRef( up_dup );
     PyDecRef( up );
@@ -266,7 +269,7 @@ void SystemBubble::AddExclusive(SystemEntity *ent, bool notify) {
     //    return;
     //}
     //regardless, notify everybody else in the bubble of the add.
-    _BubblecastAddBall(ent);
+    _BubblecastAddBallExclusive(ent);
 
     _log(DESTINY__BUBBLE_DEBUG, "SystemBubble::AddExclusive() - Adding entity %u at %.2f,%.2f,%.2f to bubble %u at %.2f,%.2f,%.2f with radius %.2f", ent->GetID(), ent->GetPosition().x, ent->GetPosition().y, ent->GetPosition().z, this->GetBubbleID(), m_center.x, m_center.y, m_center.z, m_radius);
     //m_entities[ent->GetID()] = ent;
@@ -366,7 +369,7 @@ void SystemBubble::_SendAddBalls( SystemEntity* to_who )
     Buffer* destinyBuffer = new Buffer;
 
     Destiny::AddBall_header head;
-    head.packet_type = 0;
+    head.packet_type = 1;   // 0 = full state   1 = balls
     head.sequence = DestinyManager::GetStamp();
 
     destinyBuffer->Append( head );
@@ -384,7 +387,7 @@ void SystemBubble::_SendAddBalls( SystemEntity* to_who )
 
         //damageState
         addballs.damages[ cur->second->GetID() ] = cur->second->MakeDamageState();
-        //slim item
+        //slim item -bullshit.   addballs DOES NOT have slimitems
         addballs.slims->AddItem( new PyObject( "foo.SlimItem", cur->second->MakeSlimItem() ) );
         //append the destiny binary data...
         cur->second->EncodeDestiny( *destinyBuffer );
@@ -451,7 +454,7 @@ void SystemBubble::_BubblecastAddBall( SystemEntity* about_who )
 
     //create AddBalls header
     Destiny::AddBall_header head;
-    head.packet_type = 0;
+    head.packet_type = 1;   // 0 = full state   1 = balls
     head.sequence = DestinyManager::GetStamp();
     destinyBuffer->Append( head );
 
@@ -486,7 +489,7 @@ void SystemBubble::_BubblecastAddBallExclusive( SystemEntity* about_who )
 
     //create AddBalls header
     Destiny::AddBall_header head;
-    head.packet_type = 0;
+    head.packet_type = 1;   // 0 = full state   1 = balls
     head.sequence = DestinyManager::GetStamp();
     destinyBuffer->Append( head );
 
