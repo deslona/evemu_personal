@@ -27,7 +27,7 @@
 
 #include "system/SystemEntity.h"
 
-static const float BUBBLE_RADIUS_METERS = 250000.0f;       // EVE retail uses 250km and allows grid manipulation, for simplicity we dont and have our grid much larger
+static const float BUBBLE_DIAMETER_METERS = 500000.0f;       // EVE retail uses 250km and allows grid manipulation, for simplicity we dont and have our grid much larger
 static const float BUBBLE_HYSTERESIS_METERS = 5000.0f;     // How far out of the existing bubble a ship needs to fly before being placed into a new or different bubble
 
 class SystemBubble;

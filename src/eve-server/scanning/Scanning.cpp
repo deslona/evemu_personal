@@ -27,19 +27,120 @@
 
 #include "scanning/Scanning.h"
 
-/**
-Scanning::ScanningData()
+
+
+Scanning::Scanning()
+{
+
+}
+
+Scanning::~Scanning()
+{
+
+}
+
+/*
+ * Data()
 {
 
   scanSvc.GetProbeData (probeID)
   scanSvc.GetActiveProbes (probeID)
   scanSvc.GetProbeLabel(probe.probeID)
+} */
+
+void Scanning::ScanStart()
+{
+
 }
 
+PyRep *Scanning::ScanResult() {
+
+    /*
+                  [PyObjectData Name: util.KeyVal]
+                    [PyDict 12 kvp]
+                      [PyString "deviation"]
+                      [PyInt 0]
+                      [PyString "typeID"]
+                      [PyInt 28356]
+                      [PyString "probeID"]
+                      [PyIntegerVar 1328534410]
+                      [PyString "scanGroupID"]
+                      [PyInt 128]
+                      [PyString "certainty"]
+                      [PyFloat 1]
+                      [PyString "pos"]
+                      [PyObjectEx Type2]
+                        [PyTuple 2 items]
+                          [PyTuple 1 items]
+                            [PyToken foo.Vector3]
+                          [PyTuple 3 items]
+                            [PyFloat 924428329679.125]
+                            [PyFloat 8194006917.24071]
+                            [PyFloat 165918845190.904]
+                      [PyString "groupID"]
+                      [PyInt 885]
+                      [PyString "strengthAttributeID"]
+                      [PyInt 1136]
+                      [PyString "dungeonName"]
+                      [PyString "Drone Squad"]
+                      [PyString "degraded"]
+                      [PyBool False]
+                      [PyString "data"]
+                      [PyObjectEx Type2]
+                        [PyTuple 2 items]
+                          [PyTuple 1 items]
+                            [PyObjectEx Type2]
+                              [PyTuple 2 items]
+                                [PyTuple 1 items]
+                                  [PyToken foo.Vector3]
+                                [PyTuple 3 items]
+                                  [PyFloat 924428329679.125]
+                                  [PyFloat 8194006917.24071]
+                                  [PyFloat 165918845190.904]
+                          [PyTuple 3 items]
+                            [PyFloat -1249402429440]
+                            [PyFloat 17663139840]
+                            [PyFloat -2266524672000]
+                      [PyString "id"]
+                      [PyString "ODR-392"]
+                      */
+    return new PyInt(0);
+}
+
+void Scanning::SurveyScan() {
+    /*
+     *
+     *                      [PyString "OnSpecialFX"]
+     *                      [PyTuple 14 items]
+     *                        [PyIntegerVar 1002331681462]
+     *                        [PyIntegerVar 1002332233248]
+     *                        [PyInt 444]
+     *                        [PyNone]
+     *                        [PyNone]
+     *                        [PyList 0 items]
+     *                        [PyString "effects.SurveyScan"]
+     *                        [PyBool False]
+     *                        [PyInt 1]
+     *                        [PyInt 1]
+     *                        [PyFloat 4250]
+     *                        [PyInt 0]
+     *                        [PyIntegerVar 129509430135552798]
+     *                        [PyNone]
+     *
+     *
+     *                [PyList 2 items]
+     *                  [PyTuple 2 items]
+     *                    [PyString "OnSurveyScanComplete"]
+     *                    [PyList 0 items]
+     *
+     */
+}
+
+
+/*
 AttrScanGravimetricStrengthBonus = 238,
 AttrScanLadarStrengthBonus = 239,
 AttrScanMagnetometricStrengthBonus = 240,
 AttrScanRadarStrengthBonus = 241,
 AttrScanSpeedMultiplier = 242,
-
 */

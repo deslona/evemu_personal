@@ -177,7 +177,7 @@ RefPtr<_Ty> InventoryItem::_LoadItem(ItemFactory &factory, uint32 itemID,
 {
     // See what to do next:
     switch( type.categoryID() ) {
-        //! TODO not handled.
+        // TODO not handled.
         case EVEDB::invCategories::_System:
         case EVEDB::invCategories::Station:
         case EVEDB::invCategories::Material:
@@ -208,16 +208,59 @@ RefPtr<_Ty> InventoryItem::_LoadItem(ItemFactory &factory, uint32 itemID,
             if( (type.groupID() == EVEDB::invGroups::Spawn_Container) )
                 return CargoContainerRef( new CargoContainer( factory, itemID, type, data ) );
             else
-				if( (type.groupID() >= EVEDB::invGroups::Asteroid_Angel_Cartel_Frigate
-							&& type.groupID() <= EVEDB::invGroups::Deadspace_Serpentis_Frigate)
-							|| (type.groupID() >= 755 /* Asteroid Rogue Drone BattleCruiser */
-							&& type.groupID() <= 761 /* Asteroid Rogue Drone Swarm */)
-							|| (type.groupID() >= 789 /* Asteroid Angel Cartel Commander Frigate */
-							&& type.groupID() <= 814 /* Asteroid Serpentis Commander Frigate */)
-							|| (type.groupID() >= 843 /* Asteroid Rogue Drone Commander BattleCruiser */
-							&& type.groupID() <= 852 /* Asteroid Serpentis Commander Battleship */)
-							|| (type.groupID() >= 959 /* Deadspace Sleeper Sleepless Sentinel */
-							&& type.groupID() <= 987 /* Deadspace Sleeper Emergent Patroller */) )
+                //  added checks for all npc's   -allan 26Dec14
+                if (   (type.groupID() == EVEDB::invGroups::Sentry_Gun)
+                ||  (type.groupID() == EVEDB::invGroups::Protective_Sentry_Gun)
+                ||  (type.groupID() == EVEDB::invGroups::Police_Drone)
+                ||  (type.groupID() == EVEDB::invGroups::Pirate_Drone)
+                ||  (type.groupID() == EVEDB::invGroups::LCO_Drone)
+                ||  (type.groupID() == EVEDB::invGroups::Tutorial_Drone)
+                ||  (type.groupID() == EVEDB::invGroups::Rogue_Drone)
+                ||  (type.groupID() == EVEDB::invGroups::Faction_Drone)
+                ||  (type.groupID() == EVEDB::invGroups::Convoy)
+                ||  (type.groupID() == EVEDB::invGroups::Convoy_Drone)
+                ||  (type.groupID() == EVEDB::invGroups::Concord_Drone)
+                ||  (type.groupID() == EVEDB::invGroups::Mission_Drone)
+                ||  (type.groupID() == EVEDB::invGroups::Destructible_Sentry_Gun)
+                ||  (type.groupID() == EVEDB::invGroups::Deadspace_Overseer)
+                ||  (type.groupID() == EVEDB::invGroups::Customs_Official)
+                ||  (type.groupID() == EVEDB::invGroups::Deadspace_Overseer_s_Structure)
+                ||  (type.groupID() == EVEDB::invGroups::Deadspace_Overseer_s_Sentry)
+                ||  (type.groupID() == EVEDB::invGroups::Deadspace_Overseer_s_Belongings)
+                ||  (type.groupID() == EVEDB::invGroups::Storyline_Frigate)
+                ||  (type.groupID() == EVEDB::invGroups::Storyline_Cruiser)
+                ||  (type.groupID() == EVEDB::invGroups::Storyline_Battleship)
+                ||  (type.groupID() == EVEDB::invGroups::Storyline_Mission_Frigate)
+                ||  (type.groupID() == EVEDB::invGroups::Storyline_Mission_Cruiser)
+                ||  (type.groupID() == EVEDB::invGroups::Storyline_Mission_Battleship)
+                ||  ((type.groupID() >= EVEDB::invGroups::Asteroid_Angel_Cartel_Frigate) && (type.groupID() <= EVEDB::invGroups::Asteroid_Serpentis_BattleCruiser))
+                ||  ((type.groupID() >= EVEDB::invGroups::Deadspace_Angel_Cartel_BattleCruiser) && (type.groupID() <= EVEDB::invGroups::Deadspace_Angel_Cartel_Frigate))
+                ||  ((type.groupID() >= EVEDB::invGroups::Deadspace_Blood_Raiders_BattleCruiser) && (type.groupID() <= EVEDB::invGroups::Deadspace_Blood_Raiders_Frigate))
+                ||  ((type.groupID() >= EVEDB::invGroups::Deadspace_Guristas_BattleCruiser) && (type.groupID() <= EVEDB::invGroups::Deadspace_Guristas_Frigate))
+                ||  ((type.groupID() >= EVEDB::invGroups::Deadspace_Sanshas_Nation_BattleCruiser) && (type.groupID() <= EVEDB::invGroups::Deadspace_Sanshas_Nation_Frigate))
+                ||  ((type.groupID() >= EVEDB::invGroups::Deadspace_Serpentis_BattleCruiser) && (type.groupID() <= EVEDB::invGroups::Deadspace_Serpentis_Frigate))
+                ||  ((type.groupID() >= EVEDB::invGroups::Mission_Amarr_Empire_Frigate) && (type.groupID() <= EVEDB::invGroups::Mission_Minmatar_Republic_Battleship))
+                ||  (type.groupID() == EVEDB::invGroups::Destructible_Agents_In_Space)
+                ||  ((type.groupID() >= EVEDB::invGroups::Asteroid_Rogue_Drone_Battlecruiser) && (type.groupID() <= EVEDB::invGroups::Asteroid_Rogue_Drone_Swarm))
+                ||  (type.groupID() == EVEDB::invGroups::Large_Collidable_Ship)
+                ||  ((type.groupID() >= EVEDB::invGroups::Asteroid_Angel_Cartel_Commander_Frigate) && (type.groupID() <= EVEDB::invGroups::Asteroid_Serpentis_Commander_Frigate))
+                ||  ((type.groupID() >= EVEDB::invGroups::Mission_Generic_Battleships) && (type.groupID() <= EVEDB::invGroups::Mission_Generic_Destroyers))
+                ||  ((type.groupID() >= EVEDB::invGroups::Asteroid_Rogue_Drone_Commander_Battlecruiser) && (type.groupID() <= EVEDB::invGroups::Asteroid_Serpentis_Commander_Battleship))
+                ||  (type.groupID() == EVEDB::invGroups::Mission_Fighter_Drone)
+                ||  ((type.groupID() >= EVEDB::invGroups::Mission_Amarr_Empire_Carrier) && (type.groupID() <= EVEDB::invGroups::Mission_Minmatar_Republic_Carrier))
+                ||  (type.groupID() == EVEDB::invGroups::Mission_Faction_Transports)
+                ||  (type.groupID() == EVEDB::invGroups::Mission_Faction_Industrials)
+                ||  (type.groupID() == EVEDB::invGroups::Deadspace_Sleeper_Sleepless_Sentinel)
+                ||  (type.groupID() == EVEDB::invGroups::Deadspace_Sleeper_Awakened_Sentinel)
+                ||  (type.groupID() == EVEDB::invGroups::Deadspace_Sleeper_Emergent_Sentinel)
+                ||  ((type.groupID() >= EVEDB::invGroups::Deadspace_Sleeper_Sleepless_Defender) && (type.groupID() <= EVEDB::invGroups::Deadspace_Sleeper_Emergent_Patroller))
+                ||  (type.groupID() == EVEDB::invGroups::Mission_Faction_Cruiser)
+                ||  (type.groupID() == EVEDB::invGroups::Mission_Faction_Frigate)
+                ||  (type.groupID() == EVEDB::invGroups::Incursion_Sanshas_Nation_Industrial)
+                ||  (type.groupID() == EVEDB::invGroups::Incursion_Sanshas_Nation_Capital)
+                ||  (type.groupID() == EVEDB::invGroups::Incursion_Sanshas_Nation_Frigate)
+                ||  (type.groupID() == EVEDB::invGroups::Incursion_Sanshas_Nation_Cruiser)
+                ||  (type.groupID() == EVEDB::invGroups::Incursion_Sanshas_Nation_Battleship))
 					return InventoryItemRef( new InventoryItem(factory, itemID, type, data) );
 				else
 					return CelestialObjectRef( new CelestialObject( factory, itemID, type, data ) );

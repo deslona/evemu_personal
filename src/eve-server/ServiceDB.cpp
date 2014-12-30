@@ -149,8 +149,8 @@ PyPackedRow *ServiceDB::GetSolItem(uint32 systemID) const {
         " g.categoryID,"
         " e.customInfo"
         " FROM entity AS e"
-        "  LEFT JOIN invTypes AS t ON t.typeID = e.typeID"
-        "  LEFT JOIN invGroups AS g ON g.groupID = t.groupID"
+        "  LEFT JOIN invTypes AS t USING (typeID)"
+        "  LEFT JOIN invGroups AS g USING (groupID)"
         " WHERE e.itemID=%u",
         systemID ))
     {

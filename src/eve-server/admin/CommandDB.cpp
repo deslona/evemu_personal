@@ -117,6 +117,16 @@ bool CommandDB::GetRoidDist(const char * sec, std::map<double, uint32> &roids) {
     return !roids.empty();
 }
 
+double CommandDB::GetSecurity(uint32 systemID) {
+    DBQueryResult res;
+    DBResultRow row;
+
+    sDatabase.RunQuery(res, "SELECT security FROM mapSolarSystems WHERE solarSystemID = %u ", systemID);
+
+    res.GetRow(row);
+    return row.GetUInt(0);
+}
+
 int CommandDB::GetAttributeID(const char *attributeName) {
 
     DBQueryResult res;

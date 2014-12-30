@@ -25,9 +25,5 @@
 
 #include "eve-server.h"
 
-#include "scanning/Scanning.h"
 #include "scanning/ScanningDB.h"
 
-ScanningDB::ScanningDB()
-{
-}

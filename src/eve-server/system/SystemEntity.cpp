@@ -52,6 +52,12 @@ double SystemEntity::DistanceTo2(const SystemEntity *other) const {
     return(delta.lengthSquared());
 }
 
+float SystemEntity::GetRadius() const {
+    if (!Item())
+        return (10.0f);
+    return (Item()->GetAttribute(AttrRadius).get_float());
+}
+
 PyTuple *SystemEntity::MakeDamageState() const {
     DoDestinyDamageState ddds;
     MakeDamageState(ddds);
@@ -86,12 +92,6 @@ const char *ItemSystemEntity::GetName() const {
     return(m_self->itemName().c_str());
 }
 
-float ItemSystemEntity::GetRadius() const {
-    if(!m_self)
-        return(10.0f);
-    return (m_self->GetAttribute(AttrRadius).get_float());
-}
-
 const GPoint &ItemSystemEntity::GetPosition() const {
     static const GPoint err(0.0, 0.0, 0.0);
     if(!m_self)
@@ -109,6 +109,8 @@ PyDict *ItemSystemEntity::MakeSlimItem() const {
     slim->SetItemString("itemID", new PyInt(Item()->itemID()));
     slim->SetItemString("typeID", new PyInt(Item()->typeID()));
     slim->SetItemString("ownerID", new PyInt(Item()->ownerID()));
+    slim->SetItemString("itemNameID", new PyInt(0));
+    slim->SetItemString("itemName", new PyString(Item()->itemName()));
     return(slim);
 }
 

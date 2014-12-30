@@ -70,6 +70,8 @@ PyDict *SimpleSystemEntity::MakeSlimItem() const {
     slim->SetItemString("typeID", new PyInt(data.typeID));
     slim->SetItemString("ownerID", new PyInt(1));
     slim->SetItemString("itemID", new PyInt(data.itemID));
+    slim->SetItemString("itemNameID", new PyInt(0));
+    slim->SetItemString("itemName", new PyString(data.itemName));
     return slim;
 }
 
@@ -149,9 +151,10 @@ void SystemStationEntity::EncodeDestiny( Buffer& into ) const
 PyDict *SystemStationEntity::MakeSlimItem() const {
     PyDict *slim = new PyDict();
     slim->SetItemString("typeID", new PyInt(data.typeID));
-    //HACKED:::
-    slim->SetItemString("ownerID", new PyInt(1000044));
+    slim->SetItemString("ownerID", new PyInt(1));
     slim->SetItemString("itemID", new PyInt(data.itemID));
+    slim->SetItemString("itemNameID", new PyInt(0));
+    slim->SetItemString("itemName", new PyString(data.itemName));
     return(slim);
 }
 
@@ -178,7 +181,12 @@ bool SystemStargateEntity::LoadExtras(SystemDB *db) {
 }
 
 PyDict *SystemStargateEntity::MakeSlimItem() const {
-    PyDict *slim = SystemStationEntity::MakeSlimItem();
+    PyDict *slim = new PyDict();
+    slim->SetItemString("typeID", new PyInt(data.typeID));
+    slim->SetItemString("ownerID", new PyInt(1));       // TODO make function to lookup controlling faction id for this
+    slim->SetItemString("itemID", new PyInt(data.itemID));
+    slim->SetItemString("itemNameID", new PyInt(0));
+    slim->SetItemString("itemName", new PyString(data.itemName));
     if(m_jumps != NULL)
         slim->SetItemString("jumps", m_jumps->Clone());
     return(slim);

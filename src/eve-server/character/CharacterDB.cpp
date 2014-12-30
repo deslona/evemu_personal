@@ -897,7 +897,7 @@ bool CharacterDB::EditOwnerNote(uint32 charID, uint32 noteID, const std::string 
     return true;
 }
 
-PyObject *CharacterDB::GetOwnerNoteLabels(uint32 charID) {
+PyObjectEx *CharacterDB::GetOwnerNoteLabels(uint32 charID) {
     DBQueryResult res;
 
     if (!sDatabase.RunQuery(res, "SELECT noteID, label FROM chrOwnerNote WHERE ownerID = %u", charID))
@@ -906,10 +906,10 @@ PyObject *CharacterDB::GetOwnerNoteLabels(uint32 charID) {
         return (NULL);
     }
 
-    return DBResultToRowset(res);
+    return DBResultToCRowset(res);
 }
 
-PyObject *CharacterDB::GetOwnerNote(uint32 charID, uint32 noteID) {
+PyObjectEx *CharacterDB::GetOwnerNote(uint32 charID, uint32 noteID) {
     DBQueryResult res;
 
     if (!sDatabase.RunQuery(res, "SELECT note FROM chrOwnerNote WHERE ownerID = %u AND noteID = %u", charID, noteID))
@@ -918,7 +918,7 @@ PyObject *CharacterDB::GetOwnerNote(uint32 charID, uint32 noteID) {
         return (NULL);
     }
 
-    return DBResultToRowset(res);
+    return DBResultToCRowset(res);
 }
 
 uint32 CharacterDB::djb2_hash( const char* str )
@@ -1276,27 +1276,27 @@ void CharacterDB::addOwnerCache(uint32 ownerID, std::string ownerName, uint32 ty
 
 PyRep* CharacterDB::GetBounty(uint32 charID, uint32 ownerID) {
     DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT characterID, ownerID, bounty FROM chrBounties");
+    sDatabase.RunQuery(res, "SELECT characterID, bounty FROM character_ WHERE bounty > 0 ORDER BY bounty DESC");
     return(DBResultToRowset(res));
 }
 
 PyRep* CharacterDB::GetTopBounties() {
     DBQueryResult res;
-    sDatabase.RunQuery(res, "SELECT characterID, bounty FROM chrBounties ORDER BY bounty DESC LIMIT 15");
+    sDatabase.RunQuery(res, "SELECT characterID, bounty FROM character_ WHERE bounty > 0 ORDER BY bounty DESC LIMIT 15");
     return(DBResultToRowset(res));
 }
 
 void CharacterDB::AddBounty(uint32 charID, uint32 ownerID, uint32 amount) {
     DBerror err;
-    sDatabase.RunQuery(err,
-        "INSERT INTO chrBounties(characterID, ownerID, bounty, timePlaced)"
-	" VALUES (%u, %u, %u, UNIX_TIMESTAMP(CURRENT_TIMESTAMP) )",
-        charID, ownerID, amount );
 
-    //FIXME  check for multiple bounties on char, and set this to total amount
-    DBerror err2;
-    sDatabase.RunQuery(err2,
-        "UPDATE character_ SET bounty = bounty + %u WHERE characterID = %u", amount, charID);
+    sDatabase.RunQuery(err,
+        "UPDATE character_ SET bounty = bounty + %u WHERE characterID = %u",
+        amount, charID);
+
+    sDatabase.RunQuery(err,
+        "INSERT INTO webBounties(characterID, ownerID, bounty, timePlaced)"
+        " VALUES (%u, %u, %u, UNIX_TIMESTAMP(CURRENT_TIMESTAMP) )",
+        charID, ownerID, amount );
 }
 
 void CharacterDB::VisitSystem(uint32 solarSystemID, uint32 charID) {

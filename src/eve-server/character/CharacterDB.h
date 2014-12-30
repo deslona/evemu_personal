@@ -30,6 +30,7 @@
 
 class PyObject;
 class PyString;
+class PyObjectEx;
 class CharacterAppearance;
 class ItemFactory;
 class InventoryItem;
@@ -49,8 +50,8 @@ public:
     PyObject *GetCharPublicInfo(uint32 characterID);
     PyObject *GetCharPublicInfo3(uint32 characterID);
     //PyObject *GetAgentPublicInfo(uint32 agentID);
-    PyObject *GetOwnerNoteLabels(uint32 charID);
-    PyObject *GetOwnerNote(uint32 charID, uint32 noteID);
+    PyObjectEx *GetOwnerNoteLabels(uint32 charID);
+    PyObjectEx *GetOwnerNote(uint32 charID, uint32 noteID);
 
     double GetCharRawStandingFromNPC(uint32 characterID, uint32 itemID);
     void SetCharNPCStandings(uint32 characterID) ;
@@ -186,7 +187,7 @@ public:
 
     PyRep* GetBounty(uint32, uint32);
     PyRep* GetTopBounties();
-    void AddBounty(uint32, uint32, uint32);
+    void AddBounty(uint32 charID, uint32 ownerID, uint32 amount);
 
 	// for dynamic db functions    -allan
 	void VisitSystem(uint32, uint32);

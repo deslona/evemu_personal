@@ -105,14 +105,13 @@ PyResult Command_spawnbelt( Client* who, CommandDB* db, PyServiceMgr* services, 
 
     const double beltradius = 100000.0;
     const double beltdistance = 25000.0;
-    double roidradius;
     const double beltangle = M_PI * 2.0 / 3.0;
     uint32 pcs = 0;
 
 	if( customCount > 15 )
 		pcs = customCount + static_cast<uint32>(MakeRandomInt( -10, 10 ));
 	else
-		pcs = 30 + static_cast<uint32>(MakeRandomInt( -10, 10 ));
+		pcs = 30 + MakeRandomInt( -10, 10 );
 
     const GPoint position( who->GetPosition() );
 
@@ -127,30 +126,25 @@ PyResult Command_spawnbelt( Client* who, CommandDB* db, PyServiceMgr* services, 
     std::map<double, uint32> roidDist;
 	if( makeIceBelt )
 	{
-		std::string securityStatus = sys->GetSystemSecurity();
-		if( !makeRareIce )
-		{
+		//std::string securityStatus = sys->GetSystemSecurity();
+		if (makeRareIce) {
+            roidDist.insert(std::pair<double,uint32>(0.90,16263));      // Glacial Mass
+            roidDist.insert(std::pair<double,uint32>(0.80,16265));      // White Glaze
+            roidDist.insert(std::pair<double,uint32>(0.70,16266));      // Glare Crust
+            roidDist.insert(std::pair<double,uint32>(0.60,16268));      // Gelidus
+            roidDist.insert(std::pair<double,uint32>(0.50,16269));      // Krystallos
+            roidDist.insert(std::pair<double,uint32>(0.40,17976));      // Pristine White Glaze
+            roidDist.insert(std::pair<double,uint32>(0.30,17977));      // Smooth Glacial Mass
+            roidDist.insert(std::pair<double,uint32>(0.20,17978));      // Enriched Clear Icicle
+            roidDist.insert(std::pair<double,uint32>(0.10,28628));      // Crystalline Icicle
+        } else {
 			roidDist.insert(std::pair<double,uint32>(0.60,16264));		// Blue Ice
 			roidDist.insert(std::pair<double,uint32>(0.45,17975));		// Thick Blue Ice
 			roidDist.insert(std::pair<double,uint32>(0.30,28627));		// Azure Ice
 			roidDist.insert(std::pair<double,uint32>(0.20,16262));		// Clear Icicle
 			roidDist.insert(std::pair<double,uint32>(0.10,16267));		// Dark Glitter
 		}
-		if( makeRareIce )
-		{
-			roidDist.insert(std::pair<double,uint32>(0.90,16263));		// Glacial Mass
-			roidDist.insert(std::pair<double,uint32>(0.80,16265));		// White Glaze
-			roidDist.insert(std::pair<double,uint32>(0.70,16266));		// Glare Crust
-			roidDist.insert(std::pair<double,uint32>(0.60,16268));		// Gelidus
-			roidDist.insert(std::pair<double,uint32>(0.50,16269));		// Krystallos
-			roidDist.insert(std::pair<double,uint32>(0.40,17976));		// Pristine White Glaze
-			roidDist.insert(std::pair<double,uint32>(0.30,17977));		// Smooth Glacial Mass
-			roidDist.insert(std::pair<double,uint32>(0.20,17978));		// Enriched Clear Icicle
-			roidDist.insert(std::pair<double,uint32>(0.10,28628));		// Crystalline Icicle
-		}
-	}
-	else
-	{
+	} else {
 		if( !db->GetRoidDist( sys->GetSystemSecurity(), roidDist ) )
 		{
 			sLog.Error( "Command", "Couldn't get roid list for system security %s", sys->GetSystemSecurity() );
@@ -163,17 +157,27 @@ PyResult Command_spawnbelt( Client* who, CommandDB* db, PyServiceMgr* services, 
     double alpha;
     GPoint mposition;
 
-	if( makeIceBelt )
-		pcs *= 2;
+    float security = ( 1.1 - (db->GetSecurity(who->GetSystemID())));
+    float roidradius = 0;
+    float thefloat = 0.0f;
 
-    for( uint32 i = 0; i < pcs; ++i )
-    {
+	if (makeIceBelt)
+        pcs *= 2;
+
+    for (uint32 i = 0; i < pcs; ++i) {
         alpha = beltangle * MakeRandomFloat( -0.5, 0.5 );
+        roidradius = 1000;
 
-		if( makeIceBelt )
-			roidradius = MakeRandomFloat( 1000.0, 10000.0 );
-		else
-			roidradius = MakeRandomFloat( 100.0, 1000.0 );
+		if (makeIceBelt) {
+            thefloat = MakeRandomFloat( 9000.0, 14000.0 );
+            roidradius += thefloat;
+            roidradius *= 5;
+        } else {
+            thefloat = MakeRandomFloat( 7000.0, 14000.0 );
+            roidradius += thefloat;
+        }
+        roidradius *= security;
+
         mposition.x = beltradius * sin( phi + alpha ) + roidradius * MakeRandomFloat( 0, 15 );
         mposition.z = beltradius * cos( phi + alpha ) + roidradius * MakeRandomFloat( 0, 15 );
         mposition.y = position.y - r.y + roidradius * MakeRandomFloat( 0, 15 );
@@ -181,7 +185,7 @@ PyResult Command_spawnbelt( Client* who, CommandDB* db, PyServiceMgr* services, 
         SpawnAsteroid( who->System(), GetAsteroidType( MakeRandomFloat(), roidDist ), roidradius, r + mposition );
     }
 
-    return new PyString( "Spawn successsfull." );
+    return new PyString( "Spawn successsful." );
 }
 
 PyResult Command_growbelt( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args )
@@ -208,7 +212,7 @@ void SpawnAsteroid( SystemManager* system, uint32 typeID, double radius, const G
 {
     //TODO: make item in IsUniverseAsteroid() range...
     ItemData idata( typeID,
-                    1 /* who->GetCorporationID() */, //owner
+                    1,
                     system->GetID(),
                     flagAutoFit,
                     "",    //name
@@ -218,42 +222,21 @@ void SpawnAsteroid( SystemManager* system, uint32 typeID, double radius, const G
     if( !i )
         throw PyException( MakeCustomError( "Unable to spawn item of type %u.", typeID ) );
 
-    //i->Set_radius( radius );
-    // Calculate 1/10000th of the volume of a sphere with radius 'radius':
-    // (this should yield around 90,000 units of Veldspar in an asteroid with 1000.0m radius)
+    //Amount of Ore = (25000*ln(Radius))-112404.8
+    double quantity = ((25000 * log(radius)) - 112404.8);
     double volume = (1.0/10000.0) * (4.0/3.0) * M_PI * pow(radius,3);
 
-	i->SetAttribute(AttrQuantity, EvilNumber(floor(100*(volume/(i->GetAttribute(AttrVolume).get_float())))));
-    //i->SetAttribute(AttrRadius, EvilNumber(radius));
-    //i->SetAttribute(AttrVolume, EvilNumber(volume));
-    //i->SetAttribute(AttrIsOnline,EvilNumber(1));                            // Is Online
-    //i->SetAttribute(AttrDamage,EvilNumber(0.0));                            // Structure Damage
-    //i->SetAttribute(AttrShieldCharge,i->GetAttribute(AttrShieldCapacity));  // Shield Charge
-    //i->SetAttribute(AttrArmorDamage,EvilNumber(0.0));                       // Armor Damage
-    i->SetAttribute(AttrMass,EvilNumber(i->type().mass()));      // Mass
-    i->SetAttribute(AttrRadius,EvilNumber(i->type().radius()));  // Radius
-    i->SetAttribute(AttrVolume,EvilNumber(i->type().volume()));  // Volume
+	i->SetAttribute(AttrQuantity,  quantity);   //(floor(100*(volume/(i->GetAttribute(AttrVolume).get_float())))));
+    i->SetAttribute(AttrVolume, (volume));      // Volume
+    i->SetAttribute(AttrRadius, (i->type().radius() * radius));  // Radius
+    i->SetAttribute(AttrMass, (i->type().mass() * quantity));      // Mass
 
-    // TODO: Rework this code now that
+    // TODO: Rework this code
     AsteroidEntity* new_roid = NULL;
     new_roid = new AsteroidEntity( i, system, *(system->GetServiceMgr()), position );
     if( new_roid != NULL )
-        sLog.Debug( "SpawnAsteroid()", "Spawned new asteroid of radius= %fm and volume= %f m3", radius, volume );
+        sLog.Warning( "SpawnAsteroid()", "Spawned new asteroid of radius= %fm and volume= %f m3 with quantity of %f", radius, volume, quantity );
     //TODO: check for a local asteroid belt object?
     //TODO: actually add this to the asteroid belt too...
     system->AddEntity( new_roid );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

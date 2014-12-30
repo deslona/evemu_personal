@@ -1234,6 +1234,20 @@ int32 ModuleManager::Activate(uint32 itemID, std::string effectName, uint32 targ
 			//if(cmd == ONLINE)
 		    //    mod->Online();     // this currently fails since m_selectedEffect and m_defaultEffect in the ModuleEffect class are undefined
 			//there needs to be more cases here i just don't know what they're called yet
+        } else if (effectName == "surveyScan") {
+            /*
+            from surveyScaner
+            13:12:56 L Server: Activate call made to
+            13:12:56 L DogmaIMBound::Handle_Activate(): size= 4 from 'Lee'
+            13:12:56 [SvcCall]   Call Arguments:
+            13:12:56 [SvcCall]       Tuple: 4 elements
+            13:12:56 [SvcCall]         [ 0] Integer field: 140000221
+            13:12:56 [SvcCall]         [ 1] String: 'surveyScan'
+            13:12:56 [SvcCall]         [ 2] (None)
+            13:12:56 [SvcCall]         [ 3] Integer field: 0
+            */
+            m_pLog->Log("ModuleManager::Activate()", "Module '%s' Activating...", mod->getItem()->itemName().c_str());
+            
 		}
 		else
 		{

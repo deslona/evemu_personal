@@ -330,6 +330,9 @@ PyResult Command_tr( Client* who, CommandDB* db, PyServiceMgr* services, const S
     //solarSystemID = destinationEntity->GetLocationID();
     //destinationPoint = destinationEntity->GetPosition();
 
+    //  in case ap is set, unset it, as it will do odd things when undocking or loging in
+    p_targetClient->SetAutoPilot(false);
+
     // We're still going, so we know now we have a target to translocate AND a destination solar system AND destination coordinates, so let's do the translocate:
     //    p_targetClient - target character in a ship to translocate (Client *)
     //    solarSystemID - destination solar system ID
@@ -1103,7 +1106,8 @@ PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, 
 
 		//character->SaveFullCharacter();
 		//need skill as InventoryItem then x->SaveAttributes();
-		character->GetSkillQueue();
+        character->GetSkillQueue();
+        sLog.Log("GiveSkill", "skill %u upped to level %u.", skillID.get_int(), level );
 
         return new PyString ( "Skill Gifting Complete" );
     } else

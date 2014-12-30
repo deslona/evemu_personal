@@ -646,7 +646,7 @@ void DGM_Type_Effects_Table::_Populate()
 	if( error_count > 0 )
 		sLog.Error("DGM_Type_Effects_Table::_Populate()","ERROR Populating the DGM_Type_Effects_Table memory object: %u of %u types failed to load!", error_count, total_type_count);
 
-	sLog.Log("          Type_Effects", "%u total type effect objects loaded", total_type_count);
+	sLog.Log("     Type_Effects", "%u total type effect objects loaded", total_type_count);
 
     //cleanup
     delete res;

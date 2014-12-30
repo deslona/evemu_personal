@@ -342,6 +342,16 @@ DST_WARPEXIT = 11
       </tupleInline>
   </elementDef>
 
+  <elementDef name="DoDestiny_SetBallAgility">
+      <tupleInline>
+        <stringInline value="SetBallAgility" />
+        <tupleInline>
+            <int name="entityID" />
+            <real name="agility" />
+        </tupleInline>
+      </tupleInline>
+  </elementDef>
+
   <elementDef name="DoDestiny_SetBallVelocity">
       <tupleInline>
         <!-- 0 -->

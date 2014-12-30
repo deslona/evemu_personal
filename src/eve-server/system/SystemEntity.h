@@ -100,7 +100,7 @@ public:
     virtual const GVector &GetVelocity() const = 0;
     //get other attributes of the entity:
     virtual const char *GetName() const = 0;
-    virtual float GetRadius() const = 0;
+    virtual float GetRadius() const;
 
     //I am not sure if I want this here...
     virtual InventoryItemRef Item() const = 0;
@@ -148,7 +148,7 @@ public:
     virtual const char *GetName() const;
     virtual const GPoint &GetPosition() const;
     virtual const GVector &GetVelocity() const;
-    virtual float GetRadius() const;
+    //virtual float GetRadius() const;
     virtual PyDict *MakeSlimItem() const;
     virtual void MakeDamageState(DoDestinyDamageState &into) const;
 

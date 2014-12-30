@@ -35,6 +35,7 @@ public:
     bool ItemSearch(uint32 typeID, uint32 &actualTypeID, std::string &actualTypeName,
         uint32 &actualGroupID, uint32 &actualCategoryID, double &actualRadius);
     bool GetRoidDist(const char * sec, std::map<double, uint32> &roids);
+    double GetSecurity(uint32 systemID) ;
     int GetAttributeID(const char *attributeName);
     int GetAccountID(std::string name);
 	bool FullSkillList(std::vector<uint32> &skillList);

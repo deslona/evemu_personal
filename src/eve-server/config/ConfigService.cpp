@@ -199,10 +199,8 @@ PyResult ConfigService::Handle_GetMapConnections(PyCallArgs &call) {
     if(args.id == 9 || args.sol) {
         sLog.Warning( "ConfigService::Handle_GetMapConnections()", "args.id = 9 | args.sol");
         return m_db.GetMapConnections(call.client->GetSystemID(), args.sol, args.reg, args.con, args.cel, args._c);
-    } else {
-        //sLog.Success( "ConfigService::Handle_GetMapConnections()", "args.id is good number");
+    } else
         return m_db.GetMapConnections(args.id, args.sol, args.reg, args.con, args.cel, args._c);
-    }
 }
 
 PyResult ConfigService::Handle_GetStationSolarSystemsByOwner(PyCallArgs &call) {

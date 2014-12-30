@@ -27,9 +27,10 @@
 #ifndef EVEMU_SCANING_SCANMGR_H_
 #define EVEMU_SCANING_SCANMGR_H_
 
+#include "PyService.h"
 #include "scanning/Scanning.h"
 #include "scanning/ScanningDB.h"
-#include "PyService.h"
+
 
 class ScanMgrService : public PyService {
 public:
@@ -40,6 +41,7 @@ protected:
     class Dispatcher;
     Dispatcher *const m_dispatch;
 
+    //Scanning m_scan;
     ScanningDB m_db;
 
     PyCallable_DECL_CALL(GetSystemScanMgr);

@@ -51,6 +51,11 @@ PyResult WormHoleSvc::Handle_WormholeJump( PyCallArgs& call ) {
     sLog.Log("WormHoleSvc", "Handle_WormholeJump() size=%u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);
 
+    /*
+     *    char ci[25];
+     *    snprintf(ci, sizeof(ci), "Jumping:%u", toGate);
+     *    GetShip()->SetCustomInfo(ci);
+     */
     return NULL;
 }
 

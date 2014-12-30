@@ -188,6 +188,9 @@ PyResult BeyonceBound::Handle_CmdFollowBall(PyCallArgs &call) {
 }
 
 PyResult BeyonceBound::Handle_CmdSetSpeedFraction(PyCallArgs &call) {
+    sLog.Log( "BeyonceBound", "Handle_CmdSetSpeedFraction" );
+    call.Dump(SERVICE__CALLS);
+
     Call_SingleRealArg arg;
     if(!arg.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "%s: failed to decode args", call.client->GetName());
@@ -424,15 +427,14 @@ bookmark, bmid
 		return NULL;
 	}
 
-    if( arg.type == "item" )
-	{
+    if( arg.type == "item" ) {
 		// This section handles Warping to any object in the Overview
 
-		// Calculate the warp-to distance specified by the client and add this to the final warp-to distance
-		int32 distance;
+		// get the warp-to distance specified by the client
+		int32 distance = 0;
 		std::map<std::string, PyRep *>::const_iterator res = call.byname.find("minRange");
 		if(res == call.byname.end()) {
-			distance = 100;
+			distance = 0;
 		} else if(!res->second->IsInt() && !res->second->IsFloat()) {
 			codelog(CLIENT__ERROR, "%s: range of invalid type %s, expected Integer or Real; using 15 km.", call.client->GetName(), res->second->TypeString());
 			distance = 15000;
@@ -442,8 +444,6 @@ bookmark, bmid
 			? res->second->AsInt()->value()
 			: res->second->AsFloat()->value();
 		}
-
-		//we need to delay the destiny updates until after we return
 
 		SystemManager *sm = call.client->System();
 		if(sm == NULL) {
@@ -456,100 +456,109 @@ bookmark, bmid
 			return NULL;
 		}
 
-		GPoint origin(0.0,0.0,0.0);
-		double distanceFromBodyOrigin = 0.0;
-		double distanceFromSystemOrigin = 0.0;
-		GPoint warpToPoint(se->GetPosition());                                // Make a warp-in point variable
-		if( IsStaticMapItem(se->GetID()) )
-		{
-			switch( ((SimpleSystemEntity *)(se))->data.groupID )
-			{
+
+        double distanceFromBodyOrigin = 0.0;
+        double distanceFromSystemOrigin = 0.0;
+		GPoint warpToPoint(se->GetPosition());  // Make a warp-in point variable
+        float warpPointAdj = -1.0f;
+		if( IsStaticMapItem(se->GetID()) ) {
+			switch( ((SimpleSystemEntity *)(se))->data.groupID ) {
 				case EVEDB::invGroups::Sun:
 				case EVEDB::invGroups::Planet:
 				case EVEDB::invGroups::Moon:
-				{
-					// Calculate final distance out from origin of celestial body along common warp-to vector:
-					distanceFromBodyOrigin = se->GetRadius();            // Add celestial body's radius
-					distanceFromBodyOrigin += 20000000;                    // Add 20,000km along common vector from celestial body origin to ensure
-					// client camera rotation about ship does not take camera inside the celestial body's wireframe
+                {
+                    // Calculate final distance out from origin of celestial body along common warp-to vector:
+                    distanceFromBodyOrigin = se->GetRadius();            // Add celestial body's radius
+                    distanceFromBodyOrigin += 20000000;                    // Add 20,000km along common vector from celestial body origin to ensure
+                    // client camera rotation about ship does not take camera inside the celestial body's wireframe
 
-					// Calculate final warp-to point along common vector from celestial body's origin and add randomized position adjustment for multiple ships coming out of warp to not bump
-					GPoint celestialOrigin(se->GetPosition());                            // Make a celestial body origin point variable
-					GVector vectorFromOrigin(celestialOrigin, origin);                    // Make a celestial body TO system origin origin vector variable
-					if( vectorFromOrigin.length() == 0 )
-					{
-						// This is the special case where we are warping to the Star, so we have to construct
-						// a vector from the star's center (0,0,0) to the warp-in point using the distanceFromBodyOrigin
-						// calculated earlier:
-						vectorFromOrigin = GVector( celestialOrigin, call.client->GetPosition() );
-						vectorFromOrigin.normalize();
-						vectorFromOrigin *= distanceFromBodyOrigin;
-					}
-					GVector vectorToWarpPoint(vectorFromOrigin);                        // Make a vector to the Warp-In point
-					distanceFromSystemOrigin = vectorFromOrigin.length();                // Calculate distance from system origin to celestial body origin
+                    // Calculate final warp-to point along common vector from celestial body's origin and add randomized position adjustment for multiple ships coming out of warp to not bump
+                    GPoint celestialOrigin(se->GetPosition());                            // Make a celestial body origin point variable
+                    GVector vectorFromOrigin(celestialOrigin, NULL_ORIGIN);                    // Make a celestial body TO system origin origin vector variable
+                    if( vectorFromOrigin.length() == 0 )
+                    {
+                        // This is the special case where we are warping to the Star, so we have to construct
+                        // a vector from the star's center (0,0,0) to the warp-in point using the distanceFromBodyOrigin
+                        // calculated earlier:
+                        vectorFromOrigin = GVector( celestialOrigin, call.client->GetPosition() );
+                        vectorFromOrigin.normalize();
+                        vectorFromOrigin *= distanceFromBodyOrigin;
+                    }
+                    GVector vectorToWarpPoint(vectorFromOrigin);                        // Make a vector to the Warp-In point
+                    distanceFromSystemOrigin = vectorFromOrigin.length();                // Calculate distance from system origin to celestial body origin
 
-					// Calculate warp-in point to provide different juxtapositioning of celestial body to the solar system origin, i.e, the sun
-					// This also provides a common warp-in point for the sun itself, which is the first case in this if-else if-else clause:
-					if( distanceFromSystemOrigin < (5.0 * ONE_AU_IN_METERS) )
-					{
-						// For all celestial bodies with orbit radius of under 5AU, including the sun,
-						GVector rotationVector( 1.0, 1.0, 0.25 );
-						vectorToWarpPoint.rotationTo( rotationVector );
-						vectorToWarpPoint.normalize();
-						warpToPoint += vectorToWarpPoint * distanceFromBodyOrigin;
-					}
-					else if( distanceFromSystemOrigin < (15.0 * ONE_AU_IN_METERS) )
-					{
-						// For all celestial bodies with orbit radius of under 15AU but more than 5AU,
-						GVector rotationVector( -1.0, -1.0, 0.25 );
-						vectorToWarpPoint.rotationTo( rotationVector );
-						vectorToWarpPoint.normalize();
-						warpToPoint += vectorToWarpPoint * distanceFromBodyOrigin;
-					}
-					else if( distanceFromSystemOrigin < (25.0 * ONE_AU_IN_METERS) )
-					{
-						// For all celestial bodies with orbit radius of under 25AU but more than 15AU,
-						GVector rotationVector( 1.0, -1.0, -0.25 );
-						vectorToWarpPoint.rotationTo( rotationVector );
-						vectorToWarpPoint.normalize();
-						warpToPoint += vectorToWarpPoint * distanceFromBodyOrigin;
-					}
-					else if( distanceFromSystemOrigin < (35.0 * ONE_AU_IN_METERS) )
-					{
-						// For all celestial bodies with orbit radius of under 35AU but more than 25AU,
-						GVector rotationVector( -1.0, -1.0, -0.25 );
-						vectorToWarpPoint.rotationTo( rotationVector );
-						vectorToWarpPoint.normalize();
-						warpToPoint += vectorToWarpPoint * distanceFromBodyOrigin;
-					}
-					else
-					{
-						// For all celestial bodies with orbit radius of more than 35AU,
-						GVector rotationVector( -1.0, 1.0, -0.25 );
-						vectorToWarpPoint.rotationTo( rotationVector );
-						vectorToWarpPoint.normalize();
-						warpToPoint += vectorToWarpPoint * distanceFromBodyOrigin;
-					}
+                    // Calculate warp-in point to provide different juxtapositioning of celestial body to the solar system origin, i.e, the sun
+                    // This also provides a common warp-in point for the sun itself, which is the first case in this if-else if-else clause:
+                    if( distanceFromSystemOrigin < (5.0 * ONE_AU_IN_METERS) )
+                    {
+                        // For all celestial bodies with orbit radius of under 5AU, including the sun,
+                        GVector rotationVector( 1.0, 1.0, 0.25 );
+                        vectorToWarpPoint.rotationTo( rotationVector );
+                        vectorToWarpPoint.normalize();
+                        warpToPoint += vectorToWarpPoint * distanceFromBodyOrigin;
+                    }
+                    else if( distanceFromSystemOrigin < (15.0 * ONE_AU_IN_METERS) )
+                    {
+                        // For all celestial bodies with orbit radius of under 15AU but more than 5AU,
+                        GVector rotationVector( -1.0, -1.0, 0.25 );
+                        vectorToWarpPoint.rotationTo( rotationVector );
+                        vectorToWarpPoint.normalize();
+                        warpToPoint += vectorToWarpPoint * distanceFromBodyOrigin;
+                    }
+                    else if( distanceFromSystemOrigin < (25.0 * ONE_AU_IN_METERS) )
+                    {
+                        // For all celestial bodies with orbit radius of under 25AU but more than 15AU,
+                        GVector rotationVector( 1.0, -1.0, -0.25 );
+                        vectorToWarpPoint.rotationTo( rotationVector );
+                        vectorToWarpPoint.normalize();
+                        warpToPoint += vectorToWarpPoint * distanceFromBodyOrigin;
+                    }
+                    else if( distanceFromSystemOrigin < (35.0 * ONE_AU_IN_METERS) )
+                    {
+                        // For all celestial bodies with orbit radius of under 35AU but more than 25AU,
+                        GVector rotationVector( -1.0, -1.0, -0.25 );
+                        vectorToWarpPoint.rotationTo( rotationVector );
+                        vectorToWarpPoint.normalize();
+                        warpToPoint += vectorToWarpPoint * distanceFromBodyOrigin;
+                    }
+                    else
+                    {
+                        // For all celestial bodies with orbit radius of more than 35AU,
+                        GVector rotationVector( -1.0, 1.0, -0.25 );
+                        vectorToWarpPoint.rotationTo( rotationVector );
+                        vectorToWarpPoint.normalize();
+                        warpToPoint += vectorToWarpPoint * distanceFromBodyOrigin;
+                    }
 
-					// Randomize warp-in point:
-					warpToPoint.MakeRandomPointOnSphereLayer(1000.0,(1000.0+call.client->GetRadius()));
+                    // Randomize warp-in point:     why?
+                    //warpToPoint.MakeRandomPointOnSphereLayer(1000.0,(1000.0+call.client->GetRadius()));
+
+                    //When you "warp to within 0m" you will get to a distance that is approximately 0.65 * the radius of the star.
+                    //warpPointAdj = ((se->GetRadius() *2) * 0.65);
 					break;
 				}
 				default:
-					// For all other objects, simply just add radius of ship and object:
-					distance += call.client->GetRadius() + se->GetRadius();
+                    warpPointAdj = se->GetRadius();
 					break;
 			}
-		}
-		else
-			distance += call.client->GetRadius() + se->GetRadius();
+        } else
+            warpPointAdj = se->GetRadius();
 
-		//warpToPoint.MakeRandomPointOnSphereLayer(100.0,(200.0+call.client->GetRadius()));
-        //destiny->WarpTo(arg.ID, warpToPoint, distance);
+        distance += call.client->GetRadius();
+
+        /* client stops warp at targetpoint - stopdistance along common line between the two.
+         *  the server will need to be told what and how to match the client.
+         *  i am doing that here.
+         * set targetpoint = point of object minus distance along common vector
+         */
+        GVector vectorFromOrigin( warpToPoint, call.client->GetPosition() );
+        vectorFromOrigin.normalize();   //we now have a direction
+        GPoint stopPoint = vectorFromOrigin * -warpPointAdj;
+        warpToPoint -= stopPoint;
+
         destiny->WarpTo(warpToPoint, distance);
-	}
-    else if( arg.type == "bookmark" )
-	{ 	//  bookmark, bmid, minrange, fleet(bool)
+	} else if( arg.type == "bookmark" ) {
+        //  bookmark, bmid, minrange, fleet(bool)
         // This section handles Warping to any Bookmark
         int32 distance = 0;
         double x = 0.0, y = 0.0, z = 0.0;
@@ -558,13 +567,10 @@ bookmark, bmid
 
         BookmarkService *bkSrvc = (BookmarkService *)(call.client->services().LookupService( "bookmark" ));
 
-        if( bkSrvc == NULL )
-        {
+        if( bkSrvc == NULL ) {
             sLog.Error( "BeyonceService::Handle_WarpToStuff()", "Attempt to access BookmarkService via (BookmarkService *)(call.client->services().LookupService(\"bookmark\")) returned NULL pointer." );
             return NULL;
-        }
-        else
-        {
+        } else {
             bkSrvc->LookupBookmark(call.client->GetCharacterID(), arg.ID, itemID, typeID, x, y, z);
 
             // Calculate the warp-to distance specified by the client and add this to the final warp-to distance
@@ -574,17 +580,14 @@ bookmark, bmid
                 ? res->second->AsInt()->value()
                 : res->second->AsFloat()->value();
 
-            if( typeID == 5 )
-            {
+            if( typeID == 5 ) {
                 // Bookmark type is coordinate, so use these directly from the bookmark system call:
                 bookmarkPosition.x = x;     // From bookmark x
                 bookmarkPosition.y = y;     // From bookmark y
                 bookmarkPosition.z = z;     // From bookmark z
 
                 destiny->WarpTo(bookmarkPosition, distance);
-            }
-            else
-            {
+            } else {
                 DBQueryResult result;
                    DBResultRow row;
                 uint32 groupID = 0;
@@ -711,8 +714,8 @@ PyResult BeyonceBound::Handle_CmdWarpToStuffAutopilot(PyCallArgs &call) {
 	  codelog(CLIENT__ERROR, "%s: unable to find destinationID %u", call.client->GetName(), arg.destID);
         return NULL;
     }
-    // autopilot check
-	call.client->SetAutoPilot(true);
+    // autopilot check      --this has adverse effects at this time.  -allan 27Dec14
+	//call.client->SetAutoPilot(true);
 
 	//Adding in object radius
     distance += call.client->GetRadius() + se->GetRadius();
@@ -788,8 +791,11 @@ PyResult BeyonceBound::Handle_CmdDock(PyCallArgs &call) {
         return NULL;
     }
 
+    // Set client to know what station it's trying to dock into just in case docking is delayed
+    //  this also sets m_dockStationID for radius checks and other thigns
+    call.client->SetDockStationID( arg.arg1 );
+
     // Attempt to Dock:
-    call.client->SetDockStationID( arg.arg1 );   // Set client to know what station it's trying to dock into just in case docking is delayed
     return destiny->AttemptDockOperation();
 }
 

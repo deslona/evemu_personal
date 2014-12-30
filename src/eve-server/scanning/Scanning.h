@@ -28,13 +28,24 @@
 
 #include "scanning/ScanningDB.h"
 
+class PyRep;
+
 class Scanning {
-  public:
+public:
+    Scanning();
+    ~Scanning();
+
     /**
     ScanningData();
     */
 
+    void ScanStart();
+    PyRep *ScanResult();
+    void SurveyScan();
+
   private:
+
+    ScanningDB m_db;
 
 };
 

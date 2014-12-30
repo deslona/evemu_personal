@@ -97,7 +97,7 @@ PyBoundObject* InsuranceService::_CreateBoundObject( Client* c, const PyRep* bin
 PyResult InsuranceBound::Handle_GetInsurancePrice( PyCallArgs& call ) {
     const ItemType *type = m_manager->item_factory.GetType(call.tuple->GetItem(0)->AsInt()->value());
     if (type)
-        return new PyFloat(type->basePrice());
+        return new PyFloat(type->basePrice()/10);
     else
         return new PyNone;
 }

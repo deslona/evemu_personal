@@ -39,19 +39,19 @@ PyPackedRow *StationDB::GetSolarSystem(uint32 solarSystemID) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT "
-        " solarSystemID,"            // nr
-        " solarSystemName,"            // string
-        " x, y, z,"                    // double
-        " radius,"                    // double
-        " security,"                // double
-        " constellationID,"            // nr
-        " factionID,"                // nr
-        " sunTypeID,"                // nr
-        " regionID,"
-        " 0 AS wormholeClassID"     //FIXME  this will need to be added later  -allan 8Dec14
-        " FROM mapSolarSystems"
-        " WHERE solarSystemID=%u", solarSystemID
-    ))
+        " mss.solarSystemID,"            // nr
+        " mss.solarSystemName,"            // string
+        " mss.x, mss.y, mss.z,"                    // double
+        " mss.radius,"                    // double
+        " mss.security,"                // double
+        " mss.constellationID,"            // nr
+        " mss.factionID,"                // nr
+        " mss.sunTypeID,"                // nr
+        " mss.regionID,"
+        " mlwc.wormholeClassID"
+        " FROM mapSolarSystems AS mss"
+        " LEFT JOIN mapLocationWormholeClasses AS mlwc ON mlwc.locationID = mss.regionID"
+        " WHERE solarSystemID=%u", solarSystemID ))
     {
         _log(SERVICE__ERROR, "Error in GetSolarSystem query: %s", res.error.c_str());
         return NULL;

@@ -130,6 +130,15 @@ uint32 SystemDB::GetObjectLocationID( uint32 itemID ) {
     if (res.GetRow(row)) return (row.GetUInt(0)); else return 0;
 }
 
+double SystemDB::GetObjectRadius( uint32 typeID ) {
+    DBQueryResult res;
+    DBResultRow row;
+
+    sDatabase.RunQuery(res, "SELECT radius FROM invTypes WHERE typeID=%u", typeID );
+
+    if (res.GetRow(row)) return (row.GetUInt(0)); else return 0;
+}
+
 bool SystemDB::GetWrecksToTypes(DBQueryResult &res) {
     if(!sDatabase.RunQuery(res, "SELECT * FROM invTypesToWrecks")) {
        sLog.Error("SystemDB::GetWrecksToTypes()", "Error in query: %s", res.error.c_str());

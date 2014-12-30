@@ -94,6 +94,22 @@ PyBoundObject *TradeService::_CreateBoundObject(Client *c, const PyRep *bind_arg
 }
 
 PyResult TradeService::Handle_InitiateTrade(PyCallArgs &call){
+    /*[00m19:51:28 [SvcCall] Service trademgr: calling InitiateTrade
+     * 19:51:28[00m L [37;01mTrade: [00mHandle_InitiateTrade
+     * [00m19:51:28 [SvcCall]   Call Arguments:
+     * 19:51:28 [SvcCall]       Tuple: 1 elements
+     * 19:51:28 [SvcCall]         [ 0] Integer field: 140000038
+     * 19:51:28 [SvcCall]   Call Named Arguments:
+     * 19:51:28 [SvcCall]     Argument 'machoVersion':
+     * /../carbon/client/script/ui/control/menu.py(517) <lambda>
+     * /client/script/ui/station/pvptrade/pvptradesvc.py(16) StartTradeSession
+     * /client/script/ui/station/pvptrade/pvptradesvc.py(31) OnInitiate
+     *        tradeSession = None
+     *        charID = 140000038
+     *        self = <svc.PVPTradeService instance at 0x089497B0>
+     * AttributeError: 'NoneType' object has no attribute 'List'
+     *
+     */
 
     sLog.Log("TradeService", "Handle_InitiateTrade() size=%u", call.tuple->size() );
     call.Dump(SERVICE__CALLS);

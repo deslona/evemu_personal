@@ -26,15 +26,10 @@
 #ifndef EVEMU_SCANING_SCANINGDB_H_
 #define EVEMU_SCANING_SCANINGDB_H_
 
-#include "ServiceDB.h"
 
-class PyObject;
-class PyString;
-
-class ScanningDB : public ServiceDB
+class ScanningDB
 {
   public:
-    ScanningDB();
 
   private:
 

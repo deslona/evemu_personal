@@ -203,7 +203,7 @@ void DGM_Loot_Groups_Table::GetLoot(uint32 groupID, LootListDef &lootList) {
     }
 */
     double timer = (GetTimeMSeconds() - start);
-    //sLog.Log("        GetLoot()", "Took %f s to iterate thru %u loops, with %u loot items passed and %u returned", timer, m_LootGroupMap.size(), loot_list2.size(), lootList.size());
+    sLog.Log("        GetLoot()", "Took %f s to iterate thru %u loops, with %u loot items passed and %u returned", timer, m_LootGroupMap.size(), loot_list2.size(), lootList.size());
 }
 
 // ////////////////////// DGM_Salvage_Table Class ////////////////////////////

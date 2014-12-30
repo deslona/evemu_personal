@@ -713,6 +713,7 @@ void NPC::_SendDamageStateChanged() const
     DoDestinyDamageState state;
     MakeDamageState(state);
 
+    double shieldRecharge = m_self->GetAttribute(AttrShieldRechargeRate).get_float();
 	double shieldHealth = m_self->GetAttribute(AttrShieldCharge).get_float() / m_self->GetAttribute(AttrShieldCapacity).get_float();
 	double armorHealth = 1.0 - m_self->GetAttribute(AttrArmorDamage).get_float() / m_self->GetAttribute(AttrArmorHP).get_float();
 	double hullHealth = 1.0 - m_self->GetAttribute(AttrDamage).get_float() / m_self->GetAttribute(AttrHp).get_float();
@@ -723,7 +724,7 @@ void NPC::_SendDamageStateChanged() const
 	PyList *states = new PyList;
 	PyTuple *dmgTuple = new PyTuple(3);
 	dmgTuple->SetItem(0, new PyFloat(shieldHealth));		// this is current shield health (1 is 100%, 0 is 0%)
-	dmgTuple->SetItem(1, new PyFloat(200000));				// no idea what this is, could it be shield recharge related?
+	dmgTuple->SetItem(1, new PyFloat(shieldRecharge));		// this is shield recharge time
 	dmgTuple->SetItem(2, new PyLong(Win32TimeNow()));		// seems to be the timestamp at which damage is applied
 	states->AddItem(dmgTuple);
 	states->AddItem(new PyFloat(armorHealth));				// this is current armor health (1 is 100%, 0 is 0%)
@@ -751,8 +752,8 @@ void ItemSystemEntity::_SendDamageStateChanged() const {
 
 	PyList *states = new PyList;
 	PyTuple *dmgTuple = new PyTuple(3);
-	dmgTuple->SetItem(0, new PyFloat(shieldHealth));		// this is current shield health (1 is 100%, 0 is 0%)
-	dmgTuple->SetItem(1, new PyFloat(shieldRecharge));		// no idea what this is, could it be shield recharge related?
+    dmgTuple->SetItem(0, new PyFloat(shieldHealth));		// this is current shield health (1 is 100%, 0 is 0%)
+    dmgTuple->SetItem(1, new PyFloat(shieldRecharge));      // this is shield recharge time
 	dmgTuple->SetItem(2, new PyLong(Win32TimeNow()));		// seems to be the timestamp at which damage is applied
 	states->AddItem(dmgTuple);
 	states->AddItem(new PyFloat(armorHealth));				// this is current armor health (1 is 100%, 0 is 0%)
@@ -1048,7 +1049,7 @@ void NPC::Killed(Damage &fatal_blow)
         if( client != NULL )
         {
             killer = static_cast<SystemEntity*>(client);
-			client = NULL;
+			//client = NULL;
         }
     }
     else
@@ -1084,9 +1085,9 @@ void NPC::Killed(Damage &fatal_blow)
 	wreckEntity.flag = 0;
 	wreckEntity.groupID = EVEDB::invGroups::Wreck;
 	wreckEntity.itemID = wreckItemRef->itemID();
-	wreckEntity.itemName = this->Item()->itemName();
+	wreckEntity.itemName = this->Item().get()->type().name();
 	wreckEntity.locationID = GetLocationID();
-	wreckEntity.ownerID = 1;
+	wreckEntity.ownerID = client->GetCharacterID();
 	wreckEntity.typeID = wreckTypeID;
 	wreckEntity.x = deadNPCPosition.x;
 	wreckEntity.y = deadNPCPosition.y;

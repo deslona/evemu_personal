@@ -1761,6 +1761,7 @@ typedef enum {
 #define EVEMU_MINIMUM_ID 140000000
 #define EVEMU_MINIMUM_ENTITY_ID 90000000
 #define EVEMU_MAXIMUM_ENTITY_ID (EVEMU_MINIMUM_ID-1)
+#define STATION_HANGAR_MAX_CAPACITY 9000000000000000.0  //per client
 
 /* there needs to be more to this check.....
  * #define IsChar(charID) \

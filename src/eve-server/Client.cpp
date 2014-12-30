@@ -21,6 +21,7 @@
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
     Author:     Zhur
+    Updates:    Allan
 */
 
 #include "eve-server.h"
@@ -388,8 +389,9 @@ bool Client::EnterSystem(bool login) {
             SendErrorMsg("Unable to boot system %u", systemID);
             return false;
         }
+
         m_system->AddClient(this);
-		m_systemName = m_system->GetName();
+        m_systemName = m_system->GetName();
 	}
 
     //  add char to Dynamic Data    updated for docked/inspace   -allan 28April14
@@ -416,8 +418,8 @@ bool Client::UpdateLocation(bool login) {
         delete m_destiny;
         m_destiny = NULL;
 
-		m_system->RemoveClient(this);
-		m_system = NULL;
+        m_system->RemoveClient(this);
+        m_system = NULL;
 
         OnCharNowInStation();
     } else if(IsSolarSystem(GetLocationID())) {
@@ -469,6 +471,7 @@ void Client::UndockFromStation( uint32 stationID, uint32 systemID, uint32 conste
     sLog.Debug("Client::UndockFromStation()", "Character %s (%u) stationID() = %u  Position = %.2f, %.2f, %.2f  DockPosition = %.2f, %.2f, %.2f.",
                GetName(), GetCharacterID(), GetChar()->stationID(), x(), y(), z(), dockPosition.x, dockPosition.y, dockPosition.z );
 
+    //  OnCharNoLongerInStation -> GetCriminalTimeStamps -> Undock -> OnItemsChanged (Undocking:xxxxxxxx) ->
 	// tell ship its' undocking, which only sets shields and cap to full for now  (which was moved from aknor's original commit)
 	GetShip()->Undock();
 	//remove ship from station inv, add to system inv, and inform client.
@@ -1129,7 +1132,7 @@ void Client::StargateJump(uint32 fromGate, uint32 toGate) {
     m_movePoint = position;
     m_movePoint.MakeRandomPointOnSphere( 10000 );   // Make Jump-In point a random spot on a 10km radius sphere about the stargate
 
-    char ci[256];
+    char ci[35];
     snprintf(ci, sizeof(ci), "Jumping:%u", toGate);
     GetShip()->SetCustomInfo(ci);
 
@@ -1152,6 +1155,8 @@ void Client::StargateJump(uint32 fromGate, uint32 toGate) {
     // used for showing Visited Systems in StarMap(F10)  -allan 30Jan14
     GetChar()->VisitSystem(solarSystemID);
 
+    // call Stop() per packet sniff
+    m_destiny->Stop();
     //  show gate animation in both to and from gate.
     m_destiny->SendJumpOut(fromGate);
     m_destiny->SendJumpOut(toGate);
@@ -1169,9 +1174,11 @@ void Client::_ExecuteJump() {
     if(m_destiny == NULL)
         return;
 
-	//TODO: implement and set jumpInvul and invis until movement.
 	//   this is probably the best place to put it, as MoveToLocation() is generic function.
     MoveToLocation(m_moveSystemID, m_movePoint);
+    //m_destiny->Cloak();
+    //TODO check cloak timer to remove cloak
+    //TODO enable uncloak on movement check/function
 }
 
 bool Client::AddBalance(double amount) {

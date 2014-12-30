@@ -121,9 +121,6 @@ CharMgrService::CharMgrService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(CharMgrService, GetPublicInfo3);
     PyCallable_REG_CALL(CharMgrService, GetTopBounties);
     PyCallable_REG_CALL(CharMgrService, AddToBounty);
-    PyCallable_REG_CALL(CharMgrService, GetOwnerNote);
-    PyCallable_REG_CALL(CharMgrService, GetOwnerNoteLabels);
-    PyCallable_REG_CALL(CharMgrService, AddOwnerNote);
     PyCallable_REG_CALL(CharMgrService, GetContactList);
     PyCallable_REG_CALL(CharMgrService, GetCloneTypeID);
     PyCallable_REG_CALL(CharMgrService, GetHomeStation);
@@ -135,6 +132,9 @@ CharMgrService::CharMgrService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(CharMgrService, SetCharacterDescription);
     PyCallable_REG_CALL(CharMgrService, GetNote);
     PyCallable_REG_CALL(CharMgrService, SetNote);
+    PyCallable_REG_CALL(CharMgrService, AddOwnerNote);
+    PyCallable_REG_CALL(CharMgrService, GetOwnerNote);
+    PyCallable_REG_CALL(CharMgrService, GetOwnerNoteLabels);
     PyCallable_REG_CALL(CharMgrService, AddContact);
     PyCallable_REG_CALL(CharMgrService, EditContact);
     PyCallable_REG_CALL(CharMgrService, DeleteContacts);
@@ -195,132 +195,6 @@ PyResult CharMgrService::Handle_GetContactList(PyCallArgs &call) {
     PyObject *keyVal = new PyObject( "util.KeyVal", dict);
 
     return keyVal;
-}
-
-PyResult CharMgrService::Handle_AddOwnerNote( PyCallArgs& call ) {
-    /*
-    15:51:12 Server: AddOwnerNote call made to charMgr
-    15:51:12 [SvcCall] Service charMgr: calling AddOwnerNote
-    15:51:12 CharMgrService::Handle_AddOwnerNote(): size=2
-    15:51:12 [SvcCall]   Call Arguments:
-    15:51:12 [SvcCall]       Tuple: 2 elements
-    15:51:12 [SvcCall]         [ 0] String: 'S:Folders'
-    15:51:12 [SvcCall]         [ 1] WString: '1::F::0::Main|'
-    15:51:12 [SvcCall]   Call Named Arguments:
-    15:51:12 [SvcCall]     Argument 'machoVersion':
-    15:51:12 [SvcCall]         Integer field: 1
-
-    15:54:45 Server: AddOwnerNote call made to charMgr
-    15:54:45 [SvcCall] Service charMgr: calling AddOwnerNote
-    15:54:45 CharMgrService::Handle_AddOwnerNote(): size=2
-    15:54:45 [SvcCall]   Call Arguments:
-    15:54:45 [SvcCall]       Tuple: 2 elements
-    15:54:45 [SvcCall]         [ 0] String: 'S:Folders'
-    15:54:45 [SvcCall]         [ 1] WString: '1::F::0::Main|2::F::0::test|'
-    15:54:45 [SvcCall]   Call Named Arguments:
-    15:54:45 [SvcCall]     Argument 'machoVersion':
-    15:54:45 [SvcCall]         Integer field: 1
-
-    */
-  uint8 size = call.tuple->size();
-  sLog.Log( "CharMgrService::Handle_AddOwnerNote()", "size=%u ", size );
-  call.Dump(SERVICE__CALLS);
-
-  return NULL;
-}
-
-
-PyResult CharMgrService::Handle_GetOwnerNote(PyCallArgs &call)
-{  /*
-        [PyObjectEx Type2]
-          [PyTuple 2 items]
-            [PyTuple 1 items]
-              [PyToken dbutil.CRowset]
-            [PyDict 1 kvp]
-              [PyString "header"]
-              [PyObjectEx Normal]
-                [PyTuple 2 items]
-                  [PyToken blue.DBRowDescriptor]
-                  [PyTuple 1 items]
-                    [PyTuple 6 items]
-                      [PyTuple 2 items]
-                        [PyString "noteDate"]
-                        [PyInt 64]
-                      [PyTuple 2 items]
-                        [PyString "typeID"]
-                        [PyInt 2]
-                      [PyTuple 2 items]
-                        [PyString "referenceID"]
-                        [PyInt 3]
-                      [PyTuple 2 items]
-                        [PyString "note"]
-                        [PyInt 130]
-                      [PyTuple 2 items]
-                        [PyString "userID"]
-                        [PyInt 3]
-                      [PyTuple 2 items]
-                        [PyString "label"]
-                        [PyInt 130]
-          [PyPackedRow 19 bytes]
-            ["noteDate" => <129041092800000000> [FileTime]]
-            ["typeID" => <1> [I2]]
-            ["referenceID" => <1661059544> [I4]]
-            ["note" => <1::F::0::Main|> [WStr]]
-            ["userID" => <0> [I4]]
-            ["label" => <S:Folders> [WStr]]
-            */
-
-    sLog.Log( "CharMgrService::Handle_GetOwnerNote()", "size= %u", call.tuple->size() );
-    return NULL;
-}
-
-PyResult CharMgrService::Handle_GetOwnerNoteLabels(PyCallArgs &call)
-{  /*
-        [PyObjectEx Type2]
-          [PyTuple 2 items]
-            [PyTuple 1 items]
-              [PyToken dbutil.CRowset]
-            [PyDict 1 kvp]
-              [PyString "header"]
-              [PyObjectEx Normal]
-                [PyTuple 2 items]
-                  [PyToken blue.DBRowDescriptor]
-                  [PyTuple 1 items]
-                    [PyTuple 2 items]
-                      [PyTuple 2 items]
-                        [PyString "noteID"]
-                        [PyInt 3]
-                      [PyTuple 2 items]
-                        [PyString "label"]
-                        [PyInt 130]
-          [PyPackedRow 5 bytes]
-            ["noteID" => <4424362> [I4]]
-            ["label" => <S:Folders> [WStr]]
-          [PyPackedRow 5 bytes]
-            ["noteID" => <4424363> [I4]]
-            ["label" => <N:Ratting - Chaining Rules> [WStr]]
-          [PyPackedRow 5 bytes]
-            ["noteID" => <4424364> [I4]]
-            ["label" => <N:Harbinger Training Schedule> [WStr]]
-          [PyPackedRow 5 bytes]
-            ["noteID" => <4424365> [I4]]
-            ["label" => <N:Damage Types for Races and Rats> [WStr]]
-          [PyPackedRow 5 bytes]
-            ["noteID" => <5332889> [I4]]
-            ["label" => <N:KES Link> [WStr]]
-          [PyPackedRow 5 bytes]
-            ["noteID" => <5536321> [I4]]
-            ["label" => <N:Pelorn's PvP Route> [WStr]]
-    [PyNone]
-*/
-  sLog.Log( "CharMgrService::Handle_GetOwnerNoteLabels()", "size= %u", call.tuple->size() );
-    // just a dummy for now
-    DBRowDescriptor *header = new DBRowDescriptor();
-    header->AddColumn("noteID", DBTYPE_I4);
-    header->AddColumn("label", DBTYPE_WSTR);
-    CRowSet *rowset = new CRowSet( &header );
-
-    return rowset;
 }
 
 PyResult CharMgrService::Handle_GetPublicInfo(PyCallArgs &call) {
@@ -534,6 +408,130 @@ PyResult CharMgrService::Handle_SetNote(PyCallArgs &call)
     m_db.SetNote(call.client->GetCharacterID(), args.itemID, args.note.c_str());
 
     return new PyNone;
+}
+
+PyResult CharMgrService::Handle_AddOwnerNote( PyCallArgs& call ) {
+    /*
+    15:51:12 Server: AddOwnerNote call made to charMgr
+    15:51:12 [SvcCall] Service charMgr: calling AddOwnerNote
+    15:51:12 CharMgrService::Handle_AddOwnerNote(): size=2
+    15:51:12 [SvcCall]   Call Arguments:
+    15:51:12 [SvcCall]       Tuple: 2 elements
+    15:51:12 [SvcCall]         [ 0] String: 'S:Folders'
+    15:51:12 [SvcCall]         [ 1] WString: '1::F::0::Main|'
+    15:51:12 [SvcCall]   Call Named Arguments:
+    15:51:12 [SvcCall]     Argument 'machoVersion':
+    15:51:12 [SvcCall]         Integer field: 1
+
+    15:54:45 Server: AddOwnerNote call made to charMgr
+    15:54:45 [SvcCall] Service charMgr: calling AddOwnerNote
+    15:54:45 CharMgrService::Handle_AddOwnerNote(): size=2
+    15:54:45 [SvcCall]   Call Arguments:
+    15:54:45 [SvcCall]       Tuple: 2 elements
+    15:54:45 [SvcCall]         [ 0] String: 'S:Folders'
+    15:54:45 [SvcCall]         [ 1] WString: '1::F::0::Main|2::F::0::test|'
+    15:54:45 [SvcCall]   Call Named Arguments:
+    15:54:45 [SvcCall]     Argument 'machoVersion':
+    15:54:45 [SvcCall]         Integer field: 1
+
+    */
+  uint8 size = call.tuple->size();
+  sLog.Log( "CharMgrService::Handle_AddOwnerNote()", "size=%u ", size );
+  call.Dump(SERVICE__CALLS);
+
+  return NULL;
+}
+
+
+PyResult CharMgrService::Handle_GetOwnerNote(PyCallArgs &call)
+{  /*
+        [PyObjectEx Type2]
+          [PyTuple 2 items]
+            [PyTuple 1 items]
+              [PyToken dbutil.CRowset]
+            [PyDict 1 kvp]
+              [PyString "header"]
+              [PyObjectEx Normal]
+                [PyTuple 2 items]
+                  [PyToken blue.DBRowDescriptor]
+                  [PyTuple 1 items]
+                    [PyTuple 6 items]
+                      [PyTuple 2 items]
+                        [PyString "noteDate"]
+                        [PyInt 64]
+                      [PyTuple 2 items]
+                        [PyString "typeID"]
+                        [PyInt 2]
+                      [PyTuple 2 items]
+                        [PyString "referenceID"]
+                        [PyInt 3]
+                      [PyTuple 2 items]
+                        [PyString "note"]
+                        [PyInt 130]
+                      [PyTuple 2 items]
+                        [PyString "userID"]
+                        [PyInt 3]
+                      [PyTuple 2 items]
+                        [PyString "label"]
+                        [PyInt 130]
+          [PyPackedRow 19 bytes]
+            ["noteDate" => <129041092800000000> [FileTime]]
+            ["typeID" => <1> [I2]]
+            ["referenceID" => <1661059544> [I4]]
+            ["note" => <1::F::0::Main|> [WStr]]
+            ["userID" => <0> [I4]]
+            ["label" => <S:Folders> [WStr]]
+            */
+
+    sLog.Log( "CharMgrService::Handle_GetOwnerNote()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+    return NULL;
+    //return m_db.GetOwnerNote(call.client->GetCharacterID());
+}
+
+PyResult CharMgrService::Handle_GetOwnerNoteLabels(PyCallArgs &call)
+{  /*
+        [PyObjectEx Type2]
+          [PyTuple 2 items]
+            [PyTuple 1 items]
+              [PyToken dbutil.CRowset]
+            [PyDict 1 kvp]
+              [PyString "header"]
+              [PyObjectEx Normal]
+                [PyTuple 2 items]
+                  [PyToken blue.DBRowDescriptor]
+                  [PyTuple 1 items]
+                    [PyTuple 2 items]
+                      [PyTuple 2 items]
+                        [PyString "noteID"]
+                        [PyInt 3]
+                      [PyTuple 2 items]
+                        [PyString "label"]
+                        [PyInt 130]
+          [PyPackedRow 5 bytes]
+            ["noteID" => <4424362> [I4]]
+            ["label" => <S:Folders> [WStr]]
+          [PyPackedRow 5 bytes]
+            ["noteID" => <4424363> [I4]]
+            ["label" => <N:Ratting - Chaining Rules> [WStr]]
+          [PyPackedRow 5 bytes]
+            ["noteID" => <4424364> [I4]]
+            ["label" => <N:Harbinger Training Schedule> [WStr]]
+          [PyPackedRow 5 bytes]
+            ["noteID" => <4424365> [I4]]
+            ["label" => <N:Damage Types for Races and Rats> [WStr]]
+          [PyPackedRow 5 bytes]
+            ["noteID" => <5332889> [I4]]
+            ["label" => <N:KES Link> [WStr]]
+          [PyPackedRow 5 bytes]
+            ["noteID" => <5536321> [I4]]
+            ["label" => <N:Pelorn's PvP Route> [WStr]]
+    [PyNone]
+*/
+  sLog.Log( "CharMgrService::Handle_GetOwnerNoteLabels()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
+    return m_db.GetOwnerNoteLabels(call.client->GetCharacterID());
 }
 
 //18:07:30 L CharMgrService::Handle_AddContact(): size=1, 0=Integer(2784)

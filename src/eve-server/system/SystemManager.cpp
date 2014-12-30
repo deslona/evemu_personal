@@ -108,14 +108,12 @@ bool SystemManager::_LoadSystemCelestials() {
     std::vector<DBSystemEntity>::iterator cur, end;
     cur = entities.begin();
     end = entities.end();
-    for(; cur != end; ++cur) {
-        if( itemFactory().GetItem( cur->itemID ) )
-        {
-            if( itemFactory().GetItem( cur->itemID )->categoryID() == EVEDB::invCategories::Station )
-            {
+    for (; cur != end; ++cur) {
+        if ( itemFactory().GetItem( cur->itemID ) ) {
+            if ( itemFactory().GetItem( cur->itemID )->categoryID() == EVEDB::invCategories::Station ) {
                 StationRef station = Station::Load( itemFactory(), cur->itemID );
                 StationEntity *stationEntity = new StationEntity( station, this, *(GetServiceMgr()), cur->position );
-                if(stationEntity == NULL) {
+                if (stationEntity == NULL) {
                     codelog(SERVICE__ERROR, "Failed to create entity for item %u (type %u)", cur->itemID, cur->typeID);
                     continue;
                 }
@@ -126,7 +124,7 @@ bool SystemManager::_LoadSystemCelestials() {
                 stationRef->SetAttribute(AttrDamage,        0.0);                                        // Structure Damage
                 stationRef->SetAttribute(AttrShieldCapacity,20000000.0);                         // Shield Capacity
                 stationRef->SetAttribute(AttrShieldCharge,  stationRef->GetAttribute(AttrShieldCapacity));     // Shield Charge
-                stationRef->SetAttribute(AttrArmorHP,       stationRef->GetAttribute(AttrArmorHP), 0);   // Armor HP
+                stationRef->SetAttribute(AttrArmorHP,       stationRef->GetAttribute(AttrArmorHP));   // Armor HP
                 stationRef->SetAttribute(AttrArmorDamage,   0.0);                                   // Armor Damage
                 stationRef->SetAttribute(AttrMass,          stationRef->type().mass());         // Mass
                 stationRef->SetAttribute(AttrRadius,        stationRef->type().radius());     // Radius
@@ -135,16 +133,14 @@ bool SystemManager::_LoadSystemCelestials() {
                 m_entities[stationEntity->GetStationObject()->itemID()] = stationEntity;
                 bubbles.Add(stationEntity, true);
                 m_entityChanged = true;
-            }
-            else if(( itemFactory().GetItem( cur->itemID )->groupID() == EVEDB::invGroups::Stargate ) ||
-               ( itemFactory().GetItem( cur->itemID )->groupID() == EVEDB::invGroups::Asteroid_Belt ))
-            {
+            } else if (( itemFactory().GetItem( cur->itemID )->groupID() == EVEDB::invGroups::Stargate ) ||
+               ( itemFactory().GetItem( cur->itemID )->groupID() == EVEDB::invGroups::Asteroid_Belt )) {
                 SimpleSystemEntity *se = SimpleSystemEntity::MakeEntity(this, *cur);
-                if(se == NULL) {
+                if (se == NULL) {
                     codelog(SERVICE__ERROR, "Failed to create entity for item %u (type %u)", cur->itemID, cur->typeID);
                     continue;
                 }
-                if(!se->LoadExtras(&m_db)) {
+                if (!se->LoadExtras(&m_db)) {
                     _log(SERVICE__ERROR, "Failed to load additional data for entity %u. Skipping.", se->GetID());
                     delete se;
                     continue;
@@ -152,15 +148,13 @@ bool SystemManager::_LoadSystemCelestials() {
                 m_entities[se->GetID()] = se;
                 bubbles.Add(se, false);
                 m_entityChanged = true;
-            }
-            else
-            {
+            } else {
                 SimpleSystemEntity *se = SimpleSystemEntity::MakeEntity(this, *cur);
-                if(se == NULL) {
+                if (se == NULL) {
                     codelog(SERVICE__ERROR, "Failed to create entity for item %u (type %u)", cur->itemID, cur->typeID);
                     continue;
                 }
-                if(!se->LoadExtras(&m_db)) {
+                if (!se->LoadExtras(&m_db)) {
                     _log(SERVICE__ERROR, "Failed to load additional data for entity %u. Skipping.", se->GetID());
                     delete se;
                     continue;
@@ -189,7 +183,7 @@ public:
 
                 ItemData idata(
                     entity.typeID,
-                    entity.ownerID,
+                    1,      // asteroids are owned by the EVE system
                     entity.locationID,
                     flagAutoFit,
                     entity.itemName.c_str(),
@@ -237,10 +231,6 @@ public:
                     ShipEntity * shipObj = new ShipEntity( ship, &system, *(system.GetServiceMgr()), location );
                     return shipObj;
                 }
-                /*
-                else            //  we dont need an error stating a player and their ship is in space.  -allan
-                    sLog.Error("DynamicEntityFactory::BuildEntity()", "We do not want to create ShipEntity objects for ANY ships owned by players, only those left in space owned by no one." );
-                */
             } break;
             case EVEDB::invCategories::Deployable: {        // Deployable structures of all kinds!  Warp disruptor bubbles.
                 location.x = entity.x;
@@ -262,7 +252,7 @@ public:
 
                 // Set radius of warp disruptor bubble
                 // TODO: GET THIS FROM DB 'entity_attributes' perhaps
-                //deployable->SetAttribute(AttrRadius, EvilNumber(deployable->type().radius()) );     // Can you set this somehow from the type class ?
+                deployable->SetAttribute(AttrRadius, EvilNumber(deployable->type().radius()) );     // Can you set this somehow from the type class ?
 
                 // Add the ItemRef to SystemManagers' Inventory:
                 system.AddItemToInventory( deployable );
@@ -378,7 +368,7 @@ public:
                     // Set radius of celestial object
                     // TODO: GET THIS FROM DB 'entity_attributes' perhaps
                     //celestial->Set_radius( 5000 );
-                    celestial->SetAttribute(AttrRadius, EvilNumber(celestial->type().radius()) );     // Can you set this somehow from the type class ?
+                    celestial->SetAttribute(AttrRadius, celestial->type().radius() );     // Can you set this somehow from the type class ?
 
                     // Add the ItemRef to SystemManagers' Inventory:
                     system.AddItemToInventory( celestial );
@@ -417,7 +407,7 @@ public:
                     system.AddEntity( containerObj );
                     return containerObj;
                 }
-				// Check for NPC ships/drones here:
+				// Check for NPC ships/drones here (category 11):   NOT player drones (different category [18])
 				else if(	(entity.groupID == EVEDB::invGroups::Sentry_Gun)
 						||	(entity.groupID == EVEDB::invGroups::Protective_Sentry_Gun)
 						||	(entity.groupID == EVEDB::invGroups::Police_Drone)
@@ -493,6 +483,7 @@ public:
 
                     NPC* npcObj = new NPC( &system, *(system.GetServiceMgr()),npcRef, entity.corporationID, entity.allianceID, location );
                     system.AddEntity( npcObj );
+                    _log(NPC__TRACE, "DynamicEntityFactory::SystemEntity::BuildEntity() making NPC item for %s (%u)", entity.itemName.c_str(), entity.itemID);
                     return npcObj;
 				}
                 else
@@ -522,14 +513,14 @@ public:
                     return celestialObj;
                 }
             } break;
-            case EVEDB::invCategories::Drone: {             // Drones of all kinds!
+            case EVEDB::invCategories::Drone: {             // Player Drones
                 location.x = entity.x;
                 location.y = entity.y;
                 location.z = entity.z;
 
                 ItemData idata(
                     entity.typeID,
-                    1,  // owner is EVE System (itemID = 1 from 'entity' table)
+                    entity.ownerID,
                     entity.locationID,
                     flagAutoFit,
                     entity.itemName.c_str(),
@@ -544,6 +535,7 @@ public:
                 system.AddItemToInventory( drone );
 
                 DroneEntity * droneObj = new DroneEntity( drone, &system, *(system.GetServiceMgr()), location );
+                //  add drone attribs here later...
                 return droneObj;
             } break;
             case EVEDB::invCategories::Station: {             // Dynamic Stations ONLY !!
@@ -713,17 +705,17 @@ void SystemManager::AddClient(Client *who) {
 }
 
 void SystemManager::RemoveClient(Client *who) {
-    RemoveEntity(who);
     _log(CLIENT__TRACE, "%s: Removed from system manager for %u", who->GetName(), m_systemID);
+    RemoveEntity(who);
 }
 
 void SystemManager::AddNPC(NPC *who) {
-    //nothing special to do yet...
+    _log(NPC__TRACE, "%s: Added to system manager for %u", who->GetName(), m_systemID);
     AddEntity(who);
 }
 
 void SystemManager::RemoveNPC(NPC *who) {
-    //nothing special to do yet...
+    _log(NPC__TRACE, "%s: Removed from system manager for %u", who->GetName(), m_systemID);
     RemoveEntity(who);
 }
 
@@ -839,15 +831,15 @@ void SystemManager::MakeSetState(const SystemBubble *bubble, DoDestiny_SetState 
 
     //ss.solItem
     ss.solItem = m_db.GetSolItem( m_systemID );
-
+/*
     _log( DESTINY__TRACE, "Set State:" );
     ss.Dump( DESTINY__TRACE, "    " );
     //_log( DESTINY__TRACE, "    Buffer:" );
     //_hex( DESTINY__TRACE, &( ss.destiny_state->content() )[0], ss.destiny_state->content().size() );
 
     _log( DESTINY__TRACE, "    Decoded:" );
-    Destiny::DumpUpdate( DESTINY__TRACE, &( ss.destiny_state->content() )[0],
-                                         ss.destiny_state->content().size() );
+    Destiny::DumpUpdate( DESTINY__TRACE, &( ss.destiny_state->content() )[0], ss.destiny_state->content().size() );
+    */
 }
 
 ItemFactory& SystemManager::itemFactory() const

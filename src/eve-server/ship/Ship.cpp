@@ -141,7 +141,7 @@ ShipRef Ship::Spawn(ItemFactory &factory, ItemData &data) {
         sShipRef->SetAttribute(AttrDamage, 0, true );
     // Theoretical Maximum Targeting Range
     if( !(sShipRef->HasAttribute(AttrMaximumRangeCap)) )
-        sShipRef->SetAttribute(AttrMaximumRangeCap, ((double)BUBBLE_RADIUS_METERS), true );
+        sShipRef->SetAttribute(AttrMaximumRangeCap, ((double)BUBBLE_DIAMETER_METERS), true );
     // Maximum Armor Damage Resonance
     if( !(sShipRef->HasAttribute(AttrArmorMaxDamageResonance)) )
         sShipRef->SetAttribute(AttrArmorMaxDamageResonance, 1.0f, true);

@@ -28,8 +28,8 @@
 #define EVEMU_EVESERVER_CONSOLECOMMANDS_H_
 
 #define BUFLEN 256
-#define EVEMU_REVISION "0.7.53-allan"
-#define EVEMU_BUILD_DATE "25 November 2014"
+#define EVEMU_REVISION "0.7.54-allan"
+#define EVEMU_BUILD_DATE "25 December 2014"
 
 #include "eve-server.h"
 
