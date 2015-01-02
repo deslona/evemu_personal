@@ -188,7 +188,7 @@ PyResult BeyonceBound::Handle_CmdFollowBall(PyCallArgs &call) {
 }
 
 PyResult BeyonceBound::Handle_CmdSetSpeedFraction(PyCallArgs &call) {
-    sLog.Log( "BeyonceBound", "Handle_CmdSetSpeedFraction" );
+    sLog.Log( "BeyonceBound", "Handle_CmdSetSpeedFraction called by Client %s (%u)", call.client->GetName(), call.client->GetCharacterID() );
     call.Dump(SERVICE__CALLS);
 
     Call_SingleRealArg arg;
@@ -207,7 +207,6 @@ PyResult BeyonceBound::Handle_CmdSetSpeedFraction(PyCallArgs &call) {
 	}
 
     destiny->SetSpeedFraction(arg.arg);
-
     return NULL;
 }
 
@@ -460,7 +459,7 @@ bookmark, bmid
         double distanceFromBodyOrigin = 0.0;
         double distanceFromSystemOrigin = 0.0;
 		GPoint warpToPoint(se->GetPosition());  // Make a warp-in point variable
-        float warpPointAdj = -1.0f;
+        float warpPointAdj = 1.0f;
 		if( IsStaticMapItem(se->GetID()) ) {
 			switch( ((SimpleSystemEntity *)(se))->data.groupID ) {
 				case EVEDB::invGroups::Sun:
@@ -549,7 +548,7 @@ bookmark, bmid
         /* client stops warp at targetpoint - stopdistance along common line between the two.
          *  the server will need to be told what and how to match the client.
          *  i am doing that here.
-         * set targetpoint = point of object minus distance along common vector
+         * set targetpoint = point of object minus radius as distance along common vector
          */
         GVector vectorFromOrigin( warpToPoint, call.client->GetPosition() );
         vectorFromOrigin.normalize();   //we now have a direction

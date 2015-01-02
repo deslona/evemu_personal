@@ -665,14 +665,14 @@ PyResult Command_spawn( Client* who, CommandDB* db, PyServiceMgr* services, cons
         // Actually do the spawn using SystemManager's BuildEntity:
         if( !(who->System()->BuildDynamicEntity( who, entity )) )
             return new PyString( "Spawn Failed: typeID or typeName not supported." );
-
+/*
         // TEST FOR FUN:  If this is a drone, make its destiny manager orbit the ship that spawned it like a little lost puppy...
         if( item->categoryID() == EVEDB::invCategories::Drone )
         {
             ((DroneEntity *)(who->System()->get( entity.itemID )))->Destiny()->SetSpeedFraction(1.0);
             ((DroneEntity *)(who->System()->get( entity.itemID )))->Destiny()->Orbit( who, 1000.0, true );
         }
-
+*/
         // TEST FOR FUN:  If this is a missile, torpedo, bomb, etc, then make its destiny manager Approach a target of the entity spawning it...
         uint32 groupID = item->groupID();
 

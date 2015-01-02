@@ -38,6 +38,20 @@ CREATE TABLE IF NOT EXISTS `chrBounties` (
   KEY `characterID` (`characterID`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
 
+/* Table structure for table `webBounties` */
+
+CREATE TABLE IF NOT EXISTS `webBounties` (
+  `characterID` int(10) NOT NULL,
+  `ownerID` int(10) NOT NULL,
+  `bounty` bigint(20) NOT NULL,
+  `timePlaced` bigint(20) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`timePlaced`),
+  KEY `ownerID` (`ownerID`),
+  KEY `timePlaced` (`timePlaced`),
+  KEY `bounty` (`bounty`),
+  KEY `characterID` (`characterID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 /* Table structure for table `mapOreBySystemSecurityClass` */
 
 CREATE TABLE IF NOT EXISTS `mapOreBySystemSecurityClass` (
@@ -89,11 +103,13 @@ CREATE TABLE IF NOT EXISTS `mapDynamicData` (
 /*  Table structure for table `chrVisitedSystems` */
 
 CREATE TABLE IF NOT EXISTS `chrVisitedSystems` (
+  `idx` int(11) NOT NULL AUTO_INCREMENT,
   `characterID` int(20) NOT NULL,
-  `solSystemID` int(10) NOT NULL,
+  `solarSystemID` int(10) NOT NULL,
   `visits` int(10) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`characterID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `lastDateTime` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY `idx` (`idx`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 /*  Table structure for table `chrSkillHistory`  */
 
@@ -114,7 +130,7 @@ CREATE TABLE IF NOT EXISTS `chrSkillHistory` (
 CREATE TABLE IF NOT EXISTS `invWrecksToSalvage` (
   `wreckTypeID` int(10) unsigned NOT NULL,
   `salvageItemID` int(10) unsigned NOT NULL,
-  `group` tinyint(3) unsigned NOT NULL,
+  `groupID` tinyint(3) unsigned NOT NULL,
   `dropChance` decimal(6,4) unsigned NOT NULL DEFAULT '0.0000',
   `minDrop` tinyint(4) NOT NULL DEFAULT '0',
   `maxDrop` tinyint(4) NOT NULL DEFAULT '0',
@@ -203,23 +219,36 @@ CREATE TABLE IF NOT EXISTS `sklRaceSkills` (
   KEY `skillTypeID` (`skillTypeID`)
   ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='skill and level list by raceID' AUTO_INCREMENT=33 ;
 
+CREATE TABLE IF NOT EXISTS `mapSystemSovInfo` (
+  `solarSystemID` int(11) NOT NULL,
+  `corporationID` int(11) NOT NULL,
+  `allianceID` int(11) NOT NULL,
+  `claimStructureID` int(11) NOT NULL,
+  `claimTime` int(20) NOT NULL,
+  `hubID` int(11) NOT NULL,
+  `contested` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='SystemSovereigntyInfo';
+
   /*  hack for minor client error...we dont have the real data for this yet  */
-ALTER TABLE `staOperations` ADD `descriptionID` INT(10) NOT NULL AFTER `description`;
+ALTER TABLE `staOperations` ADD `descriptionID` INT(3) NOT NULL AFTER `description`;
 
 /* set skill level from float to int */
 UPDATE `dgmTypeAttributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `attributeID`=280 AND `valueFloat`=0;
 UPDATE `entity_attributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `attributeID`=280 AND `valueFloat`=0;
 UPDATE `entity_default_attributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `attributeID`=280 AND `valueFloat`=0;
 
-/* dont remember */
-UPDATE `dgmTypeAttributes` SET `valueInt`=1,`valueFloat`=NULL WHERE `typeid`=10124;
+/* update beacon type 10124 IsGlobal attribute to true */
+INSERT INTO `dgmTypeAttributes` (`typeID`, `attributeID`, `valueInt`, `valueFloat`) VALUES ('10124', '1207', '1', NULL);
 
 /* reset rifter cap recharge rate */
 UPDATE `dgmTypeAttributes` SET `valueFloat` = '125000' WHERE `typeID` = 587 AND `attributeID` = 55;
 
+/* fix radius in mapDenormalize */
+UPDATE mapDenormalize AS md INNER JOIN invTypes AS it USING (typeID) SET md.radius = it.radius WHERE md.groupID = 10;
 
 ALTER TABLE entity AUTO_INCREMENT=140000000;
 
+ALTER TABLE `market_orders` CHANGE `range` `orderRange` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 
 /*  polaris legerion updates */
 UPDATE `dgmTypeAttributes` SET `valueInt` = '8' WHERE `typeID` = 9860 AND `attributeID` = 12;

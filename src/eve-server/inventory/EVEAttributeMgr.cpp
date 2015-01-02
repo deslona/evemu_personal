@@ -531,41 +531,30 @@ bool AttributeMap::ResetAttribute(uint32 attrID, bool notify)
     return SetAttribute(attrID, value, notify);
 }
 
-bool AttributeMap::Load()
-{
+bool AttributeMap::Load() {
     /* First, we load default attributes values using existing attribute system */
-    DgmTypeAttributeSet *attr_set = sDgmTypeAttrMgr.GetDmgTypeAttributeSet( mItem.typeID() );
-    if (attr_set == NULL)
-        return false;
-
-    DgmTypeAttributeSet::AttrSetItr itr = attr_set->attributeset.begin();
-
-    for (; itr != attr_set->attributeset.end(); itr++)
-        SetAttribute((*itr)->attributeID, (*itr)->number, false);
-
+    DgmTypeAttributeSet *attr_set = sDgmTypeAttrMgr.GetDmgTypeAttributeSet( mItem->typeID() );
+    if (attr_set != NULL) {
+        DgmTypeAttributeSet::AttrSetItr itr = attr_set->attributeset.begin();
+        for (; itr != attr_set->attributeset.end(); itr++)
+            SetAttribute((*itr)->attributeID, (*itr)->number, false);
+    }
     /* Then we load the saved attributes from the db, if there are any yet, and overwrite the defaults */
     DBQueryResult res;
-
-	if(mDefault)
-	{
-		if(!sDatabase.RunQuery(res, "SELECT * FROM entity_default_attributes WHERE itemID='%u'", mItem.itemID())) {
-			sLog.Error("AttributeMap (DEFAULT)", "Error in db load query: %s", res.error.c_str());
-			return false;
-		}
-	}
-	else
-	{
-		if(!sDatabase.RunQuery(res, "SELECT * FROM entity_attributes WHERE itemID='%u'", mItem.itemID())) {
-			sLog.Error("AttributeMap", "Error in db load query: %s", res.error.c_str());
-			return false;
-		}
-	}
-
+    if(mDefault) {
+        if(!sDatabase.RunQuery(res, "SELECT * FROM entity_default_attributes WHERE itemID='%u'", mItem->itemID())) {
+            sLog.Error("AttributeMap (DEFAULT)", "Error in db load query: %s", res.error.c_str());
+            return false;
+        }
+    } else {
+        if(!sDatabase.RunQuery(res, "SELECT * FROM entity_attributes WHERE itemID='%u'", mItem->itemID())) {
+            sLog.Error("AttributeMap", "Error in db load query: %s", res.error.c_str());
+            return false;
+        }
+    }
     DBResultRow row;
-
     int amount = res.GetRowCount();
-    for (int i = 0; i < amount; i++)
-    {
+    for (int i = 0; i < amount; i++) {
         EvilNumber attr_value;
         res.GetRow(row);
         uint32 attributeID = row.GetUInt(1);
@@ -575,68 +564,7 @@ bool AttributeMap::Load()
             attr_value = row.GetDouble(3);
         SetAttribute(attributeID, attr_value, false);
     }
-
     return true;
-
-/*
-    /// EXISTING AttributeMap::Load() function
-    DBQueryResult res;
-
-    if(!sDatabase.RunQuery(res,"SELECT * FROM entity_attributes WHERE itemID='%u'", mItem.itemID())) {
-        sLog.Error("AttributeMap", "Error in db load query: %s", res.error.c_str());
-        return false;
-    }
-
-    DBResultRow row;
-
-    int amount = res.GetRowCount();
-
-    // Right now, assume that we need to load all attributes with default values from dgmTypeAttributes table
-    // IF AND ONLY IF the number of attributes pulled from the entity_attributes table for this item is ZERO:
-    if( amount > 0 )
-    {
-        // This item was found in the 'entity_attributes' table, so load all attributes found there
-        // into the Attribute Map for this item:
-        for (int i = 0; i < amount; i++)
-        {
-            res.GetRow(row);
-            EvilNumber attr_value;
-            uint32 attributeID = row.GetUInt(1);
-            if ( !row.IsNull(2) )
-                attr_value = row.GetInt64(2);
-            else if( !row.IsNull(3) )
-                attr_value = row.GetDouble(3);
-            else
-                sLog.Error( "AttributeMap::Load()", "Both valueInt and valueFloat fields of this (itemID,attributeID) = (%u,%u) are NULL.", row.GetInt(0), attributeID );
-
-            SetAttribute(attributeID, attr_value, false);
-            //Add(attributeID, attr_value);
-        }
-    }
-    else
-    {
-        // This item was NOT found in the 'entity_attributes' table, so let's assume that
-        // this item was just created.
-        // 1) Get complete list of attributes with default values from dgmTypeAttributes table using the item's typeID:
-        DgmTypeAttributeSet *attr_set = sDgmTypeAttrMgr.GetDmgTypeAttributeSet( mItem.typeID() );
-        if (attr_set == NULL)
-            return false;
-
-        DgmTypeAttributeSet::AttrSetItr itr = attr_set->attributeset.begin();
-
-        // Store all these attributes to the item's AttributeMap
-        for (; itr != attr_set->attributeset.end(); itr++)
-        {
-            SetAttribute((*itr)->attributeID, (*itr)->number, false);
-            //Add((*itr)->attributeID, (*itr)->number);
-        }
-
-        // 2) Save these newly created and loaded attributes to the 'entity_attributes' table
-        SaveAttributes();
-    }
-
-    return true;
-*/
 }
 
 bool AttributeMap::SaveIntAttribute(uint32 attributeID, int64 value)
@@ -719,49 +647,51 @@ bool AttributeMap::Save()
     if (mChanged == false)
         return true;
 
+    std::ostringstream Inserts;
+    // start the insert into command.
+    Inserts << "INSERT INTO ";
+    // set the appropriate table name.
+    if(mDefault)
+        Inserts << "entity_default_attributes";
+    else
+        Inserts << "entity_attributes";
+    Inserts << " (itemID, attributeID, valueInt, valueFloat) ";
+    bool first = true;
     AttrMapItr itr = mAttributes.begin();
     AttrMapItr itr_end = mAttributes.end();
     for (; itr != itr_end; itr++)
     {
+        // if this is the first row specify the VALUES keyword
+        if(first == true)
+        {
+            Inserts << "VALUES";
+            first = false;
+        }
+        // otherwise coma separate the values.
+        else
+            Inserts << ", ";
+        // itemID and attributeID keys.
+        Inserts << "(" << mItem->itemID() << ", " << itr->first << ", ";
+        // the value to set.
         if ( itr->second.get_type() == evil_number_int ) {
-
-            DBerror err;
-
-			if(mDefault)
-			{
-				success = sDatabase.RunQuery(err,
-					"REPLACE INTO entity_default_attributes (itemID, attributeID, valueInt, valueFloat) VALUES (%u, %u, %" PRId64 ", NULL)",
-					mItem.itemID(), itr->first, itr->second.get_int());
-			}
-			else
-			{
-				success = sDatabase.RunQuery(err,
-					"REPLACE INTO entity_attributes (itemID, attributeID, valueInt, valueFloat) VALUES (%u, %u, %" PRId64 ", NULL)",
-					mItem.itemID(), itr->first, itr->second.get_int());
-			}
-
-            if (!success)
-                sLog.Error("AttributeMap", "unable to save attribute");
-
-        } else if (itr->second.get_type() == evil_number_float ) {
-
-            DBerror err;
-
-			if(mDefault)
-			{
-				success = sDatabase.RunQuery(err,
-					"REPLACE INTO entity_default_attributes (itemID, attributeID, valueInt, valueFloat) VALUES (%u, %u, NULL, %f)",
-					mItem.itemID(), itr->first, itr->second.get_float());
-			}
-			else
-			{
-				success = sDatabase.RunQuery(err,
-					"REPLACE INTO entity_attributes (itemID, attributeID, valueInt, valueFloat) VALUES (%u, %u, NULL, %f)",
-					mItem.itemID(), itr->first, itr->second.get_float());
-			}
-
-            if (!success)
-                sLog.Error("AttributeMap", "unable to save attribute");
+            Inserts << itr->second.get_int() << ", NULL)";
+        } else {
+            Inserts << " NULL, " << itr->second.get_float() << ")";
+        }
+    }
+    // did we get at least 1 insert?
+    if(first != true)
+    {
+        // finish creating the command.
+        Inserts << "ON DUPLICATE KEY UPDATE ";
+        Inserts << "valueInt=VALUES(valueInt), ";
+        Inserts << "valueFloat=VALUES(valueFloat)";
+        // execute the command.
+        DBerror err;
+        if (!sDatabase.RunQuery(err, Inserts.str().c_str()))
+        {
+            sLog.Error("AttributeMap", "unable to save attributes");
+            return false;
         }
     }
 

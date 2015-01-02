@@ -20,7 +20,7 @@
     Place - Suite 330, Boston, MA 02111-1307, USA, or go to
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
-    Author:        Zhur
+    Author:        Zhur, Allan
 */
 
 #include "eve-server.h"
@@ -70,8 +70,8 @@ void SystemBubble::BubblecastDestinyEvent(std::vector<PyTuple *> &events, const 
 	cur = events.begin();
 	end = events.end();
 	for(; cur != end; cur++) {
-	    PyTuple *up = *cur;
-		BubblecastDestinyEvent(&up, desc); //update is consumed.
+	    PyTuple *ev = *cur;
+		BubblecastDestinyEvent(&ev, desc); //update is consumed.
 	}
 	events.clear();
 }
@@ -99,7 +99,7 @@ void SystemBubble::BubblecastDestinyUpdate( PyTuple** payload, const char* desc 
     }
 
     PySafeDecRef( up_dup );
-    PyDecRef( up );
+    PySafeDecRef( up );
 }
 
 //send a destiny update to everybody in the bubble EXCLUDING the given SystemEntity 'ent':
@@ -121,7 +121,7 @@ void SystemBubble::BubblecastDestinyUpdateExclusive( PyTuple** payload, const ch
             // (this is an update to all SystemEntity objects in the bubble EXCLUDING 'ent')
             if( (*cur)->GetID() != ent->GetID() ) {
                 if( NULL == up_dup )
-                    up_dup = up;
+                    up_dup = new PyTuple( *up );
 
                 (*cur)->QueueDestinyUpdate( &up_dup );
                 _log( DESTINY__BUBBLE_TRACE, "Exclusive Bubblecast %s update to %s (%u)", desc, (*cur)->GetName(), (*cur)->GetID() );
@@ -131,7 +131,7 @@ void SystemBubble::BubblecastDestinyUpdateExclusive( PyTuple** payload, const ch
 
 
     PySafeDecRef( up_dup );
-    PyDecRef( up );
+    //PySafeDecRef( up );
 }
 
 //send a destiny event to everybody in the bubble.
@@ -156,7 +156,7 @@ void SystemBubble::BubblecastDestinyEvent( PyTuple** payload, const char* desc )
     }
 
     PySafeDecRef( ev_dup );
-    PyDecRef( ev );
+    PySafeDecRef( ev );
 }
 
 //called at some regular interval from the bubble manager.
@@ -190,10 +190,7 @@ bool SystemBubble::ProcessWander(std::vector<SystemEntity *> &wanderers) {
     return false;
 }
 
-void SystemBubble::Add(SystemEntity *ent, bool notify) {
-    //notify before addition so we do not include ourself.
-    if(notify) _SendAddBalls(ent);
-
+void SystemBubble::Add(SystemEntity *ent, bool notify, bool isPostWarp) {
 	//if they are already in this bubble, do not continue.
     if(m_entities.find(ent->GetID()) != m_entities.end()) {
         _log(DESTINY__BUBBLE_TRACE, "SystemBubble::Add() - Tried to add entity %u to bubble %u, but it is already in here.",
@@ -201,8 +198,22 @@ void SystemBubble::Add(SystemEntity *ent, bool notify) {
         return;
     }
 
-    //if this entity is a Client and it is NOT cloaked,
-    //notify everybody else in the bubble of the add.
+    GPoint startPoint( ent->GetPosition() );
+    GPoint endPoint(0,0,0);
+    GVector direction(startPoint, endPoint);
+    double rangeToStar = direction.length();
+    rangeToStar /= ONE_AU_IN_METERS;
+
+    _log(DESTINY__BUBBLE_DEBUG, "SystemBubble::Add() - Adding entity %u at %.2f,%.2f,%.2f to bubble %u at %.2f,%.2f,%.2f with radius %.2f.  \
+                                 Distance to Star %.2f AU", \
+                                 ent->GetID(), startPoint.x, startPoint.y, startPoint.z, \
+                                 this->GetBubbleID(), m_center.x, m_center.y, m_center.z, \
+                                 m_radius, rangeToStar);
+
+    //send current entities in bubble before addition so we do not include ourself.
+    if ((notify) && (ent->IsClient())) _SendAddBalls(ent);
+
+    //if this entity is a Client and it is NOT cloaked, then notify everybody else in the bubble of the add.
     if (ent->IsClient()) {
 	    Client *c = ent->CastToClient();
         if (c->Destiny() != NULL) {
@@ -212,30 +223,40 @@ void SystemBubble::Add(SystemEntity *ent, bool notify) {
     } else
         _BubblecastAddBall(ent);
 
-    GPoint startPoint( ent->GetPosition() );
-    GPoint endPoint(0,0,0);
-    GVector direction(startPoint, endPoint);
-    double rangeToStar = direction.length();
-	rangeToStar /= ONE_AU_IN_METERS;
-
-    _log(DESTINY__BUBBLE_DEBUG, "SystemBubble::Add() - Adding entity %u at %.2f,%.2f,%.2f to bubble %u at %.2f,%.2f,%.2f with radius %.2f.  \
-                                 Distance to Star %.2f AU", \
-                                 ent->GetID(), startPoint.x, startPoint.y, startPoint.z, \
-                                 this->GetBubbleID(), m_center.x, m_center.y, m_center.z, \
-                                 m_radius, rangeToStar);
-
+    //insert the entity into the list 
     m_entities[ent->GetID()] = ent;
     ent->m_bubble = this;
     if(!ent->IsStaticEntity()) m_dynamicEntities.insert(ent);
 
+	// if entity is warping into this bubble, let everybody know their warp to point.
+	if (isPostWarp) {
+        Client *c = ent->CastToClient();
+        if (c->Destiny() == NULL) return;
+
+        GPoint target = c->Destiny()->GetTargetPoint();
+
+        DoDestiny_CmdWarpTo wt;
+        wt.entityID = ent->GetID();
+        wt.dest_x = target.x;
+        wt.dest_y = target.y;
+        wt.dest_z = target.z;
+        wt.distance = c->Destiny()->GetDistance();
+        wt.warpSpeed = c->Destiny()->GetWarpSpeed();
+
+        //exclusive bubblecast the update to all entities in bubble except warping entity, as they already know where they're going.
+        PyTuple* t = wt.Encode();
+        BubblecastDestinyUpdateExclusive( &t, "Exclusive WarpTo", ent );
+        //PySafeDecRef( t );
+	}
+
     // Trigger SpawnManager for this bubble to generate NPC Spawn, if any, but
     // only if this entity is a Client and it is NOT cloaked:
-	if( ent->IsClient() ) {
-		if( (ent->CastToClient()->Destiny() != NULL) ) {
-			if( !(ent->CastToClient()->Destiny()->IsCloaked()) )
-				ent->System()->DoSpawnForBubble(*this);
-		}
-	}
+    if( ent->IsClient() ) {
+        if( (ent->CastToClient()->Destiny() != NULL) ) {
+            if( !(ent->CastToClient()->Destiny()->IsCloaked()) )
+                ent->System()->DoSpawnForBubble(*this);
+        }
+    }
 }
 
 void SystemBubble::Remove(SystemEntity *ent, bool notify) {
@@ -251,9 +272,8 @@ void SystemBubble::Remove(SystemEntity *ent, bool notify) {
     m_dynamicEntities.erase(ent);
 
     //notify after removal so we do not remove ourself.
-    if(notify) {
-        _SendRemoveBalls(ent);
-    }
+    if ((notify) && (ent->IsClient())) _SendRemoveBalls(ent);
+
     //regardless, notify everybody else in the bubble of the removal.
     _BubblecastRemoveBall(ent);
 }
@@ -369,7 +389,7 @@ void SystemBubble::_SendAddBalls( SystemEntity* to_who )
     Buffer* destinyBuffer = new Buffer;
 
     Destiny::AddBall_header head;
-    head.packet_type = 1;   // 0 = full state   1 = balls
+    head.packet_type = 0;   // 0 = full state   1 = balls
     head.sequence = DestinyManager::GetStamp();
 
     destinyBuffer->Append( head );
@@ -454,7 +474,7 @@ void SystemBubble::_BubblecastAddBall( SystemEntity* about_who )
 
     //create AddBalls header
     Destiny::AddBall_header head;
-    head.packet_type = 1;   // 0 = full state   1 = balls
+    head.packet_type = 0;   // 0 = full state   1 = balls
     head.sequence = DestinyManager::GetStamp();
     destinyBuffer->Append( head );
 
@@ -489,7 +509,7 @@ void SystemBubble::_BubblecastAddBallExclusive( SystemEntity* about_who )
 
     //create AddBalls header
     Destiny::AddBall_header head;
-    head.packet_type = 1;   // 0 = full state   1 = balls
+    head.packet_type = 0;   // 0 = full state   1 = balls
     head.sequence = DestinyManager::GetStamp();
     destinyBuffer->Append( head );
 

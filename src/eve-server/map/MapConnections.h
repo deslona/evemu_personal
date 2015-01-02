@@ -15,10 +15,13 @@
 
 class MapCon {
   public:
-    MapCon();
+      MapCon();
 
   private:
 
+      void PopulateConnections();
+      void Populate2();
+      void Populate3();
 
 };
 

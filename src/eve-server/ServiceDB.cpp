@@ -331,8 +331,6 @@ bool ServiceDB::GetStationInfo(uint32 stationID, uint32 *systemID, uint32 *const
             row.GetDouble(10),
             row.GetDouble(11)
         );
-        // as it's a direction, it should be normalized
-        dockOrientation->normalize();
     }
 
     return true;
