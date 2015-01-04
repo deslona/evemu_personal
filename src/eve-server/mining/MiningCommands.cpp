@@ -60,51 +60,43 @@ PyResult Command_roid( Client* who, CommandDB* db, PyServiceMgr* services, const
     return new PyString( "Spawn successful." );
 }
 
-PyResult Command_spawnbelt( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args )
-{
+PyResult Command_spawnbelt( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args ) {
     if( !who->IsInSpace() )
         throw PyException( MakeCustomError( "You must be in space to spawn things." ) );
 
 	bool makeIceBelt = false;
 	bool makeRareIce = false;
 	uint32 customCount = 0;
-    if( args.argCount() >= 2 )
-	{
-        if( !args.isNumber( 1 ) )
-		{
-			if( args.arg( 1 ) == "ice" )
+    if ( args.argCount() >= 2 ) {
+        if ( !args.isNumber( 1 ) ) {
+			if ( args.arg( 1 ) == "ice" )
 				makeIceBelt = true;
-		}
-		else
-		{
-			if( atoi(args.arg( 1 ).c_str()) > 15 )
+		} else {
+			if ( atoi(args.arg( 1 ).c_str()) > 15 )
 				customCount = atoi(args.arg( 1 ).c_str());
 			else
 				PyException( MakeCustomError( "Argument 1 should be at least 15!" ) );
 		}
 	}
 
-	if( args.argCount() >= 3 )
-	{
-		if( args.isNumber( 2 ) )
-		{
-			if( atoi(args.arg( 2 ).c_str()) > 15 )
+	if ( args.argCount() >= 3 ) {
+		if ( args.isNumber( 2 ) ) {
+			if ( atoi(args.arg( 2 ).c_str()) > 15 )
 				customCount = atoi(args.arg(2).c_str());
 			else
 				PyException( MakeCustomError( "Argument 2 should be at least 15!" ) );
-		}
-		else
+		} else {
 			if( args.arg( 2 ) == "ice" )
 				makeIceBelt = true;
-			if( args.arg( 2 ) == "rareice" )
-			{
+			if( args.arg( 2 ) == "rareice" ) {
 				makeIceBelt = true;
 				makeRareIce = true;
 			}
+        }
 	}
 
-    const double beltradius = 100000.0;
-    const double beltdistance = 25000.0;
+    double beltradius = 100000.0;
+    double beltdistance = 25000.0;
     const double beltangle = M_PI * 2.0 / 3.0;
     uint32 pcs = 0;
 
@@ -124,9 +116,8 @@ PyResult Command_spawnbelt( Client* who, CommandDB* db, PyServiceMgr* services, 
 
     SystemManager* sys = who->System();
     std::map<double, uint32> roidDist;
-	if( makeIceBelt )
-	{
-		//std::string securityStatus = sys->GetSystemSecurity();
+	if( makeIceBelt ) {
+		// put this in db or mem map?
 		if (makeRareIce) {
             roidDist.insert(std::pair<double,uint32>(0.90,16263));      // Glacial Mass
             roidDist.insert(std::pair<double,uint32>(0.80,16265));      // White Glaze
@@ -145,21 +136,17 @@ PyResult Command_spawnbelt( Client* who, CommandDB* db, PyServiceMgr* services, 
 			roidDist.insert(std::pair<double,uint32>(0.10,16267));		// Dark Glitter
 		}
 	} else {
-		if( !db->GetRoidDist( sys->GetSystemSecurity(), roidDist ) )
-		{
+		if( !db->GetRoidDist( sys->GetSystemSecurity(), roidDist ) ) {
 			sLog.Error( "Command", "Couldn't get roid list for system security %s", sys->GetSystemSecurity() );
-
 			throw PyException( MakeCustomError( "Couldn't get roid list for system security %s", sys->GetSystemSecurity() ) );
 		}
 	}
 
-    double distanceToMe;
-    double alpha;
-    GPoint mposition;
-
+    double distanceToMe = 0, alpha = 0;
+    GPoint mposition = NULL_ORIGIN;
     float security = ( 1.1 - (db->GetSecurity(who->GetSystemID())));
-    float roidradius = 0;
-    float thefloat = 0.0f;
+    float roidradius = 0.0f, thefloat = 0.0f;
+    beltradius *= security;
 
 	if (makeIceBelt)
         pcs *= 2;
@@ -169,20 +156,20 @@ PyResult Command_spawnbelt( Client* who, CommandDB* db, PyServiceMgr* services, 
         roidradius = 1000;
 
 		if (makeIceBelt) {
-            thefloat = MakeRandomFloat( 9000.0, 14000.0 );
+            thefloat = MakeRandomFloat( 5000.0, 9000.0 );
             roidradius += thefloat;
             roidradius *= 5;
         } else {
-            thefloat = MakeRandomFloat( 7000.0, 14000.0 );
+            thefloat = MakeRandomFloat( 3000.0, 7000.0 );
             roidradius += thefloat;
         }
         roidradius *= security;
 
-        mposition.x = beltradius * sin( phi + alpha ) + roidradius * MakeRandomFloat( 0, 15 );
-        mposition.z = beltradius * cos( phi + alpha ) + roidradius * MakeRandomFloat( 0, 15 );
-        mposition.y = position.y - r.y + roidradius * MakeRandomFloat( 0, 15 );
-        distanceToMe = (r + mposition - position).length();
-        SpawnAsteroid( who->System(), GetAsteroidType( MakeRandomFloat(), roidDist ), roidradius, r + mposition );
+        mposition.x = beltradius * sin( phi + alpha ) + roidradius /* MakeRandomFloat( 0, 15 )*/;
+        mposition.z = beltradius * cos( phi + alpha ) + roidradius /* MakeRandomFloat( 0, 15 )*/;
+        mposition.y = position.y - r.y + roidradius /* MakeRandomFloat( 0, 15 )*/;
+        //distanceToMe = (r + mposition - position).length();
+        SpawnAsteroid( sys, GetAsteroidType( MakeRandomFloat(), roidDist ), roidradius, r + mposition );
     }
 
     return new PyString( "Spawn successsful." );
@@ -210,7 +197,7 @@ uint32 GetAsteroidType( double p, const std::map<double, uint32>& roids )
 
 void SpawnAsteroid( SystemManager* system, uint32 typeID, double radius, const GVector& position )
 {
-    //TODO: make item in IsUniverseAsteroid() range...
+    //TODO: make item in IsUniverseAsteroid() range... itemID > 70m
     ItemData idata( typeID,
                     1,
                     system->GetID(),

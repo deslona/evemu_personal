@@ -235,7 +235,7 @@ bool TargetManager::StartTargeting(SystemEntity *who, double lockTime, uint32 ma
 	te->timer.Start(lockTime);
 	m_targets[who] = te;
 
-    _log(TARGET__TRACE, "Target 2: %u started targeting %u (%f s lock time)", m_self->GetID(), who->GetID(), lockTime);
+    _log(TARGET__TRACE, "Target 2: %u started targeting %u (%f s lock time)", m_self->GetID(), who->GetID(), lockTime /1000);
     return true;
 }
 

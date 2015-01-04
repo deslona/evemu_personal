@@ -533,7 +533,7 @@ bool AttributeMap::ResetAttribute(uint32 attrID, bool notify)
 
 bool AttributeMap::Load() {
     /* First, we load default attributes values using existing attribute system */
-    DgmTypeAttributeSet *attr_set = sDgmTypeAttrMgr.GetDmgTypeAttributeSet( mItem->typeID() );
+    DgmTypeAttributeSet *attr_set = sDgmTypeAttrMgr.GetDmgTypeAttributeSet( mItem.typeID() );
     if (attr_set != NULL) {
         DgmTypeAttributeSet::AttrSetItr itr = attr_set->attributeset.begin();
         for (; itr != attr_set->attributeset.end(); itr++)
@@ -542,12 +542,12 @@ bool AttributeMap::Load() {
     /* Then we load the saved attributes from the db, if there are any yet, and overwrite the defaults */
     DBQueryResult res;
     if(mDefault) {
-        if(!sDatabase.RunQuery(res, "SELECT * FROM entity_default_attributes WHERE itemID='%u'", mItem->itemID())) {
+        if(!sDatabase.RunQuery(res, "SELECT * FROM entity_default_attributes WHERE itemID='%u'", mItem.itemID())) {
             sLog.Error("AttributeMap (DEFAULT)", "Error in db load query: %s", res.error.c_str());
             return false;
         }
     } else {
-        if(!sDatabase.RunQuery(res, "SELECT * FROM entity_attributes WHERE itemID='%u'", mItem->itemID())) {
+        if(!sDatabase.RunQuery(res, "SELECT * FROM entity_attributes WHERE itemID='%u'", mItem.itemID())) {
             sLog.Error("AttributeMap", "Error in db load query: %s", res.error.c_str());
             return false;
         }
@@ -667,11 +667,11 @@ bool AttributeMap::Save()
             Inserts << "VALUES";
             first = false;
         }
-        // otherwise coma separate the values.
+        // otherwise comma separate the values.
         else
             Inserts << ", ";
         // itemID and attributeID keys.
-        Inserts << "(" << mItem->itemID() << ", " << itr->first << ", ";
+        Inserts << "(" << mItem.itemID() << ", " << itr->first << ", ";
         // the value to set.
         if ( itr->second.get_type() == evil_number_int ) {
             Inserts << itr->second.get_int() << ", NULL)";

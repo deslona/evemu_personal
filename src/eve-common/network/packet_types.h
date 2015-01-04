@@ -934,6 +934,7 @@ typedef enum:uint64 {
 
 //these come from dgmEffects.
 //  -allan 18Aug14
+//  incomplete  3jan15
 typedef enum {
     effectShieldBoosting                = 4,    //effects.ShieldBoosting
     effectSpeedBoost                    = 7,    //effects.SpeedBoost

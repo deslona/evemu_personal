@@ -133,6 +133,7 @@ NPC::NPC(
     m_shieldCharge = self->GetAttribute(AttrShieldCapacity).get_float();
     m_armorDamage = 0.0;
     m_hullDamage = 0.0;
+   // _log(NPC__TRACE, "Created NPC object for %s (%u)", self.get()->itemName().c_str(), self.get()->itemID());
 }
 
 NPC::~NPC() {

@@ -420,7 +420,7 @@ int main( int argc, char* argv[] )
         services.Process();
 
         //  process console commands, if any, and check for 'exit' command
-        RunLoops = sCommand.Process();
+        //RunLoops = sCommand.Process();
 
         // do the stuff for thread sleeping
         etime = GetTickCount() - start;

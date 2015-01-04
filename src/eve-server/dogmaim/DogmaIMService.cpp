@@ -360,6 +360,9 @@ PyResult DogmaIMBound::Handle_LoadAmmoToBank( PyCallArgs& call ) {
 
 PyResult DogmaIMBound::Handle_Activate( PyCallArgs& call )
 {
+    sLog.Log( "DogmaIMBound::Handle_Activate()", "size= %u from '%s'", call.tuple->size(), call.client->GetName() );
+    call.Dump(SERVICE__CALLS);
+
     Call_Dogma_Activate args;
     uint32 callTupleSize = call.tuple->size();
     uint32 itemID = 0;
@@ -526,15 +529,11 @@ PyResult DogmaIMBound::Handle_RemoveTarget(PyCallArgs &call) {
     sLog.Warning( "DogmaIMBound::Handle_AddTarget()", "TARGET REMOVED - Range to Target = %f meters.", rangeToTarget );
 
     call.client->targets.ClearTarget(target);
-
     return NULL;
 }
 
 PyResult DogmaIMBound::Handle_ClearTargets(PyCallArgs &call) {
-    //no arguments.
-
     call.client->targets.ClearTargets();
-
     return NULL;
 }
 

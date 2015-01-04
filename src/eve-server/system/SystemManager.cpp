@@ -625,27 +625,21 @@ bool SystemManager::BootSystem() {
 
 //called many times a second
 bool SystemManager::Process() {
-    m_entityChanged = false;
-
-    std::map<uint32, SystemEntity *>::const_iterator cur, end;
-    cur = m_entities.begin();
-    end = m_entities.end();
+    // create a copy of the entity list so that changes will not affect iteration.
+    std::map<uint32, SystemEntity *> tmp_entities(m_entities);
+    std::map<uint32, SystemEntity *>::const_iterator cur, end, fnd;
+    cur = tmp_entities.begin();
+    end = tmp_entities.end();
     while(cur != end) {
-        cur->second->Process();
-
-        if(m_entityChanged) {
-            //somebody changed the entity list, need to start over or bail...
-            m_entityChanged = false;
-
-            cur = m_entities.begin();
-            end = m_entities.end();
-        } else {
-            cur++;
+        if((fnd = m_entities.find(cur->first)) != m_entities.end()) {
+            if(fnd->second != NULL)
+                fnd->second->Process();
+            else
+                m_entities.erase(fnd);
         }
+        cur++;
     }
-
     bubbles.Process();
-
     return true;
 }
 
@@ -653,31 +647,19 @@ bool SystemManager::Process() {
 void SystemManager::ProcessDestiny() {
     //this is here so it isnt called so frequently.
     m_spawnManager->Process();
-
-    m_entityChanged = false;
-
-    std::map<uint32, SystemEntity *>::const_iterator cur, end;
-    cur = m_entities.begin();
-    end = m_entities.end();
+    // create a copy of the entity list so that changes will not affect iteration.
+    std::map<uint32, SystemEntity *> tmp_entities(m_entities);
+    std::map<uint32, SystemEntity *>::const_iterator cur, end, fnd;
+    cur = tmp_entities.begin();
+    end = tmp_entities.end();
     while(cur != end) {
-		// Crash protection since we've seen intermittent crashes as described by error message in the 'else':
-		if(cur->second != NULL)
-			cur->second->ProcessDestiny();
-		else
-		{
-			sLog.Error("SystemManager::Process()", "ERROR! Somehow the SystemEntity * for entityID '%u' was deleted without being removed from the SystemManager's m_entities map!", cur->first);
-			m_entities.erase(cur->first);
-		}
-
-        if(m_entityChanged) {
-            //somebody changed the entity list, need to start over or bail...
-            m_entityChanged = false;
-
-            cur = m_entities.begin();
-            end = m_entities.end();
-        } else {
-            cur++;
+        if((fnd = m_entities.find(cur->first)) != m_entities.end()) {
+            if(fnd->second != NULL)
+                fnd->second->ProcessDestiny();
+            else
+                m_entities.erase(fnd);
         }
+        cur++;
     }
 }
 

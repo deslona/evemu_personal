@@ -242,7 +242,7 @@ public:
      */
 	uint32 GetNextEntityID();
 
-	uint32 Count()		{ return(m_items.size()); }
+	uint32 Count()		{ return (m_items.size()); }
 
 	void SaveItems();
 
