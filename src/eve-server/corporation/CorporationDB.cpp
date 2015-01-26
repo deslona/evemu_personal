@@ -663,8 +663,8 @@ bool CorporationDB::JoinCorporation(uint32 charID, uint32 corpID, uint32 oldCorp
     // Decrease previous corp's member count
     if (!sDatabase.RunQuery(err,
         "UPDATE corporation "
-        "   SET corporation.memberCount = corporation.memberCount-1"
-        "   WHERE corporation.corporationID = %u",
+        "   SET memberCount = memberCount-1"
+        "   WHERE corporationID = %u",
             oldCorpID
         ))
     {
@@ -672,7 +672,6 @@ bool CorporationDB::JoinCorporation(uint32 charID, uint32 corpID, uint32 oldCorp
         return false;
     }
 
-    // Set new corp
     if (!sDatabase.RunQuery(err,
         "UPDATE character_ SET "
         "   corporationID = %u, startDateTime = %" PRIu64 ", corpAccountKey = %i,"
@@ -701,6 +700,7 @@ bool CorporationDB::JoinCorporation(uint32 charID, uint32 corpID, uint32 oldCorp
     }
 
     // Add new employment history record
+    // TODO;  set to use CharacterDB::UpdateCharCorpRecords(char, corp)
     if (!sDatabase.RunQuery(err,
         "INSERT INTO chrEmployment"
         "  (characterID, corporationID, startDate, deleted)"

@@ -46,6 +46,7 @@ public:
 
         m_strBoundObjectName = "DogmaIMBound";
 
+        PyCallable_REG_CALL(DogmaIMBound, ChangeDroneSettings);
         PyCallable_REG_CALL(DogmaIMBound, LinkWeapons);
         PyCallable_REG_CALL(DogmaIMBound, LinkAllWeapons);
         PyCallable_REG_CALL(DogmaIMBound, OverloadRack);
@@ -76,6 +77,7 @@ public:
         delete this;
     }
 
+    PyCallable_DECL_CALL(ChangeDroneSettings);
     PyCallable_DECL_CALL(LinkWeapons);
     PyCallable_DECL_CALL(LinkAllWeapons);
     PyCallable_DECL_CALL(OverloadRack);
@@ -124,6 +126,28 @@ PyBoundObject *DogmaIMService::_CreateBoundObject(Client *c, const PyRep *bind_a
     bind_args->Dump(CLIENT__MESSAGE, "    ");
 
     return(new DogmaIMBound(m_manager));
+}
+
+PyResult DogmaIMBound::Handle_ChangeDroneSettings(PyCallArgs &call) {
+    /*
+     * 21:59:29 L Server: ChangeDroneSettings call made to
+     * 21:59:29 L DogmaIMBound::Handle_ChangeDroneSettings(): size=1
+     * 21:59:29 [SvcCall]   Call Arguments:
+     * 22:04:44 [SvcCall]       Tuple: 1 elements
+     * 22:04:44 [SvcCall]         [ 0] Dictionary: 3 entries
+     * 22:04:44 [SvcCall]         [ 0]   [ 0] Key: Integer field: 1283 <-- AttrFightersAttackAndFollow
+     * 22:04:44 [SvcCall]         [ 0]   [ 0] Value: Integer field: 1
+     * 22:04:44 [SvcCall]         [ 0]   [ 1] Key: Integer field: 1275 <-- AttrDroneIsAgressive
+     * 22:04:44 [SvcCall]         [ 0]   [ 1] Value: Integer field: 1
+     * 22:04:44 [SvcCall]         [ 0]   [ 2] Key: Integer field: 1297 <-- AttrDroneFocusFire
+     * 22:04:44 [SvcCall]         [ 0]   [ 2] Value: Integer field: 1
+     *
+     *    sLog.Log( "DogmaIMBound::Handle_ChangeDroneSettings()", "size=%u", call.tuple->size());
+     *    call.Dump(SERVICE__CALLS);
+     */
+
+    PyRep *result = NULL;
+    return result;
 }
 
 PyResult DogmaIMBound::Handle_LinkWeapons(PyCallArgs &call) {
@@ -363,7 +387,6 @@ PyResult DogmaIMBound::Handle_Activate( PyCallArgs& call )
     sLog.Log( "DogmaIMBound::Handle_Activate()", "size= %u from '%s'", call.tuple->size(), call.client->GetName() );
     call.Dump(SERVICE__CALLS);
 
-    Call_Dogma_Activate args;
     uint32 callTupleSize = call.tuple->size();
     uint32 itemID = 0;
     uint32 effect = 0;
@@ -429,6 +452,7 @@ PyResult DogmaIMBound::Handle_Activate( PyCallArgs& call )
     }
     else if( callTupleSize == 4 )
     {
+        Call_Dogma_Activate args;
         if( !args.Decode( &call.tuple ) )
         {
             codelog( SERVICE__ERROR, "Unable to decode arguments from '%s'", call.client->GetName() );
@@ -444,6 +468,11 @@ PyResult DogmaIMBound::Handle_Activate( PyCallArgs& call )
 
 PyResult DogmaIMBound::Handle_Deactivate( PyCallArgs& call )
 {
+    sLog.Log( "DogmaIMBound::Handle_Deactivate()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+    //18:50:24 [PacketError] Decode Call_Dogma_Deactivate failed: effectName is not a wide string: Integer
+    //  this is also used on POS items, so adjust as needed.  (will have to construct it like Activate())
+
     Call_Dogma_Deactivate args;
     if( !args.Decode( &call.tuple ) )
     {

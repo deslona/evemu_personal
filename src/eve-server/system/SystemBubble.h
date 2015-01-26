@@ -64,6 +64,7 @@ public:
 	uint32 Count()		{ return(m_bubbleIncrementer); }
 
 protected:
+    void _PrintEntityList();
     void _SendAddBalls(SystemEntity *to_who);
     void _SendRemoveBalls(SystemEntity *to_who);
     void _BubblecastAddBall(SystemEntity *about_who);

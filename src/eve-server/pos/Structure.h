@@ -170,8 +170,11 @@ public:
     inline double z() const { return(GetPosition().z); }
 
     //SystemEntity interface:
-    virtual EntityClass GetClass() const { return(ecStructureEntity); }
-    virtual bool IsStructureEntity() const { return true; }
+    EntityClass GetClass() const { return(ecStructureEntity); }
+    bool IsStructureEntity() const { return true; }
+    bool IsPOS() const { return true; }
+    bool IsTCU() const;
+
     virtual StructureEntity *CastToStructureEntity() { return(this); }
     virtual const StructureEntity *CastToStructureEntity() const { return(this); }
     virtual void Process();
@@ -183,8 +186,13 @@ public:
     virtual void TargetsCleared() {}
     virtual void QueueDestinyUpdate(PyTuple **du) {/* not required to consume */}
     virtual void QueueDestinyEvent(PyTuple **multiEvent) {/* not required to consume */}
-    virtual uint32 GetCorporationID() const { return(1); }
-    virtual uint32 GetAllianceID() const { return(0); }
+
+    inline uint32 GetOwnerID() const { return m_self.get()->ownerID(); }
+    uint32 GetCorporationID() const;
+    uint32 GetAllianceID() const;
+    uint8 GetPOSState() const;
+    PyTuple *GetEffectState() const;
+
     virtual void Killed(Damage &fatal_blow);
     virtual SystemManager *System() const { return(m_system); }
 
@@ -192,6 +200,7 @@ public:
 
     virtual bool ApplyDamage(Damage &d);
     virtual void MakeDamageState(DoDestinyDamageState &into) const;
+    virtual PyDict *MakeSlimItem() const;
 
     void SendNotification(const PyAddress &dest, EVENotificationStream &noti, bool seq=true);
     void SendNotification(const char *notifyType, const char *idType, PyTuple **payload, bool seq=true);
@@ -218,6 +227,9 @@ protected:
     double m_shieldCharge;
     double m_armorDamage;
     double m_hullDamage;
+
+    uint32 m_harmonic;      //this tracks shield frequency for passing thru POS shields.  not sure how to use it yet....
+    uint64 m_timestamp;     //used to track time on POS states (onlining, reinforced, etc)
 };
 
 #endif /* !__STRUCTURE__H__INCL__ */

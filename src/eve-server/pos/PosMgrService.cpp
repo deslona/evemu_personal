@@ -77,8 +77,8 @@ PosMgrService::PosMgrService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(PosMgrService, GetControlTowerFuelRequirements);
     PyCallable_REG_CALL(PosMgrService, InstallJumpBridgeLink);
     PyCallable_REG_CALL(PosMgrService, UninstallJumpBridgeLink);
-	//        jb = sm.RemoteSvc('posMgr').GetJumpArrays()
-    //    ct = sm.RemoteSvc('posMgr').GetControlTowers()
+    PyCallable_REG_CALL(PosMgrService, GetJumpArrays);
+    PyCallable_REG_CALL(PosMgrService, GetControlTowers);
 }
 
 PosMgrService::~PosMgrService() {
@@ -143,7 +143,7 @@ PyResult PosMgrBound::Handle_GetSiloCapacityByItemID(PyCallArgs &call) {
   sLog.Log( "PosMgrBound::Handle_GetSiloCapacityByItemID()", "size=%u", call.tuple->size());
     call.Dump(SERVICE__CALLS);
 
-    uint32 itemID;
+    uint32 itemID = 0;
 
     return m_db->GetSiloCapacityByItemID(itemID);
 }
@@ -165,7 +165,7 @@ PyResult PosMgrService::Handle_InstallJumpBridgeLink(PyCallArgs &call) {
   sLog.Log( "PosMgrService::Handle_InstallJumpBridgeLink()", "size=%u", call.tuple->size());
     call.Dump(SERVICE__CALLS);
 
-    return m_db.GetControlTowerFuelRequirements();
+    return NULL;
 }
 
 PyResult PosMgrService::Handle_UninstallJumpBridgeLink(PyCallArgs &call) {
@@ -178,8 +178,26 @@ PyResult PosMgrService::Handle_UninstallJumpBridgeLink(PyCallArgs &call) {
   sLog.Log( "PosMgrService::Handle_UninstallJumpBridgeLink()", "size=%u", call.tuple->size());
     call.Dump(SERVICE__CALLS);
 
-    return m_db.GetControlTowerFuelRequirements();
+    return NULL;
 }
+
+PyResult PosMgrService::Handle_GetJumpArrays(PyCallArgs &call) {
+    //        jb = sm.RemoteSvc('posMgr').GetJumpArrays()
+    sLog.Log( "PosMgrService::Handle_GetJumpArrays()", "size=%u", call.tuple->size());
+    call.Dump(SERVICE__CALLS);
+
+    return NULL;
+}
+
+PyResult PosMgrService::Handle_GetControlTowers(PyCallArgs &call) {
+    //    ct = sm.RemoteSvc('posMgr').GetControlTowers()
+
+    sLog.Log( "PosMgrService::Handle_GetControlTowers()", "size=%u", call.tuple->size());
+    call.Dump(SERVICE__CALLS);
+
+    return NULL;
+}
+
 
 /*
     def AnchorOrbital(self, itemID):

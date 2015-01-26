@@ -34,6 +34,7 @@
 
 uint32 SystemBubble::m_bubbleIncrementer = 0;
 
+//TODO change this to a multimap, using systemid as key.  this will provide faster searches later on   -allan
 SystemBubble::SystemBubble(const GPoint &center, double radius) //, uint32 systemID)
 : m_center(center),
   m_radius(radius),
@@ -89,7 +90,7 @@ void SystemBubble::BubblecastDestinyUpdate( PyTuple** payload, const char* desc 
     cur = m_dynamicEntities.begin();
     end = m_dynamicEntities.end();
     for (; cur != end; ++cur) {
-        if ( (*cur)->IsNPC() || (*cur)->IsClient() ) {
+        if ( (*cur)->IsClient() ) {
             if( NULL == up_dup )
                 up_dup = new PyTuple( *up );
 
@@ -115,8 +116,8 @@ void SystemBubble::BubblecastDestinyUpdateExclusive( PyTuple** payload, const ch
     cur = m_dynamicEntities.begin();
     end = m_dynamicEntities.end();
     for(; cur != end; ++cur) {
-        // make sure current entity is NOT inanimate (clients/npcs only)
-        if ( (*cur)->IsNPC() || (*cur)->IsClient() ) {
+        // make sure current entity is NOT inanimate (clients only)
+        if ( (*cur)->IsClient() ) {
             // Only queue a Destiny update for this bubble if the current SystemEntity is not 'ent':
             // (this is an update to all SystemEntity objects in the bubble EXCLUDING 'ent')
             if( (*cur)->GetID() != ent->GetID() ) {
@@ -148,11 +149,14 @@ void SystemBubble::BubblecastDestinyEvent( PyTuple** payload, const char* desc )
     end = m_dynamicEntities.end();
     for(; cur != end; ++cur)
     {
-        if( NULL == ev_dup )
+        // make sure current entity is NOT inanimate (clients only)
+        if ((*cur)->IsClient()) {
+            if( NULL == ev_dup )
             ev_dup = new PyTuple( *ev );
 
-        (*cur)->QueueDestinyEvent( &ev_dup );
-        _log( DESTINY__BUBBLE_TRACE, "Bubblecast %s event to %s (%u)", desc, (*cur)->GetName(), (*cur)->GetID() );
+            (*cur)->QueueDestinyEvent( &ev_dup );
+            _log( DESTINY__BUBBLE_TRACE, "Bubblecast %s event to %s (%u)", desc, (*cur)->GetName(), (*cur)->GetID() );
+        }
     }
 
     PySafeDecRef( ev_dup );
@@ -199,8 +203,7 @@ void SystemBubble::Add(SystemEntity *ent, bool notify, bool isPostWarp) {
     }
 
     GPoint startPoint( ent->GetPosition() );
-    GPoint endPoint(0,0,0);
-    GVector direction(startPoint, endPoint);
+    GVector direction(startPoint, NULL_ORIGIN);
     double rangeToStar = direction.length();
     rangeToStar /= ONE_AU_IN_METERS;
 
@@ -210,15 +213,15 @@ void SystemBubble::Add(SystemEntity *ent, bool notify, bool isPostWarp) {
                                  this->GetBubbleID(), m_center.x, m_center.y, m_center.z, \
                                  m_radius, rangeToStar);
 
-    //send current entities in bubble before addition so we do not include ourself.
-    if ((notify) && (ent->IsClient())) _SendAddBalls(ent);
-
     //if this entity is a Client and it is NOT cloaked, then notify everybody else in the bubble of the add.
-    if (ent->IsClient()) {
-	    Client *c = ent->CastToClient();
-        if (c->Destiny() != NULL) {
-		    if (!(c->Destiny()->IsCloaked()) ) {
+    if( ent->IsClient() ) {
+        _SendAddBalls(ent);
+        Client *pClient = ent->CastToClient();
+        if( (pClient->Destiny() != NULL) ) {
+            if( !(pClient->Destiny()->IsCloaked()) ) {
+                //if this entity is a Client and it is NOT cloaked, then notify everybody else in the bubble of the add.
                 _BubblecastAddBall(ent);
+                // Trigger SpawnManager for this bubble to generate NPC Spawn,
                 ent->System()->DoSpawnForBubble(*this);
             }
 		}
@@ -228,7 +231,12 @@ void SystemBubble::Add(SystemEntity *ent, bool notify, bool isPostWarp) {
     //insert the entity into the list
     m_entities[ent->GetID()] = ent;
     ent->m_bubble = this;
-    if(!ent->IsStaticEntity()) m_dynamicEntities.insert(ent);
+
+    // if this is static entity then exit function, as following conditionals and functions are for clients only.
+    if (ent->IsStaticEntity())
+        return;
+
+    m_dynamicEntities.insert(ent);
 
 	// if entity is warping into this bubble, let everybody know their warp to point.
 	if (isPostWarp) {
@@ -371,6 +379,28 @@ void SystemBubble::AppendBalls(DoDestiny_SetState &ss, std::vector<uint8> &setst
 }
 */
 
+void SystemBubble::_PrintEntityList() {
+    std::map<uint32, SystemEntity*>::const_iterator cur, end;
+    cur = m_entities.begin();
+    end = m_entities.end();
+    for (; cur != end; ++cur) {
+        if (cur->second->IsVisibleSystemWide())
+            sLog.Error( "SystemBubble::_PrintEntityList()", "entity %s(%u) is Global.", cur->second->GetName(), cur->first );
+        else if (cur->second->IsStaticEntity())
+            sLog.Error( "SystemBubble::_PrintEntityList()", "entity %s(%u) is Static.", cur->second->GetName(), cur->first );
+        else if (cur->second->IsCelestial())
+            sLog.Error( "SystemBubble::_PrintEntityList()", "entity %s(%u) is Celestial.", cur->second->GetName(), cur->first );
+        else if (cur->second->IsNPC())
+            sLog.Error( "SystemBubble::_PrintEntityList()", "entity %s(%u) is NPC.", cur->second->GetName(), cur->first );
+        else if (cur->second->IsClient())
+            sLog.Error( "SystemBubble::_PrintEntityList()", "entity %s(%u) is Client.", cur->second->GetName(), cur->first );
+        else if (cur->second->IsPOS())
+            sLog.Error( "SystemBubble::_PrintEntityList()", "entity %s(%u) is POS.", cur->second->GetName(), cur->first );
+        else
+            sLog.Error( "SystemBubble::_PrintEntityList()", "entity %s(%u) is None of the Above.", cur->second->GetName(), cur->first );
+    }
+}
+
 void SystemBubble::_SendAddBalls( SystemEntity* to_who )
 {
     if( m_entities.empty() )
@@ -378,6 +408,7 @@ void SystemBubble::_SendAddBalls( SystemEntity* to_who )
         _log( DESTINY__DEBUG, "SystemBubble::_SendAddBalls() - Nothing to send." );
         return;
     }
+    _PrintEntityList();
 
     Buffer* destinyBuffer = new Buffer;
 
@@ -395,6 +426,7 @@ void SystemBubble::_SendAddBalls( SystemEntity* to_who )
     end = m_entities.end();
     for(; cur != end; ++cur)
     {
+        //FIXME  this isnt right.   update xmlp and here to use PackagedAction and AddBalls2
         if( cur->second->IsVisibleSystemWide() )
             continue;    //it is already in their destiny state
 
@@ -404,6 +436,11 @@ void SystemBubble::_SendAddBalls( SystemEntity* to_who )
         addballs.slims->AddItem( new PyObject( "foo.SlimItem", cur->second->MakeSlimItem() ) );
         //append the destiny binary data...
         cur->second->EncodeDestiny( *destinyBuffer );
+    }
+
+    if (addballs.slims->size() < 1) {
+        _log( DESTINY__DEBUG, "SystemBubble::_SendAddBalls() - Nothing to send after check." );
+        return;
     }
 
     addballs.destiny_binary = new PyBuffer( &destinyBuffer );

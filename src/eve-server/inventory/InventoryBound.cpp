@@ -61,6 +61,16 @@ InventoryBound::~InventoryBound()
 }
 
 PyResult InventoryBound::Handle_List(PyCallArgs &call) {
+    //FIXME  this does not work for POS cargohold (flag 5)
+
+    /*  this is a start for determining if char is in corp, corp is owner of items, and/or what ownerID to send to List()
+     *
+     *    InventoryItemRef rItem = call.client->services().item_factory.GetItem(mInventory.inventoryID());
+     *    if (rItem.get()->categoryID() == EVEDB::invCategories::Structure)
+     *        return mInventory.List( 5, call.client->GetCharacterID());
+     *    else
+     */
+
     //TODO: check to make sure we are allowed to list this inventory
     return mInventory.List( mFlag, call.client->GetCharacterID() );
 }
@@ -174,6 +184,9 @@ PyResult InventoryBound::Handle_Add(PyCallArgs &call) {
 
         std::vector<int32> items;
         items.push_back(args.itemID);
+
+        sLog.Log( "InventoryBound::Handle_Add()", "trying to add item %u from %u to %u or %u",
+                  args.itemID, args.inventoryID, call.client->GetID(), mInventory.inventoryID() );
 
         return _ExecAdd( call.client, items, quantity, (EVEItemFlags)flag );
     }
@@ -371,9 +384,6 @@ PyResult InventoryBound::Handle_DestroyFitting(PyCallArgs &call) {
 
 PyResult InventoryBound::Handle_SetPassword(PyCallArgs &call) {
     // TODO
-    uint32 item = 0;
-    item++;
-
     return NULL;
 }
 
@@ -509,12 +519,9 @@ PyRep *InventoryBound::_ExecAdd(Client *c, const std::vector<int32> &items, uint
                 {
                     c->GetShip()->AddItem( flag, newItem );
                 }
-                else if( flag == flagCargoHold || flag == flagDroneBay )
-                {
-                    c->GetShip()->ValidateAddItem( flag, newItem );
-                }
                 else if( flag == flagCargoHold
                         || flag == flagDroneBay
+                        || flag == flagSecondaryStorage
                         || flag == flagSpecializedFuelBay
                         || flag == flagSpecializedOreHold
                         || flag == flagSpecializedGasHold
@@ -568,9 +575,11 @@ PyRep *InventoryBound::_ExecAdd(Client *c, const std::vector<int32> &items, uint
             // If item being added is a module going into flag slot flagAutoFit or a specified slot, check to see if it's a stack being dragged
             // into the fitting window and split the stack to only take out and fit one from the stack:
             if ((flag == flagAutoFit) || ((flag >= flagLowSlot0 && flag <= flagHiSlot7) || (flag >= flagRigSlot0 && flag <= flagRigSlot7)))
-            if (sourceItem->quantity() > 1)
-                InventoryItemRef newItem = sourceItem->Split(sourceItem->quantity()-1);
-
+            {
+                if (sourceItem->quantity() > 1)
+                    InventoryItemRef newItem = sourceItem->Split(sourceItem->quantity()-1);
+            }
+            
             // Unlike the other validate item requests, fitting an item requires a skill check
             // (This handles modules being moved from one slot to another slot within the same bank on the same ship)
             // (This also allows for flagAutoFit when someone drags a module or a stack of modules onto the middle of the fitting
@@ -592,12 +601,13 @@ PyRep *InventoryBound::_ExecAdd(Client *c, const std::vector<int32> &items, uint
             }
             else if( (flag >= flagLowSlot0 && flag <= flagHiSlot7) || (flag >= flagRigSlot0 && flag <= flagRigSlot7) )
             {
-		// Check to see if old_flag is from this ship:
-		if ( (old_flag >= flagLowSlot0 && old_flag <= flagHiSlot7) || (old_flag >= flagRigSlot0 && old_flag <= flagRigSlot7) )
-		// old_flag IS from this ship, so first remove module to current bound inventory before adding it to a different slot:
-		// (warning! this may have problems with item inventories other than station items, but only if bound inventory is not being updated)
-		c->GetShip()->RemoveItem( sourceItem, mInventory.inventoryID(), flag );
-		c->GetShip()->AddItem( flag, sourceItem );
+                // Check to see if old_flag is from this ship:
+                if ( (old_flag >= flagLowSlot0 && old_flag <= flagHiSlot7) || (old_flag >= flagRigSlot0 && old_flag <= flagRigSlot7) ) {
+                    // old_flag IS from this ship, so first remove module to current bound inventory before adding it to a different slot:
+                    // (warning! this may have problems with item inventories other than station items, but only if bound inventory is not being updated)
+                    c->GetShip()->RemoveItem( sourceItem, mInventory.inventoryID(), flag );
+                }
+                c->GetShip()->AddItem( flag, sourceItem );
             }
             else
             {

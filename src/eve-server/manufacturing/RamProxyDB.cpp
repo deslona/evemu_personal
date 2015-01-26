@@ -72,7 +72,7 @@ PyRep *RamProxyDB::GetJobs2(const uint32 ownerID, const bool completed)
         return NULL;
     }
 
-    return (DBResultToCRowset(res));
+    return DBResultToCRowset(res);
 }
 
 PyRep *RamProxyDB::AssemblyLinesSelectPublic(const uint32 regionID) {
@@ -98,7 +98,7 @@ PyRep *RamProxyDB::AssemblyLinesSelectPublic(const uint32 regionID) {
         return NULL;
     }
 
-    return (DBResultToCRowset(res));
+    return DBResultToCRowset(res);
 }
 
 PyRep *RamProxyDB::AssemblyLinesSelectPersonal(const uint32 charID) {
@@ -122,7 +122,7 @@ PyRep *RamProxyDB::AssemblyLinesSelectPersonal(const uint32 charID) {
         return NULL;
     }
 
-    return (DBResultToRowset(res));
+    return DBResultToRowset(res);
 }
 
 PyRep *RamProxyDB::AssemblyLinesSelectPrivate(const uint32 charID) {
@@ -146,7 +146,7 @@ PyRep *RamProxyDB::AssemblyLinesSelectPrivate(const uint32 charID) {
         return NULL;
     }
 
-    return (DBResultToRowset(res));
+    return DBResultToRowset(res);
 }
 
 PyRep *RamProxyDB::AssemblyLinesSelectCorporation(const uint32 corporationID) {
@@ -170,7 +170,7 @@ PyRep *RamProxyDB::AssemblyLinesSelectCorporation(const uint32 corporationID) {
         return NULL;
     }
 
-    return (DBResultToRowset(res));
+    return DBResultToRowset(res);
 }
 
 PyRep *RamProxyDB::AssemblyLinesSelectAlliance(const uint32 allianceID) {
@@ -195,7 +195,7 @@ PyRep *RamProxyDB::AssemblyLinesSelectAlliance(const uint32 allianceID) {
         return NULL;
     }
 
-    return (DBResultToRowset(res));
+    return DBResultToRowset(res);
 }
 
 PyRep *RamProxyDB::AssemblyLinesGet(const uint32 containerID) {
@@ -224,7 +224,7 @@ PyRep *RamProxyDB::AssemblyLinesGet(const uint32 containerID) {
         return NULL;
     }
 
-    return (DBResultToRowset(res));
+    return DBResultToRowset(res);
 }
 
 bool RamProxyDB::GetAssemblyLineProperties(const uint32 assemblyLineID, double &baseMaterialMultiplier, double &baseTimeMultiplier, double &costInstall, double &costPerHour) {
@@ -417,6 +417,7 @@ bool RamProxyDB::GetRequiredItems(const uint32 typeID, const EVERamActivity acti
             into.push_back(RequiredItem(row.GetUInt(0), row.GetUInt(1), 1.0, false));
     }
 
+    res.Reset();
     if(!sDatabase.RunQuery(res,
         "SELECT"
         " material.requiredTypeID,"
@@ -424,8 +425,8 @@ bool RamProxyDB::GetRequiredItems(const uint32 typeID, const EVERamActivity acti
         " material.damagePerJob,"
         " IF(materialGroup.categoryID = 16, 1, 0) AS isSkill"
         " FROM ramTypeRequirements AS material"
-        " LEFT JOIN invTypes AS materialType ON material.requiredTypeID = materialType.typeID"
-        " LEFT JOIN invGroups AS materialGroup ON materialType.groupID = materialGroup.groupID"
+        " LEFT JOIN invTypes AS materialType ON materialType.typeID = material.requiredTypeID"
+        " LEFT JOIN invGroups AS materialGroup ON materialGroup.groupID = materialType.groupID"
         " WHERE material.typeID = %u"
         " AND material.activityID = %d"
         //this is needed as db is quite crappy ...

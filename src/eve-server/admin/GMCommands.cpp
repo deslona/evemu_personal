@@ -712,15 +712,14 @@ PyResult Command_location( Client* who, CommandDB* db, PyServiceMgr* services, c
 
     char reply[128];
     snprintf( reply, 128,
-        "SystemID: %li<br>"
+        "SystemID: %li (%li)<br>"
         "x: %lf<br>"
         "y: %lf<br>"
         "z: %lf<br>"
-        "speed: %lf<br>"
-        "bubble: %li",
-        who->GetSystemID(),
+        "speed: %lf",
+        who->GetSystemID(), bubble,
         loc.x, loc.y, loc.z,
-        vel.length(), bubble
+        vel.length()
     );
 
     who->SendInfoModalMsg( reply );
@@ -859,7 +858,7 @@ PyResult Command_setattr( Client* who, CommandDB* db, PyServiceMgr* services, co
         throw PyException( MakeCustomError( "Failed to load item %u.", itemID ) );
 
     //item->attributes.SetReal( attribute, value );
-    sLog.Warning( "GMCommands: Command_dogma()", "This command will modify attribute and send change to client, but change does not take effect in client for some reason." );
+    sLog.Warning( "GMCommands: Command_setattr()", "This command will modify attribute and send change to client, but change does not take effect in client for some reason." );
     item->SetAttribute(attribute, (float)value);
 
     return new PyString( "Operation successful." );
@@ -1549,6 +1548,36 @@ PyResult Command_cloak( Client* who, CommandDB* db, PyServiceMgr* services, cons
     else
         throw PyException( MakeCustomError("Correct Usage: /cloak") );
 
+    return NULL;
+}
+
+//13:54:11 W GMCommands: Command_sov(): This command passes args.argCount() = 3.
+PyResult Command_sov(Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args) {
+    sLog.Warning( "GMCommands: Command_sov()", "This command passes args.argCount() = %u.", args.argCount() );
+    /*
+     *  /sov complete
+     */
+    return NULL;
+}
+
+//13:54:11 W GMCommands: Command_pos(): This command passes args.argCount() = 3.
+PyResult Command_pos(Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args) {
+    sLog.Warning( "GMCommands: Command_pos()", "This command passes args.argCount() = %u.", args.argCount() );
+
+    /**
+     *  /pos online
+     *  /pos unanchor
+     *  /pos anchor
+     *  /pos offline
+     */
+    return NULL;
+}
+
+PyResult Command_hop(Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args) {
+    sLog.Warning( "GMCommands: Command_hop()", "This command passes args.argCount() = %u.", args.argCount() );
+    /*
+     * sm.RemoteSvc('slash').SlashCmd('/hop %s' % distance)
+     */
     return NULL;
 }
 

@@ -300,16 +300,18 @@ CorpMemberInfo::CorpMemberInfo(
  * FleetMember Info
  */
 FleetMemberInfo::FleetMemberInfo(
-	uint8 _fleetID,
+    uint16 _fleetID,
+    uint16 _wingID,
+    uint16 _squadID,
 	uint8 _fleetRole,
 	uint8 _fleetBooster,
-	uint8 _wingID,
-	uint8 _squadID)
+    uint8 _fleetJob)
 : fleetID(_fleetID),
+  wingID(_wingID),
+  squadID(_squadID),
   fleetRole(_fleetRole),
   fleetBooster(_fleetBooster),
-  wingID(_wingID),
-  squadID(_squadID)
+  fleetJob(_fleetJob)
 {
 }
 
@@ -340,6 +342,7 @@ Character::Character(
   m_corpHQ(_corpData.corpHQ),
   m_allianceID(_charData.allianceID),
   m_warFactionID(_charData.warFactionID),
+  m_corpAccountKey(_corpData.corpAccountKey),
   m_corpRole(_corpData.corpRole),
   m_rolesAtAll(_corpData.rolesAtAll),
   m_rolesAtBase(_corpData.rolesAtBase),
@@ -516,17 +519,13 @@ void Character::JoinCorporation(uint32 corporationID, const CorpMemberInfo &role
     m_rolesAtHQ = roles.rolesAtHQ;
 	m_rolesAtOther = roles.rolesAtOther;
 
-    // Add new employment history record    -allan  25Mar14
-    DBerror err;
-    if (!sDatabase.RunQuery(err,
-        "INSERT INTO chrEmployment VALUES (%u, %u, %" PRIu64 ", 0)",
-        itemID(), corporationID, Win32TimeNow()
-        ))
-    {
-        codelog(SERVICE__ERROR, "Error in employment insert query: %s", err.c_str());
-    }
+    // Add new employment history record    -allan  25Mar14   update 20Jan15
+    m_db.UpdateCharCorpRecords(itemID(), corporationID);
 
 	SaveCharacter();
+
+    Client *pClient = m_factory.entity_list.FindCharacter( itemID() );
+    pClient->UpdateCorpSession(pClient->GetChar());
 }
 
 void Character::SetDescription(const char *newDescription) {
@@ -534,6 +533,30 @@ void Character::SetDescription(const char *newDescription) {
 
     SaveCharacter();
 }
+
+void Character::SetAccountKey(int32 accountKey)
+{
+    m_corpAccountKey = accountKey;
+    Client *pClient = m_factory.entity_list.FindCharacter( itemID() );
+    pClient->UpdateCorpSession(pClient->GetChar());
+
+    SaveCharacter();
+}
+
+void Character::SetFleetData(FleetMemberInfo &fleet)
+{
+
+    m_fleetID = fleet.fleetID;
+    m_wingID = fleet.wingID;
+    m_squadID = fleet.squadID;
+    m_fleetRole = fleet.fleetRole;
+    m_fleetBooster = fleet.fleetBooster;
+    m_fleetJob = fleet.fleetJob;
+    
+    Client *pClient = m_factory.entity_list.FindCharacter( itemID() );
+    pClient->UpdateFleetSession(pClient->GetChar());
+}
+
 
 bool Character::HasSkill(uint32 skillTypeID) const {
     return GetSkill(skillTypeID);
@@ -550,8 +573,7 @@ bool Character::HasSkillTrainedToLevel(EvilNumber skillTypeID, uint32 skillLevel
 }
 
 bool Character::HasCertificate( uint32 certificateID ) const {
-    uint32 i = 0;
-    for( i = 0; i < m_certificates.size(); i++ ) {
+    for( uint32 i = 0; i < m_certificates.size(); i++ ) {
         if( m_certificates.at( i ).certificateID == certificateID ) return true;
     }
     return false;
@@ -647,13 +669,13 @@ EvilNumber Character::GetEndOfTraining() const
 }
 
 bool Character::InjectSkillIntoBrain(SkillRef skill) {
-    Client *c = m_factory.entity_list.FindCharacter( itemID() );
+    Client *pClient = m_factory.entity_list.FindCharacter( itemID() );
 
     SkillRef oldSkill = GetSkill( skill->typeID() );
     if( oldSkill ) {
         //TODO: build and send proper UserError for CharacterAlreadyKnowsSkill.
-        if( c )
-            c->SendNotifyMsg( "You already know this skill." );
+        if( pClient )
+            pClient->SendNotifyMsg( "You already know this skill." );
         return false;
     }
 
@@ -663,8 +685,8 @@ bool Character::InjectSkillIntoBrain(SkillRef skill) {
         // TODO: need to send back a response to the client.  need packet specs.
         _log( ITEM__TRACE, "%s (%u): Requested to train skill %u item %u but prereq not complete.", itemName().c_str(), itemID(), skill->typeID(), skill->itemID() );
 
-        if( c )
-            c->SendNotifyMsg( "Injection failed!  Skill prerequisites incomplete." );
+        if( pClient )
+            pClient->SendNotifyMsg( "Injection failed!  Skill prerequisites incomplete." );
         return false;
     }
 
@@ -684,7 +706,7 @@ bool Character::InjectSkillIntoBrain(SkillRef skill) {
     skill->SetAttribute(AttrSkillPoints, 0);
     skill->SetAttribute(AttrSkillLevel, 0);
 
-    if( c ) c->SendNotifyMsg( "Injection of skill complete." );
+    if( pClient ) pClient->SendNotifyMsg( "Injection of skill complete." );
     return true;
 }
 
@@ -1091,8 +1113,8 @@ void Character::SaveCharacter() {
         itemID(),
         CorpMemberInfo(
             corporationHQ(),
-            corpRole(),
             corpAccountKey(),
+            corpRole(),
             rolesAtAll(),
             rolesAtBase(),
             rolesAtHQ(),

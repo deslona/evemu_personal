@@ -574,6 +574,9 @@ PyResult CorpStationMgrIMBound::Handle_RentOffice(PyCallArgs &call) {
 
 PyResult CorpStationMgrIMBound::Handle_GetStationOffices( PyCallArgs& call )
 {
+    sLog.Log( "CorpStationMgrIMBound::Handle_GetStationOffices()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
     //Hack: Just passing the client an empty PyList to stop it throwing an exception.
     //TODO: Fid out what needs to be in the PyList and when to send it.
     sLog.Debug( "CorpStationMgrIMBound", "Called GetStationOffices stub." );
@@ -608,12 +611,12 @@ PyResult CorpStationMgrIMBound::Handle_GetStationOffices( PyCallArgs& call )
 
 PyResult CorpStationMgrIMBound::Handle_GetNumberOfUnrentedOffices( PyCallArgs &call )
 {
-    //Extremely hackish and temporary.  Just getting some number working to pass to the client.
+    sLog.Log( "CorpStationMgrIMBound::Handle_GetNumberOfUnrentedOffices()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
+
     //TODO: add handler that queries the data from the StationType struct.  Not exactly sure how to do this,
     //        but will involve call.client->GetStationID as the arguments to StationType.officeSlots() (hopefully)
-    const int office_hack = 3;
-
-    return new PyInt(office_hack);
+    return new PyInt(3);
 }
 
 PyResult CorpStationMgrIMBound::Handle_GetCorporateStationOffice(PyCallArgs &call) {
@@ -641,7 +644,7 @@ PyResult CorpStationMgrIMBound::Handle_MoveCorpHQHere(PyCallArgs &call)
 PyResult CorpStationMgrService::Handle_GetStationServiceStates(PyCallArgs &call)
 {
     /*   i *THINK* this is only sent for outposts.....stationID is 61m (above static stations)
-     * since it has NOT been called yet, it very well could be outposts only
+     * since it has NOT been called yet on evemu, it very well could be outposts only (cause we dont have any)
         [PyDict 6 kvp]
           [PyInt 512]
           [PyObjectData Name: util.Row]

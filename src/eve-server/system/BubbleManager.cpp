@@ -156,15 +156,14 @@ void BubbleManager::Add(SystemEntity *ent, bool notify, bool isPostWarp) {
 	_log(DESTINY__BUBBLE_TRACE, "BubbleManager::Add() - SystemEntity '%s' being added to NEW Bubble %u", ent->GetName(), in_bubble->GetBubbleID() );
 
 	//TODO: think about bubble collision. should we merge them?
+    //  -no.  seperate them so edges touch, moving new bubble along ship vector
     m_bubbles.push_back(in_bubble);
     in_bubble->Add(ent, notify, isPostWarp);
 }
 
 void BubbleManager::NewBubbleCenter(GVector shipVelocity, GPoint & newBubbleCenter) {
-	shipVelocity.normalize();
-    newBubbleCenter.x += (shipVelocity.x * (BUBBLE_DIAMETER_METERS /2));
-    newBubbleCenter.y += (shipVelocity.y * (BUBBLE_DIAMETER_METERS /2));
-    newBubbleCenter.z += (shipVelocity.z * (BUBBLE_DIAMETER_METERS /2));
+    shipVelocity.normalize();
+    newBubbleCenter += (shipVelocity * (BUBBLE_DIAMETER_METERS /2));
 }
 
 void BubbleManager::Remove(SystemEntity *ent, bool notify) {

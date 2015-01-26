@@ -67,12 +67,13 @@ public:
         PyCallable_REG_CALL(CorpRegistryBound, UpdateDivisionNames);
         PyCallable_REG_CALL(CorpRegistryBound, UpdateCorporation);
         PyCallable_REG_CALL(CorpRegistryBound, UpdateLogo);
+        PyCallable_REG_CALL(CorpRegistryBound, SetAccountKey);
 
         // STUBBS
         PyCallable_REG_CALL(CorpRegistryBound, GetMember);
         PyCallable_REG_CALL(CorpRegistryBound, GetMembers);
         PyCallable_REG_CALL(CorpRegistryBound, GetSharesByShareholder);
-        PyCallable_REG_CALL(CorpRegistryBound, SetAccountKey);
+        PyCallable_REG_CALL(CorpRegistryBound, GetShareholders);
         PyCallable_REG_CALL(CorpRegistryBound, PayoutDividend);
         PyCallable_REG_CALL(CorpRegistryBound, GetVoteCasesByCorporation);
 
@@ -102,12 +103,13 @@ public:
     PyCallable_DECL_CALL(UpdateDivisionNames);
     PyCallable_DECL_CALL(UpdateCorporation);
     PyCallable_DECL_CALL(UpdateLogo);
+    PyCallable_DECL_CALL(SetAccountKey);
 
     // STUBBS
     PyCallable_DECL_CALL(GetMember);
     PyCallable_DECL_CALL(GetMembers);
     PyCallable_DECL_CALL(GetSharesByShareholder);
-    PyCallable_DECL_CALL(SetAccountKey);
+    PyCallable_DECL_CALL(GetShareholders);
     PyCallable_DECL_CALL(PayoutDividend);
     PyCallable_DECL_CALL(GetVoteCasesByCorporation);
 
@@ -284,6 +286,7 @@ PyResult CorpRegistryBound::Handle_AddCorporation(PyCallArgs &call) {
 
     // Set char's roles in corp
     CorpMemberInfo roles;
+    roles.corpAccountKey = accountingKeyCash;
     roles.corpRole = corpRoleAll;
     roles.rolesAtAll = corpRoleAll;
     roles.rolesAtBase = corpRoleAll;
@@ -1042,6 +1045,14 @@ PyResult CorpRegistryBound::Handle_GetSharesByShareholder(PyCallArgs &call) {
   sLog.Log( "CorpRegistryBound::Handle_GetSharesByShareholder()","size= %u, 0=%s", call.tuple->size(), call.tuple->GetItem( 0 )->TypeString() );
     call.Dump(SERVICE__CALLS);
 */
+    return NULL;
+}
+
+PyResult CorpRegistryBound::Handle_GetShareholders(PyCallArgs &call) {
+
+    sLog.Log( "CorpRegistryBound::Handle_GetShareholders()","size= %u, 0=%s", call.tuple->size(), call.tuple->GetItem( 0 )->TypeString() );
+    call.Dump(SERVICE__CALLS);
+
     return NULL;
 }
 

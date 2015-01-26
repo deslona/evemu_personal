@@ -346,9 +346,7 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
         i->SaveAttributes();
         _log(CLIENT__MESSAGE, "Training skill %u to level %d (%d points)", i->typeID(), skillLevel, skillPoints.get_float());
 
-        //  save initial skill levels in history  -allan
-        // eventID:307 - SkillPointsApplied
-        char_item->SaveSkillHistory(307, EvilTimeNow().get_float(), char_item->itemID(), i->typeID(), skillLevel, skillPoints.get_float(), char_item->GetTotalSP().get_float());
+        char_item->SaveSkillHistory(skillEventCharCreation, Win32TimeNow(), char_item->itemID(), i->typeID(), skillLevel, skillPoints.get_float(), char_item->GetTotalSP().get_float());
     }
 
     //now set up some initial inventory:
@@ -381,7 +379,7 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
 
     // Set shipID
     char_item->SetActiveShip( ship_item->itemID() );
-     char_item->SaveFullCharacter();
+    char_item->SaveFullCharacter();
 	ship_item->SaveItem();
 
     if( !ship_item ) {

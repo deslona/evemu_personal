@@ -367,7 +367,7 @@ PyResult AccountService::Handle_GetJournal(PyCallArgs &call) {
 
     return m_db.GetJournal(
         ( ca ? call.client->GetCorporationID() : call.client->GetCharacterID() ),
-        args.refTypeID,
+        args.entryTypeID,
         args.accountKey,
         args.fromDate
     );

@@ -190,7 +190,7 @@ RefPtr<_Ty> InventoryItem::_LoadItem(ItemFactory &factory, uint32 itemID,
         case EVEDB::invCategories::Drone:
         case EVEDB::invCategories::Implant:
         case EVEDB::invCategories::Deployable:
-        case EVEDB::invCategories::Structure:
+        case EVEDB::invCategories::Structure:   // this is for all POS structure types (tower, arrays, batteries, etc)
         case EVEDB::invCategories::Reaction:
         case EVEDB::invCategories::Asteroid:
              break;
@@ -1143,8 +1143,8 @@ void InventoryItem::SetOnline(bool online) {
     ogf.itemID = m_itemID;
     ogf.effectID = effectOnline;
     ogf.when = Win32TimeNow();
-    ogf.start = online?1:0;
-    ogf.active = online?1:0;
+    ogf.start = online;
+    ogf.active = online;
 
 	PyList *environment = new PyList;
 	environment->AddItem(new PyInt(ogf.itemID));

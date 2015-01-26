@@ -67,21 +67,17 @@ COMMAND( killallnpcs, ROLE_ADMIN,
         " - insta-pops all NPC ships in the current bubble")
 COMMAND( cloak, ROLE_ADMIN,
        " - instantly and unconditionally toggles cloak state of your vessel")
+COMMAND( sov, ROLE_ADMIN,
+         " - unknown at this time")
+COMMAND( pos, ROLE_ADMIN,
+         " - unknown at this time")
+COMMAND( hop, ROLE_GML,
+         " - unknown at this time")
+
 /*COMMAND( entity, ROLE_ADMIN,
         "(entityID) - unknown" )
 COMMAND( chatban, ROLE_ADMIN,
         "(characterID) - bans character from channel" )
 COMMAND( whois, ROLE_ADMIN,
         "(characterName) - returns information on character")
-*/
-/*
-        sm.RemoteSvc('slash').SlashCmd('/hop %s' % distance)
-
-        */
-/**
-	/pos online
-	/pos unanchor
-	/pos anchor
-	/pos offline
-	/sov complete
 */

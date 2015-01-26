@@ -432,8 +432,8 @@ PyResult ShipBound::Handle_Drop(PyCallArgs &call) {
 
     PyTuple * tuple = call.tuple;
     PyList * PyToDropList;
-    uint32 ownerID;
-    bool unknown;
+    uint32 ownerID = 1;
+    bool ignoreWarning = false;     //used for LaunchUpgradePlatformWarning
     bool d3 = tuple->items.size() == 3;
 
     if(!drop3args.Decode(&call.tuple))
@@ -453,8 +453,8 @@ PyResult ShipBound::Handle_Drop(PyCallArgs &call) {
         }
 
         PyToDropList = drop3args.toDrop;
-        ownerID = (uint32)(drop3args.ownerID);
-        unknown = drop3args.unknown;
+        ownerID = drop3args.ownerID;
+        ignoreWarning = drop3args.ignoreWarning;
     }
     else
     {
@@ -480,13 +480,16 @@ PyResult ShipBound::Handle_Drop(PyCallArgs &call) {
         //verify that this item is in fact in the player's ship.
         if( cargoItem->locationID() != call.client->GetShipID() )
         {
-            sLog.Error("ShipBound::Handle_Drop()", "%s: Item %u is not in our ship (%u), it is in %u. Not dropping.", call.client->GetName(), itemID, call.client->GetShipID(), cargoItem->locationID());
+            sLog.Error("ShipBound::Handle_Drop()", "%s: Item %u is not in our ship (%u), it is in %u. Not dropping.",
+                       call.client->GetName(), itemID, call.client->GetShipID(), cargoItem->locationID());
             continue;
         }
 
-        // Change ownership to ownerID
-        if ( ownerID != call.client->GetCharacterID() )
+        // Check drop for char or corp
+        if ( (IsPlayerCorp(ownerID)) || (ownerID == call.client->GetCharacterID()) )
             cargoItem->ChangeOwner( ownerID, true );
+        else
+            cargoItem->ChangeOwner( 1, true );  //default to eve system
 
         // Get groupID and categoryID for item 'itemID' to determine if it is a kind of cargo container, structure, or deployable item
         groupID = m_manager->item_factory.GetItem( itemID )->groupID();
@@ -527,14 +530,13 @@ PyResult ShipBound::Handle_Drop(PyCallArgs &call) {
         else if( categoryID == EVEDB::invCategories::Structure )
         {
             // This item is a POS structure of some kind, so move it from the ship's cargo into space
-            // whilst keeping ownership of it to the character not using the corporation the character belongs to:
             structureItem = m_manager->item_factory.GetStructure( itemID );
             Client * who = call.client;
             GPoint location( who->GetPosition() );
-            radius = 1500.0;
+            radius = 1000.0;
             theta = MakeRandomFloat( 0.0, (2*M_PI) );
             phi = MakeRandomFloat( 0.0, (2*M_PI) );
-            location.x += radius * sin(theta) * cos(phi);   // Randomize placement on a 1500m radius sphere about player ship
+            location.x += radius * sin(theta) * cos(phi);   // Randomize placement on a 1000m radius sphere about player ship
             location.y += radius * sin(theta) * sin(phi);
             location.z += radius * cos(theta);
 
@@ -551,7 +553,25 @@ PyResult ShipBound::Handle_Drop(PyCallArgs &call) {
             structureItem->Move( call.client->GetLocationID(), flagAutoFit, true );
 
             // Send notification SFX effects.jettison for the jettisoned Structure object:
-            call.client->Destiny()->SendJettisonCargo( structureItem );
+            //call.client->Destiny()->SendJettisonCargo( structureItem );
+            /*
+                      [PyString "OnSpecialFX"]
+                      [PyTuple 14 items]
+                        [PyIntegerVar 1002332856217]
+                        [PyIntegerVar 1002332856217]
+                        [PyInt 12235]
+                        [PyNone]
+                        [PyNone]
+                        [PyList 0 items]
+                        [PyString "effects.AnchorDrop"]
+                        [PyBool False]
+                        [PyInt 1]
+                        [PyInt 1]
+                        [PyInt -1]
+                        [PyInt 0]
+                        [PyIntegerVar 129516974756172792]
+                        [PyNone]
+                        */
 
             successfully_dropped.ints.push_back( structureItem->itemID() );
         }
@@ -1164,11 +1184,15 @@ PyResult ShipBound::Handle_GetShipConfiguration(PyCallArgs &call) {
 }
 
 PyResult ShipBound::Handle_SelfDestruct(PyCallArgs &call) {
-  /*
-*/
-
+    /*
+     * 22:13:29 L ShipBound::Handle_SelfDestruct(): size=1
+     * 22:13:29 [SvcCall]   Call Arguments:
+     * 22:13:29 [SvcCall]       Tuple: 1 elements
+     * 22:13:29 [SvcCall]         [ 0] Integer field: 140000378     <- ship id
+     *
   sLog.Log( "ShipBound::Handle_SelfDestruct()", "size=%u", call.tuple->size());
     call.Dump(SERVICE__CALLS);
+*/
 
     PyRep *result = NULL;
     return result;

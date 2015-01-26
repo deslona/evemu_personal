@@ -112,6 +112,8 @@ PyResult NetService::Handle_GetInitVals(PyCallArgs &call) {
 		dict->SetItemString("entity", new PyNone());
 		dict->SetItemString("factory", new PyNone());
         dict->SetItemString("facWarMgr", new PyNone());
+        dict->SetItemString("fleetMgr", new PyNone());
+        dict->SetItemString("fleetObjectHandler", new PyNone());
 		dict->SetItemString("fleetProxy", new PyNone());
 		dict->SetItemString("gagger", new PyNone());
 		dict->SetItemString("gangSvcObjectHandler", new PyNone());

@@ -45,6 +45,9 @@ protected:
     PyCallable_DECL_CALL(GetControlTowerFuelRequirements);
     PyCallable_DECL_CALL(InstallJumpBridgeLink);
     PyCallable_DECL_CALL(UninstallJumpBridgeLink);
+    PyCallable_DECL_CALL(GetJumpArrays);
+    PyCallable_DECL_CALL(GetControlTowers);
+    
     //PyCallable_DECL_CALL()
 
     //overloaded in order to support bound objects:

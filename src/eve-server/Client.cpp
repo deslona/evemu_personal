@@ -622,14 +622,39 @@ void Client::BoardShip(ShipRef new_ship) {
 	GetShip()->SaveShip();
 }
 
+void Client::UpdateCorpSession( const CharacterConstRef& character )
+{
+    if( !character ) return;
+
+    mSession.SetInt( "corpid", character->corporationID() );
+    mSession.SetInt( "hqID", character->corporationHQ() );
+    mSession.SetLong( "corpRole", character->corpRole() );
+    mSession.SetInt( "corpAccountKey", character->corpAccountKey() );
+    mSession.SetLong( "rolesAtAll", character->rolesAtAll() );
+    mSession.SetLong( "rolesAtBase", character->rolesAtBase() );
+    mSession.SetLong( "rolesAtHQ", character->rolesAtHQ() );
+    mSession.SetLong( "rolesAtOther", character->rolesAtOther() );
+
+    _SendSessionChange();
+}
+
+void Client::UpdateFleetSession( const CharacterConstRef& character )
+{
+    if( !character ) return;
+
+    mSession.SetInt( "fleetid", character->fleetID() );
+    mSession.SetInt( "fleetrole", character->fleetRole() );
+    mSession.SetInt( "fleetbooster", character->fleetBooster() );
+    mSession.SetInt( "wingid", character->wingID() );
+    mSession.SetInt( "squadid", character->squadID() );
+
+    _SendSessionChange();
+}
+
 void Client::_UpdateSession( const CharacterConstRef& character )
 {
-    if( !character )
-        return;
+    if( !character ) return;
 
-    mSession.SetInt( "charid", character->itemID() );
-    mSession.SetString( "charname", character->itemName().c_str() );
-    mSession.SetInt( "corpid", character->corporationID() );
     if( character->stationID() == 0 )
     {
         sLog.Warning( "Client::_UpdateSession()", "character->stationID() == 0" );
@@ -655,24 +680,14 @@ void Client::_UpdateSession( const CharacterConstRef& character )
 	mSession.SetInt( "solarsystemid2", character->solarSystemID() );
     mSession.SetInt( "constellationid", character->constellationID() );
     mSession.SetInt( "regionid", character->regionID() );
-
-    mSession.SetInt( "hqID", character->corporationHQ() );
-    mSession.SetLong( "corpRole", character->corpRole() );
-    mSession.SetInt( "corpAccountKey", character->corpAccountKey() );
-    mSession.SetLong( "rolesAtAll", character->rolesAtAll() );
-    mSession.SetLong( "rolesAtBase", character->rolesAtBase() );
-    mSession.SetLong( "rolesAtHQ", character->rolesAtHQ() );
-    mSession.SetLong( "rolesAtOther", character->rolesAtOther() );
-
-    if (IsInSpace())
-        mSession.SetInt("shipid", GetShipID());
+    mSession.SetInt( "shipid", GetShipID() );
 }
 
 void Client::_UpdateSession2( uint32 characterID )
 {
     if( characterID == 0 )
     {
-        sLog.Error( "Client::_UpdateSession2()", "characterID == 0, which is illegal" );
+        sLog.Error( "Client::_UpdateSession2()", "characterID == 0" );
         return;
     }
 
@@ -702,6 +717,7 @@ void Client::_UpdateSession2( uint32 characterID )
     uint32 shipID = static_cast<uint32>(characterDataMap["shipID"]);
 
     mSession.SetInt( "genderID", gender );
+    mSession.SetInt( "clientID", GetAccountID() );
     mSession.SetInt( "charid", characterID );
     mSession.SetInt( "corpid", corporationID );
     if( stationID == 0 )
@@ -740,10 +756,18 @@ void Client::_UpdateSession2( uint32 characterID )
     mSession.SetLong( "rolesAtOther", rolesAtOther );
 
     m_shipId = shipID;
-    if( m_char.get() != NULL )
-        m_char->SetActiveShip(m_shipId);
-    if (IsInSpace())
-        mSession.SetInt( "shipid", shipID );
+
+    mSession.SetInt( "shipid", shipID );
+
+    mSession.SetInt( "inDetention", 0 );
+
+/*  TODO:  NOT set on initial session unless previously in a fleet.
+    mSession.SetInt( "fleetid", 0 );
+    mSession.SetInt( "fleetrole", 0 );
+    mSession.SetInt( "fleetbooster", 0 );
+    mSession.SetInt( "wingid", 0 );
+    mSession.SetInt( "squadid", 0 );
+    */
 }
 
 void Client::_SendCallReturn( const PyAddress& source, uint64 callID, PyRep** return_value, const char* channel )
@@ -1148,7 +1172,7 @@ void Client::StargateJump(uint32 fromGate, uint32 toGate) {
     m_destiny->SendJumpOut(toGate);
 
     //delay the move so they can see the JumpOut animation
-    _postMove(msJump, 3000);
+    _postMove(msJump, 5000);
 }
 
 void Client::_postMove(_MoveState type, uint32 wait_ms) {

@@ -86,6 +86,10 @@ public:
     virtual bool IsVisibleSystemWide() const { return false; }
     virtual uint32 GetLocationID();
 
+    virtual bool IsPOS() const { return false; }
+    virtual bool IsJumpBridge() const { return false; }
+    virtual bool IsTCU() const { return false; }
+
     SystemBubble *Bubble() const { return(m_bubble); }    //may be NULL
 
     //may consume the arguments, or not.
@@ -151,7 +155,8 @@ public:
     //virtual float GetRadius() const;
     virtual PyDict *MakeSlimItem() const;
     virtual void MakeDamageState(DoDestinyDamageState &into) const;
-
+    virtual bool IsStaticEntity() const { return false; }
+    
     //process outgoing damage, applying any bonuses...
     virtual void ApplyDamageModifiers(Damage &d, SystemEntity *target);
     //process incoming damage, returns true on death.

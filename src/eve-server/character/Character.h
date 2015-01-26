@@ -313,18 +313,20 @@ public:
 class FleetMemberInfo {
 public:
 	FleetMemberInfo(
-	    uint8 _fleetID = 0,
+	    uint16 _fleetID = 0,
+        uint16 _wingID = 0,
+        uint16 _squadID = 0,
 	    uint8 _fleetRole = 0,
 	    uint8 _fleetBooster = 0,
-	    uint8 _wingID = 0,
-	    uint8 _squadID = 0
+	    uint8 _fleetJob = 0
 	);
 
-	uint8 fleetID;
+    uint16 fleetID;
+    uint16 wingID;
+    uint16 squadID;
 	uint8 fleetRole;
 	uint8 fleetBooster;
-	uint8 wingID;
-	uint8 squadID;
+    uint8 fleetJob;
 };
 
 /**
@@ -367,10 +369,10 @@ public:
      */
     bool AlterBalance(double balanceChange);
     void SetLocation(uint32 stationID, uint32 solarSystemID, uint32 constellationID, uint32 regionID);
-    void JoinCorporation(uint32 corporationID);
 	void JoinCorporation(uint32 corporationID, const CorpMemberInfo &roles);
     void SetDescription(const char *newDescription);
-    void SetAccountKey(int32 accountKey) { m_corpAccountKey = static_cast<int16>(accountKey); }
+    void SetAccountKey(int32 accountKey);
+    void SetFleetData(FleetMemberInfo &fleet);
 
     void Delete();
 
@@ -528,6 +530,14 @@ public:
     int64                  rolesAtHQ() const { return m_rolesAtHQ; }
     int64                  rolesAtOther() const { return m_rolesAtOther; }
 
+    // Fleet role:
+    uint16                  fleetID() const { return m_fleetID; }
+    uint16                  wingID() const { return m_wingID; }
+    uint16                  squadID() const { return m_squadID; }
+    uint8                   fleetRole() const { return m_fleetRole; }
+    uint8                   fleetBooster() const { return m_fleetBooster; }
+    uint8                   fleetJob() const { return m_fleetJob; }
+
     // Current location:
     uint32                  stationID() const { return m_stationID; }
     uint32                  solarSystemID() const { return m_solarSystemID; }
@@ -662,6 +672,13 @@ protected:
     int64 m_rolesAtBase;
     int64 m_rolesAtHQ;
     int64 m_rolesAtOther;
+
+    uint16 m_fleetID;
+    uint16 m_wingID;
+    uint16 m_squadID;
+    uint8 m_fleetRole;
+    uint8 m_fleetBooster;
+    uint8 m_fleetJob;
 
     uint32 m_stationID;
     uint32 m_solarSystemID;

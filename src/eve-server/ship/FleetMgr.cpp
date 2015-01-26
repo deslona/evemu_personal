@@ -28,12 +28,12 @@
 #include "eve-server.h"
 
 #include "PyServiceCD.h"
-#include "ship/FleetManager.h"
+#include "ship/FleetMgr.h"
 
 PyCallable_Make_InnerDispatcher(FleetManager)
 
 FleetManager::FleetManager(PyServiceMgr *mgr)
-: PyService(mgr, "FleetMgr"),
+: PyService(mgr, "fleetMgr"),
   m_dispatch(new Dispatcher(this))
 {
     _SetCallDispatcher(m_dispatch);

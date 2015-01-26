@@ -59,23 +59,26 @@ FleetObjectHandler::~FleetObjectHandler()
 }
 
 PyResult FleetObjectHandler::Handle_CreateFleet(PyCallArgs &call) {
-    /*19:53:11[00m L [37;01mServer: [00mCreateFleet call made to fleetObjectHandler
-     * [00m19:53:11 [SvcCall] Service fleetObjectHandler: calling CreateFleet
-     * 19:53:11[00m L [37;01mFleetObjectHandler: [00mHandle_CreateFleet() size=0
-     * [00m19:53:11 [SvcCall]   Call Arguments:
-     * 19:53:11 [SvcCall]       Tuple: Empty
-     * 19:53:11 [SvcCall]   Call Named Arguments:
-     * /client/script/parklife/fleetsvc.py(339) Invite
-     * /client/script/parklife/fleetsvc.py(331) CreateFleet
-     *        self = <svc.FleetSvc instance at 0x08949A30>
-     * AttributeError: 'NoneType' object has no attribute 'Init'
-     * 
-    sLog.Log("FleetObjectHandler", "Handle_CreateFleet() size=%u", call.tuple->size() );
-    call.Dump(SERVICE__CALLS);
-    */
+    /*  object manager here sets fleet IDs (squad, wing, fleet)
+     *   and tracks player movement within the fleet.
+     *
+     *   will also call updates on fleet session data
+     */
+
+    uint16 fleetID = 20;
+    FleetMemberInfo fleet;
+
+    fleet.fleetID = fleetID;
+    fleet.wingID = 0;
+    fleet.squadID = 0;
+    fleet.fleetRole = fleetRoleLeader;
+    fleet.fleetBooster = fleetBoosterNone;
+    fleet.fleetJob = fleetJobCreator;
+
+    call.client->GetChar().get()->SetFleetData(fleet);
 
     /**  returns fleetID */
-    return NULL;
+    return new PyInt(fleetID);
 }
 
 PyResult FleetObjectHandler::Handle_CreateWing(PyCallArgs &call) {

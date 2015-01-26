@@ -114,17 +114,17 @@
   </elementDef>
 
   <elementDef name="Call_GetJournal">
+  <!--  GetJournal(     keyID, fromDate, None, 1)
+        GetJournal(accountKey, fromDate, refType, self.isCorpWallet, rev=1)
+        GetJournal(accountKey, fromDate, entryTypeID, corpAccount, transactionID, rev)  -->
     <tupleInline>
       <int name="accountKey" />
-          <long name="fromDate" none_marker="0" />
-          <!-- may be None (but probably wont be) -->
-          <int name="refTypeID" none_marker="0" />
-          <!-- may be None -->
-          <raw name="corpAccount" none_marker="0" />
-          <!-- soft bool -->
-          <raw name="refID"/>
-          <!-- may be None -->
-      <int name="rev" />
+      <long name="fromDate" />
+      <int name="entryTypeID" none_marker="1" />
+      <!-- corpAccount could be either bool or interger  -->
+      <raw name="corpAccount" />
+      <int name="transactionID" none_marker="1" />
+      <int name="rev" none_marker="1" />
     </tupleInline>
   </elementDef>
 
@@ -336,18 +336,11 @@
       </listInline>
   </elementDef>
 
-  <elementDef name="Call_Drop2">
-    <tupleInline>
-      <listInt name="toDrop" />
-      <int name="ownerID" />
-    </tupleInline>
-  </elementDef>
-
     <elementDef name="Call_Drop3">
         <tupleInline>
             <list name="toDrop" />
-            <int name="ownerID" />
-            <bool name="unknown" />
+            <int name="ownerID" none_marker="1" />
+            <bool name="ignoreWarning" />
         </tupleInline>
     </elementDef>
 

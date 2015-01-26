@@ -1127,20 +1127,20 @@ bool InventoryDB::NewCharacter(uint32 characterID, const CharacterData &data, co
         // CharacterData:
         "  (characterID, accountID, title, description, bounty, balance, aurBalance, securityRating, petitionMessage,"
         "   logonDateTime, logonMinutes, corporationID, corpRole, rolesAtAll, rolesAtBase, rolesAtHQ, rolesAtOther,"
-        "   startDateTime, createDateTime,"
+        "   startDateTime, createDateTime, corpAccountKey"
         "   ancestryID, careerID, schoolID, careerSpecialityID, gender,"
         "   stationID, solarSystemID, constellationID, regionID, freeRespecs, lastRespecDateTime, nextRespecDateTime)"
         " VALUES"
         // CharacterData:
         "  (%u, %u, '%s', '%s', %f, %f, %f, %f, '%s',"
         "   %" PRIu64 ", %u, %u, %" PRIu64 ", %" PRIu64 ", %" PRIu64 ", %" PRIu64 ", %" PRIu64 ", "
-        "   %" PRIu64 ", %" PRIu64 ", %" PRIu64 ","
+        "   %" PRIu64 ", %" PRIu64 ", %i,"
         "   %u, %u, %u, %u, %u,"
         "   %u, %u, %u, %u, %u, %u, %u)",
         // CharacterData:
         characterID, data.accountID, titleEsc.c_str(), descriptionEsc.c_str(), data.bounty, data.balance, data.aurBalance, data.securityRating, "No petition",
         Win32TimeNow(), data.logonMinutes, data.corporationID, corpData.corpRole, corpData.rolesAtAll, corpData.rolesAtBase, corpData.rolesAtHQ, corpData.rolesAtOther,
-        data.startDateTime, data.createDateTime,
+        data.startDateTime, data.createDateTime, corpData.corpAccountKey,
         data.ancestryID, data.careerID, data.schoolID, data.careerSpecialityID, data.gender,
         data.stationID, data.solarSystemID, data.constellationID, data.regionID, 2, 0, 0
     )) {
@@ -1148,8 +1148,8 @@ bool InventoryDB::NewCharacter(uint32 characterID, const CharacterData &data, co
         return false;
     }
 
-    // Hack in the first employment record
     // TODO: Eventually, this should go under corp stuff...
+    // TODO;  set to use CharacterDB::UpdateCharCorpRecords(char, corp)
     if(!sDatabase.RunQuery(err,
         "INSERT INTO chrEmployment"
         "  (characterID, corporationID, startDate, deleted)"

@@ -1225,7 +1225,8 @@ int32 ModuleManager::Activate(uint32 itemID, std::string effectName, uint32 targ
     GenericModule * mod = m_Modules->GetModule(itemID);
     if( mod != NULL )
     {
-		if(effectName == "online")
+        m_pLog->Log("ModuleManager::Activate()", "Module '%s' Activating...", mod->getItem()->itemName().c_str());
+        if(effectName == "online")
 		{
 			//ModuleCommand cmd = _translateEffectName(effectName);		// GET RID of this function, effectName should be passed into the module's calls
 			mod->Online();
@@ -1246,9 +1247,7 @@ int32 ModuleManager::Activate(uint32 itemID, std::string effectName, uint32 targ
             13:12:56 [SvcCall]         [ 2] (None)
             13:12:56 [SvcCall]         [ 3] Integer field: 0
             */
-            m_pLog->Log("ModuleManager::Activate()", "Module '%s' Activating...", mod->getItem()->itemName().c_str());
-            
-		}
+       }
 		else
 		{
 			SystemEntity * targetEntity = this->m_Ship->GetOperator()->GetDestiny()->GetCurrentBubble()->GetEntity(targetID);
@@ -1265,7 +1264,8 @@ void ModuleManager::Deactivate(uint32 itemID, std::string effectName)
     GenericModule * mod = m_Modules->GetModule(itemID);
     if( mod != NULL )
     {
-		if(effectName == "online")
+        m_pLog->Log("ModuleManager::Deactivate()", "Module '%s' Deactivating...", mod->getItem()->itemName().c_str());
+        if(effectName == "online")
 		{
 			//ModuleCommand cmd = _translateEffectName(effectName);		// GET RID of this function, effectName should be passed into the module's calls
 			mod->Offline();

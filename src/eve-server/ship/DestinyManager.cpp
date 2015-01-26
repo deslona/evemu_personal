@@ -87,6 +87,8 @@ DestinyManager::DestinyManager(SystemEntity *self, SystemManager *system)
 
     m_cloaked = false;
     m_stop = false;
+
+    m_capCharge = 0;
 }
 
 DestinyManager::~DestinyManager() {
@@ -751,7 +753,7 @@ void DestinyManager::_InitWarp() {
 
     //drain cap
 	if (m_self->IsClient())
-        m_self->CastToClient()->GetShip()->SetAttribute(AttrCapacitorCharge, m_capNeeded);
+        m_self->CastToClient()->GetShip()->SetAttribute(AttrCapacitorCharge, m_capCharge);
 
     //clear targets
     m_self->CastToClient()->targets.ClearAllTargets();
@@ -1265,7 +1267,10 @@ void DestinyManager::TractorBeamHalt(bool update)
 // settings for ship attributes
 void DestinyManager::SetShipVariables(InventoryItemRef ship)
 {
-	m_radius = ship->GetAttribute(AttrRadius).get_float();
+	double radius = ship->GetAttribute(AttrRadius).get_float();
+
+    //check for rigs and modules that affect radius here
+    m_radius = radius;
 
 	/* AttrMass = 4,	(largest mass = Leviathan(3764) @ 2,430,000,000kg)
 	 * AttrMassLimit = 622,
@@ -1274,7 +1279,7 @@ void DestinyManager::SetShipVariables(InventoryItemRef ship)
 	 */
 	double shipMass = ship->GetAttribute(AttrMass).get_float();
 
-	//  check for rigs that modify mass here
+	//  check for rigs and modules that modify mass here
 	m_mass = shipMass;
 	m_massMKg = m_mass / 1000000; //changes mass from Kg to MillionKg (10^-6)
 
@@ -1708,7 +1713,7 @@ void DestinyManager::WarpTo(const GPoint where, int32 distance) {
 	m_targetPoint = where;
 	m_stopDistance = distance;
 
-	if (m_self->IsClient()) {
+	if (m_self->IsClient()) {   //FIXME  warp cap need is WRONG for short warps........MUST FIX
 	  Client *pClient = m_self->CastToClient();
 	  InventoryItemRef pShip = pClient->GetShip();
 
@@ -1732,7 +1737,7 @@ void DestinyManager::WarpTo(const GPoint where, int32 distance) {
 			  m_stopDistance = currentShipCap / (m_mass * adjWarpCapNeed);
 			  m_targetPoint = NULL_ORIGIN;
             capNeeded = currentShipCap;
-		} else */{
+		} else {*/
             m_self->CastToClient()->SendErrorMsg("You don't have enough capacitor charge to warp.");
             sLog.Warning("DestinyManager::WarpTo()", "Client %s(%u): Capacitor needed vs current  %.3f / %.3f",
                          m_self->GetName(), m_self->GetID(), capNeeded, currentShipCap);
@@ -1740,12 +1745,12 @@ void DestinyManager::WarpTo(const GPoint where, int32 distance) {
 		  State = DSTBALL_STOP;
 		  delete m_warpState;
 		  return;
-		}
+		//}
 	  } else {
 		capNeeded = currentShipCap - capNeeded;
 	  }
 
-	  m_capNeeded = capNeeded;
+	  m_capCharge = capNeeded;
 	}
 
 	/*  TODO PUT CHECK HERE FOR WARP BUBBLES

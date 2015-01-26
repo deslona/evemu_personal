@@ -233,6 +233,16 @@ CREATE TABLE IF NOT EXISTS `mapSystemSovInfo` (
   `contested` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='SystemSovereigntyInfo';
 
+/* Table structure for table `crpAlliance` */
+
+CREATE TABLE IF NOT EXISTS `crpAlliance` (
+  `allianceID` int(11) NOT NULL,
+  `allianceType` int(11) NOT NULL,
+  `allianceShortName` varchar(20) NOT NULL,
+  PRIMARY KEY (`allianceID`),
+  KEY `allianceID` (`allianceID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
   /*  hack for minor client error...we dont have the real data for this yet  */
 ALTER TABLE `staOperations` ADD `descriptionID` INT(3) NOT NULL DEFAULT '0' AFTER `description`;
 

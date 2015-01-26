@@ -30,8 +30,8 @@
 #include "system/SystemDB.h"
 
 //   based on client code...
-static const uint64 ONE_LIGHTYEAR = 9460000000000000;  // in meters
-static const uint64 ONE_AU_IN_METERS = 149597870700;     // 1 astronomical unit in meters, per EVElopedia: http://wiki.eveonline.com/en/wiki/Astronomical_Unit
+static const uint64 ONE_LIGHTYEAR = 9460000000000000UL;  // in meters
+static const uint64 ONE_AU_IN_METERS = 149597870700L;     // 1 astronomical unit in meters, per EVElopedia: http://wiki.eveonline.com/en/wiki/Astronomical_Unit
 
 class PyRep;
 class PyDict;

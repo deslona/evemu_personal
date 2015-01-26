@@ -207,6 +207,8 @@ StructureEntity::StructureEntity(
 {
     _structureRef = structure;
     m_destiny->SetPosition(position, false);
+    m_harmonic = 0;     // for shield passage....FIXME for later  (dedicated POS class maybe?)
+    m_timestamp = Win32TimeNow() - Win32Time_Day;
 }
 
 void StructureEntity::Process() {
@@ -217,99 +219,29 @@ void StructureEntity::ForcedSetPosition(const GPoint &pt) {
     m_destiny->SetPosition(pt, false);
 }
 
+uint32 StructureEntity::GetCorporationID() const {
+    //TODO will have to fix this later
+    uint32 ownerID = GetOwnerID();
+    if (IsCorp(ownerID)) return ownerID; else return 0;
+}
+
+uint32 StructureEntity::GetAllianceID() const {
+    //TODO fix this once alliances are implemented.
+    return 0;
+}
+
+bool StructureEntity::IsTCU() const {
+    // check for a TCU item.
+    //  this is ONLY used for SetState.effectStates (type 32226)
+    return false;
+}
+
 void StructureEntity::EncodeDestiny( Buffer& into ) const
 {
     const GPoint& position = GetPosition();
     const std::string itemName( GetName() );
+    //const uint16 miniballsCount = GetMiniBalls();
 
-    /*if(m_orbitingID != 0) {
-        #pragma pack(1)
-        struct AddBall_Orbit {
-            BallHeader head;
-            MassSector mass;
-            ShipSector ship;
-            DSTBALL_ORBIT_Struct main;
-            NameStruct name;
-        };
-        #pragma pack()
-
-        into.resize(start
-            + sizeof(AddBall_Orbit)
-            + slen*sizeof(uint16) );
-        uint8 *ptr = &into[start];
-        AddBall_Orbit *item = (AddBall_Orbit *) ptr;
-        ptr += sizeof(AddBall_Orbit);
-
-        item->head.entityID = GetID();
-        item->head.mode = Destiny::DSTBALL_ORBIT;
-        item->head.radius = m_self->radius();
-        item->head.x = x();
-        item->head.y = y();
-        item->head.z = z();
-        item->head.sub_type = IsMassive | IsFree;
-
-        item->mass.mass = m_self->mass();
-        item->mass.unknown51 = 0;
-        item->mass.unknown52 = 0xFFFFFFFFFFFFFFFFLL;
-        item->mass.corpID = GetCorporationID();
-        item->mass.unknown64 = 0xFFFFFFFF;
-
-        item->ship.max_speed = m_self->maxVelocity();
-        item->ship.velocity_x = m_self->maxVelocity();    //hacky hacky
-        item->ship.velocity_y = 0.0;
-        item->ship.velocity_z = 0.0;
-        item->ship.agility = 1.0;    //hacky
-        item->ship.speed_fraction = 0.133f;    //just strolling around. TODO: put in speed fraction!
-
-        item->main.unknown116 = 0xFF;
-        item->main.followID = m_orbitingID;
-        item->main.followRange = 6000.0f;
-
-        item->name.name_len = slen;    // in number of unicode chars
-        //strcpy_fake_unicode(item->name.name, GetName());
-    } else {
-        BallHeader head;
-        head.entityID = GetID();
-        head.mode = Destiny::DSTBALL_STOP;
-        head.radius = GetRadius();
-        head.x = position.x;
-        head.y = position.y;
-        head.z = position.z;
-        head.sub_type = IsMassive | IsFree;
-        into.Append( head );
-
-        MassSector mass;
-        mass.mass = GetMass();
-        mass.cloak = 0;
-        mass.unknown52 = 0xFFFFFFFFFFFFFFFFLL;
-        mass.corpID = GetCorporationID();
-        mass.allianceID = GetAllianceID();
-        into.Append( mass );
-
-        ShipSector ship;
-        ship.max_speed = GetMaxVelocity();
-        ship.velocity_x = 0.0;
-        ship.velocity_y = 0.0;
-        ship.velocity_z = 0.0;
-        ship.unknown_x = 0.0;
-        ship.unknown_y = 0.0;
-        ship.unknown_z = 0.0;
-        ship.agility = GetAgility();
-        ship.speed_fraction = 0.0;
-        into.Append( ship );
-
-        DSTBALL_STOP_Struct main;
-        main.formationID = 0xFF;
-        into.Append( main );
-
-        const uint8 nameLen = utf8::distance( itemName.begin(), itemName.end() );
-        into.Append( nameLen );
-
-        const Buffer::iterator<uint16> name = into.end<uint16>();
-        into.ResizeAt( name, nameLen );
-        utf8::utf8to16( itemName.begin(), itemName.end(), name );
-    }
-*/
     BallHeader head;
     head.entityID = GetID();
     head.mode = Destiny::DSTBALL_RIGID;
@@ -317,24 +249,50 @@ void StructureEntity::EncodeDestiny( Buffer& into ) const
     head.x = position.x;
     head.y = position.y;
     head.z = position.z;
-    head.sub_type = /*HasMiniBalls | */IsGlobal;
+    head.sub_type = /*HasMiniBalls | */IsGlobal;        //TODO check for miniballs and add here if found.
     into.Append( head );
 
     DSTBALL_RIGID_Struct main;
     main.formationID = 0xFF;
     into.Append( main );
 
-/*
-    const uint16 miniballsCount = 1;
+    MassSector mass;
+    mass.cloak = 0;
+    mass.corpID = GetCorporationID();
+    mass.allianceID = GetAllianceID();
+    mass.Harmonic = m_harmonic;
+    mass.mass = Item()->type().mass();
+    into.Append( mass );
+
+    /*
+     * TODO  query and configure miniballs for POS entity
     into.Append( miniballsCount );
 
     MiniBall miniball;
-    miniball.x = -7701.181;
-    miniball.y = 8060.06;
-    miniball.z = 27878.900;
-    miniball.radius = 1639.241;
-    into.Append( miniball );
-*/
+    for (int16 i; i<miniballsCount; i++) {
+        miniball.x = -7701.181;
+        miniball.y = 8060.06;
+        miniball.z = 27878.900;
+        miniball.radius = 1639.241;
+        into.Append( miniball );
+        miniball.clear();
+    }
+
+
+                                    [MiniBall]
+                                      [Radius: 963.8593]
+                                      [Offset: (0, -2302, 1)]
+                                    [MiniBall]
+                                      [Radius: 1166.27]
+                                      [Offset: (0, 1298, 1)]
+                                    [MiniBall]
+                                      [Radius: 876.2357]
+                                      [Offset: (0, -502, 1)]
+                                    [MiniBall]
+                                      [Radius: 796.5781]
+                                      [Offset: (0, 2598, 1)]
+
+    */
 }
 
 void StructureEntity::MakeDamageState(DoDestinyDamageState &into) const
@@ -342,8 +300,83 @@ void StructureEntity::MakeDamageState(DoDestinyDamageState &into) const
     into.shield = (m_self->GetAttribute(AttrShieldCharge).get_float() / m_self->GetAttribute(AttrShieldCapacity).get_float());
     into.recharge = m_self->GetAttribute(AttrShieldRechargeRate).get_float();
     into.timestamp = Win32TimeNow();
-//    armor damage isn't working...
     into.armor = 1.0 - (m_self->GetAttribute(AttrArmorDamage).get_float() / m_self->GetAttribute(AttrArmorHP).get_float());
     into.structure = 1.0 - (m_self->GetAttribute(AttrDamage).get_float() / m_self->GetAttribute(AttrHp).get_float());
 }
 
+PyDict *StructureEntity::MakeSlimItem() const {
+    PyDict *slim = new PyDict();
+    slim->SetItemString("itemID", new PyInt(Item()->itemID()));
+    slim->SetItemString("typeID", new PyInt(Item()->typeID()));
+    slim->SetItemString("ownerID", new PyInt(Item()->ownerID()));
+    slim->SetItemString("itemName", new PyString(Item()->itemName()));
+    slim->SetItemString("corpID", new PyInt(GetCorporationID()));
+    slim->SetItemString("incapacitated", new PyInt(0)); //TODO fix this later....check for offline/vulnerable states
+    slim->SetItemString("posTimestamp", new PyLong(m_timestamp));   //TODO this will need to be set to time deployed.
+    slim->SetItemString("posState", new PyInt(GetPOSState()));
+    slim->SetItemString("warFactionID", new PyInt(0));
+    slim->SetItemString("allianceID", new PyInt(0));
+    /*  for tower modules
+    slim->SetItemString("controlTowerID", new PyInt(0));
+    slim->SetItemString("nameID", new PyNone);
+    */
+    return(slim);
+}
+
+uint8 StructureEntity::GetPOSState() const {
+    //TODO fix this later
+    /*
+     STRUCTURE_UNANCHORED = 0,
+     STRUCTURE_ANCHORED = 1,
+     STRUCTURE_ONLINING = 2,
+     STRUCTURE_REINFORCED = 3,
+     STRUCTURE_ONLINE = 4,
+     STRUCTURE_OPERATING = 5,
+     STRUCTURE_VULNERABLE = 6,
+     STRUCTURE_SHIELD_REINFORCE = 7,
+     STRUCTURE_ARMOR_REINFORCE = 8,
+     STRUCTURE_INVULNERABLE = 9
+    */
+    return STRUCTURE_ONLINE;   // hack for pos online
+}
+
+PyTuple *StructureEntity::GetEffectState() const {
+    //FIXME  this will have to be finished.  hacked for now.
+    std::vector<PyTuple *> updates;
+    std::vector<int32, std::allocator<int32> > area;
+
+    DoDestiny_OnSpecialFX13 effect;
+    effect.entityID = Item()->itemID();
+    effect.moduleID = Item()->itemID();
+    effect.moduleTypeID = Item()->typeID();
+    effect.targetID = Item()->itemID();
+    effect.otherTypeID = 0;
+    effect.area = area;
+    effect.effect_type = "effects.StructureOnline";
+    effect.isOffensive = 0;
+    effect.start = 1;
+    effect.active = 1;
+    effect.duration_ms = -1;
+    effect.repeat = 0;
+    effect.startTime = Win32TimeNow();
+    PyTuple *update = effect.Encode();
+    /*
+                      [PyString "OnSpecialFX"]
+                      [PyTuple 14 items]
+                        [PyIntegerVar 1002332856217]
+                        [PyIntegerVar 1002332856217]
+                        [PyInt 12235]
+                        [PyIntegerVar 1002332856217]
+                        [PyNone]
+                        [PyList 0 items]
+                        [PyString "effects.StructureOnline"]
+                        [PyBool False]
+                        [PyInt 1]
+                        [PyInt 1]
+                        [PyInt -1]
+                        [PyInt 0]
+                        [PyIntegerVar 129516995311514600]
+                        [PyNone]
+                        */
+    return update;
+}

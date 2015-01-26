@@ -202,7 +202,7 @@ protected:
 	double m_warpCapacitorNeed;			//in GJ
 	double m_shipInertiaModifier;
 	uint8 m_warpStrength;				//interger
-	double m_capNeeded;
+	double m_capCharge;
 
     //derrived from other params:
     double m_maxVelocity;				//in m/s
