@@ -68,20 +68,12 @@ INSERT INTO entity (itemID, itemName, typeID, ownerID, locationID, singleton, qu
 INSERT INTO entity (itemID, itemName, typeID, ownerID, locationID, singleton, quantity)
  SELECT characterID, characterName, typeID, 1, stationID, 1, 1
   FROM characterStatic;
-/*
- * Set the auto-increment lower bound
- */
-ALTER TABLE entity AUTO_INCREMENT=140000000;
 
 /*
  * Copy over the static corporation info
  */
 INSERT INTO corporation
  SELECT * FROM corporationStatic;
-/*
- * Set the auto-increment lower bound
- */
-ALTER TABLE corporation AUTO_INCREMENT=2000000;
 
 /*
  * Copy over the static owner info.
@@ -117,14 +109,13 @@ INSERT INTO eveStaticOwners (ownerID, ownerName, typeID)
 INSERT INTO cacheLocations(locationID, locationName, x, y, z)
  SELECT e.itemID, e.itemName, e.x, e.y, e.z
  FROM entity AS e
- LEFT JOIN invTypes AS t ON t.typeID = e.typeID
- LEFT JOIN invGroups AS g ON g.groupID = t.groupID
+ LEFT JOIN invTypes USING (typeID)
+ LEFT JOIN invGroups AS g USING (groupID)
  WHERE g.categoryID IN (0, 2, 3, 6, 22, 23);
 
 
-INSERT INTO cacheOwners(ownerID, ownerName, `typeID`)
+INSERT INTO cacheOwners(ownerID, ownerName, typeID)
  SELECT e.itemID, e.itemName, e.typeID
  FROM entity AS e
- LEFT JOIN invTypes AS t ON t.typeID = e.typeID
- LEFT JOIN invGroups AS g ON g.groupID = t.groupID
- WHERE g.categoryID IN (0, 1, 11 );
+ LEFT JOIN invTypes USING (typeID)
+ WHERE invTypes.groupID IN ( /*1,*/ 2, 19, 32 );      /*char, corp, faction, alliance*/

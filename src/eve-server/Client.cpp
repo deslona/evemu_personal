@@ -482,7 +482,7 @@ void Client::UndockFromStation( uint32 stationID, uint32 systemID, uint32 conste
     GetChar()->SetLocation( 0, systemID, constellationID, regionID );
 	//need mlocation set to current system before adding destiny manager and updating client with new position.
     _UpdateSession(GetChar());
-	//register with system manager...should also update bubble manager to add client to station's bubble.
+	//register with system manager...this also updates bubble manager to add client to station's bubble.
     EnterSystem();
 	//update client and set session change
 	OnCharNoLongerInStation();
@@ -619,7 +619,7 @@ void Client::BoardShip(ShipRef new_ship) {
 		//  players that board ships in stations WILL NEED updated ship stats for fitting and cargo.
 	    m_destiny->SetShipCapabilities( GetShip() );
 	}
-
+	GetShip()->SaveShip();
 }
 
 void Client::_UpdateSession( const CharacterConstRef& character )
@@ -657,7 +657,8 @@ void Client::_UpdateSession( const CharacterConstRef& character )
     mSession.SetInt( "regionid", character->regionID() );
 
     mSession.SetInt( "hqID", character->corporationHQ() );
-    mSession.SetLong( "corprole", character->corpRole() );
+    mSession.SetLong( "corpRole", character->corpRole() );
+    mSession.SetInt( "corpAccountKey", character->corpAccountKey() );
     mSession.SetLong( "rolesAtAll", character->rolesAtAll() );
     mSession.SetLong( "rolesAtBase", character->rolesAtBase() );
     mSession.SetLong( "rolesAtHQ", character->rolesAtHQ() );
@@ -669,30 +670,13 @@ void Client::_UpdateSession( const CharacterConstRef& character )
 
 void Client::_UpdateSession2( uint32 characterID )
 {
-    //std::vector<uint32> characterDataVector;
-    std::map<std::string, uint32> characterDataMap;
-
     if( characterID == 0 )
     {
         sLog.Error( "Client::_UpdateSession2()", "characterID == 0, which is illegal" );
         return;
     }
 
-    uint16 gender = 0;
-    uint32 corporationID = 0;
-    uint32 stationID = 0;
-    uint32 solarSystemID = 0;
-    uint32 constellationID = 0;
-    uint32 regionID = 0;
-    uint32 corporationHQ = 0;
-    uint64 corpRole = 0;
-    uint64 rolesAtAll = 0;
-    uint64 rolesAtBase = 0;
-    uint64 rolesAtHQ = 0;
-    uint64 rolesAtOther = 0;
-    uint32 locationID = 0;
-    uint32 shipID = 0;
-
+    std::map<std::string, uint64> characterDataMap;
     ((CharUnboundMgrService *)(m_services.LookupService("charUnboundMgr")))->GetCharacterData( characterID, characterDataMap );
 
     if( characterDataMap.size() == 0 )
@@ -701,20 +685,21 @@ void Client::_UpdateSession2( uint32 characterID )
         return;
     }
 
-    gender = characterDataMap["gender"];
-    corporationID = characterDataMap["corporationID"];
-    stationID = characterDataMap["stationID"];
-    solarSystemID = characterDataMap["solarSystemID"];
-    constellationID = characterDataMap["constellationID"];
-    regionID = characterDataMap["regionID"];
-    corporationHQ = characterDataMap["corporationHQ"];
-    corpRole = characterDataMap["corpRole"];
-    rolesAtAll = characterDataMap["rolesAtAll"];
-    rolesAtBase = characterDataMap["rolesAtBase"];
-    rolesAtHQ = characterDataMap["rolesAtHQ"];
-    rolesAtOther = characterDataMap["rolesAtOther"];
-    locationID = characterDataMap["locationID"];
-    shipID = characterDataMap["shipID"];
+    uint32 gender = static_cast<uint32>(characterDataMap["gender"]);
+    uint32 corporationID = static_cast<uint32>(characterDataMap["corporationID"]);
+    uint32 stationID = static_cast<uint32>(characterDataMap["stationID"]);
+    uint32 solarSystemID = static_cast<uint32>(characterDataMap["solarSystemID"]);
+    uint32 constellationID = static_cast<uint32>(characterDataMap["constellationID"]);
+    uint32 regionID = static_cast<uint32>(characterDataMap["regionID"]);
+    uint32 corporationHQ = static_cast<uint32>(characterDataMap["corporationHQ"]);
+    int32 corpAccountKey = static_cast<int32>(characterDataMap["corpAccountKey"]);
+    int64 corpRole = static_cast<int64>(characterDataMap["corpRole"]);
+    int64 rolesAtAll = static_cast<int64>(characterDataMap["rolesAtAll"]);
+    int64 rolesAtBase = static_cast<int64>(characterDataMap["rolesAtBase"]);
+    int64 rolesAtHQ = static_cast<int64>(characterDataMap["rolesAtHQ"]);
+    int64 rolesAtOther = static_cast<int64>(characterDataMap["rolesAtOther"]);
+    uint32 locationID = static_cast<uint32>(characterDataMap["locationID"]);
+    uint32 shipID = static_cast<uint32>(characterDataMap["shipID"]);
 
     mSession.SetInt( "genderID", gender );
     mSession.SetInt( "charid", characterID );
@@ -747,7 +732,8 @@ void Client::_UpdateSession2( uint32 characterID )
     mSession.SetInt( "regionid", regionID );
 
     mSession.SetInt( "hqID", corporationHQ );
-    mSession.SetLong( "corprole", corpRole );
+    mSession.SetInt( "corpAccountKey", corpAccountKey );
+    mSession.SetLong( "corpRole", corpRole );
     mSession.SetLong( "rolesAtAll", rolesAtAll );
     mSession.SetLong( "rolesAtBase", rolesAtBase );
     mSession.SetLong( "rolesAtHQ", rolesAtHQ );
@@ -1753,7 +1739,7 @@ bool Client::_VerifyLogin( CryptoChallengePacket& ccp )
     mSession.SetInt( "userid", account_info.id );
     mSession.SetLong( "role", account_info.role );
 
-    sLog.Success("Client::Login()","%s logged in from %s", account_info.name.c_str() ,EVEClientSession::GetAddress().c_str() );
+    sLog.Success("Client::Login()","Account \"%s\" logged in from IP %s", account_info.name.c_str() ,EVEClientSession::GetAddress().c_str() );
 
     return true;
 

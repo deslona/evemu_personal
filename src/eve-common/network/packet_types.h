@@ -49,43 +49,6 @@
  * SERVICE_CHECK_CALL = 1
  * SERVICE_CHECK_INIT = 2
  * SERVICE_WANT_SESSIONS = 1
- * ROLE_LOGIN = 1L
- * ROLE_PLAYER = 2L
- * ROLE_GDNPC = 4L
- * ROLE_GML = 8L
- * ROLE_GMH = 16L
- * ROLE_ADMIN = 32L
- * ROLE_SERVICE = 64L
- * ROLE_HTTP = 128L
- * ROLE_PETITIONEE = 256L
- * ROLE_GDL = 512L
- * ROLE_GDH = 1024L
- * ROLE_CENTURION = 2048L
- * ROLE_WORLDMOD = 4096L
- * ROLE_QA = 8192L
- * ROLE_EBS = 16384L
- * ROLE_ROLEADMIN = 32768L
- * ROLE_PROGRAMMER = 65536L
- * ROLE_REMOTESERVICE = 131072L
- * ROLE_LEGIONEER = 262144L
- * ROLE_TRANSLATION = 524288L
- * ROLE_CHTINVISIBLE = 1048576L
- * ROLE_CHTADMINISTRATOR = 2097152L
- * ROLE_HEALSELF = 4194304L
- * ROLE_HEALOTHERS = 8388608L
- * ROLE_NEWSREPORTER = 16777216L
- * ROLE_HOSTING = 33554432L
- * ROLE_BROADCAST = 67108864L
- * ROLE_TRANSLATIONADMIN = 134217728L
- * ROLE_N00BIE = 268435456L
- * ROLE_ACCOUNTMANAGEMENT = 536870912L
- * ROLE_DUNGEONMASTER = 1073741824L
- * ROLE_IGB = 2147483648L
- * ROLE_TRANSLATIONEDITOR = 4294967296L
- * ROLE_SPAWN = 8589934592L
- * ROLE_ANY = (18446744073709551615L & ~ROLE_IGB)
- * ROLEMASK_ELEVATEDPLAYER = (ROLE_ANY & ~(((ROLE_LOGIN | ROLE_PLAYER) | ROLE_N00BIE) | ROLE_NEWSREPORTER))
- * ROLEMASK_VIEW = ((((ROLE_GML | ROLE_ADMIN) | ROLE_GDL) | ROLE_HOSTING) | ROLE_QA)
  * PRE_NONE = 0
  * PRE_AUTH = 1
  * PRE_HASCHAR = 2
@@ -168,6 +131,20 @@ enum EVERookieShipTypes {
     minmatarRookie                    = 588,
 };
 
+enum EVESkillEvent {
+    skillEventCharCreation = 33,
+    skillEventClonePenalty = 34,
+    skillEventGMGive = 39,
+    skillEventHaltedAccountLapsed = 260,
+    skillEventTaskMaster = 35,
+    skillEventTrainingCancelled = 38,
+    skillEventTrainingComplete = 37,
+    skillEventTrainingStarted = 36,
+    skillEventQueueTrainingCompleted = 53,
+    skillEventSkillInjected = 56,
+    skillEventFreeSkillPointsUsed = 307,
+    skillEventGMReverseFreeSkillPointsUsed = 309
+};
 
 #include "tables/invCategories.h"
 typedef EVEDB::invCategories::invCategories EVEItemCategories;
@@ -261,7 +238,7 @@ typedef enum EVEItemFlags
     flagCorpSecurityAccessGroup6    = 120,
     flagCorpSecurityAccessGroup7    = 121,
 
-    flagSecondaryStorage            = 122,    //Secondary Storage
+    flagSecondaryStorage            = 122,    //Secondary Storage  (strontium bay on POS)
     flagCaptainsQuarters            = 123,    //Captains Quarters
     flagWisPromenade                = 124,    //Wis Promenade
 
@@ -306,8 +283,7 @@ typedef enum EVEItemFlags
 } EVEItemFlags;
 
 //for use in the new module manager
-typedef enum EVEItemSlotType
-{
+typedef enum {
     NaT                                = 0,
     slotTypeSubSystem                = 1,
     slotTypeRig                        = 2,
@@ -779,158 +755,224 @@ typedef enum {
     itemTypeCapsule = 670
 } EVEItemTypeID;
 
+//paperdoll state.  may be used later
+typedef enum {
+    paperdollStateNoRecustomization = 0,
+    paperdollStateResculpting = 1,
+    paperdollStateNoExistingCustomization = 2,
+    paperdollStateFullRecustomizing = 3,
+    paperdollStateForceRecustomize = 4
+} paperDollState;
+
+//userType id's used for accounts
+typedef enum {
+    userTypePlayer              = 1,        // i added this....not sure if it's right.
+    userTypeCCP                 = 13,
+    userTypePBC                 = 20,
+    userTypeETC                 = 21,
+    userTypeTrial               = 23,
+    userTypeMammon              = 30,
+    userTypeMedia               = 31,
+    userTypeCDKey               = 33,
+    userTypeIA                  = 34,
+
+    userTypeDustPlayer          = 101,
+    userTypeDustCCP             = 102,
+    userTypeDustBattleServer    = 103
+} EVEUserType;
+
+
 //raceID as in table 'entity'
 enum EVERace {
-    raceCaldari = 1,
-    raceMinmatar = 2,
-    raceAmarr = 4,
-    raceGallente = 8,
-    raceJove = 16,
-    racePirate = 32
+    raceCaldari     = 1,
+    raceMinmatar    = 2,
+    raceAmarr       = 4,
+    raceGallente    = 8,
+    raceJove        = 16,
+    racePirate      = 32
 };
 
 //eve standing change messages
 //If oFromID and oToID != fromID and toID, the following message is added (except for those marked with x):
 //This standing change was initiated by a change from _oFromID towards _oToID
 typedef enum {    //chrStandingChanges.eventTypeID
-    standingGMInterventionReset = 25,        //Reset by a GM.
-    standingDecay = 49,                        //All standing decays except when user isn't logged in
-    standingPlayerSet = 65,                    //Set by player him/herself. Reason: _msg
-    standingCorpSet = 68,                    //Corp stand set by _int1. Reason: _msg
-    standingMissionCompleted = 73,            //_msg: name of mission
-    standingMissionFailure = 74,            //_msg: name of mission
-    standingMissionDeclined = 75,            //_msg: name of mission
-    standingCombatAggression = 76,            //Combat - Aggression
-    standingCombatShipKill = 77,            //Combat - Ship Kill
-    standingCombatPodKill = 78,                //Combat - Pod Kill
-    standingDerivedModificationPleased = 82,//_fromID Corp was pleased
-    standingDerivedModificationDispleased = 83,    //_fromID Corp was displeased
-    standingGMInterventionDirect = 84,        //Mod directly by _int1. Reason: _msg
-    standingLawEnforcement = 89,            //Granted by Concord for actions against _int1
-    standingMissionOfferExpired = 90,        //Mission Offer Expired - _msg
-    standingCombatAssistance = 112,            //Combat - Assistance
-    standingPropertyDamage = 154            //Property Damage
+    standingGMInterventionReset             = 25,   //Reset by a GM.
+    standingDecay                           = 49,   //All standing decays except when user isn't logged in
+    standingPlayerSet                       = 65,   //Set by player him/herself. Reason: _msg
+    standingCorpSet                         = 68,   //Corp stand set by _int1. Reason: _msg
+    standingMissionCompleted                = 73,   //_msg: name of mission
+    standingMissionFailure                  = 74,   //_msg: name of mission
+    standingMissionDeclined                 = 75,   //_msg: name of mission
+    standingCombatAggression                = 76,   //Combat - Aggression
+    standingCombatShipKill                  = 77,   //Combat - Ship Kill
+    standingCombatPodKill                   = 78,   //Combat - Pod Kill
+    standingDerivedModificationPleased      = 82,   //_fromID Corp was pleased
+    standingDerivedModificationDispleased   = 83,   //_fromID Corp was displeased
+    standingGMInterventionDirect            = 84,   //Mod directly by _int1. Reason: _msg
+    standingLawEnforcement                  = 89,   //Granted by Concord for actions against _int1
+    standingMissionOfferExpired             = 90,   //Mission Offer Expired - _msg
+    standingCombatAssistance                = 112,  //Combat - Assistance
+    standingPropertyDamage                  = 154   //Property Damage
     //anything up until 500 is 'Standing Change'
 } EVEStandingEventTypeID;
 
-
 enum:uint64 {
-    ROLE_CL                    = 549755813888LL,
-    ROLE_CR                    = 1099511627776LL,
-    ROLE_CM                    = 2199023255552LL,
-    ROLE_BSDADMIN            = 35184372088832LL,
-    ROLE_PROGRAMMER            = 2251799813685248LL,
-    ROLE_QA                    = 4503599627370496LL,
-    ROLE_GMH                = 9007199254740992LL,
-    ROLE_GML                = 18014398509481984LL,
-    ROLE_CONTENT            = 36028797018963968LL,
-    ROLE_ADMIN                = 72057594037927936LL,
-    ROLE_VIPLOGIN            = 144115188075855872LL,
-    ROLE_ROLEADMIN            = 288230376151711744LL,
-    ROLE_NEWBIE                = 576460752303423488LL,
-    ROLE_SERVICE            = 1152921504606846976LL,
-    ROLE_PLAYER                = 2305843009213693952LL,
-    ROLE_LOGIN                = 4611686018427387904LL,
-    ROLE_REMOTESERVICE        = 131072LL,
-    ROLE_ACCOUNTMANAGEMENT    = 536870912LL,
-    ROLE_DBA                = 16384LL,
-    ROLE_TRANSLATION        = 524288LL,
-    ROLE_CHTADMINISTRATOR    = 2097152LL,
-    ROLE_TRANSLATIONADMIN    = 134217728LL,
-    ROLE_IGB                = 2147483648LL,
-    ROLE_TRANSLATIONEDITOR    = 4294967296LL,
-    ROLE_TRANSLATIONTESTER    = 34359738368LL,
-    ROLE_PETITIONEE            = 256LL,
-    ROLE_CENTURION            = 2048LL,
-    ROLE_WORLDMOD            = 4096LL,
-    ROLE_LEGIONEER            = 262144LL,
-    ROLE_CHTINVISIBLE        = 1048576LL,
-    ROLE_HEALSELF            = 4194304LL,
-    ROLE_HEALOTHERS            = 8388608LL,
-    ROLE_NEWSREPORTER        = 16777216LL,
-    ROLE_SPAWN                = 8589934592LL,
-    ROLE_WIKIEDITOR            = 68719476736LL,
-    ROLE_TRANSFER            = 137438953472LL,
-    ROLE_GMS                = 274877906944LL,
-    ROLE_MARKET                = 4398046511104LL,
-    ROLE_MARKETH            = 8796093022208LL,
-    ROLE_CSMADMIN            = 70368744177664LL,
-    ROLE_CSMDELEGATE        = 140737488355328LL,
-    ROLE_EXPOPLAYER            = 281474976710656LL,
-    ROLE_BANNING            = 562949953421312LL,
-    ROLE_DUST                = 1125899906842624LL,
+    ROLE_DUST               = 1,
+    ROLE_BANNING            = 2,
+    ROLE_MARKET             = 4,
+    ROLE_MARKETH            = 8,
+    ROLE_CSMADMIN           = 16,
+    ROLE_CSMDELEGATE        = 32,
+    ROLE_EXPOPLAYER         = 64,
+    ROLE_PETITIONEE         = 256,
+    ROLE_CENTURION          = 2048,
+    ROLE_WORLDMOD           = 4096,
+    ROLE_DBA                = 16384,
+    ROLE_REMOTESERVICE      = 131072,
+    ROLE_LEGIONEER          = 262144,
+    ROLE_TRANSLATION        = 524288,
+    ROLE_CHTINVISIBLE       = 1048576,
+    ROLE_CHTADMINISTRATOR   = 2097152,
+    ROLE_HEALSELF           = 4194304,
+    ROLE_HEALOTHERS         = 8388608,
+    ROLE_NEWSREPORTER       = 16777216,
+    ROLE_TRANSLATIONADMIN   = 134217728,
+    ROLE_ACCOUNTMANAGEMENT  = 536870912,
+    ROLE_SPAWN              = 8589934592,
+    ROLE_IGB                = 2147483648,
+    ROLE_TRANSLATIONEDITOR  = 4294967296,
+    ROLE_BATTLESERVER       = 17179869184,
+    ROLE_TRANSLATIONTESTER  = 34359738368,
+    ROLE_WIKIEDITOR         = 68719476736,
+    ROLE_TRANSFER           = 137438953472L,
+    ROLE_GMS                = 274877906944L,
+    ROLE_CL                 = 549755813888L,
+    ROLE_CR                 = 1099511627776L,
+    ROLE_CM                 = 2199023255552L,
+    ROLE_BSDADMIN           = 35184372088832L,
+    ROLE_PROGRAMMER         = 2251799813685248L,
+    ROLE_QA                 = 4503599627370496L,
+    ROLE_GMH                = 9007199254740992L,
+    ROLE_GML                = 18014398509481984L,
+    ROLE_CONTENT            = 36028797018963968L,
+    ROLE_ADMIN              = 72057594037927936L,
+    ROLE_VIPLOGIN           = 144115188075855872L,
+    ROLE_ROLEADMIN          = 288230376151711744L,
+    ROLE_NEWBIE             = 576460752303423488L,
+    ROLE_SERVICE            = 1152921504606846976L,
+    ROLE_PLAYER             = 2305843009213693952L,
+    ROLE_LOGIN              = 4611686018427387904L,
 
-    ROLE_ANY                = (18446744073709551615ULL & ~ROLE_IGB),
-    ROLE_SLASH                = (ROLE_GML | ROLE_LEGIONEER),
-    ROLEMASK_ELEVATEDPLAYER    = (ROLE_ANY & ~(ROLE_LOGIN | ROLE_PLAYER | ROLE_NEWBIE | ROLE_VIPLOGIN)),
-    ROLEMASK_VIEW            = (ROLE_ADMIN | ROLE_CONTENT | ROLE_GML | ROLE_GMH | ROLE_QA),
-    ROLE_TRANSAM            = (ROLE_TRANSLATION | ROLE_TRANSLATIONADMIN | ROLE_TRANSLATIONEDITOR)
+    ROLE_ANY                = 18446744073709551615UL & ~ROLE_IGB,   // do NOT use.  PyLong is signed.
+    ROLEMASK_ELEVATEDPLAYER = ROLE_ANY & ~(ROLE_LOGIN | ROLE_PLAYER | ROLE_NEWBIE | ROLE_VIPLOGIN),
+    ROLEMASK_VIEW = ROLE_ADMIN | ROLE_CONTENT | ROLE_GML | ROLE_GMH | ROLE_QA,
+    ROLE_SLASH = ROLE_GML | ROLE_LEGIONEER,
+    ROLE_TRANSAM = ROLE_TRANSLATION | ROLE_TRANSLATIONADMIN | ROLE_TRANSLATIONEDITOR,
+    ROLE_DEV = ROLE_CONTENT | ROLE_GMH | ROLE_QA | ROLE_PROGRAMMER | ROLE_SPAWN | ROLE_WORLDMOD
 };
 
-enum:uint64 {
-    corpRoleLocationTypeHQ = 1LL,
-    corpRoleLocationTypeBase = 2LL,
-    corpRoleLocationTypeOther = 3LL
+enum {
+    corpRoleLocationTypeHQ = 1,
+    corpRoleLocationTypeBase = 2,
+    corpRoleLocationTypeOther = 3
 };
 
 typedef enum:uint64 {
-    corpRoleDirector        = 1LL,
-    corpRolePersonnelManager    = 128LL,
-    corpRoleAccountant      = 256LL,
-    corpRoleSecurityOfficer     = 512LL,
-    corpRoleFactoryManager  = 1024LL,
-    corpRoleStationManager  = 2048LL,
-    corpRoleAuditor     = 4096LL,
-    corpRoleHangarCanTake1  = 8192LL,
-    corpRoleHangarCanTake2  = 16384LL,
-    corpRoleHangarCanTake3  = 32768LL,
-    corpRoleHangarCanTake4  = 65536LL,
-    corpRoleHangarCanTake5  = 131072LL,
-    corpRoleHangarCanTake6  = 262144LL,
-    corpRoleHangarCanTake7  = 524288LL,
-    corpRoleHangarCanQuery1     = 1048576LL,
-    corpRoleHangarCanQuery2     = 2097152LL,
-    corpRoleHangarCanQuery3     = 4194304LL,
-    corpRoleHangarCanQuery4     = 8388608LL,
-    corpRoleHangarCanQuery5     = 16777216LL,
-    corpRoleHangarCanQuery6     = 33554432LL,
-    corpRoleHangarCanQuery7     = 67108864LL,
-    corpRoleAccountCanTake1     = 134217728LL,
-    corpRoleAccountCanTake2     = 268435456LL,
-    corpRoleAccountCanTake3     = 536870912LL,
-    corpRoleAccountCanTake4     = 1073741824LL,
-    corpRoleAccountCanTake5     = 2147483648LL,
-    corpRoleAccountCanTake6     = 4294967296LL,
-    corpRoleAccountCanTake7     = 8589934592LL,
-    corpRoleDiplomat        = 17179869184LL,
-    corpRoleEquipmentConfig     = 2199023255552LL,
-    corpRoleContainerCanTake1   = 4398046511104LL,
-    corpRoleContainerCanTake2   = 8796093022208LL,
-    corpRoleContainerCanTake3   = 17592186044416LL,
-    corpRoleContainerCanTake4   = 35184372088832LL,
-    corpRoleContainerCanTake5   = 70368744177664LL,
-    corpRoleContainerCanTake6   = 140737488355328LL,
-    corpRoleContainerCanTake7   = 281474976710656LL,
-    corpRoleCanRentOffice   = 562949953421312LL,
-    corpRoleCanRentFactorySlot  = 1125899906842624LL,
-    corpRoleCanRentResearchSlot = 2251799813685248LL,
-    corpRoleJuniorAccountant    = 4503599627370496LL,
-    corpRoleStarbaseConfig  = 9007199254740992LL,
-    corpRoleTrader      = 18014398509481984LL,
-    corpRoleChatManager     = 36028797018963968LL,
-    corpRoleContractManager     = 72057594037927936LL,
-    corpRoleStarbaseCaretaker   = 288230376151711744LL,
-    corpRoleFittingManager  = 576460752303423488LL,
-    corpRoleInfrastructureTacticalOfficer = 144115188075855872LL,
-    corpRoleAllFull         = 72057594037927935LL,
+    corpRoleDirector                        = 1,
+    corpRolePersonnelManager                = 128,
+    corpRoleAccountant                      = 256,
+    corpRoleSecurityOfficer                 = 512,
+    corpRoleFactoryManager                  = 1024,
+    corpRoleStationManager                  = 2048,
+    corpRoleAuditor                         = 4096,
+    corpRoleHangarCanTake1                  = 8192,
+    corpRoleHangarCanTake2                  = 16384,
+    corpRoleHangarCanTake3                  = 32768,
+    corpRoleHangarCanTake4                  = 65536,
+    corpRoleHangarCanTake5                  = 131072,
+    corpRoleHangarCanTake6                  = 262144,
+    corpRoleHangarCanTake7                  = 524288,
+    corpRoleHangarCanQuery1                 = 1048576,
+    corpRoleHangarCanQuery2                 = 2097152,
+    corpRoleHangarCanQuery3                 = 4194304,
+    corpRoleHangarCanQuery4                 = 8388608,
+    corpRoleHangarCanQuery5                 = 16777216,
+    corpRoleHangarCanQuery6                 = 33554432,
+    corpRoleHangarCanQuery7                 = 67108864,
+    corpRoleAccountCanTake1                 = 134217728,
+    corpRoleAccountCanTake2                 = 268435456,
+    corpRoleAccountCanTake3                 = 536870912,
+    corpRoleAccountCanTake4                 = 1073741824,
+    corpRoleAccountCanTake5                 = 2147483648L,
+    corpRoleAccountCanTake6                 = 4294967296L,
+    corpRoleAccountCanTake7                 = 8589934592L,
+    corpRoleDiplomat                        = 17179869184L,
+    corpRoleEquipmentConfig                 = 2199023255552L,
+    corpRoleContainerCanTake1               = 4398046511104L,
+    corpRoleContainerCanTake2               = 8796093022208L,
+    corpRoleContainerCanTake3               = 17592186044416L,
+    corpRoleContainerCanTake4               = 35184372088832L,
+    corpRoleContainerCanTake5               = 70368744177664L,
+    corpRoleContainerCanTake6               = 140737488355328L,
+    corpRoleContainerCanTake7               = 281474976710656L,
+    corpRoleCanRentOffice                   = 562949953421312L,
+    corpRoleCanRentFactorySlot              = 1125899906842624L,
+    corpRoleCanRentResearchSlot             = 2251799813685248L,
+    corpRoleJuniorAccountant                = 4503599627370496L,
+    corpRoleStarbaseConfig                  = 9007199254740992L,
+    corpRoleTrader                          = 18014398509481984L,
+    corpRoleChatManager                     = 36028797018963968L,
+    corpRoleContractManager                 = 72057594037927936L,
+    corpRoleInfrastructureTacticalOfficer   = 144115188075855872L,
+    corpRoleStarbaseCaretaker               = 288230376151711744L,
+    corpRoleFittingManager                  = 576460752303423488L,
+    corpRoleAll                             = 1152921504606846975L,
 
     //Some Combos
-    corpRoleAllHangar       = (corpRoleHangarCanTake1|corpRoleHangarCanTake2|corpRoleHangarCanTake3|corpRoleHangarCanTake4|corpRoleHangarCanTake5|corpRoleHangarCanTake6|corpRoleHangarCanTake7|corpRoleHangarCanQuery1|corpRoleHangarCanQuery2|corpRoleHangarCanQuery3|corpRoleHangarCanQuery4|corpRoleHangarCanQuery5|corpRoleHangarCanQuery6|corpRoleHangarCanQuery7),
-    corpRoleAllAccount      = (corpRoleJuniorAccountant|corpRoleAccountCanTake1|corpRoleAccountCanTake2|corpRoleAccountCanTake3|corpRoleAccountCanTake4|corpRoleAccountCanTake5|corpRoleAccountCanTake6|corpRoleAccountCanTake7),
-    corpRoleAllContainer    = (corpRoleContainerCanTake1|corpRoleContainerCanTake2|corpRoleContainerCanTake3|corpRoleContainerCanTake4|corpRoleContainerCanTake5|corpRoleContainerCanTake6|corpRoleContainerCanTake7),
-    corpRoleAllOffice =      (corpRoleCanRentOffice|corpRoleCanRentFactorySlot|corpRoleCanRentResearchSlot),
-    corpRoleAll         = (corpRoleAllHangar | corpRoleAllAccount | corpRoleAllContainer | corpRoleAllOffice | corpRoleDirector | corpRolePersonnelManager | corpRoleAccountant | corpRoleSecurityOfficer | corpRoleFactoryManager | corpRoleStationManager | corpRoleAuditor | corpRoleStarbaseConfig |corpRoleEquipmentConfig | corpRoleTrader | corpRoleChatManager)
+    corpRoleAllHangar   = corpRoleHangarCanTake1&corpRoleHangarCanTake2&corpRoleHangarCanTake3&corpRoleHangarCanTake4&corpRoleHangarCanTake5&corpRoleHangarCanTake6&corpRoleHangarCanTake7&corpRoleHangarCanQuery1&corpRoleHangarCanQuery2&corpRoleHangarCanQuery3&corpRoleHangarCanQuery4&corpRoleHangarCanQuery5&corpRoleHangarCanQuery6&corpRoleHangarCanQuery7,
+    corpRoleAllAccount  = corpRoleJuniorAccountant&corpRoleAccountCanTake1&corpRoleAccountCanTake2&corpRoleAccountCanTake3&corpRoleAccountCanTake4&corpRoleAccountCanTake5&corpRoleAccountCanTake6&corpRoleAccountCanTake7,
+    corpRoleAllContainer= corpRoleContainerCanTake1&corpRoleContainerCanTake2&corpRoleContainerCanTake3&corpRoleContainerCanTake4&corpRoleContainerCanTake5&corpRoleContainerCanTake6&corpRoleContainerCanTake7,
+    corpRoleAllOffice   = corpRoleCanRentOffice&corpRoleCanRentFactorySlot&corpRoleCanRentResearchSlot,
+    corpRoleAllStarbase = corpRoleStarbaseCaretaker&corpRoleStarbaseConfig
 } CorpRoleFlags;
+
+/*
+ * corpactivityEducation = 18
+ * corpactivityEntertainment = 8
+ * corpactivityMilitary = 5
+ * corpactivitySecurity = 16
+ * corpactivityTrading = 12
+ * corpactivityWarehouse = 10
+ * corpDivisionDistribution = 22
+ * corpDivisionMining = 23
+ * corpDivisionSecurity = 24
+ */
+
+//from market_keyMap
+typedef enum {
+    accountingKeyCash           = 1000,
+    accountingKeyCash2          = 1001,     //walletDivision2...
+    accountingKeyCash3          = 1002,
+    accountingKeyCash4          = 1003,
+    accountingKeyCash5          = 1004,
+    accountingKeyCash6          = 1005,
+    accountingKeyCash7          = 1006,
+    accountingKeyProperty       = 1100,
+    accountingKeyAUR            = 1200,
+    accountingKeyAUR2           = 1201,     //walletDivision2...
+    accountingKeyAUR3           = 1202,
+    accountingKeyAUR4           = 1203,
+    accountingKeyAUR5           = 1204,
+    accountingKeyAUR6           = 1205,
+    accountingKeyAUR7           = 1206,
+    accountingKeyEscrow         = 1500,
+    accountingKeyReceivables    = 1800,
+    accountingKeyPayables       = 2000,
+    accountingKeyGold           = 2010,
+    accountingKeyEquity         = 2900,
+    accountingKeySales          = 3000,
+    accountingKeyPurchases      = 4000
+} EVEAccountKeys;
 
 //these come from dgmEffects.
 //  -allan 18Aug14
@@ -1088,145 +1130,141 @@ typedef enum {
 } EVEEffectID;
 
 //  -allan 20Dec14
-typedef enum JournalRefType {
-    RefType_SkipLog = -1,
-    RefType_Undefined = 0,
-    RefType_PlayerTrading = 1,
-    RefType_MarketTransaction = 2,
-    RefType_GMCashTransfer = 3,
-    RefType_ATMWithdraw = 4,
-    RefType_ATMDeposit = 5,
-    RefType_BackwardCompatible = 6,
-    RefType_MissionReward = 7,
-    RefType_CloneActivation = 8,
-    RefType_Inheritance = 9,
-    RefType_PlayerDonation = 10,
-    RefType_CorporationPayment = 11,
-    RefType_DockingFee = 12,
-    RefType_OfficeRentalFee = 13,
-    RefType_FactorySlotRentalFee = 14,
-    RefType_RepairBill = 15,
-    RefType_Bounty = 16,
-    RefType_BountyPrize = 17,
-    RefType_Insurance = 19,
-    RefType_MissionExpiration = 20,
-    RefType_MissionCompletion = 21,
-    RefType_Shares = 22,
-    RefType_CourierMissionEscrow = 23,
-    RefType_MissionCost = 24,
-    RefType_AgentMiscellaneous = 25,
-    RefType_PaymentToLPStore = 26,
-    RefType_AgentLocationServices = 27,
-    RefType_AgentDonation = 28,
-    RefType_AgentSecurityServices = 29,
-    RefType_AgentMissionCollateralPaid = 30,
-    RefType_AgentMissionCollateralRefunded = 31,
-    RefType_AgentMissionReward = 33,
-    RefType_AgentMissionTimeBonusReward = 34,
-    RefType_CSPA = 35,
-    RefType_CSPAOfflineRefund = 36,
-    RefType_CorporationAccountWithdrawal = 37,
-    RefType_CorporationDividendPayment = 38,
-    RefType_CorporationRegistrationFee = 39,
-    RefType_CorporationLogoChangeCost = 40,
-    RefType_ReleaseOfImpoundedProperty = 41,
-    RefType_MarketEscrow = 42,
-    RefType_MarketFinePaid = 44,
-    RefType_Brokerfee = 46,
-    RefType_AllianceRegistrationFee = 48,
-    RefType_WarFee = 49,
-    RefType_AllianceMaintainanceFee = 50,
-    RefType_ContrabandFine = 51,
-    RefType_CloneTransfer = 52,
-    RefType_AccelerationGateFee = 53,
-    RefType_TransactionTax = 54,
-    RefType_JumpCloneInstallatio,nFee = 55,
-    RefType_Manufacturing = 56,
-    RefType_ResearchingTechnology = 57,
-    RefType_ResearchingTimeProductivity = 58,
-    RefType_ResearchingMaterialProductivity = 59,
-    RefType_Copying = 60,
-    RefType_Duplicating = 61,
-    RefType_ReverseEngineering = 62,
-    RefType_ContractAuctionBid = 63,
-    RefType_ContractAuctionBidRefund = 64,
-    RefType_ContractCollateral = 65,
-    RefType_ContractRewardRefund = 66,
-    RefType_ContractAuctionSold = 67,
-    RefType_ContractReward = 68,
-    RefType_ContractCollateralRefund = 69,
-    RefType_ContractCollateralPayout = 70,
-    RefType_ContractPrice = 71,
-    RefType_ContractBrokersFee = 72,
-    RefType_ContractSalesTax = 73,
-    RefType_ContractDeposit = 74,
-    RefType_ContractDepositSalesTax = 75,
-    RefType_SecureEVETimeCodeExchange = 76,
-    RefType_ContractAuctionBidCorp = 77,
-    RefType_ContractCollateralCorp = 78,
-    RefType_ContractPriceCorp = 79,
-    RefType_ContractBrokersFeeCorp = 80,
-    RefType_ContractDepositCorp = 81,
-    RefType_ContractDepositRefund = 82,
-    RefType_ContractRewardAdded = 83,
-    RefType_ContractRewardAddedCorp = 84,
-    RefType_BountyPrizes = 85,
-    RefType_CorporationAdvertisementFee = 86,
-    RefType_MedalCreation = 87,
-    RefType_MedalIssuing = 88,
-    RefType_AttributeRespecification = 90,
-    RefType_SovereignityRegistrarFee = 91,
-    RefType_CorporationTaxNpcBounties = 92,
-    RefType_CorporationTaxAgentRewards = 93,
-    RefType_CorporationTaxAgentBonusRewards = 94,
-    RefType_SovereignityUpkeepAdjustment = 95,
-    RefType_PlanetaryImportTax = 96,
-    RefType_PlanetaryExportTax = 97,
-    RefType_PlanetaryConstruction = 98,
-    RefType_RewardManager = 99,
-    RefType_BountySurcharge = 101,
-    RefType_ContractReversal = 102,
-    RefType_CorporationTaxRewards = 103,
-    RefType_StorePurchase = 106,
-    RefType_StoreRefund = 107,
-    RefType_PlexConversion = 108,
-    RefType_AurumGiveAway = 109,
-    RefType_AurumTokenConversion = 111,
-    RefType_MaxEve = 10000
+typedef enum {
+    refSkipLog = -1,
+    refUndefined = 0,
+    refPlayerTrading = 1,
+    refMarketTransaction = 2,
+    refGMCashTransfer = 3,
+    refATMWithdraw = 4,
+    refATMDeposit = 5,
+    refBackwardCompatible = 6,
+    refMissionReward = 7,
+    refCloneActivation = 8,
+    refInheritance = 9,
+    refPlayerDonation = 10,
+    refCorporationPayment = 11,
+    refDockingFee = 12,
+    refOfficeRentalFee = 13,
+    refFactorySlotRentalFee = 14,
+    refRepairBill = 15,
+    refBounty = 16,
+    refBountyPrize = 17,
+    refInsurance = 19,
+    refMissionExpiration = 20,
+    refMissionCompletion = 21,
+    refShares = 22,
+    refCourierMissionEscrow = 23,
+    refMissionCost = 24,
+    refAgentMiscellaneous = 25,
+    refPaymentToLPStore = 26,
+    refAgentLocationServices = 27,
+    refAgentDonation = 28,
+    refAgentSecurityServices = 29,
+    refAgentMissionCollateralPaid = 30,
+    refAgentMissionCollateralRefunded = 31,
+    refAgentMissionReward = 33,
+    refAgentMissionTimeBonusReward = 34,
+    refCSPA = 35,
+    refCSPAOfflineRefund = 36,
+    refCorporationAccountWithdrawal = 37,
+    refCorporationDividendPayment = 38,
+    refCorporationRegistrationFee = 39,
+    refCorporationLogoChangeCost = 40,
+    refReleaseOfImpoundedProperty = 41,
+    refMarketEscrow = 42,
+    refMarketFinePaid = 44,
+    refBrokerfee = 46,
+    refAllianceRegistrationFee = 48,
+    refWarFee = 49,
+    refAllianceMaintainanceFee = 50,
+    refContrabandFine = 51,
+    refCloneTransfer = 52,
+    refAccelerationGateFee = 53,
+    refTransactionTax = 54,
+    refJumpCloneInstallatio,nFee = 55,
+    refManufacturing = 56,
+    refResearchingTechnology = 57,
+    refResearchingTimeProductivity = 58,
+    refResearchingMaterialProductivity = 59,
+    refCopying = 60,
+    refDuplicating = 61,
+    refReverseEngineering = 62,
+    refContractAuctionBid = 63,
+    refContractAuctionBidRefund = 64,
+    refContractCollateral = 65,
+    refContractRewardRefund = 66,
+    refContractAuctionSold = 67,
+    refContractReward = 68,
+    refContractCollateralRefund = 69,
+    refContractCollateralPayout = 70,
+    refContractPrice = 71,
+    refContractBrokersFee = 72,
+    refContractSalesTax = 73,
+    refContractDeposit = 74,
+    refContractDepositSalesTax = 75,
+    refSecureEVETimeCodeExchange = 76,
+    refContractAuctionBidCorp = 77,
+    refContractCollateralCorp = 78,
+    refContractPriceCorp = 79,
+    refContractBrokersFeeCorp = 80,
+    refContractDepositCorp = 81,
+    refContractDepositRefund = 82,
+    refContractRewardAdded = 83,
+    refContractRewardAddedCorp = 84,
+    refBountyPrizes = 85,
+    refCorporationAdvertisementFee = 86,
+    refMedalCreation = 87,
+    refMedalIssuing = 88,
+    refAttributeRespecification = 90,
+    refSovereignityRegistrarFee = 91,
+    refCorporationTaxNpcBounties = 92,
+    refCorporationTaxAgentRewards = 93,
+    refCorporationTaxAgentBonusRewards = 94,
+    refSovereignityUpkeepAdjustment = 95,
+    refPlanetaryImportTax = 96,
+    refPlanetaryExportTax = 97,
+    refPlanetaryConstruction = 98,
+    refRewardManager = 99,
+    refBountySurcharge = 101,
+    refContractReversal = 102,
+    refCorporationTaxRewards = 103,
+    refStorePurchase = 106,
+    refStoreRefund = 107,
+    refPlexConversion = 108,
+    refAurumGiveAway = 109,
+    refAurumTokenConversion = 111,
+    refMaxEve = 10000
 } JournalRefType;
 
-//from market_keyMap
-typedef enum {
-    accountCash = 1000,
-    accountProperty = 1100,
-    accountEscrow = 1500,
-    accountReceivables = 1800,
-    accountPayables = 2000,
-    accountGold = 2010,
-    accountEquity = 2900,
-    accountSales = 3000,
-    accountPurchases = 4000
-} EVEAccountKeys;
-
 //  -allan 7Jul14
 typedef enum {
-    Scrap = 1,
-    Signatures = 4,
-    Ships = 8,
-    Structures = 16,
+    Scrap           = 1,
+    Signatures      = 4,
+    Ships           = 8,
+    Structures      = 16,
     DronesAndProbes = 32,
-    Celestials = 64,
-    Anomalies = 128
+    Celestials      = 64,
+    Anomalies       = 128
 } ProbeScanGroup;
 
+/*
+ * //  -allan 11Jan15
+ * typedef enum {
+ *    probeResultPerfect = 1.0f,
+ *    probeResultInformative = 0.75f,
+ *    probeResultGood = 0.25f,
+ *    probeResultUnusable = 0.001f
+ * } ProbeResult;
+ */
 //  -allan 7Jul14
 typedef enum {
-    Inactive = 0,
-    Idle = 1,
-    Moving = 2,
-    Warping = 3,
-    Scanning = 4,
-    Returning = 5
+    Inactive    = 0,
+    Idle        = 1,
+    Moving      = 2,
+    Warping     = 3,
+    Scanning    = 4,
+    Returning   = 5
 } ProbeState;
 
 //  -allan 7Jul14
@@ -1241,14 +1279,18 @@ typedef enum {
 
 //  -allan 7Jul14
 typedef enum {
-    MissionAllocated = 0,
-    MissionOffered = 1,
-    MissionAccepted = 2,
-    MissionFailed = 3,
-    DungeonStarted = 0,
-    DungeonCompleted = 1,
-    DungeonFailed = 2
+    MissionAllocated    = 0,
+    MissionOffered      = 1,
+    MissionAccepted     = 2,
+    MissionFailed       = 3
 } MissionState;
+
+//  -allan 7Jul14
+typedef enum {
+    DungeonStarted      = 0,
+    DungeonCompleted    = 1,
+    DungeonFailed       = 2
+} DungeonState;
 
 /** misc costs
  * costCloneContract = 5600
@@ -1257,13 +1299,133 @@ typedef enum {
 
 //  -allan 7Jul14
 typedef enum {
-    Docking = 3000,
-    Jumping = 5000,
-    WarpingOut = 5000,
-    WarpingIn = 10000,
-    Undocking = 30000,
-    Restoring = 60000
+    Docking     = 3000,
+    Jumping     = 5000,
+    WarpingOut  = 5000,
+    WarpingIn   = 10000,
+    Undocking   = 30000,
+    Restoring   = 60000
 } InvulTimer;
+//  -allan 11Jan15
+
+typedef enum {
+    STRUCTURE_UNANCHORED        = 0,
+    STRUCTURE_ANCHORED          = 1,
+    STRUCTURE_ONLINING          = 2,
+    STRUCTURE_REINFORCED        = 3,
+    STRUCTURE_ONLINE            = 4,
+    STRUCTURE_OPERATING         = 5,
+    STRUCTURE_VULNERABLE        = 6,
+    STRUCTURE_SHIELD_REINFORCE  = 7,
+    STRUCTURE_ARMOR_REINFORCE   = 8,
+    STRUCTURE_INVULNERABLE      = 9
+    /*
+     *    pwnStructureStateAnchored = 'anchored',
+     *    pwnStructureStateAnchoring = 'anchoring',
+     *    pwnStructureStateOnline = 'online',
+     *    pwnStructureStateOnlining = 'onlining',
+     *    pwnStructureStateUnanchored = 'unanchored',
+     *    pwnStructureStateUnanchoring = 'unanchoring',
+     *    pwnStructureStateVulnerable = 'vulnerable',
+     *    pwnStructureStateInvulnerable = 'invulnerable',
+     *    pwnStructureStateReinforced = 'reinforced',
+     *    pwnStructureStateOperating = 'operating',
+     *    pwnStructureStateIncapacitated = 'incapacitated',
+     *    pwnStructureStateAnchor = 'anchor',
+     *    pwnStructureStateUnanchor = 'unanchor',
+     *    pwnStructureStateOffline = 'offline',
+     *    pwnStructureStateOnlineActive = 'online - active',
+     *    pwnStructureStateOnlineStartingUp = 'online - starting up'
+     */
+} POSState;
+
+typedef enum {
+    STATE_OFFLINING             = -7,
+    STATE_ANCHORING             = -6,
+    STATE_ONLINING              = -5,
+    STATE_ANCHORED              = -4,
+    STATE_UNANCHORING           = -3,
+    STATE_UNANCHORED            = -2,
+    STATE_INCAPACITATED         = -1,
+    STATE_IDLE                  = 0,
+    STATE_COMBAT                = 1,
+    STATE_MINING                = 2,
+    STATE_APPROACHING           = 3,
+    STATE_DEPARTING             = 4,
+    STATE_DEPARTING_2           = 5,
+    STATE_PURSUIT               = 6,
+    STATE_FLEEING               = 7,
+    STATE_REINFORCED            = 8,
+    STATE_OPERATING             = 9,
+    STATE_ENGAGE                = 10,
+    STATE_VULNERABLE            = 11,
+    STATE_SHIELD_REINFORCE      = 12,
+    STATE_ARMOR_REINFORCE       = 13,
+    STATE_INVULNERABLE          = 14,
+    STATE_WARPAWAYANDDIE        = 15,
+    STATE_WARPAWAYANDCOMEBACK   = 16,
+    STATE_WARPTOPOSITION        = 17
+} StructureState;
+
+/*
+ * planetResourceScanDistance = 1000000000
+ * planetResourceProximityDistant = 0
+ * planetResourceProximityRegion = 1
+ * planetResourceProximityConstellation = 2
+ * planetResourceProximitySystem = 3
+ * planetResourceProximityPlanet = 4
+ * planetResourceProximityLimits = [(2, 6),
+ * (4, 10),
+ * (6, 15),
+ * (10, 20),
+ * (15, 30)]
+ * planetResourceScanningRanges = [9.0,
+ * 7.0,
+ * 5.0,
+ * 3.0,
+ * 1.0]
+ * planetResourceUpdateTime = 1 * HOUR
+ * planetResourceMaxValue = 1.21
+ */
+
+/*
+ * mailingListBlocked = 0
+ * mailingListAllowed = 1
+ * mailingListMemberMuted = 0
+ * mailingListMemberDefault = 1
+ * mailingListMemberOperator = 2
+ * mailingListMemberOwner = 3
+ * ALLIANCE_SERVICE_MOD = 200
+ * CHARNODE_MOD = 64
+ * PLANETARYMGR_MOD = 128
+ * mailTypeMail = 1
+ * mailTypeNotifications = 2
+ * mailStatusMaskRead = 1
+ * mailStatusMaskReplied = 2
+ * mailStatusMaskForwarded = 4
+ * mailStatusMaskTrashed = 8
+ * mailStatusMaskDraft = 16
+ * mailStatusMaskAutomated = 32
+ * mailLabelInbox = 1
+ * mailLabelSent = 2
+ * mailLabelCorporation = 4
+ * mailLabelAlliance = 8
+ * mailLabelsSystem = mailLabelInbox + mailLabelSent + mailLabelCorporation + mailLabelAlliance
+ * mailMaxRecipients = 50
+ * mailMaxGroups = 1
+ * mailMaxSubjectSize = 150
+ * mailMaxBodySize = 8000
+ * mailMaxTaggedBodySize = 10000
+ * mailMaxLabelSize = 40
+ * mailMaxNumLabels = 25
+ * mailMaxPerPage = 100
+ * mailTrialAccountTimer = 1
+ * mailMaxMessagePerMinute = 5
+ * mailinglistMaxMembers = 3000
+ * mailinglistMaxMembersUpdated = 1000
+ * mailingListMaxNameSize = 60
+ */
+
 
 /*
  * typedef enum {
@@ -1329,6 +1491,139 @@ typedef enum {
  * 3018836]
  * }rookieAgentList;
  */
+/*
+auraAgentIDs = [
+ 3019499,
+ 3019493,
+ 3019495,
+ 3019490,
+ 3019497,
+ 3019496,
+ 3019486,
+ 3019498,
+ 3019492,
+ 3019500,
+ 3019489,
+ 3019494]
+ */
+
+/*
+agentRangeSameSystem = 1
+agentRangeSameOrNeighboringSystemSameConstellation = 2
+agentRangeSameOrNeighboringSystem = 3
+agentRangeNeighboringSystemSameConstellation = 4
+agentRangeNeighboringSystem = 5
+agentRangeSameConstellation = 6
+agentRangeSameOrNeighboringConstellationSameRegion = 7
+agentRangeSameOrNeighboringConstellation = 8
+agentRangeNeighboringConstellationSameRegion = 9
+agentRangeNeighboringConstellation = 10
+agentRangeNearestEnemyCombatZone = 11
+agentRangeNearestCareerHub = 12
+agentIskMultiplierLevel1 = 1
+agentIskMultiplierLevel2 = 2
+agentIskMultiplierLevel3 = 4
+agentIskMultiplierLevel4 = 8
+agentIskMultiplierLevel5 = 16
+agentIskMultipliers = (agentIskMultiplierLevel1,
+ agentIskMultiplierLevel2,
+ agentIskMultiplierLevel3,
+ agentIskMultiplierLevel4,
+ agentIskMultiplierLevel5)
+agentLpMultiplierLevel1 = 20
+agentLpMultiplierLevel2 = 60
+agentLpMultiplierLevel3 = 180
+agentLpMultiplierLevel4 = 540
+agentLpMultiplierLevel5 = 4860
+agentLpMultipliers = (agentLpMultiplierLevel1,
+ agentLpMultiplierLevel2,
+ agentLpMultiplierLevel3,
+ agentLpMultiplierLevel4,
+ agentLpMultiplierLevel5)
+agentIskRandomLowValue = 11000
+agentIskRandomHighValue = 16500
+agentCareerTypeIndustry = 1
+agentCareerTypeBusiness = 2
+agentCareerTypeMilitary = 3
+agentCareerTypeExploration = 4
+agentCareerTypeAdvMilitary = 5
+agentDialogueButtonViewMission = 1
+agentDialogueButtonRequestMission = 2
+agentDialogueButtonAccept = 3
+agentDialogueButtonAcceptChoice = 4
+agentDialogueButtonAcceptRemotely = 5
+agentDialogueButtonComplete = 6
+agentDialogueButtonCompleteRemotely = 7
+agentDialogueButtonContinue = 8
+agentDialogueButtonDecline = 9
+agentDialogueButtonDefer = 10
+agentDialogueButtonQuit = 11
+agentDialogueButtonStartResearch = 12
+agentDialogueButtonCancelResearch = 13
+agentDialogueButtonBuyDatacores = 14
+agentDialogueButtonLocateCharacter = 15
+agentDialogueButtonLocateAccept = 16
+agentDialogueButtonLocateReject = 17
+agentDialogueButtonYes = 18
+agentDialogueButtonNo = 19
+*/
+
+/*
+allianceApplicationAccepted = 2
+allianceApplicationEffective = 3
+allianceApplicationNew = 1
+allianceApplicationRejected = 4
+allianceCreationCost = 1000000000
+allianceMembershipCost = 2000000
+allianceRelationshipCompetitor = 3
+allianceRelationshipEnemy = 4
+allianceRelationshipFriend = 2
+allianceRelationshipNAP = 1
+*/
+
+/*factionNoFaction = 0
+factionAmarrEmpire = 500003
+factionAmmatar = 500007
+factionAngelCartel = 500011
+factionCONCORDAssembly = 500006
+factionCaldariState = 500001
+factionGallenteFederation = 500004
+factionGuristasPirates = 500010
+factionInterBus = 500013
+factionJoveEmpire = 500005
+factionKhanidKingdom = 500008
+factionMinmatarRepublic = 500002
+factionMordusLegion = 500018
+factionORE = 500014
+factionOuterRingExcavations = 500014
+factionSanshasNation = 500019
+factionSerpentis = 500020
+factionSistersOfEVE = 500016
+factionSocietyOfConsciousThought = 500017
+factionTheBloodRaiderCovenant = 500012
+factionTheServantSistersofEVE = 500016
+factionTheSyndicate = 500009
+factionThukkerTribe = 500015
+factionUnknown = 500021
+factionMordusLegionCommand = 500018
+factionTheInterBus = 500013
+factionAmmatarMandate = 500007
+factionTheSociety = 500017
+*/
+
+/*
+facwarCorporationJoining = 0
+facwarCorporationActive = 1
+facwarCorporationLeaving = 2
+facwarStandingPerVictoryPoint = 0.0015
+facwarWarningStandingCharacter = 0
+facwarWarningStandingCorporation = 1
+facwarOccupierVictoryPointBonus = 0.1
+facwarMinStandingsToJoin = 0.5
+facwarStatTypeKill = 0
+facwarStatTypeLoss = 1
+*/
+
 
 //  -allan 7Jul14
 typedef enum {
@@ -1542,6 +1837,39 @@ typedef enum {
     agentTypeEpicArcAgent = 10,
     agentTypeAura = 11
 } agentTypes;
+
+/*
+ * typedef enum {
+ *    posShieldStartLevel = 0.505f,
+ *    posMaxShieldPercentageForWatch = 0.95f,
+ *    posMinDamageDiffToPersist = 0.05f
+ * };
+ */
+
+typedef enum {
+    npcDivisionAccounting = 1,
+    npcDivisionAdministration = 2,
+    npcDivisionAdvisory = 3,
+    npcDivisionArchives = 4,
+    npcDivisionAstrosurveying = 5,
+    npcDivisionCommand = 6,
+    npcDivisionDistribution = 7,
+    npcDivisionFinancial = 8,
+    npcDivisionIntelligence = 9,
+    npcDivisionInternalSecurity = 10,
+    npcDivisionLegal = 11,
+    npcDivisionManufacturing = 12,
+    npcDivisionMarketing = 13,
+    npcDivisionMining = 14,
+    npcDivisionPersonnel = 15,
+    npcDivisionProduction = 16,
+    npcDivisionPublicRelations = 17,
+    npcDivisionRD = 18,
+    npcDivisionSecurity = 19,
+    npcDivisionStorage = 20,
+    npcDivisionSurveillance = 21
+} npcDivisions;
+
 /*
  * cacheSystemIntervals = 2000109999
  * cacheSystemSettings = 2000100001
@@ -1663,120 +1991,70 @@ typedef enum {
  *
  */
 
+//  defines based on itemID, per client
+#define minEveMarketGroup       0
+#define maxEveMarketGroup       350000
+#define minDustMarketGroup      350001
+#define maxDustMarketGroup      999999
+#define minFaction              500000
+#define maxFaction              599999
+#define minNPCCorporation       1000000
+#define maxNPCCorporation       1999999
+#define maxNonCapitalModuleSize 500
+#define minAgent                3000000
+#define maxAgent                3999999
+#define minRegion               10000000
+#define maxRegion               19999999
+#define minConstellation        20000000
+#define maxConstellation        29999999
+#define minSolarSystem          30000000
+#define maxSolarSystem          39999999
+#define minValidLocation        30000000
+#define minValidShipLocation    30000000
+#define minUniverseCelestial    40000000
+#define maxUniverseCelestial    49999999
+#define minStargate             50000000
+#define maxStargate             59999999
+#define minValidCharLocation    60000000
+#define minStation              60000000
+#define maxNPCStation           60999999
+#define maxStation              69999999
+#define minUniverseAsteroid     70000000
+#define maxUniverseAsteroid     79999999
+#define minPlayerItem           100000000
 
-/*
- * from sys/cfg.py
- *
- *
- *
- *
- *
- * def IsNPC(ownerID):
- *    return ((ownerID < 100000000) and (ownerID > 10000))
- *
- *
- *
- * def IsSystemOrNPC(ownerID):
- *    return (ownerID < 100000000)
- *
- *
- *
- * def IsFaction(ownerID):
- *    if ((ownerID >= 500000) and (ownerID < 1000000)):
- *        return 1
- *    else:
- *        return 0
- *
- *
- *
- * def IsCorporation(ownerID):
- *    if ((ownerID >= 1000000) and (ownerID < 2000000)):
- *        return 1
- *    elif (ownerID < 100000000):
- *        return 0
- *    elif ((boot.role == 'server') and sm.StartService('standing2').IsKnownToBeAPlayerCorp(ownerID)):
- *        return 1
- *    else:
- *        return cfg.eveowners.Get(ownerID).IsCorporation()
- *
- *
- *
- * def IsCharacter(ownerID):
- *    if ((ownerID >= 3000000) and (ownerID < 4000000)):
- *        return 1
- *    elif (ownerID < 100000000):
- *        return 0
- *    elif ((boot.role == 'server') and sm.StartService('standing2').IsKnownToBeAPlayerCorp(ownerID)):
- *        return 0
- *    else:
- *        return cfg.eveowners.Get(ownerID).IsCharacter()
- *
- *
- *
- * def IsOwner(ownerID, fetch = 1):
- *    if (((ownerID >= 500000) and (ownerID < 1000000)) or (((ownerID >= 1000000) and (ownerID < 2000000)) or ((ownerID >= 3000000) and (ownerID < 4000000)))):
- *        return 1
- *    if IsNPC(ownerID):
- *        return 0
- *    if fetch:
- *        oi = cfg.eveowners.Get(ownerID)
- *        if (oi.groupID in (const.groupCharacter,
- *         const.groupCorporation)):
- *            return 1
- *        else:
- *            return 0
- *    else:
- *        return 0
- *
- *
- *
- * def IsAlliance(ownerID):
- *    if (ownerID < 100000000):
- *        return 0
- *    elif ((boot.role == 'server') and sm.StartService('standing2').IsKnownToBeAPlayerCorp(ownerID)):
- *        return 0
- *    else:
- *        return cfg.eveowners.Get(ownerID).IsAlliance()
- *
- *
- *
- *
- * def IsJunkLocation(locationID):
- *    if (locationID >= 2000):
- *        return 0
- *    elif (locationID in [6,
- *     8,
- *     10,
- *     23,
- *     25]):
- *        return 1
- *    elif ((locationID > 1000) and (locationID < 2000)):
- *        return 1
- *    else:
- *        return 0
- *
- *
- */
-
-// This is the
-#define EVEMU_MINIMUM_ID 140000000
+#define EVEMU_MINIMUM_ID minPlayerItem
 #define EVEMU_MINIMUM_ENTITY_ID 90000000
 #define EVEMU_MAXIMUM_ENTITY_ID (EVEMU_MINIMUM_ID-1)
 #define STATION_HANGAR_MAX_CAPACITY 9000000000000000.0  //per client
+#define MAX_MARKET_PRICE 9223372036854
 
 /* there needs to be more to this check.....
  * #define IsChar(charID) \
  *    (charID > 140000000)
  */
 
+#define IsCorp(itemID) \
+((itemID >= 1000000) && (itemID < 2500000))
+
 #define IsNPCCorp(itemID) \
-((itemID >= 1000000) && (itemID < 1000900))
+((itemID >= 1000000) && (itemID < 2000000))
+
+#define IsPlayerCorp(itemID) \
+((itemID >= 2000000) && (itemID < 2500000))
+
+#define IsAlliance(itemID) \
+((itemID >= 2500000) && (itemID < 3000000))
 
 #define IsAgent(itemID) \
 ((itemID >= 3008416) && (itemID < 3020000))
 
+#define IsFaction(itemID) \
+((itemID >= minFaction) && (itemID < maxFaction))
+
+// this covers ALL static celestial-type items
 #define IsStaticMapItem(itemID) \
-((itemID >= 10000000) && (itemID < 64000000))
+((itemID >= minUniverseCelestial) && (itemID < maxStation))
 
 #define IsRegion(itemID) \
 ((itemID >= 10000000) && (itemID < 20000000))
@@ -1794,7 +2072,13 @@ typedef enum {
 ((itemID >= 50000000) && (itemID < 60000000))
 
 #define IsStation(itemID) \
-((itemID >= 60000000) && (itemID < 64000000))
+((itemID >= minStation) && (itemID < maxStation))
+
+#define IsNPCStation(itemID) \
+((itemID >= minStation) && (itemID <= maxNPCStation))
+
+#define IsOutpost(itemID) \
+((itemID > maxNPCStation) && (itemID < maxStation))
 
 #define IsTrading(itemID) \
 ((itemID >= 64000000) && (itemID < 66000000))
@@ -1809,10 +2093,311 @@ typedef enum {
 ((itemID >= 70000000) && (itemID < 80000000))
 
 #define IsScenarioItem(itemID) \
-((itemID >= 90000000) && (itemID < (EVEMU_MINIMUM_ID-1)))
+((itemID >= 90000000) && (itemID < EVEMU_MINIMUM_ID))
 
-#define IsNonStaticItem(itemID) \
+#define IsPlayerItem(itemID) \
 (itemID >= EVEMU_MINIMUM_ID)
 
 #endif
 
+/*
+def IsSystem(ownerID):
+    return ownerID <= 10000
+
+
+def IsNPC(ownerID):
+    return ownerID < 90000000 and ownerID > 10000
+
+
+def IsNPCCorporation(ownerID):
+    return ownerID < 2000000 and ownerID >= 1000000
+
+
+def IsNPCCharacter(ownerID):
+    return ownerID < 4000000 and ownerID >= 3000000
+
+
+def IsSystemOrNPC(ownerID):
+    return ownerID < 90000000
+
+
+def IsFaction(ownerID):
+    if ownerID >= 500000 and ownerID < 1000000:
+        return 1
+    else:
+        return 0
+
+
+def IsCorporation(ownerID):
+    if ownerID >= 1000000 and ownerID < 2000000:
+        return 1
+    if ownerID < 98000000 or ownerID > 2147483647:
+        return 0
+    if ownerID < 99000000:
+        return 1
+    if ownerID < 100000000:
+        return 0
+    if boot.role == 'server' and sm.GetService('standing2').IsKnownToBeAPlayerCorp(ownerID):
+        return 1
+    try:
+        return cfg.eveowners.Get(ownerID).IsCorporation()
+    except KeyError:
+        return 0
+
+
+def IsCharacter(ownerID):
+    if ownerID >= 3000000 and ownerID < 4000000:
+        return 1
+    if ownerID < 90000000 or ownerID > 2147483647:
+        return 0
+    if ownerID < 98000000:
+        return 1
+    if ownerID < 100000000:
+        return 0
+    if boot.role == 'server' and sm.GetService('standing2').IsKnownToBeAPlayerCorp(ownerID):
+        return 0
+    try:
+        return cfg.eveowners.Get(ownerID).IsCharacter()
+    except KeyError:
+        return 0
+
+
+def IsPlayerAvatar(itemID):
+    return IsCharacter(itemID)
+
+
+def IsOwner(ownerID, fetch = 1):
+    if ownerID >= 500000 and ownerID < 1000000 or ownerID >= 1000000 and ownerID < 2000000 or ownerID >= 3000000 and ownerID < 4000000:
+        return 1
+    if IsNPC(ownerID):
+        return 0
+    if ownerID < 90000000 or ownerID > 2147483647:
+        return 0
+    if ownerID < 100000000:
+        return 1
+    if fetch:
+        try:
+            oi = cfg.eveowners.Get(ownerID)
+        except KeyError:
+            return 0
+
+        if oi.groupID in (const.groupCharacter, const.groupCorporation):
+            return 1
+        else:
+            return 0
+    else:
+        return 0
+
+
+def IsAlliance(ownerID):
+    if ownerID < 99000000 or ownerID > 2147483647:
+        return 0
+    if ownerID < 100000000:
+        return 1
+    if boot.role == 'server' and sm.GetService('standing2').IsKnownToBeAPlayerCorp(ownerID):
+        return 0
+    try:
+        return cfg.eveowners.Get(ownerID).IsAlliance()
+    except KeyError:
+        return 0
+
+
+def IsRegion(itemID):
+    return itemID >= 10000000 and itemID < 20000000
+
+
+def IsConstellation(itemID):
+    return itemID >= 20000000 and itemID < 30000000
+
+
+def IsSolarSystem(itemID):
+    return itemID >= 30000000 and itemID < 40000000
+
+
+def IsCelestial(itemID):
+    return itemID >= 40000000 and itemID < 50000000
+
+
+def IsWormholeSystem(itemID):
+    return itemID >= const.mapWormholeSystemMin and itemID < const.mapWormholeSystemMax
+
+
+def IsWormholeConstellation(constellationID):
+    return constellationID >= const.mapWormholeConstellationMin and constellationID < const.mapWormholeConstellationMax
+
+
+def IsWormholeRegion(regionID):
+    return regionID >= const.mapWormholeRegionMin and regionID < const.mapWormholeRegionMax
+
+
+def IsUniverseCelestial(itemID):
+    return itemID >= const.minUniverseCelestial and itemID <= const.maxUniverseCelestial
+
+
+def IsStargate(itemID):
+    return itemID >= 50000000 and itemID < 60000000
+
+
+def IsStation(itemID):
+    return itemID >= 60000000 and itemID < 64000000
+
+
+def IsWorldSpace(itemID):
+    return itemID >= const.mapWorldSpaceMin and itemID < const.mapWorldSpaceMax
+
+
+def IsOutpost(itemID):
+    return itemID >= 61000000 and itemID < 64000000
+
+
+def IsTrading(itemID):
+    return itemID >= 64000000 and itemID < 66000000
+
+
+def IsOfficeFolder(itemID):
+    return itemID >= 66000000 and itemID < 68000000
+
+
+def IsFactoryFolder(itemID):
+    return itemID >= 68000000 and itemID < 70000000
+
+
+def IsUniverseAsteroid(itemID):
+    return itemID >= 70000000 and itemID < 80000000
+
+
+def IsJunkLocation(locationID):
+    if locationID >= 2000:
+        return 0
+    elif locationID in (6, 8, 10, 23, 25):
+        return 1
+    elif locationID > 1000 and locationID < 2000:
+        return 1
+    else:
+        return 0
+
+
+def IsControlBunker(itemID):
+    return itemID >= 80000000 and itemID < 80100000
+
+
+def IsPlayerItem(itemID):
+    return itemID >= const.minPlayerItem and itemID < const.minFakeItem
+
+
+def IsFakeItem(itemID):
+    return itemID > const.minFakeItem
+
+
+def IsNewbieSystem(itemID):
+    default = [30002547,
+     30001392,
+     30002715,
+     30003489,
+     30005305,
+     30004971,
+     30001672,
+     30002505,
+     30000141,
+     30003410,
+     30005042,
+     30001407]
+    optional = [30001722,
+     30002518,
+     30003388,
+     30003524,
+     30005015,
+     30010141,
+     30011392,
+     30011407,
+     30011672,
+     30012505,
+     30012547,
+     30012715,
+     30013410,
+     30013489,
+     30014971,
+     30015042,
+     30015305,
+     30020141,
+     30021392,
+     30021407,
+     30021672,
+     30022505,
+     30022547,
+     30022715,
+     30023410,
+     30023489,
+     30024971,
+     30025042,
+     30025305,
+     30030141,
+     30031392,
+     30031407,
+     30031672,
+     30032505,
+     30032547,
+     30032715,
+     30033410,
+     30033489,
+     30034971,
+     30035042,
+     30035305,
+     30040141,
+     30041392,
+     30041407,
+     30041672,
+     30042505,
+     30042547,
+     30042715,
+     30043410,
+     30043489,
+     30044971,
+     30045042,
+     30045305]
+    if boot.region == 'optic':
+        return itemID in default + optional
+    return itemID in default
+
+
+def IsStructure(categoryID):
+    return categoryID in (const.categorySovereigntyStructure, const.categoryStructure)
+
+
+def IsOrbital(categoryID):
+    return categoryID == const.categoryOrbital
+
+
+def IsPreviewable(typeID):
+    type = cfg.invtypes.GetIfExists(typeID)
+    if type is None:
+        return False
+    groupID = type.groupID
+    categoryID = type.categoryID
+    return categoryID in const.previewCategories or groupID in const.previewGroups
+
+
+def IsPlaceable(typeID):
+    type = cfg.invtypes.GetIfExists(typeID)
+    if type is None:
+        return False
+    return const.categoryPlaceables == type.categoryID
+
+
+def IsEveUser(userID):
+    if userID < const.minDustUser:
+        return True
+    return False
+
+
+def IsDustUser(userID):
+    if userID > const.minDustUser:
+        return True
+    return False
+
+
+def IsDustCharacter(characterID):
+    if characterID > const.minDustCharacter and characterID < const.maxDustCharacter:
+        return True
+    return False
+*/

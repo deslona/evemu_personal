@@ -169,7 +169,8 @@ void CargoContainer::RemoveItem(InventoryItemRef item)
     InventoryEx::RemoveItem( item );
     if ((groupID() == EVEDB::invGroups::Cargo_Container) && (this->IsEmpty())) {
         sLog.Warning( "CargoContainer::RemoveItem()", "Cargo Container %u is empty and being deleted.", this->itemID() );
-        this->Delete();
+        //TODO  find a way to remove this item from bubble (bubblecast->removeball) before deleting
+        //this->Delete();
     }
 }
 

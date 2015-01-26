@@ -1,7 +1,7 @@
 
 <elements>
 
-  <!-- this is not being used at the moment, more hrer for completeness -->
+  <!-- this is not being used at the moment, more here for completeness -->
   <elementDef name="GetFactionInfoRsp">
     <tupleInline>
         <!-- 0: factionIDbyNPCCorpID: dict: corpID -> factionID    -->
@@ -62,7 +62,7 @@
     </objectInline>
   </elementDef>
 
-  <elementDef name="Notify_OnCorporaionChanged">
+  <elementDef name="Notify_OnCorporationChanged">
     <tupleInline>
       <int name="corpID" />
       <dictInline>
@@ -657,13 +657,20 @@
 
   <elementDef name="Call_UpdateDivisionNames">
     <tupleInline>
-      <string name="div1" />
-      <string name="div2" />
-      <string name="div3" />
-      <string name="div4" />
-      <string name="div5" />
-      <string name="div6" />
-      <string name="div7" />
+      <wstring name="div1" />
+      <wstring name="div2" />
+      <wstring name="div3" />
+      <wstring name="div4" />
+      <wstring name="div5" />
+      <wstring name="div6" />
+      <wstring name="div7" />
+      <wstring name="wallet1" />
+      <wstring name="wallet2" />
+      <wstring name="wallet3" />
+      <wstring name="wallet4" />
+      <wstring name="wallet5" />
+      <wstring name="wallet6" />
+      <wstring name="wallet7" />
     </tupleInline>
   </elementDef>
 
@@ -700,9 +707,16 @@
     </tupleInline>
   </elementDef>
 
-  <elementDef name ="Call_SetCloneTypeID">
+  <elementDef name="Call_SetCloneTypeID">
     <tupleInline>
       <int name="CloneTypeID" />
+    </tupleInline>
+  </elementDef>
+
+  <elementDef name="Call_GetAssetInventory">
+    <tupleInline>
+      <int name="corpID" />
+      <string name="assetKey" />
     </tupleInline>
   </elementDef>
 

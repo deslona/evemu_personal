@@ -174,8 +174,7 @@ PyResult AccountService::Handle_GiveCash(PyCallArgs &call) {
         return NULL;
     }
 
-    if(args.amount == 0)
-        return NULL;
+    if(args.amount == 0) return NULL;
 
     if(args.amount < 0 || args.amount > call.client->GetBalance()) {
         _log(CLIENT__ERROR, "%s: Invalid amount in GiveCash(): %.2f", call.client->GetName(), args.amount);
@@ -183,35 +182,11 @@ PyResult AccountService::Handle_GiveCash(PyCallArgs &call) {
         return NULL;
     }
 
-    SystemManager *system = call.client->System();
-    if(system == NULL) {
-        codelog(CLIENT__ERROR, "%s: bad system", call.client->GetName());
-        return NULL;
-    }
-
-    //NOTE: this will need work once we reorganize the entity list...
-    bool targetIsChar;
-    Client *other = m_manager->entity_list.FindCharacter(args.destination);
-    if(other == NULL) {
-        // then the money has to be sent to a corporation...
-        // check this too
-        if (m_db.CheckIfCorporation(args.destination)) {
-            targetIsChar = false;
-        } else {
-            _log(CLIENT__ERROR, "%s: Failed to find character %u", call.client->GetName(), args.destination);
-            call.client->SendErrorMsg("Unable to find the target");
-            return NULL;
-        }
-    } else {
-        targetIsChar = true;
-    }
-
-
-    if (targetIsChar) {
-        return GiveCashToChar(call.client, other, args.amount, args.reason.c_str(), RefType_PlayerDonation);
-    } else {
-        // here comes the corp's stuff
-        return GiveCashToCorp(call.client, args.destination, args.amount, args.reason.c_str(), RefType_PlayerDonation);
+    if (IsCorp(args.toID))
+        return GiveCashToCorp(call.client, args.toID, args.amount, args.reason.c_str(), refPlayerDonation);
+    else{
+        Client *pToClient = m_manager->entity_list.FindCharacter(args.toID);
+        return GiveCashToChar(call.client, pToClient, args.amount, args.reason.c_str(), refPlayerDonation);
     }
 }
 
@@ -260,7 +235,7 @@ PyTuple * AccountService::GiveCashToCorp(Client * const client, uint32 corpID, d
         corpID,
         "unknown",
         client->GetAccountID(),
-        accountCash,
+        accountingKeyCash,
         -amount,
         client->GetBalance(),
         reason
@@ -277,13 +252,13 @@ PyTuple * AccountService::GiveCashToCorp(Client * const client, uint32 corpID, d
         corpID,
         "unknown",
         corpID,
-        accountCash,
+        accountingKeyCash,      //TODO set proper wallet division here
         amount,
         cnb,
         reason
         )
     ) {
-        codelog(CLIENT__ERROR, "Failed to record transaction on recieveing side");
+        codelog(CLIENT__ERROR, "Failed to record transaction on receiving side");
         //no good reason to return... the money has actually been moved.
     }
 
@@ -295,26 +270,26 @@ PyTuple * AccountService::GiveCashToCorp(Client * const client, uint32 corpID, d
     return ans;
 }
 
-PyTuple * AccountService::GiveCashToChar(Client * const client, Client * const other, double amount, const char *reason, JournalRefType refTypeID) {
-    if(!client->AddBalance(-amount)) {
+PyTuple * AccountService::GiveCashToChar(Client * const from, Client * const to, double amount, const char *reason, JournalRefType refTypeID) {
+    if(!from->AddBalance(-amount)) {
         _log(CLIENT__ERROR, "%s: Failed to remove %.2f ISK from %u for donation to %u",
-            client->GetName(),
+            from->GetName(),
             amount,
-            client->GetCharacterID(),
-            other->GetCharacterID() );
-        client->SendErrorMsg("Failed to transfer money from your account.");
+            from->GetCharacterID(),
+            to->GetCharacterID() );
+        from->SendErrorMsg("Failed to transfer money from your account.");
         return NULL;
     }
-    if(!other->AddBalance(amount)) {
+    if(!to->AddBalance(amount)) {
         _log(CLIENT__ERROR, "%s: Failed to add %.2f ISK to %u for donation from %u",
-            client->GetName(),
+            from->GetName(),
             amount,
-            other->GetCharacterID(),
-            client->GetCharacterID());
-        client->SendErrorMsg("Failed to transfer money to your destination.");
+            to->GetCharacterID(),
+            from->GetCharacterID());
+        from->SendErrorMsg("Failed to transfer money to your destination.");
 
         //try to refund the money..
-        client->AddBalance(amount);
+        from->AddBalance(amount);
 
         return NULL;
     }
@@ -322,33 +297,33 @@ PyTuple * AccountService::GiveCashToChar(Client * const client, Client * const o
     //record the transactions in the wallet.
     //first on the send side.
     if(!m_db.GiveCash(
-        client->GetCharacterID(),
+        from->GetCharacterID(),
         refTypeID,
-        client->GetCharacterID(),
-        other->GetCharacterID(),
+        from->GetCharacterID(),
+        to->GetCharacterID(),
         "unknown",
-        client->GetAccountID(),
-        accountCash,
+        from->GetAccountID(),
+        accountingKeyCash,
         -amount,
-        client->GetBalance(),
+        from->GetBalance(),
         reason
         )
     ) {
-        codelog(CLIENT__ERROR, "Failed to record transaction on recieveing side");
+        codelog(CLIENT__ERROR, "Failed to record transaction on receiving side");
         //no good reason to return... the money has actually been moved.
     }
 
     //then on the receive side.
     if(!m_db.GiveCash(
-        other->GetCharacterID(),
+        to->GetCharacterID(),
         refTypeID,
-        other->GetCharacterID(),
-        client->GetCharacterID(),
+        to->GetCharacterID(),
+        from->GetCharacterID(),
         "unknown",
-        other->GetAccountID(),
-        accountCash,
+        to->GetAccountID(),
+        accountingKeyCash,
         amount,
-        other->GetBalance(),
+        to->GetBalance(),
         reason
         )
     ) {
@@ -359,28 +334,18 @@ PyTuple * AccountService::GiveCashToChar(Client * const client, Client * const o
 
     //send back the new balance
     PyTuple *ans= new PyTuple(2);
-    ans->items[0]=new PyFloat(client->GetBalance());//new balance
-    ans->items[1]=new PyFloat(client->GetBalance());//new balance, not an error need to send it 2 times
+    ans->items[0]=new PyFloat(from->GetBalance());//new balance
+    ans->items[1]=new PyFloat(from->GetBalance());//new balance, not an error need to send it 2 times
 
     return ans;
 }
 
-//02:46:06 L AccountService::Handle_GetJournal(): size= 6, 0=Integer, 1=Long, 2=None, 3=Boolean, 4=None, 5=Integer
 PyResult AccountService::Handle_GetJournal(PyCallArgs &call) {
-  /*
-00:53:38 L AccountService::Handle_GetJournal(): size= 6, 0=Integer, 1=Long, 2=None, 3=Boolean, 4=None, 5=Integer
-00:53:38 [SvcCall]   Call Arguments:
-00:53:38 [SvcCall]       Tuple: 6 elements
-00:53:38 [SvcCall]         [ 0] Integer field: 1000
-00:53:38 [SvcCall]         [ 1] Integer field: 130485600000000000
-00:53:38 [SvcCall]         [ 2] (None)
-00:53:38 [SvcCall]         [ 3] Boolean field: false
-00:53:38 [SvcCall]         [ 4] (None)
-00:53:38 [SvcCall]         [ 5] Integer field: 1
+/*
+ *   02:46:06 L AccountService::Handle_GetJournal(): size= 6, 0=Integer, 1=Long, 2=None, 3=Boolean, 4=None, 5=Integer
+ *   keyvalues = sm.GetService('account').GetJournal(accountKey, fromDate, entryTypeID, corpAccount, transactionID, rev)
+ */
 
-*/
-  //sLog.Log( "AccountService::Handle_GetJournal()", "size= %u, 0=%s, 1=%s, 2=%s, 3=%s, 4=%s, 5=%s", call.tuple->size(), call.tuple->GetItem( 0 )->TypeString(), call.tuple->GetItem( 1 )->TypeString(), call.tuple->GetItem( 2 )->TypeString(), call.tuple->GetItem( 3 )->TypeString(), call.tuple->GetItem( 4 )->TypeString(), call.tuple->GetItem( 5 )->TypeString() );
-  //call.Dump(SERVICE__CALLS);
     Call_GetJournal args;
     if(!args.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "Invalid arguments");
@@ -408,15 +373,14 @@ PyResult AccountService::Handle_GetJournal(PyCallArgs &call) {
     );
 }
 
-PyResult AccountService::Handle_GiveCashFromCorpAccount(PyCallArgs &call) {
-    Call_GiveCash args;
+PyResult AccountService::Handle_GiveCashFromCorpAccount(PyCallArgs &call) { //TODO:  fix corpAccountKey
+    Call_GiveCorpCash args;
     if(!args.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "Invalid arguments");
         return NULL;
     }
 
-    if(args.amount == 0)
-        return NULL;
+    if(args.amount == 0) return NULL;
 
     if(args.amount < 0 || args.amount > m_db.GetCorpBalance(call.client->GetCorporationID())) {
         _log(CLIENT__ERROR, "%s: Invalid amount in GiveCashFromCorpAccount(): %.2f", call.client->GetName(), args.amount);
@@ -431,15 +395,15 @@ PyResult AccountService::Handle_GiveCashFromCorpAccount(PyCallArgs &call) {
     }
 
     //NOTE: this will need work once we reorganize the entity list...
-    Client *other = m_manager->entity_list.FindCharacter(args.destination);
+    Client *other = m_manager->entity_list.FindCharacter(args.toID);
     if(other == NULL) {
-        _log(CLIENT__ERROR, "%s: Failed to find character %u", call.client->GetName(), args.destination);
+        _log(CLIENT__ERROR, "%s: Failed to find character %u", call.client->GetName(), args.toID);
         call.client->SendErrorMsg("Unable to find the target");
         return NULL;
     }
 
 
-    return WithdrawCashToChar(call.client, other, args.amount, args.reason.c_str(), RefType_CorporationAccountWithdrawal);
+    return WithdrawCashToChar(call.client, other, args.amount, args.reason.c_str(), refCorporationAccountWithdrawal);
 }
 
 PyTuple * AccountService::WithdrawCashToChar(Client * const client, Client * const other, double amount, const char *reason, JournalRefType refTypeID) {
@@ -495,13 +459,13 @@ PyTuple * AccountService::WithdrawCashToChar(Client * const client, Client * con
         other->GetCharacterID(),
         argID,
         corpID,
-        accountCash,
+        accountingKeyCash,      //TODO set proper wallet division here
         -amount,
         ncb,
         reason
         )
     ) {
-        codelog(CLIENT__ERROR, "Failed to record transaction on recieveing side");
+        codelog(CLIENT__ERROR, "Failed to record transaction on receiving side");
         //no good reason to return... the money has actually been moved.
     }
 
@@ -513,7 +477,7 @@ PyTuple * AccountService::WithdrawCashToChar(Client * const client, Client * con
         other->GetCharacterID(),
         argID,
         other->GetAccountID(),
-        accountCash,
+        accountingKeyCash,
         amount,
         other->GetBalance(),
         reason
@@ -536,9 +500,5 @@ PyTuple * AccountService::WithdrawCashToChar(Client * const client, Client * con
 }
 
 PyResult AccountService::Handle_GetWalletDivisionsInfo(PyCallArgs &call) {
-  sLog.Log( "AccountService::Handle_GetWalletDivisionsInfo()", "size= %u", call.tuple->size() );
-  call.Dump(SERVICE__CALLS);
-    PyRep *result = NULL;
-
-    return result;
+    return (m_db.GetWalletDivisionsInfo(call.client->GetCorporationID()));
 }

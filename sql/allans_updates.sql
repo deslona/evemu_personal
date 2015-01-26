@@ -1,5 +1,9 @@
+/*  this file is missing some updates.  not sure which ones yet...
+        -allan 25jan15
+ */
 
-/* Table structure for table `shipInsurance` */
+
+ /* Table structure for table `shipInsurance` */
 
 CREATE TABLE IF NOT EXISTS `shipInsurance` (
   `shipID` int(11) NOT NULL,
@@ -131,7 +135,7 @@ CREATE TABLE IF NOT EXISTS `invWrecksToSalvage` (
   `wreckTypeID` int(10) unsigned NOT NULL,
   `salvageItemID` int(10) unsigned NOT NULL,
   `groupID` tinyint(3) unsigned NOT NULL,
-  `dropChance` decimal(6,4) unsigned NOT NULL DEFAULT '0.0000',
+  `dropChance` float(6,4) unsigned NOT NULL DEFAULT '0.0000',
   `minDrop` tinyint(4) NOT NULL DEFAULT '0',
   `maxDrop` tinyint(4) NOT NULL DEFAULT '0',
   `WreckName` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
@@ -230,7 +234,7 @@ CREATE TABLE IF NOT EXISTS `mapSystemSovInfo` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='SystemSovereigntyInfo';
 
   /*  hack for minor client error...we dont have the real data for this yet  */
-ALTER TABLE `staOperations` ADD `descriptionID` INT(3) NOT NULL AFTER `description`;
+ALTER TABLE `staOperations` ADD `descriptionID` INT(3) NOT NULL DEFAULT '0' AFTER `description`;
 
 /* set skill level from float to int */
 UPDATE `dgmTypeAttributes` SET `valueInt`=0,`valueFloat`=NULL WHERE `attributeID`=280 AND `valueFloat`=0;
@@ -246,7 +250,12 @@ UPDATE `dgmTypeAttributes` SET `valueFloat` = '125000' WHERE `typeID` = 587 AND 
 /* fix radius in mapDenormalize */
 UPDATE mapDenormalize AS md INNER JOIN invTypes AS it USING (typeID) SET md.radius = it.radius WHERE md.groupID = 10;
 
-ALTER TABLE entity AUTO_INCREMENT=140000000;
+ALTER TABLE `corporation` ADD `allianceMemberStartDate` BIGINT(20) NOT NULL DEFAULT '0' AFTER `allianceID`;
+
+ALTER TABLE `character_` ADD `paperDollState` TINYINT(2) NOT NULL DEFAULT '0' ;
+ALTER TABLE `character_` ADD `corpAccountKey` SMALLINT(4) NOT NULL DEFAULT '0' AFTER `corporationID`;
+ALTER TABLE corporation AUTO_INCREMENT=2000000;
+ALTER TABLE entity AUTO_INCREMENT=100000000;
 
 ALTER TABLE `market_orders` CHANGE `range` `orderRange` INT(10) UNSIGNED NOT NULL DEFAULT '0';
 

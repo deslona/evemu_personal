@@ -57,6 +57,7 @@ protected:
     PyCallable_DECL_CALL(LogSettings);
     PyCallable_DECL_CALL(GetCharacterDescription);
     PyCallable_DECL_CALL(SetCharacterDescription);
+    PyCallable_DECL_CALL(GetPaperdollState);
     PyCallable_DECL_CALL(GetNote);
     PyCallable_DECL_CALL(SetNote);
     PyCallable_DECL_CALL(AddContact);

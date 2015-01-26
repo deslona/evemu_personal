@@ -48,8 +48,8 @@ struct AccountInfo
     std::string password;
     std::string hash;
     uint32 id;
-    uint64 role;
-    uint32 visits;
+    int64 role;
+    int32 visits;
     std::string last_login;
     bool online;
     bool banned;

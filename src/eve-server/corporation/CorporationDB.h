@@ -68,8 +68,8 @@ public:
 
     bool AddCorporation(Call_AddCorporation & corpInfo, uint32 charID, uint32 stationID, uint32 & corpID);
     bool JoinCorporation(uint32 charID, uint32 corpID, uint32 oldCorpID, const CorpMemberInfo &roles);
-    bool CreateCorporationChangePacket(Notify_OnCorporaionChanged & cc, uint32 oldCorpID, uint32 newCorpID);
-    bool CreateCorporationCreatePacket(Notify_OnCorporaionChanged & cc, uint32 oldCorpID, uint32 newCorpID);
+    bool CreateCorporationChangePacket(Notify_OnCorporationChanged & cc, uint32 oldCorpID, uint32 newCorpID);
+    bool CreateCorporationCreatePacket(Notify_OnCorporationChanged & cc, uint32 oldCorpID, uint32 newCorpID);
     uint32 GetOffices(uint32 corpID);
     PyRep *Fetch(uint32 corpID, uint32 from, uint32 count);
 

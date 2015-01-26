@@ -228,7 +228,7 @@ PyResult InvBrokerBound::Handle_GetInventory(PyCallArgs &call) {
         case containerRecycler:
         case containerOffices:
         case containerStationCharacters:
-        case containerCorpMarket:
+        case containerCorpMarket:   //this is for corp station deliveries (station button)
         default:
             codelog(SERVICE__ERROR, "Unhandled container type %u", args.container);
             return NULL;

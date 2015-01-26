@@ -51,7 +51,6 @@ protected:
     PyCallable_DECL_CALL(GetRecruitmentAdTypes);
     PyCallable_DECL_CALL(GetRecruitmentAdsByCriteria);
     PyCallable_DECL_CALL(GetRecruitmentAdRegistryData);
-    PyCallable_DECL_CALL(SetAccountKey);
     PyCallable_DECL_CALL(IsEnemyFaction);
     PyCallable_DECL_CALL(GetVoteCasesByCorporation);
     PyCallable_DECL_CALL(MoveCorpHQHere);

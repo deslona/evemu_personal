@@ -217,13 +217,15 @@ void SystemBubble::Add(SystemEntity *ent, bool notify, bool isPostWarp) {
     if (ent->IsClient()) {
 	    Client *c = ent->CastToClient();
         if (c->Destiny() != NULL) {
-		    if (!(c->Destiny()->IsCloaked()) )
+		    if (!(c->Destiny()->IsCloaked()) ) {
                 _BubblecastAddBall(ent);
+                ent->System()->DoSpawnForBubble(*this);
+            }
 		}
     } else
         _BubblecastAddBall(ent);
 
-    //insert the entity into the list 
+    //insert the entity into the list
     m_entities[ent->GetID()] = ent;
     ent->m_bubble = this;
     if(!ent->IsStaticEntity()) m_dynamicEntities.insert(ent);
@@ -248,15 +250,6 @@ void SystemBubble::Add(SystemEntity *ent, bool notify, bool isPostWarp) {
         BubblecastDestinyUpdateExclusive( &t, "Exclusive WarpTo", ent );
         //PySafeDecRef( t );
 	}
-
-    // Trigger SpawnManager for this bubble to generate NPC Spawn, if any, but
-    // only if this entity is a Client and it is NOT cloaked:
-    if( ent->IsClient() ) {
-        if( (ent->CastToClient()->Destiny() != NULL) ) {
-            if( !(ent->CastToClient()->Destiny()->IsCloaked()) )
-                ent->System()->DoSpawnForBubble(*this);
-        }
-    }
 }
 
 void SystemBubble::Remove(SystemEntity *ent, bool notify) {
@@ -389,7 +382,7 @@ void SystemBubble::_SendAddBalls( SystemEntity* to_who )
     Buffer* destinyBuffer = new Buffer;
 
     Destiny::AddBall_header head;
-    head.packet_type = 0;   // 0 = full state   1 = balls
+    head.packet_type = 1;   // 0 = full state   1 = balls
     head.sequence = DestinyManager::GetStamp();
 
     destinyBuffer->Append( head );
@@ -474,7 +467,7 @@ void SystemBubble::_BubblecastAddBall( SystemEntity* about_who )
 
     //create AddBalls header
     Destiny::AddBall_header head;
-    head.packet_type = 0;   // 0 = full state   1 = balls
+    head.packet_type = 1;   // 0 = full state   1 = balls
     head.sequence = DestinyManager::GetStamp();
     destinyBuffer->Append( head );
 
@@ -509,7 +502,7 @@ void SystemBubble::_BubblecastAddBallExclusive( SystemEntity* about_who )
 
     //create AddBalls header
     Destiny::AddBall_header head;
-    head.packet_type = 0;   // 0 = full state   1 = balls
+    head.packet_type = 1;   // 0 = full state   1 = balls
     head.sequence = DestinyManager::GetStamp();
     destinyBuffer->Append( head );
 

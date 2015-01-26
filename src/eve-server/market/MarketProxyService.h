@@ -54,6 +54,7 @@ protected:
     PyCallable_DECL_CALL(ModifyCharOrder);
     PyCallable_DECL_CALL(CancelCharOrder);
     PyCallable_DECL_CALL(CharGetNewTransactions);
+    PyCallable_DECL_CALL(CorpGetNewTransactions);
     PyCallable_DECL_CALL(StartupCheck);
     PyCallable_DECL_CALL(GetCorporationOrders);
 
@@ -65,9 +66,6 @@ protected:
     void _BroadcastOnMarketRefresh(uint32 regionID);
     void _InvalidateOrdersCache(uint32 regionID);
 
-
-    //overloaded in order to support bound objects:
-    //virtual PyBoundObject *_CreateBoundObject(Client *c, const PyRep *bind_args);
 };
 
 #endif

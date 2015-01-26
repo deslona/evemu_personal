@@ -251,12 +251,12 @@ PyResult CorpRegistryBound::Handle_AddCorporation(PyCallArgs &call) {
     reason += args.corpName;
     if(!m_db.GiveCash(
         call.client->GetCharacterID(),
-        RefType_CorporationRegistrationFee,
+        refCorporationRegistrationFee,
         call.client->GetCharacterID(),  //eve system
         1,
         "1",
         call.client->GetAccountID(),
-        accountCash,
+        accountingKeyCash,
         -corp_cost,
         call.client->GetBalance(),
         reason.c_str()
@@ -269,7 +269,7 @@ PyResult CorpRegistryBound::Handle_AddCorporation(PyCallArgs &call) {
     uint32 location = call.client->GetLocationID();
 
     // Here we send a notification about creating a new corporation...
-    Notify_OnCorporaionChanged cc;
+    Notify_OnCorporationChanged cc;
     cc.corpID = corpID;
     if (!m_db.CreateCorporationCreatePacket(cc, call.client->GetCorporationID(), corpID)) {
         codelog(SERVICE__ERROR, "Failed to create OnCorpChanged notification stream.");
@@ -994,12 +994,12 @@ PyResult CorpRegistryBound::Handle_UpdateLogo(PyCallArgs &call) {
     //record the transaction in the journal.
     if(!m_db.GiveCash(
         notif.key,
-        RefType_CorporationLogoChangeCost,
+        refCorporationLogoChangeCost,
         notif.key,
         1,      // who should this one be? hq's station's owner?
         "1",
         notif.key,
-        accountCash,
+        accountingKeyCash,
         -logo_change,
         corp_new,
         "Changing own corporation logo."
@@ -1045,23 +1045,15 @@ PyResult CorpRegistryBound::Handle_GetSharesByShareholder(PyCallArgs &call) {
     return NULL;
 }
 
-//00:33:29 L CorpRegistryBound::Handle_SetAccountKey(): size= 1
 PyResult CorpRegistryBound::Handle_SetAccountKey(PyCallArgs &call) {
-  /*
-22:46:58 L CorpRegistryBound::Handle_SetAccountKey(): size= 1, 0=Integer
-22:46:58 [SvcCall]   Call Arguments:
-22:46:58 [SvcCall]       Tuple: 1 elements
-22:46:58 [SvcCall]         [ 0] Integer field: 1000
 
-15:54:59 L Server: SetAccountKey call made to
-15:54:59 L CorpRegistryBound::Handle_SetAccountKey(): size= 1, 0=Integer
-15:54:59 [SvcCall]   Call Arguments:
-15:54:59 [SvcCall]       Tuple: 1 elements
-15:54:59 [SvcCall]         [ 0] Integer field: 1006
+    Call_SingleIntegerArg arg;
+    if (!arg.Decode(&call.tuple)) {
+        codelog(SERVICE__ERROR, "Bad incoming params.");
+        return NULL;
+    }
 
-  sLog.Log( "CorpRegistryBound::Handle_SetAccountKey()", "size= %u, 0=%s", call.tuple->size(), call.tuple->GetItem( 0 )->TypeString() );
-    call.Dump(SERVICE__CALLS);
-*/
+    call.client->GetChar()->SetAccountKey(arg.arg);
     return NULL;
 }
 

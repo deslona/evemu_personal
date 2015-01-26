@@ -30,7 +30,7 @@
 PyObject *AccountDB::GetEntryTypes() {
     DBQueryResult res;
 
-    if(!sDatabase.RunQuery(res, "SELECT refTypeID AS entryTypeID,refTypeText AS entryTypeName,description FROM market_refTypes"))
+    if(!sDatabase.RunQuery(res, "SELECT entryTypeID, entryTypeName, description FROM market_refTypes"))
     {
         sLog.Error("Account DB", "Error in query: %s", res.error.c_str());
         return NULL;
@@ -42,7 +42,7 @@ PyObject *AccountDB::GetEntryTypes() {
 PyObject *AccountDB::GetKeyMap() {
     DBQueryResult res;
 
-    if(!sDatabase.RunQuery(res, "SELECT accountKey AS keyID,accountType AS keyType,accountName AS keyName,description FROM market_keyMap"))
+    if(!sDatabase.RunQuery(res, "SELECT keyID, keyType, keyName, description FROM market_keyMap"))
     {
         sLog.Error("Account DB", "Error in query: %s", res.error.c_str());
         return NULL;
@@ -53,12 +53,11 @@ PyObject *AccountDB::GetKeyMap() {
 
 PyObject *AccountDB::GetJournal(uint32 charID, uint32 refTypeID, uint32 accountKey, uint64 transDate) {
 //'refID', 'transDate', 'refTypeID','ownerID1', 'ownerID2', 'argID1', 'accountID', 'amount', 'balance', 'reason'
+  //  rec.entryTypeID, rec.ownerID1, rec.ownerID2, rec.referenceID, rec.amount, rec.balance, rec.currency, rec.transactionDate, rec.sortValue
 
     DBQueryResult res;
-    uint64 dT;
-    //dF = transDate;
-    dT = transDate - Win32Time_Day;
-    // 1 sec = 10.000.000 wow...
+    uint64 dT = transDate - Win32Time_Day;
+    // 1 sec = 10.000.000
 
     if(!sDatabase.RunQuery(res,
         "SELECT refID AS transactionID,transDate AS transactionDate,0 AS referenceID, refTypeID AS entryTypeID,ownerID1,ownerID2,argID1, accountKey,amount,balance,reason AS description "
@@ -75,6 +74,22 @@ PyObject *AccountDB::GetJournal(uint32 charID, uint32 refTypeID, uint32 accountK
     return DBResultToRowset(res);
 }
 
+PyObject *AccountDB::GetWalletDivisionsInfo(uint32 corpID) {
+    DBQueryResult res;
+
+    if (!sDatabase.RunQuery(res,
+        "SELECT"
+        "  walletDivision1, walletDivision2, walletDivision3, walletDivision4, walletDivision5, walletDivision6, walletDivision7"
+        " FROM corporation"
+        " WHERE corporationID = %u", corpID))
+    {
+        codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
+        return false;
+    }
+
+    return DBResultToRowset(res);
+}
+
 //////////////////////////////////
 // temporarily moved into ServiceDB because other services needed access to
 // it, eventually something better will need to be done (as the account system
@@ -82,7 +97,7 @@ PyObject *AccountDB::GetJournal(uint32 charID, uint32 refTypeID, uint32 accountK
 bool ServiceDB::GiveCash( uint32 characterID, JournalRefType refTypeID, uint32 ownerFromID, uint32 ownerToID, const char *argID1,
     uint32 accountID, EVEAccountKeys accountKey, double amount, double balance, const char *reason )
 {
-//the only unknown it is argID1 , what is it ?
+//the only unknown is argID1 , what is it ?
     DBQueryResult res;
     DBerror err;
 

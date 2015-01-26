@@ -61,7 +61,7 @@ bool ServiceDB::GetAccountInformation( const char *username, const char *passwor
     }
 
     /* when any of the text gets are NULL it will fail... I think.. */
-    account_info.id         = row.GetUInt(0);
+    account_info.id         = row.GetInt(0);
 
     if (!row.IsNull(1))
         account_info.password = row.GetText(1);
@@ -70,10 +70,10 @@ bool ServiceDB::GetAccountInformation( const char *username, const char *passwor
         account_info.hash   = row.GetText(2);
 
     account_info.name       = _escaped_username;
-    account_info.role       = row.GetUInt64(3);
+    account_info.role       = row.GetInt64(3);
     account_info.online     = row.GetBool(4);
     account_info.banned     = row.GetBool(5);
-    account_info.visits     = row.GetUInt(6);
+    account_info.visits     = row.GetInt(6);
 
     if (!row.IsNull(7))
         account_info.last_login = row.GetText(7);

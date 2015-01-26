@@ -57,7 +57,7 @@ CharUnboundMgrService::~CharUnboundMgrService() {
     delete m_dispatch;
 }
 
-void CharUnboundMgrService::GetCharacterData(uint32 characterID, std::map<std::string, uint32> &characterDataMap) {
+void CharUnboundMgrService::GetCharacterData(uint32 characterID, std::map<std::string, uint64> &characterDataMap) {
     m_db.GetCharacterData( characterID, characterDataMap );
 }
 
@@ -215,6 +215,7 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
     }
 
     corpData.corpRole = 0;
+    corpData.corpAccountKey = accountingKeyCash;
     corpData.rolesAtAll = 0;
     corpData.rolesAtBase = 0;
     corpData.rolesAtHQ = 0;
@@ -277,9 +278,8 @@ PyResult CharUnboundMgrService::Handle_CreateCharacterWithDoll(PyCallArgs &call)
     cdata.logonMinutes = 0;
     cdata.title = "No Title";
 
-    cdata.startDateTime = Win32TimeNow();
-    cdata.createDateTime = cdata.startDateTime;
-    cdata.corporationDateTime = cdata.startDateTime;
+    cdata.createDateTime = Win32TimeNow();
+    cdata.startDateTime = cdata.createDateTime;
 
     typedef std::map<uint32, uint32>        CharSkillMap;
     typedef CharSkillMap::iterator          CharSkillMapItr;

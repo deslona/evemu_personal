@@ -87,17 +87,18 @@
       <bool name="located" none_marker="false" />
     </tupleInline>
   </elementDef>
-
+  
   <elementDef name="Call_ModifyCharOrder">
     <tupleInline>
       <int name="orderID" />
-      <real name="new_price" />
+      <real name="newPrice" />
       <bool name="bid" soft="true" />
       <int name="stationID" />
       <int name="solarSystemID" />
-      <real name="old_price" />
-      <int name="quantity" />
-      <long name="duration" />
+      <real name="price" />
+      <int name="range" />
+      <int name="volRemaining" />
+      <long name="issueDate" />
     </tupleInline>
   </elementDef>
 
@@ -117,7 +118,7 @@
     </tupleInline>
   </elementDef>
 
-  <elementDef name="Call_CharGetNewTransactions">
+  <elementDef name="Call_GetNewTransactions">
     <tupleInline>
       <int name="buySell" none_marker="-1" />
       <int name="typeID" none_marker="0" />

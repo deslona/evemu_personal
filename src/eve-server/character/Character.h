@@ -222,7 +222,6 @@ public:
         uint32 _careerSpecialityID = 0,
         uint64 _startDateTime = 0,
         uint64 _createDateTime = 0,
-        uint64 _corporationDateTime = 0,
         uint32 _shipID = 0);
 
     uint32 accountID;
@@ -254,7 +253,6 @@ public:
 
     uint64 startDateTime;
     uint64 createDateTime;
-    uint64 corporationDateTime;
 
     uint32 shipID;
 };
@@ -292,20 +290,21 @@ class CorpMemberInfo {
 public:
     CorpMemberInfo(
         uint32 _corpHQ = 0,
-        uint64 _corpRole = 0,
-        uint64 _rolesAtAll = 0,
-        uint64 _rolesAtBase = 0,
-        uint64 _rolesAtHQ = 0,
-        uint64 _rolesAtOther = 0
+        int32 _corpAccountKey = 0,
+        int64 _corpRole = 0,
+        int64 _rolesAtAll = 0,
+        int64 _rolesAtBase = 0,
+        int64 _rolesAtHQ = 0,
+        int64 _rolesAtOther = 0
     );
 
     uint32 corpHQ;    //this really doesn't belong here...
-
-    uint64 corpRole;
-    uint64 rolesAtAll;
-    uint64 rolesAtBase;
-    uint64 rolesAtHQ;
-    uint64 rolesAtOther;
+    int32 corpAccountKey;
+    int64 corpRole;
+    int64 rolesAtAll;
+    int64 rolesAtBase;
+    int64 rolesAtHQ;
+    int64 rolesAtOther;
 };
 
 /**
@@ -371,6 +370,7 @@ public:
     void JoinCorporation(uint32 corporationID);
 	void JoinCorporation(uint32 corporationID, const CorpMemberInfo &roles);
     void SetDescription(const char *newDescription);
+    void SetAccountKey(int32 accountKey) { m_corpAccountKey = static_cast<int16>(accountKey); }
 
     void Delete();
 
@@ -519,13 +519,14 @@ public:
     uint32                  corporationHQ() const { return m_corpHQ; }
     uint32                  allianceID() const { return m_allianceID; }
     uint32                  warFactionID() const { return m_warFactionID; }
+    int32                   corpAccountKey() const { return m_corpAccountKey; }
 
     // Corporation role:
-    uint64                  corpRole() const { return m_corpRole; }
-    uint64                  rolesAtAll() const { return m_rolesAtAll; }
-    uint64                  rolesAtBase() const { return m_rolesAtBase; }
-    uint64                  rolesAtHQ() const { return m_rolesAtHQ; }
-    uint64                  rolesAtOther() const { return m_rolesAtOther; }
+    int64                  corpRole() const { return m_corpRole; }
+    int64                  rolesAtAll() const { return m_rolesAtAll; }
+    int64                  rolesAtBase() const { return m_rolesAtBase; }
+    int64                  rolesAtHQ() const { return m_rolesAtHQ; }
+    int64                  rolesAtOther() const { return m_rolesAtOther; }
 
     // Current location:
     uint32                  stationID() const { return m_stationID; }
@@ -542,7 +543,6 @@ public:
     // Some important dates:
     uint64                  startDateTime() const { return m_startDateTime; }
     uint64                  createDateTime() const { return m_createDateTime; }
-    uint64                  corporationDateTime() const { return m_corporationDateTime; }
 
     uint32                  shipID() const { return m_shipID; }
     void                    SetActiveShip( uint32 );
@@ -656,11 +656,12 @@ protected:
     uint32 m_allianceID;
     uint32 m_warFactionID;
 
-    uint64 m_corpRole;
-    uint64 m_rolesAtAll;
-    uint64 m_rolesAtBase;
-    uint64 m_rolesAtHQ;
-    uint64 m_rolesAtOther;
+    int32 m_corpAccountKey;
+    int64 m_corpRole;
+    int64 m_rolesAtAll;
+    int64 m_rolesAtBase;
+    int64 m_rolesAtHQ;
+    int64 m_rolesAtOther;
 
     uint32 m_stationID;
     uint32 m_solarSystemID;
@@ -674,7 +675,6 @@ protected:
 
     uint64 m_startDateTime;
     uint64 m_createDateTime;
-    uint64 m_corporationDateTime;
 
     uint32 m_shipID;
 

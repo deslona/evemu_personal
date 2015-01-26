@@ -117,11 +117,12 @@ public:
     uint32 GetCloneLocationID() const               { return mSession.GetCurrentInt( "cloneLocationID" ); }
 
     uint32 GetCorpHQ() const                        { return mSession.GetCurrentInt( "hqID" ); }
-    uint64 GetCorpRole() const                      { return mSession.GetCurrentLong( "corprole" ); }
-    uint64 GetRolesAtAll() const                    { return mSession.GetCurrentLong( "rolesAtAll" ); }
-    uint64 GetRolesAtBase() const                   { return mSession.GetCurrentLong( "rolesAtBase" ); }
-    uint64 GetRolesAtHQ() const                     { return mSession.GetCurrentLong( "rolesAtHQ" ); }
-    uint64 GetRolesAtOther() const                  { return mSession.GetCurrentLong( "rolesAtOther" ); }
+    int32 GetCorpAccountKey() const                 { return mSession.GetCurrentInt( "corpAccountKey" ); }
+    int64 GetCorpRole() const                       { return mSession.GetCurrentLong( "corpRole" ); }
+    int64 GetRolesAtAll() const                     { return mSession.GetCurrentLong( "rolesAtAll" ); }
+    int64 GetRolesAtBase() const                    { return mSession.GetCurrentLong( "rolesAtBase" ); }
+    int64 GetRolesAtHQ() const                      { return mSession.GetCurrentLong( "rolesAtHQ" ); }
+    int64 GetRolesAtOther() const                   { return mSession.GetCurrentLong( "rolesAtOther" ); }
 
     uint32 GetShipID() const                        { return m_shipId; }
     uint32 GetGangRole() const                      { return mSession.GetCurrentInt( "gangrole" ); }
@@ -173,12 +174,10 @@ public:
     void StargateJump(uint32 fromGate, uint32 toGate);
     void SetDockStationID(uint32 stationID) { m_dockStationID = stationID; };
     uint32 GetDockStationID() { return m_dockStationID; };
-    
+
     bool GetPendingDockOperation() { return m_needToDock; };
     void SetPendingDockOperation(bool needToDock) { m_needToDock = needToDock; }
 	void SetAutoPilot(bool);
-	// set true for using autopilot.
-	bool m_autoPilot = false;
 
     //messages and LSC
     void SendErrorMsg(const char *fmt, ...);
@@ -267,6 +266,9 @@ protected:
     uint32 m_dockStationID;
     void _ExecuteJump();
     bool m_needToDock;
+
+    // set true for using autopilot.
+    bool m_autoPilot = false;
 
     uint32 m_shipId;
 

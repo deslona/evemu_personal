@@ -94,10 +94,10 @@ public:
     void EntityRemoved(SystemEntity *who);
 
     //Configuration:
-    void SetShipCapabilities(InventoryItemRef ship, bool undock =  false);
-	void SetShipVariables(InventoryItemRef ship);
+    void SetShipCapabilities(InventoryItemRef ship, bool undock=false);
+	void SetShipVariables(InventoryItemRef ship/*, bool undock=false*/);
     void SetMaxVelocity(double maxVelocity) { m_maxShipVelocity = maxVelocity; }
-    void SetPosition(const GPoint &pt, bool update=true, bool isWarping=false, bool isPostWarp=false);
+    void SetPosition(const GPoint &pt, bool update=true, bool selfOnly=false);
     void SetBubble(bool set = false) { m_inBubble = set; }
 
     //Global Actions:
@@ -109,9 +109,10 @@ public:
     void Follow(SystemEntity *who, double distance, bool update=true);
 	void Orbit(SystemEntity *who, double distance, bool update=true);
     void OrbitingCruise(SystemEntity *who, double distance, bool update=false, double cruiseSpeed=-1.0);
-	void SetSpeedFraction(float fraction, bool update=true);
-	void AlignTo(SystemEntity *ent, bool update=true);
-    void GotoDirection(const GPoint &direction);
+	void SetSpeedFraction(float fraction, bool startMovement=false/*, bool undock=false*/);
+    void AlignTo(SystemEntity *ent);
+    void GotoDirection(const GPoint &direction, float speed=1.0f);
+    void GotoPoint(const GPoint &point);
 	void TractorBeamFollow(SystemEntity *who, double mass, double maxVelocity, double distance, bool update=true);
     PyResult AttemptDockOperation();
 
@@ -124,13 +125,22 @@ public:
     void WarpTo(const GPoint where, int32 distance);
 
 	//Ship State Query functions:
-	bool IsMoving() { return (((State == Destiny::DSTBALL_GOTO) || (State == Destiny::DSTBALL_FOLLOW) || (State == Destiny::DSTBALL_ORBIT)) ? true : false); }
+	bool IsMoving() {
+        if ((State == Destiny::DSTBALL_GOTO)
+            || (State == Destiny::DSTBALL_FOLLOW)
+            || (State == Destiny::DSTBALL_ORBIT)
+            //|| (State == Destiny::DSTBALL_ALIGN)
+            || (State == Destiny::DSTBALL_WARP)
+        ) return true; else return false;
+    }
+
+    bool IsAligned();
+    //bool IsAligning() { return ((State == Destiny::DSTBALL_ALIGN) ? true : false); }
 	bool IsStopped() { return ((State == Destiny::DSTBALL_STOP) ? true : false); }
-	bool IsAligned() { return ((State == Destiny::DSTBALL_GOTO) ? true : false); }
 	bool IsOrbiting() { return ((State == Destiny::DSTBALL_ORBIT) ? true : false); }
 	bool IsFollowing() { return ((State == Destiny::DSTBALL_FOLLOW) ? true : false); }
-	bool IsJumping() { return ((State == Destiny::DSTBALL_STOP) ? true : false); }
-	bool IsWarping() { return ((State == Destiny::DSTBALL_WARP) ? true : false); }
+	//bool IsJumping() { return ((State == Destiny::DSTBALL_STOP) ? true : false); }
+	bool IsWarping() { return ((m_warpState == NULL) ? false : true); }
 	bool IsCloaked() { return m_cloaked; }
 
     //Destiny Update stuff:
@@ -150,10 +160,15 @@ public:
     void SendCloakShip(const bool IsWarpSafe) const;
     void SendUncloakShip() const;
     void SendSpecialEffect(const ShipRef shipRef, uint32 moduleID, uint32 moduleTypeID, uint32 targetID, \
-		uint32 chargeTypeID, std::string effectString, bool isOffensive, bool start, bool isActive, \
-		double duration, uint32 repeat) const;
+        uint32 chargeTypeID, std::string effectString, bool isOffensive, bool start, bool isActive, \
+        double duration, uint32 repeat) const;
 	void SendSpecialEffect10(uint32 entityID, const ShipRef shipRef, uint32 targetID, std::string effectString, \
-		bool isOffensive, bool start, bool isActive) const;
+        bool isOffensive, bool start, bool isActive) const;
+
+    //  functions to return protected variables for SystemBubble exclusive WarpTo updates
+    GPoint GetTargetPoint() { return (m_targetPoint); }
+    int32 GetDistance() { return (m_stopDistance); }
+    int32 GetWarpSpeed() { return static_cast<int32>(m_shipWarpSpeed * 10); }
 
 protected:
     void ProcessState();
@@ -182,15 +197,14 @@ protected:
 	double m_shipAgility;				//in s/kg
 	float m_shipWarpSpeed;				//in au/s
 	float m_speedToLeaveWarp;			//in m/s
-	float m_warpAccelTime;				//in s
-	float m_warpDecelTime;				//in s
+	uint8 m_warpAccelTime;				//in s
+	uint8 m_warpDecelTime;				//in s
 	double m_warpCapacitorNeed;			//in GJ
 	double m_shipInertiaModifier;
 	uint8 m_warpStrength;				//interger
 	double m_capNeeded;
 
     //derrived from other params:
-    void _UpdateVelocity(bool update=false);
     double m_maxVelocity;				//in m/s
     double m_shipMaxAccelTime;				//in s  this is used to determine accel rate, and total accel time
 
@@ -200,14 +214,17 @@ protected:
     float m_activeSpeedFraction;		//unitless
     GPoint m_targetPoint;
 	double m_targetDistance;			//in m
+	GPoint m_moveDirection;             //direction ship is facing
 	int32 m_stopDistance;				//from destination, in m
     uint32 m_stateStamp;				//used for ?something?
     double m_moveTimer;
     bool m_inBubble;                    //used to tell if client is in bubble or not.
 	bool m_cloaked;
+    bool m_stop;                        //used to denote Stop() has been called to avoid multiple stops (and associated decel)
     std::pair<uint32, SystemEntity *> m_targetEntity;   //we do not own the SystemEntity *
     //SystemEntity *m_targetEntity;		//we do not own this.
 
+    void _UpdateVelocity(bool isMoving=false/*, bool changeSpeed=false*/);
     void _Move();						//apply our velocity and direction to our position for 1 unit of time (a second)
     void _Follow();
     void _Warp();						//carry on our current warp.
@@ -219,42 +236,45 @@ private:
     class WarpState {
     public:
         WarpState(
-		  double start_time_,
+		  uint32 start_time_,
 		  double total_distance_,
 		  double warp_speed_,
-		  float accel_time_,
 		  double accel_dist_,
-		  float cruise_time_,
 		  double cruise_dist_,
-		  float decel_time_,
 		  double decel_dist_,
 		  float warp_time_,
+          bool accel_,
+          bool cruise_,
+          bool decel_,
+          bool stop_,
 		  const GVector &warp_vector_)
             : start_time(start_time_),
             total_distance(total_distance_),
             warpSpeed(warp_speed_),
-            accelTime(accel_time_),
             accelDist(accel_dist_),
-            cruiseTime(cruise_time_),
             cruiseDist(cruise_dist_),
-            decelTime(decel_time_),
             decelDist(decel_dist_),
             warpTime(warp_time_),
+            accel(accel_),
+            cruise(cruise_),
+            decel(decel_),
+            stop(stop_),
             warp_vector(warp_vector_) { }
-        double start_time;			//timestamp of when the warp started.  1/100000 resolution
+        uint32 start_time;			//timestamp of when the warp started.  1/100000 resolution
         double total_distance;		//in m
         double warpSpeed;			//in m/s
-        float accelTime;			//in s
 		double accelDist;			//in m
-		float cruiseTime;			//in s
 		double cruiseDist;			//in m
-		float decelTime;			//in s
 		double decelDist;			//in m
 		float warpTime;				//in s
+        bool accel;
+        bool cruise;
+        bool decel;
+		bool stop;
         GVector warp_vector;
     };
-    const WarpState *m_warpState;		//we own this. Allocated so we can have consts.
-    void _InitWarp();		// various checks added.
+    WarpState *m_warpState;		//we own this. Allocated so we can have consts.
+    void _InitWarp();		//sets warp variables
 };
 
 #endif

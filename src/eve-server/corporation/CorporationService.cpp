@@ -45,7 +45,6 @@ CorporationService::CorporationService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(CorporationService, GetRecruitmentAdTypes);
     PyCallable_REG_CALL(CorporationService, GetRecruitmentAdsByCriteria);
     PyCallable_REG_CALL(CorporationService, GetRecruitmentAdRegistryData);
-    PyCallable_REG_CALL(CorporationService, SetAccountKey);
     PyCallable_REG_CALL(CorporationService, IsEnemyFaction);
     PyCallable_REG_CALL(CorporationService, GetVoteCasesByCorporation);
     PyCallable_REG_CALL(CorporationService, MoveCorpHQHere);
@@ -268,13 +267,6 @@ AttributeError: 'NoneType' object has no attribute 'types'
   call.Dump(SERVICE__CALLS);
 */
   return NULL;
-}
-
-PyResult CorporationService::Handle_SetAccountKey(PyCallArgs &call)
-{
-      sLog.Log( "CorporationService::Handle_SetAccountKey()", "size= %u", call.tuple->size() );
-  call.Dump(SERVICE__CALLS);
-    return NULL;
 }
 
 PyResult CorporationService::Handle_IsEnemyFaction(PyCallArgs &call)

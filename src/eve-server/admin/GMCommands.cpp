@@ -999,9 +999,8 @@ PyResult Command_giveallskills( Client* who, CommandDB* db, PyServiceMgr* servic
                     skill->SetAttribute(AttrSkillPoints, tmp);
                 }
             }
-            //  save gm skill gift in history  -allan
-            // 39 - GMSkillGift
-            character->SaveSkillHistory(39, EvilTimeNow().get_float(), ownerID, skillID.get_int(), level,
+
+            character->SaveSkillHistory(skillEventGMGive, EvilTimeNow().get_float(), ownerID, skillID.get_int(), level,
                                         skill->GetAttribute( AttrSkillPoints ).get_float(),
                                         character->GetTotalSP().get_float());
         }
@@ -1022,8 +1021,8 @@ PyResult Command_giveskills( Client* who, CommandDB* db, PyServiceMgr* services,
 }
 
 PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, const Seperator& args ) {
-    EvilNumber skillID;
-    int level;
+    EvilNumber skillID = 0;
+    int level = 0;
     CharacterRef character;
     uint32 ownerID = 0;
 
@@ -1060,7 +1059,7 @@ PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, 
 
     if(character.get() != NULL) {       // Make sure Character reference is not NULL before trying to use it:
         SkillRef skill;
-        uint8 skillLevel;
+        uint8 skillLevel = 0;
 
         if( character->HasSkill( skillID.get_int() ) ) {
             skill = character->GetSkill( skillID );
@@ -1099,13 +1098,9 @@ PyResult Command_giveskill( Client* who, CommandDB* db, PyServiceMgr* services, 
             who->UpdateSkillTraining();
         }
 
-        //  save gm skill gift in history  -allan
-        // 39 - GMSkillGift
-        character->SaveSkillHistory(39, EvilTimeNow().get_float(), ownerID, skillID.get_int(), level,
+        character->SaveSkillHistory(skillEventGMGive, EvilTimeNow().get_float(), ownerID, skillID.get_int(), level,
                                     skill->GetAttribute(AttrSkillPoints).get_float(), character->GetTotalSP().get_float());
 
-		//character->SaveFullCharacter();
-		//need skill as InventoryItem then x->SaveAttributes();
         character->GetSkillQueue();
         sLog.Log("GiveSkill", "skill %u upped to level %u.", skillID.get_int(), level );
 
@@ -1139,9 +1134,9 @@ PyResult Command_online(Client *who, CommandDB *db, PyServiceMgr *services, cons
         if( !tgt->InPod() )
             tgt->GetShip()->OnlineAll();
         else
-            throw PyException( MakeCustomError( "Command failed: You can't activate mModulesMgr while in pod"));
+            throw PyException( MakeCustomError( "Command failed: You can't activate modules while in a pod"));
 
-        return(new PyString("All mModulesMgr have been put Online"));
+        return(new PyString("All modules have been put Online"));
     }
     else
         throw PyException( MakeCustomError( "Command failed: You got the arguments all wrong!"));

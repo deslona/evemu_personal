@@ -43,7 +43,8 @@ public:
 
     PyRep *GetCharacterList(uint32 accountID);
     PyRep *GetCharSelectInfo(uint32 characterID);
-	void SetAvatar(uint32 charID, PyRep* hairDarkness);
+    void UpdateCharCorpRecords(uint32 charID, uint32 corpID);
+    void SetAvatar(uint32 charID, PyRep* hairDarkness);
 	void SetAvatarColors(uint32 charID, uint32 colorID, uint32 colorNameA, uint32 colorNameBC, double weight, double gloss);
 	void SetAvatarModifiers(uint32 charID, PyRep* modifierLocationID,  PyRep* paperdollResourceID, PyRep* paperdollResourceVariation);
 	void SetAvatarSculpts(uint32 charID, PyRep* sculptLocationID, PyRep* weightUpDown, PyRep* weightLeftRight, PyRep* weightForwardBack);
@@ -59,7 +60,7 @@ public:
 	bool GetCharClones(uint32 characterID, std::vector<uint32> &into);
     bool GetActiveClone(uint32 characterID, uint32 &itemID);
     bool GetActiveCloneType(uint32 characterID, uint32 &typeID);
-    void GetCharacterData(uint32 characterID, std::map<std::string, uint32> &characterDataMap);
+    void GetCharacterData(uint32 characterID, std::map<std::string, uint64> &characterDataMap);
 	bool GetCharHomeStation(uint32 characterID, uint32 &stationID);
 
     bool ValidateCharName(const char *name);

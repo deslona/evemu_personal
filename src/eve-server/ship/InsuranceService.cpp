@@ -31,6 +31,7 @@
 #include "ship/InsuranceService.h"
 #include "system/SystemEntity.h"
 #include "system/SystemManager.h"
+#include <chat/LSCService.h>
 
 /* TODO:
 * - handle ship-destroyed event (remove insurance, pay out value, consolation eveMail, etc...)
@@ -83,6 +84,7 @@ InsuranceService::InsuranceService(PyServiceMgr *mgr)
     _SetCallDispatcher(m_dispatch);
 
     PyCallable_REG_CALL(InsuranceService, GetContractForShip);
+    PyCallable_REG_CALL(InsuranceService, GetInsurancePrice);
 	//SetSessionCheck?
 }
 
@@ -92,6 +94,14 @@ InsuranceService::~InsuranceService() {
 
 PyBoundObject* InsuranceService::_CreateBoundObject( Client* c, const PyRep* bind_args ) {
     return new InsuranceBound( m_manager, &m_db );
+}
+
+PyResult InsuranceService::Handle_GetInsurancePrice( PyCallArgs& call ) {
+    const ItemType *type = m_manager->item_factory.GetType(call.tuple->GetItem(0)->AsInt()->value());
+    if (type)
+        return new PyFloat(type->basePrice()/10);
+    else
+        return new PyNone;
 }
 
 PyResult InsuranceBound::Handle_GetInsurancePrice( PyCallArgs& call ) {
@@ -188,8 +198,10 @@ PyResult InsuranceBound::Handle_InsureShip( PyCallArgs& call ) {
     }
 
     // TODO:  send mail detailing insurance coverage and length of coverage
-    const char *subject = "New Ship Insurance";
-    const char *body = "Dear valued customer,<BR>" \
+
+    const std::string
+            subject = "New Ship Insurance", //std::string("New application from ") + call.client->GetName(),
+            body = "Dear valued customer,<BR>" \
                     "Congratulations on the insurance on your ship. A very wise choice indeed.<br>" \
                     "This letter is to confirm that we have issued an insurance contract for your ship, %s at a level of %u%.<BR>" \
                     "This contract will expire at *insert endDate Here*, after %u weeks.<BR><BR>" \
@@ -198,7 +210,9 @@ PyResult InsuranceBound::Handle_InsureShip( PyCallArgs& call ) {
                     "Reference ID: %u <BR><BR>" \
                     "jav";
 
-    call.client->SelfEveMail(subject, body, shipRef->itemName().c_str(), fraction, numWeeks, args.shipID);
+    //  corpID: 1000132 = Secure Commerce Commission
+
+    m_manager->lsc_service->SendMail(1000132, call.client->GetCharacterID(), subject, body);
 
     return (m_db->GetInsuranceByShipID(args.shipID));
 }

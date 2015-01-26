@@ -523,7 +523,7 @@ bool CorporationDB::AddCorporation(Call_AddCorporation & corpInfo, uint32 charID
     }
 
     // update character join corp date
-    if (!sDatabase.RunQuery(err, " UPDATE character_ SET corporationDateTime = %" PRIu64 " WHERE characterID = %u", Win32TimeNow(), charID )) {
+    if (!sDatabase.RunQuery(err, " UPDATE character_ SET startDateTime = %" PRIu64 " WHERE characterID = %u", Win32TimeNow(), charID )) {
         codelog(SERVICE__ERROR, "Error in query: %s", err.c_str());
     }
 
@@ -532,7 +532,7 @@ bool CorporationDB::AddCorporation(Call_AddCorporation & corpInfo, uint32 charID
 
 #define _NI(a, b) if (row.IsNull(b)) { cc.a = new PyNone(); } else { cc.a = new PyInt(row.GetUInt(b)); }
 
-bool CorporationDB::CreateCorporationChangePacket(Notify_OnCorporaionChanged & cc, uint32 oldCorpID, uint32 newCorpID) {
+bool CorporationDB::CreateCorporationChangePacket(Notify_OnCorporationChanged & cc, uint32 oldCorpID, uint32 newCorpID) {
     DBQueryResult res;
     DBResultRow row;
 
@@ -675,10 +675,10 @@ bool CorporationDB::JoinCorporation(uint32 charID, uint32 corpID, uint32 oldCorp
     // Set new corp
     if (!sDatabase.RunQuery(err,
         "UPDATE character_ SET "
-        "   corporationID = %u, corporationDateTime = %" PRIu64 ", "
-        "   corpRole = %" PRIu64 ", rolesAtAll = %" PRIu64 ", rolesAtBase = %" PRIu64 ", rolesAtHQ = %" PRIu64 ", rolesAtOther = %" PRIu64 " "
+        "   corporationID = %u, startDateTime = %" PRIu64 ", corpAccountKey = %i,"
+        "   corpRole = %" PRIi64 ", rolesAtAll = %" PRIi64 ", rolesAtBase = %" PRIi64 ", rolesAtHQ = %" PRIi64 ", rolesAtOther = %" PRIi64 " "
         "   WHERE characterID = %u",
-            corpID, Win32TimeNow(),
+            corpID, Win32TimeNow(), roles.corpAccountKey,
             roles.corpRole, roles.rolesAtAll, roles.rolesAtBase, roles.rolesAtHQ, roles.rolesAtOther,
             charID
         ))
@@ -702,7 +702,9 @@ bool CorporationDB::JoinCorporation(uint32 charID, uint32 corpID, uint32 oldCorp
 
     // Add new employment history record
     if (!sDatabase.RunQuery(err,
-        "INSERT INTO chrEmployment VALUES (%u, %u, %" PRIu64 ", 0)",
+        "INSERT INTO chrEmployment"
+        "  (characterID, corporationID, startDate, deleted)"
+        " VALUES (%u, %u, %" PRIu64 ", 0)",
         charID, corpID, Win32TimeNow()
         ))
     {
@@ -713,7 +715,7 @@ bool CorporationDB::JoinCorporation(uint32 charID, uint32 corpID, uint32 oldCorp
     return true;
 }
 
-bool CorporationDB::CreateCorporationCreatePacket(Notify_OnCorporaionChanged & cc, uint32 oldCorpID, uint32 newCorpID) {
+bool CorporationDB::CreateCorporationCreatePacket(Notify_OnCorporationChanged & cc, uint32 oldCorpID, uint32 newCorpID) {
     DBQueryResult res;
     DBResultRow row;
 
@@ -1184,11 +1186,11 @@ bool CorporationDB::CreateMemberAttributeUpdate(MemberAttributeUpdate & attrib, 
     DBResultRow row;
     if (!sDatabase.RunQuery(res,
         " SELECT "
-        "   title, corporationDateTime, corporationID, "
+        "   title, startDateTime, corporationID, "
         "   corpRole, rolesAtAll, rolesAtBase, "
         "   rolesAtHQ, rolesAtOther "
         " FROM character_ "
-        " WHERE character_.characterID = %u ", charID))
+        " WHERE characterID = %u ", charID))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return false;
@@ -1235,14 +1237,17 @@ bool CorporationDB::CreateMemberAttributeUpdate(MemberAttributeUpdate & attrib, 
 
     return true;
 }
+
 bool CorporationDB::UpdateDivisionNames(uint32 corpID, const Call_UpdateDivisionNames & divs, PyDict * notif) {
+    //  updated to update wallet names, too.   -allan 14Jan15
     DBQueryResult res;
 
     if (!sDatabase.RunQuery(res,
-        " SELECT "
-        " division1, division2, division3, division4, division5, division6, division7 "
-        " FROM corporation "
-        " WHERE corporationID = %u ", corpID))
+        "SELECT"
+        "  division1, division2, division3, division4, division5, division6, division7,"
+        "  walletDivision1, walletDivision2, walletDivision3, walletDivision4, walletDivision5, walletDivision6, walletDivision7"
+        " FROM corporation"
+        " WHERE corporationID = %u", corpID))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         return false;
@@ -1250,7 +1255,7 @@ bool CorporationDB::UpdateDivisionNames(uint32 corpID, const Call_UpdateDivision
 
     DBResultRow row;
     if (!res.GetRow(row)) {
-        _log(DATABASE__ERROR, "Corporation %u doesn't exists.", corpID);
+        _log(DATABASE__ERROR, "Corporation %u doesn't exist.", corpID);
         return false;
     }
 
@@ -1263,12 +1268,19 @@ bool CorporationDB::UpdateDivisionNames(uint32 corpID, const Call_UpdateDivision
     ProcessStringChange("division5", row.GetText(4), divs.div5, notif, dbQ);
     ProcessStringChange("division6", row.GetText(5), divs.div6, notif, dbQ);
     ProcessStringChange("division7", row.GetText(6), divs.div7, notif, dbQ);
+    ProcessStringChange("walletDivision1", row.GetText(7), divs.wallet1, notif, dbQ);
+    ProcessStringChange("walletDivision2", row.GetText(8), divs.wallet2, notif, dbQ);
+    ProcessStringChange("walletDivision3", row.GetText(9), divs.wallet3, notif, dbQ);
+    ProcessStringChange("walletDivision4", row.GetText(10), divs.wallet4, notif, dbQ);
+    ProcessStringChange("walletDivision5", row.GetText(11), divs.wallet5, notif, dbQ);
+    ProcessStringChange("walletDivision6", row.GetText(12), divs.wallet6, notif, dbQ);
+    ProcessStringChange("walletDivision7", row.GetText(13), divs.wallet7, notif, dbQ);
 
     std::string query = " UPDATE corporation SET ";
 
     int N = dbQ.size();
     for (int i = 0; i < N; i++) {
-        query = dbQ[i];
+        query += dbQ[i];
         if (i < N - 1) query += ", ";
     }
 

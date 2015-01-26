@@ -12,9 +12,18 @@
 
   <elementDef name="Call_GiveCash">
     <tupleInline>
-      <int  name="destination" />
+      <int  name="toID" />
       <real name="amount" />
-      <string name="reason" />
+      <wstring name="reason" />
+    </tupleInline>
+  </elementDef>
+
+  <elementDef name="Call_GiveCorpCash">
+    <tupleInline>
+      <int  name="toID" />
+      <real name="amount" />
+      <int name="fromAccountKey" />
+      <wstring name="reason" />
     </tupleInline>
   </elementDef>
 

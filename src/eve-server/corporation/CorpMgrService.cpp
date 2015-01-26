@@ -42,6 +42,7 @@ CorpMgrService::CorpMgrService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(CorpMgrService, GetCorporationStations);
     PyCallable_REG_CALL(CorpMgrService, GetCorporationIDForCharacter);
     PyCallable_REG_CALL(CorpMgrService, GetAssetInventoryForLocation);
+    PyCallable_REG_CALL(CorpMgrService, AuditMember);
 }
 
 CorpMgrService::~CorpMgrService() {
@@ -98,22 +99,36 @@ PyResult CorpMgrService::Handle_GetCorporations(PyCallArgs &call) {
   return m_db.GetCorporations(corpID.arg);
 }
 
-
-//22:33:36 L CorpMgrService::Handle_GetAssetInventory(): size= 2, 0 = int (1001000), 1 = string (varies)
+//  started...still needs work
 PyResult CorpMgrService::Handle_GetAssetInventory(PyCallArgs &call) {
-  uint32 size = call.tuple->size();
-  //uint32 int1 = call.tuple->GetItem(0)->AsInt()->value();   // corpID
-  //std::string string = call.tuple->GetItem(1)->AsString()->content();  // tab in corp asset window...offices, impounded, in space,
-                                                                       //      deliveries, lockdown, search.  also called from map.
-                                                                       //   properties called from starmap -ColorStarsByCorpAssets
+    /* 21:34:13 L CorpMgrService::Handle_GetAssetInventory(): size= 2
+     * 21:34:13 [SvcCall]   Call Arguments:
+     * 21:34:13 [SvcCall]       Tuple: 2 elements
+     * 21:34:13 [SvcCall]         [ 0] Integer field: 2000000
+     * 21:34:13 [SvcCall]         [ 1] String: 'offices'
+     *
+     *
+     *  sLog.Log( "CorpMgrService::Handle_GetAssetInventory()", "size= %u", call.tuple->size() );
+     *  call.Dump(SERVICE__CALLS);
+     */
+    Call_GetAssetInventory args;
 
-  sLog.Log( "CorpMgrService::Handle_GetAssetInventory()", "size= %u", size );
-  call.Dump(SERVICE__CALLS);
+    if (!args.Decode(&call.tuple)) {
+        codelog(SERVICE__ERROR, "CorpMgrService::Handle_GetAssetInventory() - Error Decoding Arguments.");
+        return NULL;
+    }
 
-    return NULL;
+    // corpID = args.corpID;
+    // std::string assetKey = args.assetKey;
+
+    //  assetKey tells what inventory they're looking for.
+    //        tab in corp asset window...offices, impounded, in space, deliveries, lockdown, search.
+    // also called from map... -ColorStarsByCorpAssets
+
+    //  i havent thought much about how to do this one yet.  will need items based on location and status(assetKey) for corp
+    PyTuple *res = NULL;
+    return res;
 }
-
-
 
 PyResult CorpMgrService::Handle_GetCorporationStations(PyCallArgs &call) {
   /**           this is called from trademgr.py
@@ -124,8 +139,7 @@ PyResult CorpMgrService::Handle_GetCorporationStations(PyCallArgs &call) {
             stationListing.append([localization.GetByLabel('UI/PVPTrade/StationInSolarsystem', station=station.itemID, solarsystem=station.locationID), station.itemID, station.typeID])
 */
 
-  uint32 size = call.tuple->size();
-  sLog.Log( "CorpMgrService::Handle_GetCorporationStations()", "size= %u", size );
+  sLog.Log( "CorpMgrService::Handle_GetCorporationStations()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
 
     return NULL;
@@ -134,8 +148,7 @@ PyResult CorpMgrService::Handle_GetCorporationStations(PyCallArgs &call) {
 PyResult CorpMgrService::Handle_GetCorporationIDForCharacter(PyCallArgs &call) {
 /**        returns corpID for given charID  */
 
-  uint32 size = call.tuple->size();
-  sLog.Log( "CorpMgrService::Handle_GetCorporationIDForCharacter()", "size= %u", size );
+  sLog.Log( "CorpMgrService::Handle_GetCorporationIDForCharacter()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
 
     return NULL;
@@ -146,9 +159,19 @@ PyResult CorpMgrService::Handle_GetAssetInventoryForLocation(PyCallArgs &call) {
     items = sm.RemoteSvc('corpmgr').GetAssetInventoryForLocation(eve.session.corpid, stationID, which)
     */
 
-  uint32 size = call.tuple->size();
-  sLog.Log( "CorpMgrService::Handle_GetAssetInventoryForLocation()", "size= %u", size );
+sLog.Log( "CorpMgrService::Handle_GetAssetInventoryForLocation()", "size= %u", call.tuple->size() );
   call.Dump(SERVICE__CALLS);
+
+    return NULL;
+}
+
+PyResult CorpMgrService::Handle_AuditMember(PyCallArgs &call) {
+    /**
+     * logItemEventRows, crpRoleHistroyRows = sm.RemoteSvc('corpmgr').AuditMember(memberID, fromDate, toDate, rowsPerPage)
+     */
+
+    sLog.Log( "CorpMgrService::Handle_AuditMember()", "size= %u", call.tuple->size() );
+    call.Dump(SERVICE__CALLS);
 
     return NULL;
 }

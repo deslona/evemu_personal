@@ -1134,6 +1134,8 @@ void NPC::_AwardBounty(SystemEntity *who) {
 
     //TODO: handle distribution to gangs.
 
+    //TODO: handle corp tax
+
     if(who->IsClient() == false) {
         _log(NPC__TRACE, "Refusing to award bounty on %u to non-client %u", GetID(), who->GetID());
         return;    //bounty doesn't make sense for anything other than clients.
@@ -1147,12 +1149,12 @@ void NPC::_AwardBounty(SystemEntity *who) {
 
     if(!m_services.serviceDB().GiveCash(
             killer->GetID(),
-            RefType_Bounty,
+            refBounty,
             m_self->itemID(),    //probably actually a special concord item ID or something.
             killer->GetID(),
             "",    //unknown const char *argID1,
             killer->GetAccountID(),
-            accountCash,
+            accountingKeyCash,
             bounty,
             killer->GetBalance(),
             reason.c_str()

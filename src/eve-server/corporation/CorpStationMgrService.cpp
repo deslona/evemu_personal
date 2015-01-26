@@ -320,7 +320,7 @@ PyResult CorpStationMgrIMBound::Handle_RentOffice(PyCallArgs &call) {
     m_db.AddBalanceToCorp(oInfo.corporationID, -double(arg.arg));
     corpBalance -= arg.arg;    // This is the new corp money. Do I have to make a casting here?
     // record the transaction
-    m_db.GiveCash(oInfo.corporationID, RefType_OfficeRentalFee, oInfo.corporationID, oInfo.stationID, "unknown", call.client->GetAccountID(), accountCash, -double(arg.arg), corpBalance, "Renting office for 30 days");
+    m_db.GiveCash(oInfo.corporationID, refOfficeRentalFee, oInfo.corporationID, oInfo.stationID, "unknown", call.client->GetAccountID(), accountingKeyCash, -double(arg.arg), corpBalance, "Renting office for 30 days");
 
     MulticastTarget mct;
     mct.corporations.insert(oInfo.corporationID);

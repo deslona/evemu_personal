@@ -50,7 +50,7 @@ ItemFactory::~ItemFactory() {
         end = m_items.end();
         for(; cur != end; cur++) {
             // save attributes of item
-			if( IsNonStaticItem(cur->second->itemID()) )
+			if( IsPlayerItem(cur->second->itemID()) )
 				cur->second->SaveItem();
 
 			items_saved++;
@@ -101,7 +101,7 @@ void ItemFactory::SaveItems() {
     end = m_items.end();
     for(; cur != end; cur++) {
         // save attributes of item
-		if( IsNonStaticItem(cur->second->itemID()) )
+        if( IsPlayerItem(cur->second->itemID()) )
 			cur->second->SaveItem();
 
 		items_saved++;

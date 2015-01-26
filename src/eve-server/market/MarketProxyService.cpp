@@ -50,6 +50,7 @@ MarketProxyService::MarketProxyService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(MarketProxyService, ModifyCharOrder);
     PyCallable_REG_CALL(MarketProxyService, CancelCharOrder);
     PyCallable_REG_CALL(MarketProxyService, CharGetNewTransactions);
+    PyCallable_REG_CALL(MarketProxyService, CorpGetNewTransactions);
     PyCallable_REG_CALL(MarketProxyService, StartupCheck);
     PyCallable_REG_CALL(MarketProxyService, GetCorporationOrders);
 }
@@ -501,17 +502,17 @@ PyResult MarketProxyService::Handle_ModifyCharOrder(PyCallArgs &call) {
         return NULL;
     }
 
-    if(price == args.new_price)
+    if(price == args.newPrice)
         return NULL;
 
     if(isBuy)
     {
-        double money = (price - args.new_price) * quantity;
+        double money = (price - args.newPrice) * quantity;
         if(!call.client->AddBalance(money))
             return NULL;
     }
 
-    if(!m_db.AlterOrderPrice(args.orderID, args.new_price)) {
+    if(!m_db.AlterOrderPrice(args.orderID, args.newPrice)) {
         codelog(MARKET__ERROR, "%s: Failed to modify price for order %u.", call.client->GetName(), args.orderID);
         return NULL;
     }
@@ -580,7 +581,7 @@ PyResult MarketProxyService::Handle_CancelCharOrder(PyCallArgs &call) {
 PyResult MarketProxyService::Handle_CharGetNewTransactions(PyCallArgs &call)
 {
     PyRep *result = NULL;
-    Call_CharGetNewTransactions args;
+    Call_GetNewTransactions args;
     if(!args.Decode(&call.tuple))
     {
         codelog(MARKET__ERROR, "Invalid arguments");
@@ -609,6 +610,36 @@ PyResult MarketProxyService::Handle_CharGetNewTransactions(PyCallArgs &call)
     return result;
 }
 
+PyResult MarketProxyService::Handle_CorpGetNewTransactions(PyCallArgs &call)
+{
+    PyRep *result = NULL;
+    Call_GetNewTransactions args;
+    if(!args.Decode(&call.tuple))
+    {
+        codelog(MARKET__ERROR, "Invalid arguments");
+        return NULL;
+    }
+
+    double minPrice;
+    if(args.minPrice->IsInt())
+        minPrice = args.minPrice->AsInt()->value();
+    else if(args.minPrice->IsFloat())
+        minPrice = args.minPrice->AsFloat()->value();
+    else
+    {
+        codelog(CLIENT__ERROR, "CorpID %u: Invalid type %s for minPrice argument received.", call.client->GetCorporationID(), args.minPrice->TypeString());
+        return NULL;
+    }
+
+    result = m_db.GetTransactions(call.client->GetCorporationID(), args.typeID, args.quantity, minPrice, args.maxPrice, args.fromDate, args.buySell);
+    if(result == NULL)
+    {
+        _log(SERVICE__ERROR, "CorpID %u: Failed to load CorpGetNewTransactions", call.client->GetCorporationID());
+        return NULL;
+    }
+
+    return result;
+}
 PyResult MarketProxyService::Handle_StartupCheck(PyCallArgs &call) {
     m_db.BuildOldPriceHistory();        // function already coded, not called.   added to implement market price history...working   -allan
     return NULL;

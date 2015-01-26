@@ -28,18 +28,21 @@
 #include "config/ConfigDB.h"
 
 PyRep *ConfigDB::GetMultiOwnersEx(const std::vector<int32> &entityIDs) {
-//#   pragma message( "we need to deal with corporations!" )
-    //we only get called for items which are not already sent in the
-    // eveStaticOwners cachable object.
+    //TODO: needs more work due to better understanding of client code  -allan 24Jan15
+    //FIXME  fix this.  should look in tables based on entityID sent.
     /*
 23:14:21 L ConfigService: Handle_GetMultiOwnersEx
 23:14:21 [SvcCall]   Call Arguments:
 23:14:21 [SvcCall]       Tuple: 1 elements
 23:14:21 [SvcCall]         [ 0] List: 1 elements
-23:14:21 [SvcCall]         [ 0]   [ 0] Integer field: 140000053
+23:14:21 [SvcCall]         [ 0]   [ 0] Integer field: 140000053     <- character
+
+23:14:21 [SvcCall]         [ 0]   [ 0] Integer field: 2000000       <- corp
 */
     std::string ids;
-    ListToINString(entityIDs, ids, "-1");
+    ListToINString(entityIDs, ids, "0");
+
+    sLog.Log( "ConfigDB::GetMultiOwnersEx()", "ids = %s", ids.c_str() );
 
     DBQueryResult res;
     DBResultRow row;
@@ -50,7 +53,7 @@ PyRep *ConfigDB::GetMultiOwnersEx(const std::vector<int32> &entityIDs) {
         " itemID as ownerID,"
         " itemName as ownerName,"
         " typeID,"
-        " NULL as ownerNameID,"
+        " 0 as ownerNameID,"
         " 1 as gender"
         " FROM entity "
         " WHERE itemID in (%s)", ids.c_str()))
@@ -64,7 +67,7 @@ PyRep *ConfigDB::GetMultiOwnersEx(const std::vector<int32> &entityIDs) {
         if(!sDatabase.RunQuery(res,
             "SELECT "
             " ownerID,ownerName,typeID,"
-            " NULL as ownerNameID,"
+            " 0 as ownerNameID,"
             " 1 as gender"
             " FROM eveStaticOwners "
             " WHERE ownerID in (%s)", ids.c_str()))
@@ -80,13 +83,13 @@ PyRep *ConfigDB::GetMultiOwnersEx(const std::vector<int32> &entityIDs) {
     if(!res.GetRow(row)) {
         if(!sDatabase.RunQuery(res,
             "SELECT "
-            " characterID as ownerID,"
-            " itemName as ownerName,"
-            " typeID,"
-            " characterID as ownerNameID,"
-            " gender"
-            " FROM character_ "
-            " LEFT JOIN entity ON characterID = itemID"
+            " c.characterID as ownerID,"
+            " e.itemName as ownerName,"
+            " e.typeID,"
+            " 0 as ownerNameID,"
+            " c.gender"
+            " FROM character_ AS c"
+            " LEFT JOIN entity AS e ON e.itemID = c.characterID"
             " WHERE characterID in (%s)", ids.c_str()))
         {
             codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
@@ -101,19 +104,12 @@ PyRep *ConfigDB::GetMultiOwnersEx(const std::vector<int32> &entityIDs) {
 
 PyRep *ConfigDB::GetMultiAllianceShortNamesEx(const std::vector<int32> &entityIDs) {
     std::string ids;
-    ListToINString(entityIDs, ids, "-1");
+    ListToINString(entityIDs, ids, "0");
 
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
-        "SELECT "
-        "   itemID as allianceID,"
-        "   itemName as shortName" //we likely need to use customInfo or something for this.
-        " FROM entity "
-        " WHERE typeID = %d"
-        "  AND itemID in (%s)",
-        AllianceTypeID,
-        ids.c_str()
+        "SELECT allianceID, shortName FROM crpAlliance"
         ))
     {
         codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
@@ -124,42 +120,33 @@ PyRep *ConfigDB::GetMultiAllianceShortNamesEx(const std::vector<int32> &entityID
 }
 
 
-PyRep *ConfigDB::GetMultiLocationsEx(const std::vector<int32> &entityIDs) {     // now working correctly  -allan  5May
+PyRep *ConfigDB::GetMultiLocationsEx(const std::vector<int32> &entityIDs) {
+    // now working correctly  -allan  5May
+    //FIXME needs more work due to better understanding of client code  -allan 24Jan15
     bool use_map = false;
     use_map = IsStaticMapItem(entityIDs[0]);
-    // put check in here for player outpost ( which will use itemID's starting @ 61m)
 
     std::string ids;
-    ListToINString(entityIDs, ids, "-1");
+    ListToINString(entityIDs, ids, "0");
+
+    sLog.Log( "ConfigDB::GetMultiLocationsEx()", "use_map = %u.  ids = %s", use_map, ids.c_str() );
 
     DBQueryResult res;
+    const char *table = "entity";
 
-    if(use_map) {
-        if(!sDatabase.RunQuery(res,
+    if(use_map) table = "mapDenormalize";
+
+    if(!sDatabase.RunQuery(res,
             "SELECT "
             " itemID AS locationID,"
             " itemName AS locationName,"
             " x, y, z,"
-            " regionID AS locationNameID"
-            " FROM mapDenormalize "
-            " WHERE itemID in (%s)", ids.c_str()))
-        {
-            codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
-            return new PyNone;
-        }
-    } else {
-        if(!sDatabase.RunQuery(res,
-            "SELECT "
-            " itemID AS locationID,"
-            " itemName AS locationName,"
-            " x, y, z,"
-            " locationID AS locationNameID"
-            " FROM entity "
-            " WHERE itemID in (%s)", ids.c_str()))
-        {
-            codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
-            return new PyNone;
-        }
+            " 0 AS locationNameID"
+            " FROM %s"
+            " WHERE itemID in (%s)", table, ids.c_str()))
+    {
+        codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
+        return new PyNone;
     }
 
     return(DBResultToTupleSet(res));
@@ -168,16 +155,16 @@ PyRep *ConfigDB::GetMultiLocationsEx(const std::vector<int32> &entityIDs) {     
 PyRep *ConfigDB::GetMultiCorpTickerNamesEx(const std::vector<int32> &entityIDs) {
 
     std::string ids;
-    ListToINString(entityIDs, ids, "-1");
+    ListToINString(entityIDs, ids, "0");
 
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
         "SELECT "
-        "   corporationID, tickerName, "
+        "   corporationID, tickerName,"
         "   shape1, shape2, shape3,"
         "   color1, color2, color3 "
-        " FROM corporation "
+        " FROM corporation"
         " WHERE corporationID in (%s)", ids.c_str()))
     {
         codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
@@ -185,14 +172,13 @@ PyRep *ConfigDB::GetMultiCorpTickerNamesEx(const std::vector<int32> &entityIDs) 
     }
 
     return(DBResultToRowList(res));
-    //return (DBResultToPackedRowList(res));
 }
 
 
 PyRep *ConfigDB::GetMultiGraphicsEx(const std::vector<int32> &entityIDs) {
 
     std::string ids;
-    ListToINString(entityIDs, ids, "-1");
+    ListToINString(entityIDs, ids, "0");
 
     DBQueryResult res;
 
@@ -215,7 +201,7 @@ PyObject *ConfigDB::GetUnits() {
 
     if(!sDatabase.RunQuery(res,
         "SELECT "
-        " unitID, unitName, displayName"
+        "   unitID, unitName, displayName"
         " FROM eveUnits "))
     {
         codelog(DATABASE__ERROR, "Error in query: %s", res.error.c_str());
@@ -245,7 +231,7 @@ PyObjectEx *ConfigDB::GetMapObjects(uint32 entityID, bool wantRegions,
     if(!sDatabase.RunQuery(res,
         "SELECT "
         "   groupID, typeID, itemID, itemName,"
-        "   solarSystemID AS locationID, IFNULL(orbitID, 0) AS orbitID, " // 0 AS connector
+        "   solarSystemID AS locationID, IFNULL(orbitID, 0) AS orbitID,"
         "   x, y, z"
         " FROM mapDenormalize"
         " WHERE %s=%u", key, entityID )) {
@@ -259,8 +245,6 @@ PyObjectEx *ConfigDB::GetMapObjects(uint32 entityID, bool wantRegions,
 PyObject *ConfigDB::GetMap(uint32 solarSystemID) {
     DBQueryResult res;
 
-    //how in the world do they get a list in the freakin rowset for destinations???
-    //   .....  like this..    -allan
     if(!sDatabase.RunQuery(res,
         "SELECT "
         "   s.solarSystemID AS locationID,"
@@ -305,7 +289,7 @@ PyObject *ConfigDB::ListLanguages() {
 PyRep *ConfigDB::GetMultiInvTypesEx(const std::vector<int32> &entityIDs) {
 
     std::string ids;
-    ListToINString(entityIDs, ids, "-1");
+    ListToINString(entityIDs, ids, "0");
 
     DBQueryResult res;
 
@@ -378,8 +362,8 @@ PyRep *ConfigDB::GetCelestialStatistic(uint32 celestialID) {
 
 PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID) {
     //  corrected query and return type per packet info
-    //      this returns ONLY POS'.  -allan 8Dec14
-    /* this packet is from a crowded (73 items) system, yet is only return from this call.
+    //      this returns ONLY OUTPOSTS.  -allan 8Dec14
+    /* this packet is from a crowded (73 items) system (including pos'), yet is only return from this call.
               [PyObjectEx Type2]
                 [PyTuple 2 items]
                   [PyTuple 1 items]
@@ -388,7 +372,7 @@ PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID) {
                     [PyString "header"]
                 [PyPackedRow 50 bytes]
                   ["groupID" => <15> [I2]]
-                  ["typeID" => <21645> [I4]]
+                  ["typeID" => <21645> [I4]]    <-- Gallente Administrative Outpost
                   ["itemID" => <61000562> [I4]]
                   ["itemName" => <5E-EZC VI - X333 GEORGIOU'S PLACE> [WStr]]
                   ["locationID" => <30004168> [I4]]
@@ -418,8 +402,8 @@ PyRep *ConfigDB::GetDynamicCelestials(uint32 solarSystemID) {
         " FROM mapDenormalize"
         " WHERE solarSystemID = %u"
         " AND groupID = %d"
-        " AND itemID > 61000000",   //this is min itemid for outposts  (not sure if pos go here)
-        solarSystemID, EVEDB::invGroups::Station )) {
+        " AND itemID > %d",   //this is min itemid for outposts   (pos' do NOT go here)
+        solarSystemID, EVEDB::invGroups::Station, maxNPCStation )) {
             codelog(DATABASE__ERROR, "GetDynamicCelestials Error in query: %s", result.error.c_str());
             return new PyInt(0);
     }
@@ -457,7 +441,7 @@ PyObject *ConfigDB::GetMapOffices(uint32 solarSystemID) {
 }
 
 PyObject *ConfigDB::GetMapConnections(uint32 id, bool sol, bool reg, bool con, uint16 cel, uint16 _c) {
-  sLog.Warning ("ConfigDB::GetMapConnections", "DB query:%u, B1:%u, B2:%u, B3:%u, I2:%u, I3:%u", id, sol, reg, con, cel, _c);
+  sLog.Warning ("ConfigDB::GetMapConnections", "DB query - System:%u, B1:%u, B2:%u, B3:%u, Cel:%u, _c:%u", id, sol, reg, con, cel, _c);
 
     const char *key = "fromsol";
     if(sol) key = "fromsol";

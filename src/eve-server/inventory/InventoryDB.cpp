@@ -960,7 +960,6 @@ bool InventoryDB::GetCharacter(uint32 characterID, CharacterData &into) {
         "   chr.careerSpecialityID,"
         "   chr.startDateTime,"
         "   chr.createDateTime,"
-        "   chr.corporationDateTime,"
         "   chr.shipID"
         " FROM characterStatic AS chr"
         "  LEFT JOIN corporation AS crp USING (corporationID)"
@@ -992,7 +991,6 @@ bool InventoryDB::GetCharacter(uint32 characterID, CharacterData &into) {
         "   chr.careerSpecialityID,"
         "   chr.startDateTime,"
         "   chr.createDateTime,"
-        "   chr.corporationDateTime,"
         "   chr.shipID"
         " FROM character_ AS chr"
         "  LEFT JOIN corporation AS crp USING (corporationID)"
@@ -1029,8 +1027,7 @@ bool InventoryDB::GetCharacter(uint32 characterID, CharacterData &into) {
     into.careerSpecialityID = row.GetUInt( 18 );
     into.startDateTime = row.GetUInt64( 19 );
     into.createDateTime = row.GetUInt64( 20 );
-    into.corporationDateTime = row.GetUInt64( 21 );
-    into.shipID = row.GetUInt( 22 );
+    into.shipID = row.GetUInt( 21 );
 
     return true;
 }
@@ -1041,6 +1038,7 @@ bool InventoryDB::GetCorpMemberInfo(uint32 characterID, CorpMemberInfo &into) {
 
     if(!sDatabase.RunQuery(res,
         "SELECT"
+        "  corpAccountKey,"
         "  corpRole,"
         "  rolesAtAll,"
         "  rolesAtBase,"
@@ -1059,11 +1057,12 @@ bool InventoryDB::GetCorpMemberInfo(uint32 characterID, CorpMemberInfo &into) {
         return false;
     }
 
-    into.corpRole = row.GetUInt64(0);
-    into.rolesAtAll = row.GetUInt64(1);
-    into.rolesAtBase = row.GetUInt64(2);
-    into.rolesAtHQ = row.GetUInt64(3);
-    into.rolesAtOther = row.GetUInt64(4);
+    into.corpAccountKey = row.GetInt(0);
+    into.corpRole = row.GetInt64(1);
+    into.rolesAtAll = row.GetInt64(2);
+    into.rolesAtBase = row.GetInt64(3);
+    into.rolesAtHQ = row.GetInt64(4);
+    into.rolesAtOther = row.GetInt64(5);
 
     // this is hack and belongs somewhere else
     if(!sDatabase.RunQuery(res,
@@ -1128,7 +1127,7 @@ bool InventoryDB::NewCharacter(uint32 characterID, const CharacterData &data, co
         // CharacterData:
         "  (characterID, accountID, title, description, bounty, balance, aurBalance, securityRating, petitionMessage,"
         "   logonDateTime, logonMinutes, corporationID, corpRole, rolesAtAll, rolesAtBase, rolesAtHQ, rolesAtOther,"
-        "   corporationDateTime, startDateTime, createDateTime,"
+        "   startDateTime, createDateTime,"
         "   ancestryID, careerID, schoolID, careerSpecialityID, gender,"
         "   stationID, solarSystemID, constellationID, regionID, freeRespecs, lastRespecDateTime, nextRespecDateTime)"
         " VALUES"
@@ -1141,7 +1140,7 @@ bool InventoryDB::NewCharacter(uint32 characterID, const CharacterData &data, co
         // CharacterData:
         characterID, data.accountID, titleEsc.c_str(), descriptionEsc.c_str(), data.bounty, data.balance, data.aurBalance, data.securityRating, "No petition",
         Win32TimeNow(), data.logonMinutes, data.corporationID, corpData.corpRole, corpData.rolesAtAll, corpData.rolesAtBase, corpData.rolesAtHQ, corpData.rolesAtOther,
-        data.corporationDateTime, data.startDateTime, data.createDateTime,
+        data.startDateTime, data.createDateTime,
         data.ancestryID, data.careerID, data.schoolID, data.careerSpecialityID, data.gender,
         data.stationID, data.solarSystemID, data.constellationID, data.regionID, 2, 0, 0
     )) {
@@ -1209,7 +1208,6 @@ bool InventoryDB::SaveCharacter(uint32 characterID, const CharacterData &data) {
         "  careerSpecialityID = %u,"
         "  startDateTime = %" PRIu64 ","
         "  createDateTime = %" PRIu64 ","
-        "  corporationDateTime = %" PRIu64 ","
         "  shipID = %u"
         " WHERE characterID = %u",
         data.accountID,
@@ -1233,7 +1231,6 @@ bool InventoryDB::SaveCharacter(uint32 characterID, const CharacterData &data) {
         data.careerSpecialityID,
         data.startDateTime,
         data.createDateTime,
-        data.corporationDateTime,
         data.shipID,
         characterID))
     {
@@ -1250,13 +1247,15 @@ bool InventoryDB::SaveCorpMemberInfo(uint32 characterID, const CorpMemberInfo &d
     if(!sDatabase.RunQuery(err,
         "UPDATE character_"
         " SET"
-        "  corpRole = %" PRIu64 ","
-        "  rolesAtAll = %" PRIu64 ","
-        "  rolesAtBase = %" PRIu64 ","
-        "  rolesAtHQ = %" PRIu64 ","
-        "  rolesAtOther = %" PRIu64
+        "  corpRole = %" PRIi64 ","
+        "  corpAccountKey = %i,"
+        "  rolesAtAll = %" PRIi64 ","
+        "  rolesAtBase = %" PRIi64 ","
+        "  rolesAtHQ = %" PRIi64 ","
+        "  rolesAtOther = %" PRIi64
         " WHERE characterID = %u",
         data.corpRole,
+        data.corpAccountKey,
         data.rolesAtAll,
         data.rolesAtBase,
         data.rolesAtHQ,
@@ -1416,12 +1415,7 @@ bool InventoryDB::DeleteCharacter(uint32 characterID) {
 bool InventoryDB::GetCelestialObject(uint32 celestialID, CelestialObjectData &into) {
     DBQueryResult res;
 
-    if( IsUniverseCelestial( celestialID )
-        || IsStaticMapItem( celestialID )
-        || IsRegion( celestialID )
-        || IsConstellation( celestialID )
-        || IsSolarSystem( celestialID )
-        || IsStargate( celestialID ) )
+    if( IsStaticMapItem( celestialID ) )
     {
         // This Celestial object is a static celestial, so get its data from the 'mapDenormalize' table:
         if(!sDatabase.RunQuery(res,

@@ -144,7 +144,6 @@ CharacterData::CharacterData(   //uses v4
     uint32 _careerSpecialityID,
     uint64 _startDateTime,
     uint64 _createDateTime,
-    uint64 _corporationDateTime,
     uint32 _shipID)
 : accountID(_accountID),
   title(_title),
@@ -169,7 +168,6 @@ CharacterData::CharacterData(   //uses v4
   careerSpecialityID(_careerSpecialityID),
   startDateTime(_startDateTime),
   createDateTime(_createDateTime),
-  corporationDateTime(_corporationDateTime),
   shipID(_shipID)
 {
 }
@@ -282,12 +280,14 @@ void CharacterAppearance::Build(uint32 ownerID, PyDict* data)
  */
 CorpMemberInfo::CorpMemberInfo(
     uint32 _corpHQ,
-    uint64 _corpRole,
-    uint64 _rolesAtAll,
-    uint64 _rolesAtBase,
-    uint64 _rolesAtHQ,
-    uint64 _rolesAtOther)
+    int32 _corpAccountKey,
+    int64 _corpRole,
+    int64 _rolesAtAll,
+    int64 _rolesAtBase,
+    int64 _rolesAtHQ,
+    int64 _rolesAtOther)
 : corpHQ(_corpHQ),
+  corpAccountKey(_corpAccountKey),
   corpRole(_corpRole),
   rolesAtAll(_rolesAtAll),
   rolesAtBase(_rolesAtBase),
@@ -355,7 +355,6 @@ Character::Character(
   m_careerSpecialityID(_charData.careerSpecialityID),
   m_startDateTime(_charData.startDateTime),
   m_createDateTime(_charData.createDateTime),
-  m_corporationDateTime(_charData.corporationDateTime),
   m_shipID(_charData.shipID)
 {
     // allow characters to be only singletons
@@ -511,6 +510,7 @@ void Character::JoinCorporation(uint32 corporationID, const CorpMemberInfo &role
 	m_corporationID = corporationID;
 
 	m_corpRole = roles.corpRole;
+    m_corpAccountKey = roles.corpAccountKey;
     m_rolesAtAll = roles.rolesAtAll;
     m_rolesAtBase = roles.rolesAtBase;
     m_rolesAtHQ = roles.rolesAtHQ;
@@ -749,9 +749,7 @@ void Character::UpdateSkillQueue() {
 
                 currentTraining->SetAttribute(AttrSkillPoints, skillPointsTrained);
 
-                //  save cancelled skill training in history  -allan
-                // eventID:38 - SkillTrainingCanceled
-                SaveSkillHistory(38, EvilTimeNow().get_float(), itemID(), currentTraining->typeID(), level.get_int(), skillPointsTrained.get_float(), GetTotalSP().get_float() );
+                SaveSkillHistory(skillEventTrainingCancelled, EvilTimeNow().get_float(), itemID(), currentTraining->typeID(), level.get_int(), skillPointsTrained.get_float(), GetTotalSP().get_float() );
                 sLog.Error( "skillHistory", "training cancelled, skill: %u, level: %d", currentTraining->typeID(), level.get_int() );
             }
             currentTraining->SaveItem();        // Save changes to this skill before removing it from training:
@@ -802,9 +800,7 @@ void Character::UpdateSkillQueue() {
             currentTraining->MoveInto( *this, flagSkillInTraining );
             currentTraining->SetAttribute(AttrExpiryTime, timeTraining.get_float());
 
-            //  save start skill training in history  -allan
-            // eventID:36 - SkillTrainingStarted
-            SaveSkillHistory(36, EvilTimeNow().get_float(), itemID(), skillID, level.get_int(), CurrentSP.get_float(), GetTotalSP().get_float() );
+            SaveSkillHistory(skillEventTrainingStarted, EvilTimeNow().get_float(), itemID(), skillID, level.get_int(), CurrentSP.get_float(), GetTotalSP().get_float() );
             sLog.Warning( "skillHistory", "training started, skill: %u, level: %d", skillID, level.get_int() );
 
             currentTraining->SaveItem();
@@ -829,12 +825,10 @@ void Character::UpdateSkillQueue() {
             currentTraining->SetAttribute(AttrSkillLevel, level );
             currentTraining->SetAttribute(AttrSkillPoints, currentTraining->GetSPForLevel( level ), true);
 
-            //  save finished skill in history  -allan
-            // eventID:37 - SkillTrainingComplete
             uint32 skillID = m_skillQueue.front().typeID;
             EvilNumber completeTime = currentTraining->GetAttribute(AttrExpiryTime).get_float();
             if ( completeTime < 1 ) completeTime = EvilTimeNow();
-            SaveSkillHistory(37, completeTime.get_float(), itemID(), skillID, level.get_int(), currentTraining->GetAttribute(AttrSkillPoints).get_float(), GetTotalSP().get_float() );
+            SaveSkillHistory(skillEventTrainingComplete, completeTime.get_float(), itemID(), skillID, level.get_int(), currentTraining->GetAttribute(AttrSkillPoints).get_float(), GetTotalSP().get_float() );
             sLog.Success( "skillHistory", "training complete, skill: %u, level: %d", skillID, level.get_int() );
 
             if( c ) {
@@ -879,9 +873,7 @@ void Character::UpdateSkillQueue() {
             currentTraining->MoveInto( *this, flagSkillInTraining );
             currentTraining->SetAttribute(AttrExpiryTime, timeTraining.get_float());
 
-            //  save start skill training in history  -allan
-            // eventID:36 - SkillTrainingStarted
-            SaveSkillHistory(36, timeTraining.get_float(), itemID(), skillID, level.get_int(), CurrentSP.get_float(), GetTotalSP().get_float() );
+            SaveSkillHistory(skillEventTrainingStarted, timeTraining.get_float(), itemID(), skillID, level.get_int(), CurrentSP.get_float(), GetTotalSP().get_float() );
             sLog.Warning( "skillHistory", "persistant training started, skill: %u, level: %d", skillID, level.get_int() );
 
             if( c ) {
@@ -932,6 +924,7 @@ void Character::UpdateSkillQueueEndTime(const SkillQueue &queue) {
     }
     chrMinRemaining = chrMinRemaining * EvilTime_Minute + EvilTimeNow();
 
+    //TODO:  move this to char db file.
     DBerror err;
     if( !sDatabase.RunQuery( err, "UPDATE character_ SET skillQueueEndTime = %f WHERE characterID = %u ", chrMinRemaining.get_float(), itemID() ) ) {
         _log(DATABASE__ERROR, "Failed to set skillQueueEndTime for character %u: %s", itemID(), err.c_str());
@@ -1089,7 +1082,6 @@ void Character::SaveCharacter() {
             careerSpecialityID(),
             startDateTime(),
             createDateTime(),
-            corporationDateTime(),
             shipID()
         )
     );
@@ -1100,6 +1092,7 @@ void Character::SaveCharacter() {
         CorpMemberInfo(
             corporationHQ(),
             corpRole(),
+            corpAccountKey(),
             rolesAtAll(),
             rolesAtBase(),
             rolesAtHQ(),

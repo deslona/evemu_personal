@@ -42,7 +42,7 @@ PyObjectEx *AgentDB::GetAgents() {
         "    chr.gender,"
         "    bl.bloodlineID"
         " FROM agtAgents AS agt"
-        " LEFT JOIN characterStatic AS chr ON chr.characterID = agt.agentID"
+        " LEFT JOIN chrNPCCharacters AS chr ON chr.characterID = agt.agentID"
         " LEFT JOIN bloodlineTypes AS bl ON bl.bloodlineID = agt.agentTypeID"
     ))
     {
@@ -61,7 +61,7 @@ bool AgentDB::LoadAgentLocation(uint32 agentID, uint32 &locationID, uint32 &loca
         "   chr.solarSystemID, "
         "   itm.typeID "
         " FROM agtAgents AS agt"
-        " LEFT JOIN characterStatic AS chr ON chr.characterID = agt.agentID"
+        " LEFT JOIN chrNPCCharacters AS chr ON chr.characterID = agt.agentID"
         " LEFT JOIN invItems AS itm ON itm.itemID = agt.locationID"
         " WHERE agt.agentID=%d", agentID
     ))
@@ -110,14 +110,14 @@ AgentLevel *AgentDB::LoadAgentLevel(uint8 level)
     DBQueryResult res;
 
     if(!sDatabase.RunQuery(res,
-        "SELECT m.missionID,m.missionName,m.missionLevel,"
-        "    m.missionTypeID,t.missionTypeName,"
-        "    m.importantMission"
+        "SELECT"
+        "   m.missionID,m.missionName,m.missionLevel,"
+        "   m.missionTypeID,t.missionTypeName,"
+        "   m.importantMission"
         " FROM agtMissions AS m"
-        "    NATURAL JOIN agtMissionTypes AS t"
+        "  NATURAL JOIN agtMissionTypes AS t"
         " WHERE missionLevel=%d",
-        level
-    ))
+        level ))
     {
         codelog(SERVICE__ERROR, "Error in query: %s", res.error.c_str());
         delete result;

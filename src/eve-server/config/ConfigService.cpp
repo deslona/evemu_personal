@@ -65,7 +65,10 @@ PyResult ConfigService::Handle_GetMultiOwnersEx(PyCallArgs &call) {
 23:14:21 [SvcCall]       Tuple: 1 elements
 23:14:21 [SvcCall]         [ 0] List: 1 elements
 23:14:21 [SvcCall]         [ 0]   [ 0] Integer field: 140000053
-*/
+  sLog.Log( "ConfigService", "Handle_GetMultiOwnersEx" );
+  call.Dump(SERVICE__CALLS);
+  */
+
     Call_SingleIntList arg;
     if(!arg.Decode(&call.tuple)) {
         _log(SERVICE__ERROR, "Failed to decode arguments.");
@@ -95,6 +98,7 @@ PyResult ConfigService::Handle_GetMultiLocationsEx(PyCallArgs &call) {      // n
 23:23:57 [SvcCall]         [ 0] List: 2 elements
 23:23:57 [SvcCall]         [ 0]   [ 0] Integer field: 140000725
 23:23:57 [SvcCall]         [ 0]   [ 1] Integer field: 140001260
+
   sLog.Log( "ConfigService", "Handle_GetMultiLocationsEx" );
   call.Dump(SERVICE__CALLS);
 */
@@ -174,6 +178,9 @@ PyResult ConfigService::Handle_GetMapObjects(PyCallArgs &call) {
 }
 
 PyResult ConfigService::Handle_GetMultiInvTypesEx(PyCallArgs &call) {
+    sLog.Log( "ConfigService", "Handle_GetMultiInvTypesEx" );
+    call.Dump(SERVICE__CALLS);
+
     //parse the PyRep to get the list of IDs to query.
     Call_SingleIntList arg;
     if(!arg.Decode(&call.tuple)) {
@@ -218,7 +225,6 @@ PyResult ConfigService::Handle_GetStationSolarSystemsByOwner(PyCallArgs &call) {
 18:22:36 [SvcCallTrace]         Args:   [ 0] Value:   [ 0] List: 2 elements
 18:22:36 [SvcCallTrace]         Args:   [ 0] Value:   [ 0]   [ 0] Integer field: 1000084
 18:22:36 [SvcCallTrace]         Args:   [ 0] Value:   [ 0]   [ 1] Integer field: 30002279
-                        .......<snip>.....
 18:22:36 [SvcCallTrace]         Args:   [ 1] Key: String: 'RowClass'
 18:22:36 [SvcCallTrace]         Args:   [ 1] Value: Token: 'util.Row'
 18:22:36 [SvcCallTrace]         Args:   [ 2] Key: String: 'header'

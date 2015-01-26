@@ -130,6 +130,7 @@ CharMgrService::CharMgrService(PyServiceMgr *mgr)
     PyCallable_REG_CALL(CharMgrService, LogSettings);
     PyCallable_REG_CALL(CharMgrService, GetCharacterDescription);
     PyCallable_REG_CALL(CharMgrService, SetCharacterDescription);
+    PyCallable_REG_CALL(CharMgrService, GetPaperdollState);
     PyCallable_REG_CALL(CharMgrService, GetNote);
     PyCallable_REG_CALL(CharMgrService, SetNote);
     PyCallable_REG_CALL(CharMgrService, AddOwnerNote);
@@ -662,4 +663,9 @@ PyResult CharMgrService::Handle_GetImageServerLink( PyCallArgs& call )
 {
 	//  serverLink = sm.RemoteSvc('charMgr').GetImageServerLink()
   return NULL;
+}
+
+PyResult CharMgrService::Handle_GetPaperdollState( PyCallArgs& call )
+{
+    return new PyInt(paperdollStateNoRecustomization);
 }

@@ -182,7 +182,7 @@ PyRep *ObjCacheDB::Generate_CharNewExtraSpecialitySkills()
 PyRep *ObjCacheDB::Generate_CharNewExtraCareerSkills()
 {
     DBQueryResult res;
-    const char *q = "SELECT careerID, skillTypeID, level FROM careerSkills";
+    const char *q = "SELECT careerID, skillTypeID, level FROM sklCareerSkills";
     if (sDatabase.RunQuery(res, q) == false)
     {
         _log(SERVICE__ERROR, "Error in query for cached object 'charNewExtraCreationInfo.careerskills': %s", res.error.c_str());
@@ -194,7 +194,7 @@ PyRep *ObjCacheDB::Generate_CharNewExtraCareerSkills()
 PyRep *ObjCacheDB::Generate_CharNewExtraRaceSkills()
 {
     DBQueryResult res;
-    const char *q = "SELECT raceID, skillTypeID, levels FROM raceSkills";
+    const char *q = "SELECT raceID, skillTypeID, level FROM sklRaceSkills";
     if (sDatabase.RunQuery(res, q) == false)
     {
         _log(SERVICE__ERROR, "Error in query for cached object 'charNewExtraCreationInfo.raceSkills': %s", res.error.c_str());
@@ -420,9 +420,9 @@ PyRep *ObjCacheDB::Generate_BillTypes()
 }
 
 PyRep *ObjCacheDB::Generate_AllianceShortnames()
-{
+{   //TODO:  fix this when alliances are implemented (DB table will be 'crpAlliance')
     DBQueryResult res;
-    const char *q = "SELECT allianceID,shortName FROM alliance_ShortNames";
+    const char *q = "SELECT allianceID, allianceShortName FROM crpAlliance";
     if(!sDatabase.RunQuery(res, q))
     {
         _log(SERVICE__ERROR, "Error in query for cached object 'config.BulkData.alliance_ShortNames': %s",res.error.c_str());
@@ -458,7 +458,7 @@ PyRep *ObjCacheDB::Generate_invTypeReactions()
 PyRep *ObjCacheDB::Generate_dgmTypeAttribs()
 {
     DBQueryResult res;
-    const char *q = "SELECT    dgmTypeAttributes.typeID,    dgmTypeAttributes.attributeID,    IF(valueInt IS NULL, valueFloat, valueInt) AS value FROM dgmTypeAttributes";
+    const char *q = "SELECT typeID, attributeID, IF(valueInt IS NULL, valueFloat, valueInt) AS value FROM dgmTypeAttributes";
     if(!sDatabase.RunQuery(res, q))
     {
         _log(SERVICE__ERROR, "Error in query for cached object 'config.BulkData.dgmtypeattribs': %s",res.error.c_str());
@@ -530,7 +530,9 @@ PyRep *ObjCacheDB::Generate_ramActivities()
 PyRep *ObjCacheDB::Generate_ramALTypeGroup()
 {
     DBQueryResult res;
-    const char *q = "SELECT a.assemblyLineTypeID, b.activityID, a.groupID, a.timeMultiplier, a.materialMultiplier FROM ramAssemblyLineTypeDetailPerGroup AS a LEFT JOIN ramAssemblyLineTypes AS b ON a.assemblyLineTypeID = b.assemblyLineTypeID";
+    const char *q = "SELECT a.assemblyLineTypeID, b.activityID, a.groupID, a.timeMultiplier, a.materialMultiplier"
+                    " FROM ramAssemblyLineTypeDetailPerGroup AS a"
+                    " LEFT JOIN ramAssemblyLineTypes AS b USING (assemblyLineTypeID)";
     if(!sDatabase.RunQuery(res, q))
     {
         _log(SERVICE__ERROR, "Error in query for cached object 'config.BulkData.ramaltypesdetailpergroup': %s",res.error.c_str());
@@ -542,7 +544,9 @@ PyRep *ObjCacheDB::Generate_ramALTypeGroup()
 PyRep *ObjCacheDB::Generate_ramALTypeCategory()
 {
     DBQueryResult res;
-    const char *q = "SELECT a.assemblyLineTypeID, b.activityID, a.categoryID, a.timeMultiplier, a.materialMultiplier FROM ramAssemblyLineTypeDetailPerCategory AS a LEFT JOIN ramAssemblyLineTypes AS b ON a.assemblyLineTypeID = b.assemblyLineTypeID";
+    const char *q = "SELECT a.assemblyLineTypeID, b.activityID, a.categoryID, a.timeMultiplier, a.materialMultiplier"
+                    " FROM ramAssemblyLineTypeDetailPerCategory AS a"
+                    " LEFT JOIN ramAssemblyLineTypes AS b USING (assemblyLineTypeID)";
     if(!sDatabase.RunQuery(res, q))
     {
         _log(SERVICE__ERROR, "Error in query for cached object 'config.BulkData.ramaltypesdetailpercategory': %s",res.error.c_str());
@@ -659,32 +663,32 @@ PyRep *ObjCacheDB::Generate_invShipTypes()
     return DBResultToCRowset(res);
 }
 
-PyRep *ObjCacheDB::Generate_cacheLocations()  //  TODO  -allan
+PyRep *ObjCacheDB::Generate_cacheLocations()
 {
-  /**  need to generate the db table before we can generate the cache.
-  still need a way to update cache when location data is updated....update db with new 'location' item when created?
-
-       use this query to generate cacheLocations table...
-
-INSERT INTO `cacheLocations`(`locationID`, `locationName`, `x`, `y`, `z`)
-        SELECT
-           e.itemID,
-           e.itemName,
-           e.x, e.y, e.z
-         FROM entity AS e
-          LEFT JOIN invTypes AS t ON t.typeID = e.typeID
-          LEFT JOIN invGroups AS g ON g.groupID = t.groupID
-         WHERE g.categoryID IN (0, 2, 3, 6, 22, 23)
-         */
     DBQueryResult res;
-    //const char *q = "SELECT locationID, locationName, x, y, z FROM cacheLocations";
-    const char *q = "SELECT e.itemID, e.itemName, e.x, e.y, e.z FROM entity AS e"
-        "  LEFT JOIN invTypes AS t ON t.typeID = e.typeID"
-        "  LEFT JOIN invGroups AS g ON g.groupID = t.groupID"
-        " WHERE g.categoryID IN (0, 2, 3, 6, 22, 23)";
+    const char *q = "SELECT locationID, locationName, locationNameID, x, y, z FROM cacheLocations";
+    /*const char *q = "SELECT e.itemID AS locationID, e.itemName AS locationName, e.x, e.y, e.z, 0 AS locationNameID FROM entity AS e"
+        "  LEFT JOIN invTypes USING (typeID)"
+        "  LEFT JOIN invGroups AS g USING (groupID)"
+        " WHERE g.categoryID IN (0, 2, 3, 6, 22, 23)";*/  // not sure if these are right.
     if(!sDatabase.RunQuery(res, q))
     {
         _log(SERVICE__ERROR, "Error in query for cached object 'config.BulkData.locations': %s", res.error.c_str());
+        return NULL;
+    }
+    return DBResultToCRowset(res);
+}
+
+PyRep *ObjCacheDB::Generate_cacheOwners()  //  FIXME   add gender checks  -allan
+{
+    DBQueryResult res;
+    //const char *q = "SELECT ownerID, ownerName, typeID, gender, ownerNameID FROM cacheOwners";
+    const char *q = "SELECT e.itemID AS ownerID, e.itemName AS ownerName, e.typeID, 0 AS gender, 0 AS ownerNameID FROM entity AS e"
+    "  LEFT JOIN invTypes USING (typeID)"
+    " WHERE invTypes.groupID IN ( 1, 2, 19, 32 )";      //char, corp, faction, alliance
+    if(!sDatabase.RunQuery(res, q))
+    {
+        _log(SERVICE__ERROR, "Error in query for cached object 'config.BulkData.owners': %s", res.error.c_str());
         return NULL;
     }
     return DBResultToCRowset(res);
@@ -781,37 +785,6 @@ PyRep *ObjCacheDB::Generate_eveBulkDataUnits()
     if(!sDatabase.RunQuery(res, q))
     {
         _log(SERVICE__ERROR, "Error in query for cached object 'config.BulkData.units': %s", res.error.c_str());
-        return NULL;
-    }
-    return DBResultToCRowset(res);
-}
-
-PyRep *ObjCacheDB::Generate_cacheOwners()  //  TODO  -allan
-{
-  /**  still need a way to update cache when owner data is updated....update db with new 'owner' item when created?
-
-       use this query to generate cacheOwners table...
-
-INSERT INTO cacheOwners(ownerID, ownerName, `typeID`)
-        SELECT
-           e.itemID,
-           e.itemName,
-           e.typeID
-         FROM entity AS e
-          LEFT JOIN invTypes AS t ON t.typeID = e.typeID
-          LEFT JOIN invGroups AS g ON g.groupID = t.groupID
-         WHERE g.categoryID IN (0, 1, 11 )
-         */
-
-    DBQueryResult res;
-    //const char *q = "SELECT ownerID, ownerName, typeID FROM cacheOwners";
-    const char *q = "SELECT e.itemID, e.itemName, e.typeID FROM entity AS e"
-         "  LEFT JOIN invTypes AS t ON t.typeID = e.typeID"
-         "  LEFT JOIN invGroups AS g ON g.groupID = t.groupID"
-         " WHERE g.categoryID IN (0, 1, 11 )";
-    if(!sDatabase.RunQuery(res, q))
-    {
-        _log(SERVICE__ERROR, "Error in query for cached object 'config.BulkData.owners': %s", res.error.c_str());
         return NULL;
     }
     return DBResultToCRowset(res);
@@ -928,7 +901,8 @@ PyRep *ObjCacheDB::Generate_c_chrAncestries()
 PyRep *ObjCacheDB::Generate_c_chrSchools()
 {
     DBQueryResult res;
-    const char *q = "SELECT raceID, schoolID, schoolName, description, graphicID, chrSchools.corporationID, chrSchools.agentID, newAgentID, iconID, schoolNameID, descriptionID FROM chrSchools LEFT JOIN agtAgents USING (corporationID) GROUP BY schoolID";
+    const char *q = "SELECT raceID, schoolID, schoolName, description, graphicID, chrSchools.corporationID, chrSchools.agentID, newAgentID, iconID, schoolNameID, descriptionID"
+                    " FROM chrSchools LEFT JOIN agtAgents USING (corporationID) GROUP BY schoolID";
     if(!sDatabase.RunQuery(res, q))
     {
         _log(SERVICE__ERROR, "Error in query for cached object 'charCreationInfo.schools': %s", res.error.c_str());
