@@ -54,12 +54,14 @@ AccountService::~AccountService() {
 
 PyResult AccountService::Handle_GetCashBalance(PyCallArgs &call) {
     //corrected, updated, optimized     -allan 26jan15
-    
+
     bool isCorp = false;
-    if (call.tuple->GetItem(0)->IsBool())
-        isCorp = call.tuple->GetItem(0)->AsBool()->value();
-    else if (call.tuple->GetItem(0)->IsInt())
-        isCorp = call.tuple->GetItem(0)->AsInt()->value();
+    if (call.tuple->size() > 0) {
+        if (call.tuple->GetItem(0)->IsBool())
+            isCorp = call.tuple->GetItem(0)->AsBool()->value();
+        else if (call.tuple->GetItem(0)->IsInt())
+            isCorp = call.tuple->GetItem(0)->AsInt()->value();
+    }
 
     double balance = 0;
     if (isCorp) {
@@ -76,11 +78,6 @@ PyResult AccountService::Handle_GetCashBalance(PyCallArgs &call) {
 
     return new PyFloat(balance);
 }
-
-//givecash takes (ownerID, retval['qty'], retval['reason'][:40])
-//GiveCashFromCorpAccount(ownerID, retval['qty'], retval['reason'][:40])
-// notify OnAccountChange:
-//         accountKey: 'cash', ownerID: charID or corpID, new balance
 
 PyResult AccountService::Handle_GetEntryTypes(PyCallArgs &call) {
     PyRep *result = NULL;
@@ -336,7 +333,20 @@ PyResult AccountService::Handle_GetJournal(PyCallArgs &call) {
     );
 }
 
+//givecash takes (ownerID, retval['qty'], retval['reason'][:40])
+//GiveCashFromCorpAccount(ownerID, retval['qty'], retval['reason'][:40])
+// notify OnAccountChange:
+//         accountKey: 'cash', ownerID: charID or corpID, new balance
+
 PyResult AccountService::Handle_GiveCashFromCorpAccount(PyCallArgs &call) { //TODO:  fix corpAccountKey
+    /*[00m18:58:35 [SvcCall] Service account: calling GiveCashFromCorpAccount
+     * 18:58:35 [PacketError] Decode Call_GiveCorpCash failed: tuple0 is the wrong size: expected 4, but got 3
+     * 18:58:35 [ClientError] Handle_GiveCashFromCorpAccount(/usr/local/src/eve/evemu_personal/src/eve-server/account/AccountService.cpp:347): Invalid arguments
+     */
+
+    sLog.Log( "AccountService::Handle_GiveCashFromCorpAccount()", "size=%u", call.tuple->size());
+    call.Dump(SERVICE__CALLS);
+
     Call_GiveCorpCash args;
     if(!args.Decode(&call.tuple)) {
         codelog(CLIENT__ERROR, "Invalid arguments");
