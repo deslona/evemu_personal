@@ -963,7 +963,8 @@ PyResult CorpRegistryBound::Handle_UpdateLogo(PyCallArgs &call) {
     notif.key = call.client->GetCorporationID();
     notif.data = new PyDict();
 
-    double corp_orig = m_db.GetCorpBalance(notif.key);
+    uint16 accountKey = accountingKeyCash;  //FIXME  get proper corp wallet division
+    double corp_orig = m_db.GetCorpBalance(notif.key, accountKey);
     if( corp_orig < logo_change )
     {
         _log( SERVICE__ERROR, "%s: Cannot afford corporation logo change costs!", call.client->GetName() );
@@ -992,7 +993,7 @@ PyResult CorpRegistryBound::Handle_UpdateLogo(PyCallArgs &call) {
         return new PyNone;
     }
 
-    double corp_new = m_db.GetCorpBalance(notif.key);
+    double corp_new = m_db.GetCorpBalance(notif.key, accountKey);
 
     //record the transaction in the journal.
     if(!m_db.GiveCash(

@@ -51,9 +51,9 @@ bool Agent::Load(AgentDB *from) {
 PyRep* Agent::GetLocation() {
     PyDict *res = new PyDict();
 
-    res->SetItem("locationID", new PyInt(m_locationID) );
-    res->SetItem("typeID", new PyInt(m_locationType) );
-    res->SetItem("solarsystemID", new PyInt(m_solarSystemID) );
+    res->SetItemString("locationID", new PyInt(m_locationID) );
+    res->SetItemString("typeID", new PyInt(m_locationType) );
+    res->SetItemString("solarsystemID", new PyInt(m_solarSystemID) );
 
     return res;
 }

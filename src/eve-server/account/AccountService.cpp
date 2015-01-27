@@ -21,6 +21,7 @@
     http://www.gnu.org/copyleft/lesser.txt.
     ------------------------------------------------------------------------------------
     Author:        Zhur
+    Updates:        Allan
 */
 
 #include "eve-server.h"
@@ -51,68 +52,29 @@ AccountService::~AccountService() {
     delete m_dispatch;
 }
 
-//16:37:51 L AccountService::Handle_GetCashBalance(): size= 1, 0=Integer - for corp wallet
-//02:40:18 L AccountService::Handle_GetCashBalance(): size= 1, 0=Boolean  - for char wallet
 PyResult AccountService::Handle_GetCashBalance(PyCallArgs &call) {
-  /*
-22:47:15 L AccountService::Handle_GetCashBalance(): size= 2
-22:47:15 [SvcCall]   Call Arguments:
-22:47:15 [SvcCall]       Tuple: 2 elements
-22:47:15 [SvcCall]         [ 0] Integer field: 1
-22:47:15 [SvcCall]         [ 1] Integer field: 1000
-e
-03:29:00 L AccountService::Handle_GetCashBalance(): size= 1
-03:29:00 [SvcCall]   Call Arguments:
-03:29:00 [SvcCall]       Tuple: 1 elements
-03:29:00 [SvcCall]         [ 0] Integer field: 0
+    //corrected, updated, optimized     -allan 26jan15
+    
+    bool isCorp = false;
+    if (call.tuple->GetItem(0)->IsBool())
+        isCorp = call.tuple->GetItem(0)->AsBool()->value();
+    else if (call.tuple->GetItem(0)->IsInt())
+        isCorp = call.tuple->GetItem(0)->AsInt()->value();
 
-03:29:00 L AccountService::Handle_GetCashBalance(): size= 0
-03:29:00 [SvcCall]   Call Arguments:
-03:29:00 [SvcCall]       Tuple: Empty
-  sLog.Log( "AccountService::Handle_GetCashBalance()", "size= %u", call.tuple->size() );
-  call.Dump(SERVICE__CALLS);
-*/
-    const int32 ACCOUNT_KEY_AURUM = 1200;
-
-    bool hasAccountKey = false;
-    int32 accountKey = 0;
-    if (call.byname.find("accountKey") != call.byname.end()) {
-        hasAccountKey = true;
-        accountKey = call.byname.find("accountKey")->second->AsInt()->value();
-    }
-
-    if (call.tuple->size() == 1) {
-        Call_SingleArg args;
-        if(!args.Decode(&call.tuple)) {
-            args.arg = new PyInt(0);
-        }
-
-        //we can get an integer or a boolean right now...
-        bool corporate_wallet = false;
-
-        if( args.arg->IsInt() )
-            corporate_wallet = ( args.arg->AsInt()->value() != 0 );
-        else if( args.arg->IsBool() )
-            corporate_wallet = args.arg->AsBool()->value();
-        else {
-            codelog(CLIENT__ERROR, "Invalid arguments");
-            return NULL;
-        }
-
-        if(corporate_wallet)
-            //corporate wallet
-            return new PyFloat( m_db.GetCorpBalance( call.client->GetCorporationID() ) );
+    double balance = 0;
+    if (isCorp) {
+        int16 accountKey = accountingKeyCash;
+        if (call.tuple->size() > 1)
+            accountKey = call.tuple->GetItem(1)->AsInt()->value();
+        balance = m_db.GetCorpBalance( call.client->GetCorporationID(), accountKey );
+    } else {
+        if (call.byname.find("accountKey") != call.byname.end())
+            balance = call.client->GetChar().get()->aurBalance();
         else
-            //personal wallet
-            return new PyFloat( call.client->GetBalance() );
-    } else if (hasAccountKey && accountKey == ACCOUNT_KEY_AURUM) {
-        return new PyFloat(call.client->GetAurBalance());
-    } else if (call.tuple->size() > 1) {
-         sLog.Log( "AccountService::Handle_GetCashBalance() size > 1", "size= %u", call.tuple->size() );
+            balance = call.client->GetChar().get()->balance();
     }
 
-	// FAILSAFE:
-	return new PyNone();
+    return new PyFloat(balance);
 }
 
 //givecash takes (ownerID, retval['qty'], retval['reason'][:40])
@@ -214,7 +176,8 @@ PyTuple * AccountService::GiveCashToCorp(Client * const client, uint32 corpID, d
         return NULL;
     }
 
-    double cnb = m_db.GetCorpBalance(corpID);
+    uint16 accountKey = accountingKeyCash;  //FIXME  get proper corp wallet division
+    double cnb = m_db.GetCorpBalance(corpID, accountKey);
 
     // Send notification about the cash change
     OnAccountChange oac;
@@ -382,7 +345,9 @@ PyResult AccountService::Handle_GiveCashFromCorpAccount(PyCallArgs &call) { //TO
 
     if(args.amount == 0) return NULL;
 
-    if(args.amount < 0 || args.amount > m_db.GetCorpBalance(call.client->GetCorporationID())) {
+    uint16 accountKey = accountingKeyCash;  //FIXME  get proper corp wallet division
+
+    if(args.amount < 0 || args.amount > m_db.GetCorpBalance(call.client->GetCorporationID(), accountKey)) {
         _log(CLIENT__ERROR, "%s: Invalid amount in GiveCashFromCorpAccount(): %.2f", call.client->GetName(), args.amount);
         call.client->SendErrorMsg("Invalid amount '%.2f'", args.amount);
         return NULL;
@@ -419,7 +384,9 @@ PyTuple * AccountService::WithdrawCashToChar(Client * const client, Client * con
         return NULL;
     }
 
-    double ncb = m_db.GetCorpBalance(corpID);
+    uint16 accountKey = accountingKeyCash;  //FIXME  get proper corp wallet division
+
+    double ncb = m_db.GetCorpBalance(corpID, accountKey);
 
     // Send notification about the cash change
     OnAccountChange oac;

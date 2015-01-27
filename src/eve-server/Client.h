@@ -143,12 +143,12 @@ public:
     double y() const                                { return GetPosition().y; }    //this is terribly inefficient.
     double z() const                                { return GetPosition().z; }    //this is terribly inefficient.
 
-    uint32 GetAllianceID() const                    { return GetChar() ? GetChar()->allianceID() : 0; }
-    uint32 GetWarFactionID() const                  { return GetChar() ? GetChar()->warFactionID() : 0; }
-    double GetBounty() const                        { return GetChar() ? GetChar()->bounty() : 0.0; }
-    double GetSecurityRating() const                { return GetChar() ? GetChar()->securityRating() : 0.0; }
-    double GetBalance() const                       { return GetChar() ? GetChar()->balance() : 0.0; }
-    double GetAurBalance() const                    { return GetChar() ? GetChar()->aurBalance() : 0.0; }
+    uint32 GetAllianceID() const                    { return GetChar()->allianceID(); }
+    uint32 GetWarFactionID() const                  { return GetChar()->warFactionID(); }
+    double GetBounty() const                        { return GetChar()->bounty(); }
+    double GetSecurityRating() const                { return GetChar()->securityRating(); }
+    double GetBalance() const                       { return GetChar()->balance(); }
+    double GetAurBalance() const                    { return GetChar()->aurBalance(); }
 
     std::string GetSystemName() const               { return(m_systemName); }
 

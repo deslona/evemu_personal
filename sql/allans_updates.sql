@@ -264,7 +264,7 @@ ALTER TABLE `corporation` ADD `allianceMemberStartDate` BIGINT(20) NOT NULL DEFA
 
 ALTER TABLE `character_` ADD `paperDollState` TINYINT(2) NOT NULL DEFAULT '0' ;
 ALTER TABLE `character_` ADD `corpAccountKey` SMALLINT(4) NOT NULL DEFAULT '0' AFTER `corporationID`;
-ALTER TABLE corporation AUTO_INCREMENT=2000000;
+ALTER TABLE corporation AUTO_INCREMENT=1001000;
 ALTER TABLE entity AUTO_INCREMENT=100000000;
 
 ALTER TABLE `market_orders` CHANGE `range` `orderRange` INT(10) UNSIGNED NOT NULL DEFAULT '0';

@@ -76,7 +76,7 @@ public:
 
     //these really want to move back into AccountDB
     bool GiveCash( uint32 characterID, JournalRefType refTypeID, uint32 ownerFromID, uint32 ownerToID, const char *argID1, uint32 accountID, EVEAccountKeys accountKey, double amount, double balance, const char *reason);
-    double GetCorpBalance(uint32 corpID);
+    double GetCorpBalance(uint32 corpID, uint16 accountKey);
     bool AddBalanceToCorp(uint32 corpID, double amount);
 
     void SetServerOnlineStatus(bool online);

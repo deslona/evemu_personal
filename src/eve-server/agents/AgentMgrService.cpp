@@ -306,13 +306,13 @@ PyResult AgentMgrBound::Handle_GetMissionBriefingInfo(PyCallArgs &call) {
     call.Dump(SERVICE__CALLS);
     PyDict *res = new PyDict();
 
-    res->SetItem("ContentID", new PyInt(123) ) ;
-    res->SetItem("Mission Keywords", new PyString("Mission Keywords"));
-    res->SetItem("Mission Title ID", new PyString("Mission Title ID") );
-    res->SetItem("Mission Briefing ID", new PyString("Mission Briefing ID") );
-    res->SetItem("Decline Time", new PyFloat( Win32TimeNow() + Win32Time_Hour ) );
-    res->SetItem("Expiration Time", new PyFloat( Win32TimeNow()+Win32Time_Day ) );
-    res->SetItem("Mission Image", new PyString("MissionImage") );
+    res->SetItemString("ContentID", new PyInt(123) ) ;
+    res->SetItemString("Mission Keywords", new PyString("Mission Keywords"));
+    res->SetItemString("Mission Title ID", new PyString("Mission Title ID") );
+    res->SetItemString("Mission Briefing ID", new PyString("Mission Briefing ID") );
+    res->SetItemString("Decline Time", new PyFloat( Win32TimeNow() + Win32Time_Hour ) );
+    res->SetItemString("Expiration Time", new PyFloat( Win32TimeNow()+Win32Time_Day ) );
+    res->SetItemString("Mission Image", new PyString("MissionImage") );
 
     return res;
 }

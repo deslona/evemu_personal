@@ -28,6 +28,7 @@
 #include "ServiceDB.h"
 
 class PyObject;
+class PyRep;
 
 class AccountDB : public ServiceDB
 {
@@ -35,7 +36,7 @@ public:
     PyObject *GetEntryTypes();
     PyObject *GetKeyMap();
     PyObject *GetJournal(uint32 charID, uint32 refTypeID, uint32 accountKey, uint64 transDate);//mandela
-    PyObject *GetWalletDivisionsInfo(uint32 corpID);
+    PyRep *GetWalletDivisionsInfo(uint32 corpID);
 
     bool CheckIfCorporation(uint32 corpID);
 };

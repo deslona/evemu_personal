@@ -74,7 +74,7 @@ PyObject *AccountDB::GetJournal(uint32 charID, uint32 refTypeID, uint32 accountK
     return DBResultToRowset(res);
 }
 
-PyObject *AccountDB::GetWalletDivisionsInfo(uint32 corpID) {
+PyRep *AccountDB::GetWalletDivisionsInfo(uint32 corpID) {
     DBQueryResult res;
 
     if (!sDatabase.RunQuery(res,
@@ -87,7 +87,14 @@ PyObject *AccountDB::GetWalletDivisionsInfo(uint32 corpID) {
         return false;
     }
 
-    return DBResultToRowset(res);
+    DBResultRow row;
+    res.GetRow(row);
+/*
+    PyDict *dict = new PyDict();
+    for (uint8 i=0; i<7; i++)
+        dict->SetItem(new PyInt(1000+i),new PyString(row.GetText(i)));
+*/
+    return DBRowToKeyVal(row);
 }
 
 //////////////////////////////////
@@ -145,14 +152,15 @@ bool ServiceDB::AddBalanceToCorp(uint32 corpID, double amount) {
     return true;
 }
 
-double ServiceDB::GetCorpBalance(uint32 corpID) {
+double ServiceDB::GetCorpBalance(uint32 corpID, uint16 accountKey) {
     DBQueryResult res;
-    DBResultRow row;
     if (!sDatabase.RunQuery(res, "SELECT balance FROM corporation WHERE corporationID = %u ", corpID))
     {
         sLog.Error("Service DB", "Error in query: %s", res.error.c_str());
         return 0.0;
     }
+
+    DBResultRow row;
     if (!res.GetRow(row))
     {
         sLog.Error("Service DB", "Corporation %u missing from database.", corpID);

@@ -272,7 +272,8 @@ PyResult CorpStationMgrIMBound::Handle_RentOffice(PyCallArgs &call) {
     uint32 location = call.client->GetLocationID();
 
     // check if the corp has enough money
-    double corpBalance = m_db.GetCorpBalance(call.client->GetCorporationID());
+    uint16 accountKey = accountingKeyCash;  //FIXME  get proper corp wallet division
+    double corpBalance = m_db.GetCorpBalance(call.client->GetCorporationID(), accountKey);
     if (corpBalance < arg.arg) {
         _log(SERVICE__ERROR, "%s: Corp doesn't have enough money to rent an office.", call.client->GetName());
         return (new PyInt(0));

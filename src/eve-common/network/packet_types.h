@@ -1992,6 +1992,8 @@ typedef enum {
  */
 
 //  defines based on itemID, per client
+#define maxNonCapitalModuleSize 500
+
 #define minEveMarketGroup       0
 #define maxEveMarketGroup       350000
 #define minDustMarketGroup      350001
@@ -1999,8 +2001,8 @@ typedef enum {
 #define minFaction              500000
 #define maxFaction              599999
 #define minNPCCorporation       1000000
-#define maxNPCCorporation       1999999
-#define maxNonCapitalModuleSize 500
+#define maxNPCCorporation       1000999
+#define maxCorporation          1999999
 #define minAgent                3000000
 #define maxAgent                3999999
 #define minRegion               10000000
@@ -2021,7 +2023,10 @@ typedef enum {
 #define maxStation              69999999
 #define minUniverseAsteroid     70000000
 #define maxUniverseAsteroid     79999999
+#define minAlliance             99000000
+#define maxAlliance             99900000
 #define minPlayerItem           100000000
+#define maxEveItem              2147483647
 
 #define EVEMU_MINIMUM_ID minPlayerItem
 #define EVEMU_MINIMUM_ENTITY_ID 90000000
@@ -2035,16 +2040,16 @@ typedef enum {
  */
 
 #define IsCorp(itemID) \
-((itemID >= 1000000) && (itemID < 2500000))
+((itemID >= minNPCCorporation) && (itemID <= maxCorporation))
 
 #define IsNPCCorp(itemID) \
-((itemID >= 1000000) && (itemID < 2000000))
+((itemID >= minNPCCorporation) && (itemID < maxNPCCorporation))
 
 #define IsPlayerCorp(itemID) \
-((itemID >= 2000000) && (itemID < 2500000))
+((itemID >= maxNPCCorporation) && (itemID < maxCorporation))
 
 #define IsAlliance(itemID) \
-((itemID >= 2500000) && (itemID < 3000000))
+((itemID >= minAlliance) && (itemID < maxAlliance))
 
 #define IsAgent(itemID) \
 ((itemID >= 3008416) && (itemID < 3020000))
